@@ -1,0 +1,47 @@
+go-camo
+=======
+
+## About
+
+Experimental Go version of [Camo][1] server.
+
+## Building
+
+    $ git clone https://github.com/cactus/go-camo.git
+    $ cd go-camo
+    $ export GOPATH=$(pwd)
+    $ go install go-camo
+
+## Running
+
+    $ $GOPATH/bin/go-camo -configFile=config.json
+
+## Configuring
+
+    $ cat config.json
+    {
+        "HmacKey": "Some long string here...",
+        "Allowlist": [],
+        "Denylist": [
+            "^10\\.",
+            "^169\\.254",
+            "^192\\.168",
+            "^172\\.(?:(?:1[6-9])|(?:2[0-9])|(?:3[0-1]))",
+            "^(?:.*\\.)?example\\.(?:com|org|net)$"
+        ]
+    }
+
+    *   `HmacKey` is a secret key seed to the HMAC used for signing and
+        validation.
+    *   `Allowlist` is a list of host matches to always allow.
+    *   `Denylist` is a list of host matches to reject.
+
+    If a Allowlist is defined, and a request does not match the host regex,
+    then the request is denied. Default is all requests pass the Allowlist if
+    none is specified.
+
+    Denylist entries are matched after Allowlist, so they take precedence.
+    Even if a request would be allowed by a Allowlist, a Denylist match would
+    deny it.
+
+[1]: https://github.com/atmos/camo
