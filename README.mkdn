@@ -18,6 +18,12 @@ Experimental Go version of [Camo][1] server.
 
 ## Configuring
 
+    $ $GOPATH/bin/go-camo -h
+    Usage of go-camo:
+      -bindAddress="0.0.0.0:8080": Address:Port to bind to
+      -configFile="": JSON Config File
+      -hmacKey="": HMAC Key
+    
     $ cat config.json
     {
         "HmacKey": "Some long string here...",
@@ -43,5 +49,8 @@ none is specified.
 Denylist entries are matched after Allowlist, so they take precedence.
 Even if a request would be allowed by a Allowlist, a Denylist match would
 deny it.
+
+Option flags, if provided, override those in the config file (mostly just the
+hmac key).
 
 [1]: https://github.com/atmos/camo
