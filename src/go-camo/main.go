@@ -181,6 +181,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 var hmacKeyFlag = flag.String("hmacKey", "", "HMAC Key")
 var configFileFlag = flag.String("configFile", "", "JSON Config File")
+var bindAddress = flag.String("bindAddress", "0.0.0.0:8080", "Address:Port to bind to")
 
 type configParams struct {
 	HmacKey string
@@ -249,7 +250,8 @@ func main() {
 
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.Handle("/", proxy)
-	err = http.ListenAndServe("127.0.0.1:8080", nil)
+	log.Println("Starting server on", *bindAddress)
+	err = http.ListenAndServe(*bindAddress, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err.Error())
 	}
