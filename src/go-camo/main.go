@@ -1,29 +1,29 @@
 package main
 
 import (
-	"io"
-	"log"
-	"flag"
-	"errors"
-	"time"
-	"io/ioutil"
-	"net"
-	"net/url"
-	"net/http"
-	"strings"
-	"regexp"
-	"runtime"
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
+	"flag"
+	"io"
+	"io/ioutil"
+	"log"
+	"net"
+	"net/http"
+	"net/url"
+	"regexp"
+	"runtime"
+	"strings"
+	"time"
 )
 
 var validReqHeaders = map[string]bool{
-	"Accept": true,
-	"Accept-Charset": true,
-	"Accept-Encoding": true,
-	"Cache-Control": true,
+	"Accept":            true,
+	"Accept-Charset":    true,
+	"Accept-Encoding":   true,
+	"Cache-Control":     true,
 	"If-Modified_Since": true,
 }
 
@@ -57,12 +57,11 @@ func validateURL(path string, key []byte) (surl string, valid bool) {
 	return
 }
 
-
-type ProxyHandler struct{
-	Transport *http.Transport
-	HMacKey []byte
+type ProxyHandler struct {
+	Transport       *http.Transport
+	HMacKey         []byte
 	RegexpAllowlist []*regexp.Regexp
-	RegexpDenylist []*regexp.Regexp
+	RegexpDenylist  []*regexp.Regexp
 }
 
 func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -184,9 +183,9 @@ var configFileFlag = flag.String("configFile", "", "JSON Config File")
 var bindAddress = flag.String("bindAddress", "0.0.0.0:8080", "Address:Port to bind to")
 
 type configParams struct {
-	HmacKey string
+	HmacKey   string
 	Allowlist []string
-	Denylist []string
+	Denylist  []string
 }
 
 func main() {
@@ -225,7 +224,7 @@ func main() {
 		}}
 	proxy := &ProxyHandler{
 		Transport: tr,
-		HMacKey: []byte(config.HmacKey)}
+		HMacKey:   []byte(config.HmacKey)}
 
 	// build/compile regex
 	proxy.RegexpAllowlist = make([]*regexp.Regexp, 0)
@@ -233,14 +232,14 @@ func main() {
 
 	var c *regexp.Regexp
 	var err error
-	for _,v := range config.Denylist {
+	for _, v := range config.Denylist {
 		c, err = regexp.Compile(v)
 		if err != nil {
 			log.Fatal(err)
 		}
 		proxy.RegexpDenylist = append(proxy.RegexpDenylist, c)
 	}
-	for _,v := range config.Allowlist {
+	for _, v := range config.Allowlist {
 		c, err = regexp.Compile(v)
 		if err != nil {
 			log.Fatal(err)
