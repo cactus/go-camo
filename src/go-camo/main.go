@@ -94,8 +94,9 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// if Allowlist is set, require match
-	matchFound := false
+	matchFound := true
 	if len(p.RegexpAllowlist) > 0 {
+		matchFound = false
 		for _, rgx := range p.RegexpAllowlist {
 			if rgx.MatchString(u.Host) {
 				matchFound = true
