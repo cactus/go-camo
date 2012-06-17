@@ -64,7 +64,7 @@ type ProxyHandler struct {
 	HMacKey         []byte
 	RegexpAllowlist []*regexp.Regexp
 	RegexpDenylist  []*regexp.Regexp
-	MaxSize			int64
+	MaxSize         int64
 }
 
 func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -174,7 +174,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		if !ok || ct[0][:6] != "image/" {
 			log.Println("Non-Image content-type returned", u)
 			http.Error(w, "Non-Image content-type returned",
-					   http.StatusBadRequest)
+				http.StatusBadRequest)
 			return
 		}
 	}
