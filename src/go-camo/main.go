@@ -64,6 +64,7 @@ type ProxyHandler struct {
 	HMacKey         []byte
 	RegexpAllowlist []*regexp.Regexp
 	RegexpDenylist  []*regexp.Regexp
+	MaxSize			int64
 }
 
 func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -148,23 +149,28 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	defer resp.Body.Close()
 
 	// check for too large a response
-	if resp.ContentLength > 5242880 {
-		log.Println("Content length exceeded")
+	if resp.ContentLength > p.MaxSize {
+		log.Println("Content length exceeded", surl)
 		http.Error(w, "Content length exceeded", http.StatusBadRequest)
 		return
 	}
 
-	// check for redirects. we do not follow.
-	if resp.StatusCode >= 300 && resp.StatusCode <= 303 {
+	switch resp.StatusCode {
+	case 300:
+		log.Println("Multiple choices not supported")
+		http.Error(w, "Multiple choices not supported", http.StatusNotFound)
+		return
+	case 301, 302, 303:
+		// check for redirects. we do not follow.
 		log.Println("Refusing to follow redirects")
 		http.Error(w, "Refusing to follow redirects", http.StatusNotFound)
 		return
-	}
-
-	// check content type
-	ct, ok := resp.Header[http.CanonicalHeaderKey("content-type")]
-	// if not a 200, then we will just pass it along
-	if resp.StatusCode == 200 {
+	case 404:
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	case 200:
+		// check content type
+		ct, ok := resp.Header[http.CanonicalHeaderKey("content-type")]
 		if !ok || ct[0][:6] != "image/" {
 			log.Println("Non-Image content-type returned", u)
 			http.Error(w, "Non-Image content-type returned",
@@ -177,11 +183,14 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		h := w.Header()
 		h[hdr] = val
 	}
+
 	h := w.Header()
 	h.Add("X-Content-Type-Options", "nosniff")
+	if resp.StatusCode == 304 && h.Get("Content-Type") != "" {
+		h.Del("Content-Type")
+	}
 
 	w.WriteHeader(resp.StatusCode)
-
 	io.Copy(w, resp.Body)
 	//log.Println(req, resp.StatusCode)
 }
@@ -189,11 +198,13 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 var hmacKeyFlag = flag.String("hmacKey", "", "HMAC Key")
 var configFileFlag = flag.String("configFile", "", "JSON Config File")
 var bindAddress = flag.String("bindAddress", "0.0.0.0:8080", "Address:Port to bind to")
+var maxSize = flag.Int64("maxSize", 5120, "Max size in KB to allow")
 
 type configParams struct {
 	HmacKey   string
 	Allowlist []string
 	Denylist  []string
+	MaxSize   int64
 }
 
 func main() {
@@ -216,7 +227,9 @@ func main() {
 	if *hmacKeyFlag != "" {
 		config.HmacKey = *hmacKeyFlag
 	}
-	//log.Println("Config", config.HmacKey, config.Allowlist, config.Denylist)
+	if config.MaxSize == 0 {
+		config.MaxSize = *maxSize
+	}
 
 	tr := &http.Transport{
 		Dial: func(netw, addr string) (net.Conn, error) {
@@ -239,7 +252,8 @@ func main() {
 
 	proxy := &ProxyHandler{
 		Transport: tr,
-		HMacKey:   []byte(config.HmacKey)}
+		HMacKey:   []byte(config.HmacKey),
+		MaxSize:   config.MaxSize * 1024}
 
 	// build/compile regex
 	proxy.RegexpAllowlist = make([]*regexp.Regexp, 0)
