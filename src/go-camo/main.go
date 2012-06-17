@@ -23,8 +23,10 @@ var validReqHeaders = map[string]bool{
 	"Accept":            true,
 	"Accept-Charset":    true,
 	"Accept-Encoding":   true,
+	"Accept-Language":   true,
 	"Cache-Control":     true,
-	"If-Modified_Since": true,
+	"If-None-Match":     true,
+	"If-Modified-Since": true,
 }
 
 func noRedirect(req *http.Request, via []*http.Request) error {
@@ -144,7 +146,6 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	defer resp.Body.Close()
-	defer p.Transport.CloseIdleConnections()
 
 	// check for too large a response
 	if resp.ContentLength > 5242880 {
@@ -154,7 +155,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// check for redirects. we do not follow.
-	if resp.StatusCode >= 300 && resp.StatusCode <= 307 {
+	if resp.StatusCode >= 300 && resp.StatusCode <= 303 {
 		log.Println("Refusing to follow redirects")
 		http.Error(w, "Refusing to follow redirects", http.StatusNotFound)
 		return
@@ -162,10 +163,14 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// check content type
 	ct, ok := resp.Header[http.CanonicalHeaderKey("content-type")]
-	if !ok || ct[0][:6] != "image/" {
-		log.Println("Non-Image content-type returned")
-		http.Error(w, "Non-Image content-type returned", http.StatusBadRequest)
-		return
+	// if not a 200, then we will just pass it along
+	if resp.StatusCode == 200 {
+		if !ok || ct[0][:6] != "image/" {
+			log.Println("Non-Image content-type returned", u)
+			http.Error(w, "Non-Image content-type returned",
+					   http.StatusBadRequest)
+			return
+		}
 	}
 
 	for hdr, val := range resp.Header {
@@ -174,6 +179,8 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 	h := w.Header()
 	h.Add("X-Content-Type-Options", "nosniff")
+
+	w.WriteHeader(resp.StatusCode)
 
 	io.Copy(w, resp.Body)
 	//log.Println(req, resp.StatusCode)
@@ -214,7 +221,7 @@ func main() {
 	tr := &http.Transport{
 		Dial: func(netw, addr string) (net.Conn, error) {
 			// 2 second timeout on requests
-			timeout := time.Second * time.Duration(2)
+			timeout := time.Second * 2
 			c, err := net.DialTimeout(netw, addr, timeout)
 			if err != nil {
 				return nil, err
@@ -223,6 +230,13 @@ func main() {
 			c.SetDeadline(time.Now().Add(timeout))
 			return c, nil
 		}}
+
+	// spawn an idle conn trimmer
+	go func() {
+		time.Sleep(5 * time.Minute)
+		tr.CloseIdleConnections()
+	}()
+
 	proxy := &ProxyHandler{
 		Transport: tr,
 		HMacKey:   []byte(config.HmacKey)}
