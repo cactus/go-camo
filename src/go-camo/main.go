@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+// Container for holding configuration parameters parsed from JSON config
+// file.
 type configParams struct {
 	HmacKey   string
 	Allowlist []string
