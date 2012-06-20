@@ -1,3 +1,5 @@
+// Package camoproxy provides an HTTP proxy server with content type
+// restrictions as well as regex host allow and deny list support.
 package camoproxy
 
 import (
@@ -12,6 +14,8 @@ import (
 	"strings"
 )
 
+// Headers that are acceptible to pass from the client to the remote
+// server. Only those present and true, are forwarded.
 var validReqHeaders = map[string]bool{
 	"Accept":            true,
 	"Accept-Charset":    true,
@@ -22,6 +26,9 @@ var validReqHeaders = map[string]bool{
 	"If-Modified-Since": true,
 }
 
+// validateURL ensures the url is properly verified via HMAC, and then
+// unencodes the url, returning the url (if valid) and whether the
+// HMAC was verified.
 func validateURL(path string, key []byte) (surl string, valid bool) {
 	pathParts := strings.SplitN(path[1:], "/", 3)
 	valid = false
@@ -48,6 +55,8 @@ func validateURL(path string, key []byte) (surl string, valid bool) {
 	return
 }
 
+// A ProxyHandler is a Camo like HTTP proxy, that provides content type
+// restrictions as well as regex host allow and deny list support
 type ProxyHandler struct {
 	Transport       *http.Transport
 	HMacKey         []byte
@@ -56,6 +65,10 @@ type ProxyHandler struct {
 	MaxSize         int64
 }
 
+// ServerHTTP handles the client request, validates the request is validly
+// HMAC signed, filters based on the Allow/Deny list, and then proxies
+// valid requests to the desired endpoint. Responses are filtered for 
+// proper image content types.
 func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	//log.Println("Request:", req.URL)
 
