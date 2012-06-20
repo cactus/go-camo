@@ -10,16 +10,16 @@ Experimental Go version of [Camo][1] server.
     $ git clone https://github.com/cactus/go-camo.git
     $ cd go-camo
     $ export GOPATH=$(pwd)
-    $ go install go-camo
+    $ go install go-camo/go-camod
 
 ## Running
 
-    $ $GOPATH/bin/go-camo -configFile=config.json
+    $ $GOPATH/bin/go-camod -configFile=config.json
 
 ## Configuring
 
-    $ $GOPATH/bin/go-camo -h
-    Usage of go-camo:
+    $ $GOPATH/bin/go-camod -h
+    Usage of go-camod:
       -bindAddress="0.0.0.0:8080": Address:Port to bind to
       -configFile="": JSON Config File
       -hmacKey="": HMAC Key
