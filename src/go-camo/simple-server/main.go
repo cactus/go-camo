@@ -1,4 +1,6 @@
+// simple-server daemon
 package main
+
 import (
 	"net/http"
 	"flag"

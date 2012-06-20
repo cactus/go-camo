@@ -1,3 +1,4 @@
+// go-camo daemon (go-camod)
 package main
 
 import (
