@@ -22,8 +22,9 @@ type configParams struct {
 
 var hmacKeyFlag = flag.String("hmacKey", "", "HMAC Key")
 var configFileFlag = flag.String("configFile", "", "JSON Config File")
-var bindAddress = flag.String("bindAddress", "0.0.0.0:8080", "Address:Port to bind to")
 var maxSize = flag.Int64("maxSize", 5120, "Max size in KB to allow")
+var bindAddress = flag.String("bindAddress", "0.0.0.0:8080",
+	"Address:Port to bind to")
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
@@ -97,8 +98,5 @@ func main() {
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.Handle("/", proxy)
 	log.Println("Starting server on", *bindAddress)
-	err = http.ListenAndServe(*bindAddress, nil)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err.Error())
-	}
+	log.Fatal(http.ListenAndServe(*bindAddress, nil))
 }
