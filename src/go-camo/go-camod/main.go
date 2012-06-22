@@ -14,26 +14,26 @@ import (
 	"time"
 )
 
-// Container for holding configuration parameters parsed from JSON config
-// file.
-type configParams struct {
-	HmacKey   string
-	Allowlist []string
-	Denylist  []string
-	MaxSize   int64
-}
-
-var hmacKeyFlag = flag.String("hmacKey", "", "HMAC Key")
-var configFileFlag = flag.String("configFile", "", "JSON Config File")
-var maxSize = flag.Int64("maxSize", 5120, "Max size in KB to allow")
-var bindAddress = flag.String("bindAddress", "0.0.0.0:8080",
-	"Address:Port to bind to")
-
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
+
+	// command line flags
+	hmacKeyFlag := flag.String("hmacKey", "", "HMAC Key")
+	configFileFlag := flag.String("configFile", "", "JSON Config File")
+	maxSize := flag.Int64("maxSize", 5120, "Max size in KB to allow")
+	bindAddress := flag.String("bindAddress", "0.0.0.0:8080",
+		"Address:Port to bind to")
+	// parse said flags
 	flag.Parse()
 
-	config := &configParams{}
+	// Anonymous struct Container for holding configuration parameters parsed
+	// from JSON config file.
+	config := &struct {
+		HmacKey   string
+		Allowlist []string
+		Denylist  []string
+		MaxSize   int64}{}
+
 	if *configFileFlag != "" {
 		b, err := ioutil.ReadFile(*configFileFlag)
 		if err != nil {
