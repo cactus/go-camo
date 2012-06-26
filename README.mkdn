@@ -53,4 +53,8 @@ deny it.
 Option flags, if provided, override those in the config file (mostly just the
 hmac key).
 
+## License
+
+Released under the [MIT license](http://www.opensource.org/licenses/mit-license.php). See `LICENSE` file for details.
+
 [1]: https://github.com/atmos/camo
