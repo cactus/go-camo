@@ -76,6 +76,7 @@ func main() {
 
 	// create logger and start toggle on signal handler
 	logger := gologit.New(*debug)
+	logger.Debugln("Debug logging enabled")
 	logger.ToggleOnSignal(syscall.SIGUSR1)
 
 	proxy := camoproxy.New(
