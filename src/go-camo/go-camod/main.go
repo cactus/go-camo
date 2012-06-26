@@ -9,17 +9,19 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"regexp"
 	"runtime"
 	"time"
+	"syscall"
+	"github.com/cactus/gologit"
 )
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	// command line flags
-	hmacKeyFlag := flag.String("hmacKey", "", "HMAC Key")
-	configFileFlag := flag.String("configFile", "", "JSON Config File")
+	debug := flag.Bool("debug", false, "Enable Debug Logging")
+	hmacKey := flag.String("hmacKey", "", "HMAC Key")
+	configFile := flag.String("configFile", "", "JSON Config File")
 	maxSize := flag.Int64("maxSize", 5120, "Max size in KB to allow")
 	bindAddress := flag.String("bindAddress", "0.0.0.0:8080",
 		"Address:Port to bind to")
@@ -34,8 +36,8 @@ func main() {
 		Denylist  []string
 		MaxSize   int64}{}
 
-	if *configFileFlag != "" {
-		b, err := ioutil.ReadFile(*configFileFlag)
+	if *configFile != "" {
+		b, err := ioutil.ReadFile(*configFile)
 		if err != nil {
 			log.Fatal("Could not read configFile", err)
 		}
@@ -46,8 +48,8 @@ func main() {
 	}
 
 	// flags override config file
-	if *hmacKeyFlag != "" {
-		config.HmacKey = *hmacKeyFlag
+	if *hmacKey != "" {
+		config.HmacKey = *hmacKey
 	}
 	if config.MaxSize == 0 {
 		config.MaxSize = *maxSize
@@ -72,31 +74,13 @@ func main() {
 		tr.CloseIdleConnections()
 	}()
 
-	proxy := &camoproxy.ProxyHandler{
-		Transport: tr,
-		HMacKey:   []byte(config.HmacKey),
-		MaxSize:   config.MaxSize * 1024}
+	// create logger and start toggle on signal handler
+	logger := gologit.New(*debug)
+	logger.ToggleOnSignal(syscall.SIGUSR1)
 
-	// build/compile regex
-	proxy.RegexpAllowlist = make([]*regexp.Regexp, 0)
-	proxy.RegexpDenylist = make([]*regexp.Regexp, 0)
-
-	var c *regexp.Regexp
-	var err error
-	for _, v := range config.Denylist {
-		c, err = regexp.Compile(v)
-		if err != nil {
-			log.Fatal(err)
-		}
-		proxy.RegexpDenylist = append(proxy.RegexpDenylist, c)
-	}
-	for _, v := range config.Allowlist {
-		c, err = regexp.Compile(v)
-		if err != nil {
-			log.Fatal(err)
-		}
-		proxy.RegexpAllowlist = append(proxy.RegexpAllowlist, c)
-	}
+	proxy := camoproxy.New(
+		tr, []byte(config.HmacKey), config.Allowlist, config.Denylist,
+		config.MaxSize * 1024, logger)
 
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.Handle("/", proxy)

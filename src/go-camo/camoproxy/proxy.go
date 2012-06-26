@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"github.com/cactus/gologit"
 )
 
 // Headers that are acceptible to pass from the client to the remote
@@ -26,43 +27,15 @@ var validReqHeaders = map[string]bool{
 	"If-Modified-Since": true,
 }
 
-// validateURL ensures the url is properly verified via HMAC, and then
-// unencodes the url, returning the url (if valid) and whether the
-// HMAC was verified.
-func validateURL(path string, key []byte) (surl string, valid bool) {
-	pathParts := strings.SplitN(path[1:], "/", 3)
-	valid = false
-	if len(pathParts) != 2 {
-		log.Println("Bad path format", pathParts)
-		return
-	}
-	hexdig, hexurl := pathParts[0], pathParts[1]
-	urlBytes, err := hex.DecodeString(hexurl)
-	if err != nil {
-		log.Println("Bad Hex Decode", hexurl)
-		return
-	}
-	surl = string(urlBytes)
-	//log.Println(surl)
-	mac := hmac.New(sha1.New, key)
-	mac.Write([]byte(surl))
-	macSum := hex.EncodeToString(mac.Sum([]byte{}))
-	if macSum != hexdig {
-		log.Printf("Bad signature: %s != %s", macSum, hexdig)
-		return
-	}
-	valid = true
-	return
-}
-
 // A ProxyHandler is a Camo like HTTP proxy, that provides content type
 // restrictions as well as regex host allow and deny list support
 type ProxyHandler struct {
 	Transport       *http.Transport
 	HMacKey         []byte
-	RegexpAllowlist []*regexp.Regexp
-	RegexpDenylist  []*regexp.Regexp
+	Allowlist       []*regexp.Regexp
+	Denylist        []*regexp.Regexp
 	MaxSize         int64
+	log             *gologit.DebugLogger
 }
 
 // ServerHTTP handles the client request, validates the request is validly
@@ -70,7 +43,7 @@ type ProxyHandler struct {
 // valid requests to the desired endpoint. Responses are filtered for 
 // proper image content types.
 func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	//log.Println("Request:", req.URL)
+	p.log.Debugln("Request:", req.URL)
 
 	// do fiddly things
 	if req.Method != "GET" {
@@ -79,12 +52,12 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	surl, ok := validateURL(req.URL.Path, p.HMacKey)
+	surl, ok := p.validateURL(req.URL.Path, p.HMacKey)
 	if !ok {
 		http.Error(w, "Bad Signature", http.StatusForbidden)
 		return
 	}
-	//log.Println("URL:", surl)
+	p.log.Debugln("URL:", surl)
 
 	u, err := url.Parse(surl)
 	if err != nil {
@@ -100,9 +73,9 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// if Allowlist is set, require match
 	matchFound := true
-	if len(p.RegexpAllowlist) > 0 {
+	if len(p.Allowlist) > 0 {
 		matchFound = false
-		for _, rgx := range p.RegexpAllowlist {
+		for _, rgx := range p.Allowlist {
 			if rgx.MatchString(u.Host) {
 				matchFound = true
 			}
@@ -115,7 +88,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// filter out Denylist urls based on regexes. Do this second
 	// as Denylist takes precedence
-	for _, rgx := range p.RegexpDenylist {
+	for _, rgx := range p.Denylist {
 		if rgx.MatchString(u.Host) {
 			http.Error(w, "Denylist host failure", http.StatusNotFound)
 			return
@@ -194,5 +167,66 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	w.WriteHeader(resp.StatusCode)
 	io.Copy(w, resp.Body)
-	//log.Println(req, resp.StatusCode)
+	p.log.Debugln(req, resp.StatusCode)
+}
+
+// validateURL ensures the url is properly verified via HMAC, and then
+// unencodes the url, returning the url (if valid) and whether the
+// HMAC was verified.
+func (p *ProxyHandler) validateURL(path string, key []byte) (surl string, valid bool) {
+	pathParts := strings.SplitN(path[1:], "/", 3)
+	valid = false
+	if len(pathParts) != 2 {
+		p.log.Println("Bad path format", pathParts)
+		return
+	}
+	hexdig, hexurl := pathParts[0], pathParts[1]
+	urlBytes, err := hex.DecodeString(hexurl)
+	if err != nil {
+		p.log.Println("Bad Hex Decode", hexurl)
+		return
+	}
+	surl = string(urlBytes)
+	p.log.Debugln(surl)
+	mac := hmac.New(sha1.New, key)
+	mac.Write([]byte(surl))
+	macSum := hex.EncodeToString(mac.Sum([]byte{}))
+	if macSum != hexdig {
+		p.log.Printf("Bad signature: %s != %s", macSum, hexdig)
+		return
+	}
+	valid = true
+	return
+}
+
+
+func New(tr *http.Transport, hmacKey []byte, allowList []string, denyList []string, maxSize int64, logger *gologit.DebugLogger) *ProxyHandler {
+	// build/compile regex
+	allow := make([]*regexp.Regexp, 0)
+	deny := make([]*regexp.Regexp, 0)
+
+	var c *regexp.Regexp
+	var err error
+	for _, v := range denyList {
+		c, err = regexp.Compile(v)
+		if err != nil {
+			log.Fatal(err)
+		}
+		deny = append(deny, c)
+	}
+	for _, v := range allowList {
+		c, err = regexp.Compile(v)
+		if err != nil {
+			log.Fatal(err)
+		}
+		allow = append(allow, c)
+	}
+
+	return &ProxyHandler{
+		Transport: tr,
+		HMacKey:   hmacKey,
+		Allowlist: allow,
+		Denylist:  deny,
+		MaxSize:   maxSize,
+		log:       logger}
 }
