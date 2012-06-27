@@ -5,7 +5,13 @@ go-camo
 
 Experimental Go version of [Camo][1] server.
 
-Support for 'Path Format' only (does not support 'Query String Format').
+## Differences from Camo
+
+*   Support for 'Path Format' only (does not support 'Query String Format').
+*   400 on image too large (instead of 404)
+*   404 on upstream redirect (does not follow redirects). I am considering
+    making this a tunable in the future.
+
 
 ## Building
 
