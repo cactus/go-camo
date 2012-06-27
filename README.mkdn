@@ -5,6 +5,8 @@ go-camo
 
 Experimental Go version of [Camo][1] server.
 
+Support for 'Path Format' only (does not support 'Query String Format').
+
 ## Building
 
     $ git clone https://github.com/cactus/go-camo.git
