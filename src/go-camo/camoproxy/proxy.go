@@ -116,7 +116,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	resp, err := p.Client.Do(nreq)
 	if err != nil {
-		log.Println("Could not connect to endpoint", err)
+		p.log.Debugln("Could not connect to endpoint", err)
 		if strings.Contains(err.Error(), "timeout") {
 			http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
 		} else {
@@ -128,7 +128,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// check for too large a response
 	if resp.ContentLength > p.MaxSize {
-		log.Println("Content length exceeded", surl)
+		p.log.Debugln("Content length exceeded", surl)
 		http.Error(w, "Content length exceeded", http.StatusNotFound)
 		return
 	}
