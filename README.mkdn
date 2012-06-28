@@ -14,6 +14,7 @@ Experimental Go version of [Camo][1] server.
     $ git clone https://github.com/cactus/go-camo.git
     $ cd go-camo
     $ export GOPATH=$(pwd)
+    $ go get github.com/cactus/gologit
     $ go install go-camo/go-camod
 
 ## Running
@@ -62,6 +63,8 @@ hmac key).
 
 ## License
 
-Released under the [MIT license](http://www.opensource.org/licenses/mit-license.php). See `LICENSE` file for details.
+Released under the [MIT
+license](http://www.opensource.org/licenses/mit-license.php). See `LICENSE`
+file for details.
 
 [1]: https://github.com/atmos/camo
