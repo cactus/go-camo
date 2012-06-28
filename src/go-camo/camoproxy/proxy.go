@@ -208,7 +208,7 @@ func New(hmacKey []byte, allowList []string, denyList []string, maxSize int64, l
 	tr := &http.Transport{
 		Dial: func(netw, addr string) (net.Conn, error) {
 			// 2 second timeout on requests
-			timeout := time.Second * 2
+			timeout := time.Second * 3
 			c, err := net.DialTimeout(netw, addr, timeout)
 			if err != nil {
 				return nil, err
