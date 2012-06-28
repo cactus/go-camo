@@ -25,12 +25,12 @@ Experimental Go version of [Camo][1] server.
 
     $ $GOPATH/bin/go-camod -h
     Usage of go-camod:
-      -bindAddress="0.0.0.0:8080": Address:Port to bind to
-      -configFile="": JSON Config File
-      -debug=false: Enable Debug Logging
-      -followRedirects=false: Enable following upstream redirects
-      -hmacKey="": HMAC Key
-      -maxSize=5120: Max size in KB to allow
+	  -bind-address="0.0.0.0:8080": Address:Port to bind to
+	  -config-file="": JSON Config File
+	  -debug=false: Enable Debug Logging
+	  -follow-redirects=false: Enable following upstream redirects
+	  -hmac-key="": HMAC Key
+	  -max-size=5120: Max size in KB to allow
     
     $ cat config.json
     {

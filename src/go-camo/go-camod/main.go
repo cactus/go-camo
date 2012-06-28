@@ -18,11 +18,12 @@ func main() {
 
 	// command line flags
 	debug := flag.Bool("debug", false, "Enable Debug Logging")
-	follow := flag.Bool("followRedirects", false, "Enable following upstream redirects")
-	hmacKey := flag.String("hmacKey", "", "HMAC Key")
-	configFile := flag.String("configFile", "", "JSON Config File")
-	maxSize := flag.Int64("maxSize", 5120, "Max size in KB to allow")
-	bindAddress := flag.String("bindAddress", "0.0.0.0:8080",
+	hmacKey := flag.String("hmac-key", "", "HMAC Key")
+	configFile := flag.String("config-file", "", "JSON Config File")
+	maxSize := flag.Int64("max-size", 5120, "Max size in KB to allow")
+	follow := flag.Bool("follow-redirects", false,
+		"Enable following upstream redirects")
+	bindAddress := flag.String("bind-address", "0.0.0.0:8080",
 		"Address:Port to bind to")
 	// parse said flags
 	flag.Parse()
