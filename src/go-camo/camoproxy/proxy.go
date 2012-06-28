@@ -9,10 +9,12 @@ import (
 	"errors"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
+	"time"
 	"github.com/cactus/gologit"
 )
 
@@ -127,7 +129,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// check for too large a response
 	if resp.ContentLength > p.MaxSize {
 		log.Println("Content length exceeded", surl)
-		http.Error(w, "Content length exceeded", http.StatusBadRequest)
+		http.Error(w, "Content length exceeded", http.StatusNotFound)
 		return
 	}
 
@@ -203,8 +205,27 @@ func (p *ProxyHandler) validateURL(path string, key []byte) (surl string, valid 
 
 
 func New(hmacKey []byte, allowList []string, denyList []string, maxSize int64, logger *gologit.DebugLogger, follow bool) *ProxyHandler {
+	tr := &http.Transport{
+		Dial: func(netw, addr string) (net.Conn, error) {
+			// 2 second timeout on requests
+			timeout := time.Second * 2
+			c, err := net.DialTimeout(netw, addr, timeout)
+			if err != nil {
+				return nil, err
+			}
+			// also set time limit on reading
+			c.SetDeadline(time.Now().Add(timeout))
+			return c, nil
+		}}
+
+	// spawn an idle conn trimmer
+	go func() {
+		time.Sleep(5 * time.Minute)
+		tr.CloseIdleConnections()
+	}()
+
 	// build/compile regex
-	client := &http.Client{}
+	client := &http.Client{Transport: tr}
 	if follow {
 		client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 			return errors.New("Not following redirect")

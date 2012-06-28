@@ -7,10 +7,8 @@ import (
 	"go-camo/camoproxy"
 	"io/ioutil"
 	"log"
-	"net"
 	"net/http"
 	"runtime"
-	"time"
 	"syscall"
 	"github.com/cactus/gologit"
 )
@@ -55,25 +53,6 @@ func main() {
 	if config.MaxSize == 0 {
 		config.MaxSize = *maxSize
 	}
-
-	tr := &http.Transport{
-		Dial: func(netw, addr string) (net.Conn, error) {
-			// 2 second timeout on requests
-			timeout := time.Second * 2
-			c, err := net.DialTimeout(netw, addr, timeout)
-			if err != nil {
-				return nil, err
-			}
-			// also set time limit on reading
-			c.SetDeadline(time.Now().Add(timeout))
-			return c, nil
-		}}
-
-	// spawn an idle conn trimmer
-	go func() {
-		time.Sleep(5 * time.Minute)
-		tr.CloseIdleConnections()
-	}()
 
 	// create logger and start toggle on signal handler
 	logger := gologit.New(*debug)
