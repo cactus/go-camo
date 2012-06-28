@@ -6,6 +6,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/hex"
+	"errors"
 	"io"
 	"log"
 	"net/http"
@@ -30,7 +31,7 @@ var validReqHeaders = map[string]bool{
 // A ProxyHandler is a Camo like HTTP proxy, that provides content type
 // restrictions as well as regex host allow and deny list support
 type ProxyHandler struct {
-	Transport       *http.Transport
+	Client          *http.Client
 	HMacKey         []byte
 	Allowlist       []*regexp.Regexp
 	Denylist        []*regexp.Regexp
@@ -97,8 +98,8 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	nreq, err := http.NewRequest("GET", surl, nil)
 	if err != nil {
-		log.Println("Something weird happened")
-		http.Error(w, "Error Fetching Resource", http.StatusNotFound)
+		p.log.Debugln("Could not create NewRequest", err)
+		http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
 		return
 	}
 
@@ -111,7 +112,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	nreq.Header.Add("connection", "close")
 	nreq.Header.Add("user-agent", "pew pew pew")
 
-	resp, err := p.Transport.RoundTrip(nreq)
+	resp, err := p.Client.Do(nreq)
 	if err != nil {
 		log.Println("Could not connect to endpoint", err)
 		if strings.Contains(err.Error(), "timeout") {
@@ -136,9 +137,9 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Multiple choices not supported", http.StatusNotFound)
 		return
 	case 301, 302, 303:
-		// check for redirects. we do not follow.
-		log.Println("Refusing to follow redirects")
-		http.Error(w, "Refusing to follow redirects", http.StatusNotFound)
+		// if we get a redirect here, we either disabled following, 
+		// or followed until max depth and still got one (redirect loop)
+		http.Error(w, "Not Found", http.StatusNotFound)
 		return
 	case 404:
 		http.Error(w, "Not Found", http.StatusNotFound)
@@ -170,6 +171,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	p.log.Debugln(req, resp.StatusCode)
 }
 
+
 // validateURL ensures the url is properly verified via HMAC, and then
 // unencodes the url, returning the url (if valid) and whether the
 // HMAC was verified.
@@ -200,8 +202,15 @@ func (p *ProxyHandler) validateURL(path string, key []byte) (surl string, valid 
 }
 
 
-func New(tr *http.Transport, hmacKey []byte, allowList []string, denyList []string, maxSize int64, logger *gologit.DebugLogger) *ProxyHandler {
+func New(hmacKey []byte, allowList []string, denyList []string, maxSize int64, logger *gologit.DebugLogger, follow bool) *ProxyHandler {
 	// build/compile regex
+	client := &http.Client{}
+	if follow {
+		client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+			return errors.New("Not following redirect")
+		}
+	}
+
 	allow := make([]*regexp.Regexp, 0)
 	deny := make([]*regexp.Regexp, 0)
 
@@ -223,7 +232,7 @@ func New(tr *http.Transport, hmacKey []byte, allowList []string, denyList []stri
 	}
 
 	return &ProxyHandler{
-		Transport: tr,
+		Client:    client,
 		HMacKey:   hmacKey,
 		Allowlist: allow,
 		Denylist:  deny,

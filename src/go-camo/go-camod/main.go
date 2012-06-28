@@ -20,6 +20,7 @@ func main() {
 
 	// command line flags
 	debug := flag.Bool("debug", false, "Enable Debug Logging")
+	follow := flag.Bool("followRedirects", false, "Enable following upstream redirects")
 	hmacKey := flag.String("hmacKey", "", "HMAC Key")
 	configFile := flag.String("configFile", "", "JSON Config File")
 	maxSize := flag.Int64("maxSize", 5120, "Max size in KB to allow")
@@ -80,8 +81,8 @@ func main() {
 	logger.ToggleOnSignal(syscall.SIGUSR1)
 
 	proxy := camoproxy.New(
-		tr, []byte(config.HmacKey), config.Allowlist, config.Denylist,
-		config.MaxSize * 1024, logger)
+		[]byte(config.HmacKey), config.Allowlist, config.Denylist,
+		config.MaxSize * 1024, logger, *follow)
 
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.Handle("/", proxy)
