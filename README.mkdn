@@ -8,10 +8,6 @@ Experimental Go version of [Camo][1] server.
 ## Differences from Camo
 
 *   Support for 'Path Format' only (does not support 'Query String Format').
-*   400 on image too large (instead of 404)
-*   404 on upstream redirect (does not follow redirects). I am considering
-    making this a tunable in the future.
-
 
 ## Building
 
@@ -30,7 +26,10 @@ Experimental Go version of [Camo][1] server.
     Usage of go-camod:
       -bindAddress="0.0.0.0:8080": Address:Port to bind to
       -configFile="": JSON Config File
+      -debug=false: Enable Debug Logging
+      -followRedirects=false: Enable following upstream redirects
       -hmacKey="": HMAC Key
+      -maxSize=5120: Max size in KB to allow
     
     $ cat config.json
     {
