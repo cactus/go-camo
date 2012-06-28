@@ -226,7 +226,7 @@ func New(hmacKey []byte, allowList []string, denyList []string, maxSize int64, l
 
 	// build/compile regex
 	client := &http.Client{Transport: tr}
-	if follow {
+	if !follow {
 		client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 			return errors.New("Not following redirect")
 		}
