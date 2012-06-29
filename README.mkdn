@@ -17,9 +17,17 @@ Experimental Go version of [Camo][1] server.
     $ go get github.com/cactus/gologit
     $ go install go-camo/go-camod
 
-## Running
+## Running in production mode
 
     $ $GOPATH/bin/go-camod -configFile=config.json
+
+## Running under devweb
+
+[Devweb][2] is useful for developing. To run under devweb:
+
+    $ go get code.google.com/p/rsc/devweb
+    $ go install code.google.com/p/rsc/devweb
+    $ PATH=.:$PATH $GOPATH/bin/devweb -addr=127.0.0.1:8080 go-camo/go-camod-devweb
 
 ## Configuring
 
@@ -68,3 +76,4 @@ license](http://www.opensource.org/licenses/mit-license.php). See `LICENSE`
 file for details.
 
 [1]: https://github.com/atmos/camo
+[2]: http://code.google.com/p/rsc/source/browse/devweb
