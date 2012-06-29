@@ -28,6 +28,7 @@ Experimental Go version of [Camo][1] server.
     $ go get code.google.com/p/rsc/devweb
     $ go install code.google.com/p/rsc/devweb
     $ PATH=.:$PATH $GOPATH/bin/devweb -addr=127.0.0.1:8080 go-camo/go-camod-devweb
+    $ rm -f ./prox.exe  #devweb drops this file. clean it up
 
 ## Configuring
 
