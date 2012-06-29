@@ -34,7 +34,6 @@ func main() {
 
 	// create logger and start toggle on signal handler
 	logger := gologit.New(true)
-	logger.Debugln("Debug logging enabled")
 
 	proxy := camoproxy.New(
 		[]byte(config.HmacKey), config.Allowlist, config.Denylist,
@@ -42,5 +41,6 @@ func main() {
 
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.Handle("/", proxy)
+	log.Println("starting up camoproxy")
 	slave.Main()
 }
