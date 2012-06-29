@@ -30,6 +30,11 @@ var validReqHeaders = map[string]bool{
 	"If-Modified-Since": true,
 }
 
+// Headers that are acceptible to pass from the remote server to the
+// client. Only those present and true, are forwarded. Empty implies
+// no filtering.
+var validRespHeaders = map[string]bool{}
+
 // A ProxyHandler is a Camo like HTTP proxy, that provides content type
 // restrictions as well as regex host allow and deny list support
 type ProxyHandler struct {
@@ -106,11 +111,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// filter headers
-	for hdr, val := range req.Header {
-		if validReqHeaders[hdr] {
-			nreq.Header[hdr] = val
-		}
-	}
+	p.copyHeader(&nreq.Header, &req.Header, &validReqHeaders)
 	nreq.Header.Add("connection", "close")
 	nreq.Header.Add("user-agent", "pew pew pew")
 
@@ -157,12 +158,8 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	for hdr, val := range resp.Header {
-		h := w.Header()
-		h[hdr] = val
-	}
-
 	h := w.Header()
+	p.copyHeader(&h, &resp.Header, &validRespHeaders)
 	h.Add("X-Content-Type-Options", "nosniff")
 	if resp.StatusCode == 304 && h.Get("Content-Type") != "" {
 		h.Del("Content-Type")
@@ -201,6 +198,26 @@ func (p *ProxyHandler) validateURL(path string, key []byte) (surl string, valid 
 	}
 	valid = true
 	return
+}
+
+
+// copy headers from src into dst
+// empty filter map will result in no filtering being done
+func (p *ProxyHandler) copyHeader(dst, src *http.Header, filter *map[string]bool) {
+	f := *filter
+	filtering := false
+	if len(f) > 0 {
+		filtering = true
+	}
+
+	for k, vv := range *src {
+		if x, ok := f[k]; filtering && !ok && !x {
+			continue
+		}
+		for _, v := range vv {
+			dst.Add(k, v)
+		}
+	}
 }
 
 
