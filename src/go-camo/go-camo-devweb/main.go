@@ -37,7 +37,7 @@ func main() {
 
 	proxy := camoproxy.New(
 		[]byte(config.HmacKey), config.Allowlist, config.Denylist,
-		5120 * 1024, logger, true)
+		5120 * 1024, logger, true, 5)
 
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.Handle("/", proxy)

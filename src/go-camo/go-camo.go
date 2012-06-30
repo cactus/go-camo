@@ -21,6 +21,7 @@ func main() {
 	hmacKey := flag.String("hmac-key", "", "HMAC Key")
 	configFile := flag.String("config-file", "", "JSON Config File")
 	maxSize := flag.Int64("max-size", 5120, "Max size in KB to allow")
+	reqTimeout := flag.Uint("timeout", 4, "Upstream request timeout in seconds")
 	follow := flag.Bool("follow-redirects", false,
 		"Enable following upstream redirects")
 	bindAddress := flag.String("bind-address", "0.0.0.0:8080",
@@ -62,7 +63,7 @@ func main() {
 
 	proxy := camoproxy.New(
 		[]byte(config.HmacKey), config.Allowlist, config.Denylist,
-		config.MaxSize * 1024, logger, *follow)
+		config.MaxSize * 1024, logger, *follow, *reqTimeout)
 
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.Handle("/", proxy)

@@ -221,11 +221,11 @@ func (p *ProxyHandler) copyHeader(dst, src *http.Header, filter *map[string]bool
 }
 
 
-func New(hmacKey []byte, allowList []string, denyList []string, maxSize int64, logger *gologit.DebugLogger, follow bool) *ProxyHandler {
+func New(hmacKey []byte, allowList []string, denyList []string, maxSize int64, logger *gologit.DebugLogger, follow bool, reqTimeout uint) *ProxyHandler {
 	tr := &http.Transport{
 		Dial: func(netw, addr string) (net.Conn, error) {
 			// 2 second timeout on requests
-			timeout := time.Second * 3
+			timeout := time.Second * time.Duration(reqTimeout)
 			c, err := net.DialTimeout(netw, addr, timeout)
 			if err != nil {
 				return nil, err
