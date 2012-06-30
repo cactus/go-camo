@@ -8,13 +8,21 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 	"runtime"
 	"syscall"
 	"github.com/cactus/gologit"
 )
 
 func main() {
-	runtime.GOMAXPROCS(runtime.NumCPU())
+	var gmx int
+	if gmxEnv := os.Getenv("GOMAXPROCS"); gmxEnv != "" {
+		gmx, _ = strconv.Atoi(gmxEnv)
+	} else {
+		gmx = runtime.NumCPU()
+	}
+	runtime.GOMAXPROCS(gmx)
 
 	// command line flags
 	debug := flag.Bool("debug", false, "Enable Debug Logging")
