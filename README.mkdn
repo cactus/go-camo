@@ -15,11 +15,11 @@ Experimental Go version of [Camo][1] server.
     $ cd go-camo
     $ export GOPATH=$(pwd)
     $ go get github.com/cactus/gologit
-    $ go install go-camo/go-camod
+    $ go install go-camo
 
 ## Running in production mode
 
-    $ $GOPATH/bin/go-camod -configFile=config.json
+    $ $GOPATH/bin/go-camo -configFile=config.json
 
 ## Running under devweb
 
@@ -27,13 +27,13 @@ Experimental Go version of [Camo][1] server.
 
     $ go get code.google.com/p/rsc/devweb
     $ go install code.google.com/p/rsc/devweb
-    $ PATH=.:$PATH $GOPATH/bin/devweb -addr=127.0.0.1:8080 go-camo/go-camod-devweb
+    $ PATH=.:$PATH $GOPATH/bin/devweb -addr=127.0.0.1:8080 go-camo/go-camo-devweb
     $ rm -f ./prox.exe  #devweb drops this file. clean it up
 
 ## Configuring
 
-    $ $GOPATH/bin/go-camod -h
-    Usage of go-camod:
+    $ $GOPATH/bin/go-camo -h
+    Usage of go-camo:
 	  -bind-address="0.0.0.0:8080": Address:Port to bind to
 	  -config-file="": JSON Config File
 	  -debug=false: Enable Debug Logging
