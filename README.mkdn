@@ -3,11 +3,16 @@ go-camo
 
 ## About
 
-Experimental Go version of [Camo][1] server.
+Go version of [Camo][1] server.
 
 ## Differences from Camo
 
+### Supported Features
+
 *   Support for 'Path Format' only (does not support 'Query String Format').
+*   Supports an allow list as well as a deny list.
+*   Supports client http keepalives.
+*   Supports using more than one os thread (via GOMAXPROCS).
 
 ## Building
 
