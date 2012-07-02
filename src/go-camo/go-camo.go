@@ -4,15 +4,15 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"github.com/cactus/gologit"
 	"go-camo/camoproxy"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"runtime"
+	"strconv"
 	"syscall"
-	"github.com/cactus/gologit"
 )
 
 func main() {
@@ -43,7 +43,8 @@ func main() {
 		HmacKey   string
 		Allowlist []string
 		Denylist  []string
-		MaxSize   int64}{}
+		MaxSize   int64
+	}{}
 
 	if *configFile != "" {
 		b, err := ioutil.ReadFile(*configFile)
@@ -71,7 +72,7 @@ func main() {
 
 	proxy := camoproxy.New(
 		[]byte(config.HmacKey), config.Allowlist, config.Denylist,
-		config.MaxSize * 1024, logger, *follow, *reqTimeout)
+		config.MaxSize*1024, logger, *follow, *reqTimeout)
 
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.Handle("/", proxy)

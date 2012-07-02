@@ -7,6 +7,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
+	"github.com/cactus/gologit"
 	"io"
 	"log"
 	"net"
@@ -15,7 +16,6 @@ import (
 	"regexp"
 	"strings"
 	"time"
-	"github.com/cactus/gologit"
 )
 
 // Headers that are acceptible to pass from the client to the remote
@@ -38,12 +38,12 @@ var validRespHeaders = map[string]bool{}
 // A ProxyHandler is a Camo like HTTP proxy, that provides content type
 // restrictions as well as regex host allow and deny list support
 type ProxyHandler struct {
-	Client          *http.Client
-	HMacKey         []byte
-	Allowlist       []*regexp.Regexp
-	Denylist        []*regexp.Regexp
-	MaxSize         int64
-	log             *gologit.DebugLogger
+	Client    *http.Client
+	HMacKey   []byte
+	Allowlist []*regexp.Regexp
+	Denylist  []*regexp.Regexp
+	MaxSize   int64
+	log       *gologit.DebugLogger
 }
 
 // ServerHTTP handles the client request, validates the request is validly
@@ -170,7 +170,6 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	p.log.Debugln(req, resp.StatusCode)
 }
 
-
 // validateURL ensures the url is properly verified via HMAC, and then
 // unencodes the url, returning the url (if valid) and whether the
 // HMAC was verified.
@@ -200,7 +199,6 @@ func (p *ProxyHandler) validateURL(path string, key []byte) (surl string, valid 
 	return
 }
 
-
 // copy headers from src into dst
 // empty filter map will result in no filtering being done
 func (p *ProxyHandler) copyHeader(dst, src *http.Header, filter *map[string]bool) {
@@ -219,7 +217,6 @@ func (p *ProxyHandler) copyHeader(dst, src *http.Header, filter *map[string]bool
 		}
 	}
 }
-
 
 func New(hmacKey []byte, allowList []string, denyList []string, maxSize int64, logger *gologit.DebugLogger, follow bool, reqTimeout uint) *ProxyHandler {
 	tr := &http.Transport{
