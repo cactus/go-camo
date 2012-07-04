@@ -38,9 +38,9 @@ var validReqHeaders = map[string]bool{
 var validRespHeaders = map[string]bool{}
 
 type proxyStatus struct {
-    sync.Mutex
-	clientsServed  uint64
-	bytesServed    uint64
+	sync.Mutex
+	clientsServed uint64
+	bytesServed   uint64
 }
 
 func (ps *proxyStatus) IncServed() {
@@ -73,7 +73,6 @@ type ProxyHandler struct {
 	log       *gologit.DebugLogger
 	stats     *proxyStatus
 }
-
 
 // StatsHandler returns an http.Handler that returns running totals and stats
 // about the server.
