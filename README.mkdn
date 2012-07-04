@@ -24,7 +24,7 @@ Go version of [Camo][1] server.
 
 ## Running in production mode
 
-    $ $GOPATH/bin/go-camo -configFile=config.json
+    $ $GOPATH/bin/go-camo -config-file=config.json -follow-redirects
 
 ## Running under devweb
 
@@ -41,9 +41,9 @@ Go version of [Camo][1] server.
     Usage of go-camo:
 	  -bind-address="0.0.0.0:8080": Address:Port to bind to
 	  -config-file="": JSON Config File
+	  -hmac-key="": HMAC Key
 	  -debug=false: Enable Debug Logging
 	  -follow-redirects=false: Enable following upstream redirects
-	  -hmac-key="": HMAC Key
 	  -max-size=5120: Max size in KB to allow
     
     $ cat config.json
