@@ -135,22 +135,6 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	switch resp.StatusCode {
-	case 300:
-		log.Println("Multiple choices not supported")
-		http.Error(w, "Multiple choices not supported", http.StatusNotFound)
-		return
-	case 301, 302, 303:
-		// if we get a redirect here, we either disabled following, 
-		// or followed until max depth and still got one (redirect loop)
-		http.Error(w, "Not Found", http.StatusNotFound)
-		return
-	case 500, 502, 503, 504:
-		// upstream errors should probably just 502. client can try later.
-		http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
-		return
-	case 404:
-		http.Error(w, "Not Found", http.StatusNotFound)
-		return
 	case 200:
 		// check content type
 		ct, ok := resp.Header[http.CanonicalHeaderKey("content-type")]
@@ -160,6 +144,22 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 				http.StatusBadRequest)
 			return
 		}
+	case 300:
+		log.Println("Multiple choices not supported")
+		http.Error(w, "Multiple choices not supported", http.StatusNotFound)
+		return
+	case 301, 302, 303:
+		// if we get a redirect here, we either disabled following, 
+		// or followed until max depth and still got one (redirect loop)
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	case 404:
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	case 500, 502, 503, 504:
+		// upstream errors should probably just 502. client can try later.
+		http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
+		return
 	default:
 		http.Error(w, "Not Found", http.StatusNotFound)
 		return
