@@ -39,12 +39,7 @@ func main() {
 
 	// Anonymous struct Container for holding configuration parameters parsed
 	// from JSON config file.
-	config := &struct {
-		HmacKey   string
-		Allowlist []string
-		Denylist  []string
-		MaxSize   int64
-	}{}
+	config := &camoproxy.ProxyConfig{}
 
 	if *configFile != "" {
 		b, err := ioutil.ReadFile(*configFile)
@@ -65,14 +60,18 @@ func main() {
 		config.MaxSize = *maxSize
 	}
 
+	// convert from KB to Bytes
+	config.MaxSize = config.MaxSize * 1024
+
+	config.RequestTimeout = *reqTimeout
+	config.FollowRedirects = *follow
+
 	// create logger and start toggle on signal handler
 	logger := gologit.New(*debug)
 	logger.Debugln("Debug logging enabled")
 	logger.ToggleOnSignal(syscall.SIGUSR1)
 
-	proxy := camoproxy.New(
-		[]byte(config.HmacKey), config.Allowlist, config.Denylist,
-		config.MaxSize*1024, logger, *follow, *reqTimeout)
+	proxy := camoproxy.New(*config, logger)
 
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.Handle("/", proxy)

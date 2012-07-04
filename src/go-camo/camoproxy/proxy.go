@@ -187,12 +187,11 @@ func (p *ProxyHandler) validateURL(path string, key []byte) (surl string, valid 
 		return
 	}
 	surl = string(urlBytes)
-	p.log.Debugln(surl)
 	mac := hmac.New(sha1.New, key)
 	mac.Write([]byte(surl))
 	macSum := hex.EncodeToString(mac.Sum([]byte{}))
 	if macSum != hexdig {
-		p.log.Printf("Bad signature: %s != %s", macSum, hexdig)
+		p.log.Debugf("Bad signature: %s != %s\n", macSum, hexdig)
 		return
 	}
 	valid = true
@@ -218,11 +217,20 @@ func (p *ProxyHandler) copyHeader(dst, src *http.Header, filter *map[string]bool
 	}
 }
 
-func New(hmacKey []byte, allowList []string, denyList []string, maxSize int64, logger *gologit.DebugLogger, follow bool, reqTimeout uint) *ProxyHandler {
+type ProxyConfig struct {
+	HmacKey string
+	AllowList []string
+	DenyList []string
+	MaxSize int64
+	FollowRedirects bool
+	RequestTimeout uint
+}
+
+func New(pc ProxyConfig, logger *gologit.DebugLogger) *ProxyHandler {
 	tr := &http.Transport{
 		Dial: func(netw, addr string) (net.Conn, error) {
 			// 2 second timeout on requests
-			timeout := time.Second * time.Duration(reqTimeout)
+			timeout := time.Second * time.Duration(pc.RequestTimeout)
 			c, err := net.DialTimeout(netw, addr, timeout)
 			if err != nil {
 				return nil, err
@@ -240,7 +248,7 @@ func New(hmacKey []byte, allowList []string, denyList []string, maxSize int64, l
 
 	// build/compile regex
 	client := &http.Client{Transport: tr}
-	if !follow {
+	if !pc.FollowRedirects {
 		client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 			return errors.New("Not following redirect")
 		}
@@ -251,14 +259,14 @@ func New(hmacKey []byte, allowList []string, denyList []string, maxSize int64, l
 
 	var c *regexp.Regexp
 	var err error
-	for _, v := range denyList {
+	for _, v := range pc.DenyList {
 		c, err = regexp.Compile(v)
 		if err != nil {
 			log.Fatal(err)
 		}
 		deny = append(deny, c)
 	}
-	for _, v := range allowList {
+	for _, v := range pc.AllowList {
 		c, err = regexp.Compile(v)
 		if err != nil {
 			log.Fatal(err)
@@ -268,9 +276,9 @@ func New(hmacKey []byte, allowList []string, denyList []string, maxSize int64, l
 
 	return &ProxyHandler{
 		Client:    client,
-		HMacKey:   hmacKey,
+		HMacKey:   []byte(pc.HmacKey),
 		Allowlist: allow,
 		Denylist:  deny,
-		MaxSize:   maxSize,
+		MaxSize:   pc.MaxSize,
 		log:       logger}
 }
