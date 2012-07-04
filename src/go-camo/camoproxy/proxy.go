@@ -225,12 +225,12 @@ func (p *ProxyHandler) copyHeader(dst, src *http.Header, filter *map[string]bool
 }
 
 type ProxyConfig struct {
-	HmacKey string
-	AllowList []string
-	DenyList []string
-	MaxSize int64
+	HmacKey         string
+	AllowList       []string
+	DenyList        []string
+	MaxSize         int64
 	FollowRedirects bool
-	RequestTimeout uint
+	RequestTimeout  uint
 }
 
 func New(pc ProxyConfig, logger *gologit.DebugLogger) *ProxyHandler {
