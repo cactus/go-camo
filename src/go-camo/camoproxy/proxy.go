@@ -160,6 +160,9 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 				http.StatusBadRequest)
 			return
 		}
+	default:
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
 	}
 
 	h := w.Header()
