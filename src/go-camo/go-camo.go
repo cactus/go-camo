@@ -111,6 +111,5 @@ func main() {
 
 	// just block. listen and serve will exit the program if they fail/return
 	// so we just need to block to prevent main from exiting.
-	blocker := make(chan bool)
-	<-blocker
+	select {}
 }
