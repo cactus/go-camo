@@ -12,6 +12,7 @@ import (
 	"os"
 	"runtime"
 	"strconv"
+	"sync"
 	"syscall"
 )
 
@@ -33,7 +34,13 @@ func main() {
 	follow := flag.Bool("follow-redirects", false,
 		"Enable following upstream redirects")
 	bindAddress := flag.String("bind-address", "0.0.0.0:8080",
-		"Address:Port to bind to")
+		"Address:Port to bind to for HTTP")
+	bindAddressSSL := flag.String("bind-address-ssl", "",
+		"Address:Port to bind to for HTTPS/SSL/TLS")
+	sslKey := flag.String("ssl-key", "",
+		"Path to ssl private key (key.pem). Required if bind-address-ssl is specified.")
+	sslCert := flag.String("ssl-cert", "",
+		"Path to ssl cert (cert.pem). Required if bind-address-ssl is specified.")
 	// parse said flags
 	flag.Parse()
 
@@ -56,8 +63,20 @@ func main() {
 	if *hmacKey != "" {
 		config.HmacKey = *hmacKey
 	}
+
 	if config.MaxSize == 0 {
 		config.MaxSize = *maxSize
+	}
+
+	if *bindAddress == "" && *bindAddressSSL == "" {
+		log.Fatal("One of bind-address or bind-ssl-address required")
+	}
+
+	if *bindAddressSSL != "" && *sslKey == "" {
+		log.Fatal("ssl-key is required when specifying bind-ssl-address")
+	}
+	if *bindAddressSSL != "" && *sslCert == "" {
+		log.Fatal("ssl-cert is required when specifying bind-ssl-address")
 	}
 
 	// convert from KB to Bytes
@@ -75,6 +94,30 @@ func main() {
 
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.Handle("/", proxy)
-	log.Println("Starting server on", *bindAddress)
-	log.Fatal(http.ListenAndServe(*bindAddress, nil))
+
+	wg := &sync.WaitGroup{}
+
+	if *bindAddress != "" {
+		log.Println("Starting server on", *bindAddress)
+		wg.Add(1)
+		go func() {
+			err := http.ListenAndServe(*bindAddress, nil)
+			if err != nil {
+				log.Fatal("ListenAndServe: ", err)
+			}
+			wg.Done()
+		}()
+	}
+	if *bindAddressSSL != "" {
+		log.Println("Starting TLS server on", *bindAddressSSL)
+		wg.Add(1)
+		go func() {
+			err := http.ListenAndServeTLS(*bindAddressSSL, *sslCert, *sslKey, nil)
+			if err != nil {
+				log.Fatal("ListenAndServeTLS: ", err)
+			}
+			wg.Done()
+		}()
+	}
+	wg.Wait()
 }
