@@ -92,6 +92,7 @@ func main() {
 	proxy := camoproxy.New(config, logger)
 
 	http.Handle("/favicon.ico", http.NotFoundHandler())
+	http.Handle("/stats", proxy.StatsHandler())
 	http.Handle("/", proxy)
 
 	if *bindAddress != "" {

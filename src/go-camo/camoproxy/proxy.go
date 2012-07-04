@@ -7,6 +7,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"github.com/cactus/gologit"
 	"io"
 	"log"
@@ -15,6 +16,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -35,6 +37,31 @@ var validReqHeaders = map[string]bool{
 // no filtering.
 var validRespHeaders = map[string]bool{}
 
+type proxyStatus struct {
+    sync.Mutex
+	clientsServed  uint64
+	bytesServed    uint64
+}
+
+func (ps *proxyStatus) IncServed() {
+	ps.Lock()
+	defer ps.Unlock()
+	ps.clientsServed += 1
+}
+
+func (ps *proxyStatus) AddBytes(bc int64) {
+	ps.Lock()
+	defer ps.Unlock()
+	if bc <= 0 {
+		return
+	}
+	ps.bytesServed += uint64(bc)
+}
+
+func (ps *proxyStatus) GetStats() (b uint64, c uint64) {
+	return ps.clientsServed, ps.bytesServed
+}
+
 // A ProxyHandler is a Camo like HTTP proxy, that provides content type
 // restrictions as well as regex host allow and deny list support
 type ProxyHandler struct {
@@ -44,6 +71,20 @@ type ProxyHandler struct {
 	Denylist  []*regexp.Regexp
 	MaxSize   int64
 	log       *gologit.DebugLogger
+	stats     *proxyStatus
+}
+
+
+// StatsHandler returns an http.Handler that returns running totals and stats
+// about the server.
+func (p *ProxyHandler) StatsHandler() http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			w.WriteHeader(200)
+			c, b := p.stats.GetStats()
+			fmt.Fprintf(w, "ClientsServed, BytesServed\n %d, %d\n", c, b)
+		})
 }
 
 // ServerHTTP handles the client request, validates the request is validly
@@ -52,6 +93,7 @@ type ProxyHandler struct {
 // proper image content types.
 func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	p.log.Debugln("Request:", req.URL)
+	p.stats.IncServed()
 
 	// do fiddly things
 	if req.Method != "GET" {
@@ -173,7 +215,11 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
+	bW, err := io.Copy(w, resp.Body)
+	if err != nil {
+		p.log.Println("Error writing response:", err)
+	}
+	p.stats.AddBytes(bW)
 	p.log.Debugln(req, resp.StatusCode)
 }
 
@@ -287,5 +333,6 @@ func New(pc ProxyConfig, logger *gologit.DebugLogger) *ProxyHandler {
 		Allowlist: allow,
 		Denylist:  deny,
 		MaxSize:   pc.MaxSize,
-		log:       logger}
+		log:       logger,
+		stats:     &proxyStatus{}}
 }
