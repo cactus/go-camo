@@ -83,7 +83,7 @@ func (p *ProxyHandler) StatsHandler() http.Handler {
 			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 			w.WriteHeader(200)
 			c, b := p.stats.GetStats()
-			fmt.Fprintf(w, "ClientsServed, BytesServed\n %d, %d\n", c, b)
+			fmt.Fprintf(w, "ClientsServed, BytesServed\n%d, %d\n", c, b)
 		})
 }
 
