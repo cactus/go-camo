@@ -144,6 +144,10 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		// or followed until max depth and still got one (redirect loop)
 		http.Error(w, "Not Found", http.StatusNotFound)
 		return
+	case 500, 502, 503, 504:
+		// upstream errors should probably just 502. client can try later.
+		http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
+		return
 	case 404:
 		http.Error(w, "Not Found", http.StatusNotFound)
 		return

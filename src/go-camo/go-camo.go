@@ -39,7 +39,7 @@ func main() {
 
 	// Anonymous struct Container for holding configuration parameters parsed
 	// from JSON config file.
-	config := &camoproxy.ProxyConfig{}
+	config := camoproxy.ProxyConfig{}
 
 	if *configFile != "" {
 		b, err := ioutil.ReadFile(*configFile)
@@ -71,7 +71,7 @@ func main() {
 	logger.Debugln("Debug logging enabled")
 	logger.ToggleOnSignal(syscall.SIGUSR1)
 
-	proxy := camoproxy.New(*config, logger)
+	proxy := camoproxy.New(config, logger)
 
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.Handle("/", proxy)

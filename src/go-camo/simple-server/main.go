@@ -7,7 +7,7 @@ import (
 	"runtime"
 )
 
-var serveDir = flag.String("serveDir", ".", "Directory to serve from")
+var serveDir = flag.String("serve-dir", ".", "Directory to serve from")
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
