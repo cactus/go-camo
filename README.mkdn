@@ -49,8 +49,8 @@ Go version of [Camo][1] server.
     $ cat config.json
     {
         "HmacKey": "Some long string here...",
-        "Allowlist": [],
-        "Denylist": [
+        "AllowList": [],
+        "DenyList": [
             "^10\\.",
             "^169\\.254",
             "^192\\.168",
