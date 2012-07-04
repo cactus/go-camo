@@ -12,7 +12,6 @@ import (
 	"os"
 	"runtime"
 	"strconv"
-	"sync"
 	"syscall"
 )
 
@@ -95,29 +94,22 @@ func main() {
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.Handle("/", proxy)
 
-	wg := &sync.WaitGroup{}
-
 	if *bindAddress != "" {
 		log.Println("Starting server on", *bindAddress)
-		wg.Add(1)
 		go func() {
-			err := http.ListenAndServe(*bindAddress, nil)
-			if err != nil {
-				log.Fatal("ListenAndServe: ", err)
-			}
-			wg.Done()
+			log.Fatal(http.ListenAndServe(*bindAddress, nil))
 		}()
 	}
 	if *bindAddressSSL != "" {
 		log.Println("Starting TLS server on", *bindAddressSSL)
-		wg.Add(1)
 		go func() {
-			err := http.ListenAndServeTLS(*bindAddressSSL, *sslCert, *sslKey, nil)
-			if err != nil {
-				log.Fatal("ListenAndServeTLS: ", err)
-			}
-			wg.Done()
+			log.Fatal(http.ListenAndServeTLS(
+				*bindAddressSSL, *sslCert, *sslKey, nil))
 		}()
 	}
-	wg.Wait()
+
+	// just block. listen and serve will exit the program if they fail/return
+	// so we just need to block to prevent main from exiting.
+	blocker := make(chan bool)
+	<-blocker
 }
