@@ -64,16 +64,15 @@ Go version of [Camo][1] server.
 *   `Allowlist` is a list of host matches to always allow.
 *   `Denylist` is a list of host matches to reject.
 
-If a Allowlist is defined, and a request does not match the host regex,
+If an AllowList is defined, and a request does not match the host regex,
 then the request is denied. Default is all requests pass the Allowlist if
 none is specified.
 
-Denylist entries are matched after Allowlist, so they take precedence.
-Even if a request would be allowed by a Allowlist, a Denylist match would
+DenyList entries are matched after Allowlist, so they take precedence.
+Even if a request would be allowed by an Allowlist, a Denylist match would
 deny it.
 
-Option flags, if provided, override those in the config file (mostly just the
-hmac key).
+Option flags, if provided, override those in the config file.
 
 ## License
 
