@@ -2,10 +2,12 @@
 package main
 
 import (
+	"code.google.com/p/gorilla/mux"
 	"encoding/json"
 	"flag"
 	"github.com/cactus/gologit"
 	"go-camo/camoproxy"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,6 +16,12 @@ import (
 	"strconv"
 	"syscall"
 )
+
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(200)
+	io.WriteString(w, "Go-Camo proxy")
+}
 
 func main() {
 	var gmx int
@@ -91,9 +99,12 @@ func main() {
 
 	proxy := camoproxy.New(config, logger)
 
-	http.Handle("/favicon.ico", http.NotFoundHandler())
-	http.Handle("/stats", proxy.StatsHandler())
-	http.Handle("/", proxy)
+	router := mux.NewRouter()
+	router.Handle("/favicon.ico", http.NotFoundHandler())
+	router.Handle("/status", proxy.StatsHandler())
+	router.Handle("/{sigHash}/{encodedUrl}", proxy).Methods("GET")
+	router.HandleFunc("/", rootHandler)
+	http.Handle("/", router)
 
 	if *bindAddress != "" {
 		log.Println("Starting server on", *bindAddress)

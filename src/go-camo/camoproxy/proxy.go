@@ -3,6 +3,7 @@
 package camoproxy
 
 import (
+	"code.google.com/p/gorilla/mux"
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/hex"
@@ -94,14 +95,8 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	p.log.Debugln("Request:", req.URL)
 	p.stats.IncServed()
 
-	// do fiddly things
-	if req.Method != "GET" {
-		log.Println("Something other than GET received", req.Method)
-		http.Error(w, "Method Not Implemented", http.StatusNotImplemented)
-		return
-	}
-
-	surl, ok := p.validateURL(req.URL.Path, p.HMacKey)
+	vars := mux.Vars(req)
+	surl, ok := p.validateURL(vars["sigHash"], vars["encodedUrl"])
 	if !ok {
 		http.Error(w, "Bad Signature", http.StatusForbidden)
 		return
@@ -194,6 +189,11 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		// or followed until max depth and still got one (redirect loop)
 		http.Error(w, "Not Found", http.StatusNotFound)
 		return
+	case 304:
+		h := w.Header()
+		h.Set("X-Content-Type-Options", "nosniff")
+		w.WriteHeader(304)
+		return
 	case 404:
 		http.Error(w, "Not Found", http.StatusNotFound)
 		return
@@ -208,11 +208,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	h := w.Header()
 	p.copyHeader(&h, &resp.Header, &validRespHeaders)
-	h.Add("X-Content-Type-Options", "nosniff")
-	if resp.StatusCode == 304 && h.Get("Content-Type") != "" {
-		h.Del("Content-Type")
-	}
-
+	h.Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(resp.StatusCode)
 	bW, err := io.Copy(w, resp.Body)
 	if err != nil {
@@ -225,21 +221,14 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 // validateURL ensures the url is properly verified via HMAC, and then
 // unencodes the url, returning the url (if valid) and whether the
 // HMAC was verified.
-func (p *ProxyHandler) validateURL(path string, key []byte) (surl string, valid bool) {
-	pathParts := strings.SplitN(path[1:], "/", 3)
-	valid = false
-	if len(pathParts) != 2 {
-		p.log.Println("Bad path format", pathParts)
-		return
-	}
-	hexdig, hexurl := pathParts[0], pathParts[1]
+func (p *ProxyHandler) validateURL(hexdig string, hexurl string) (surl string, valid bool) {
 	urlBytes, err := hex.DecodeString(hexurl)
 	if err != nil {
 		p.log.Println("Bad Hex Decode", hexurl)
 		return
 	}
 	surl = string(urlBytes)
-	mac := hmac.New(sha1.New, key)
+	mac := hmac.New(sha1.New, p.HMacKey)
 	mac.Write([]byte(surl))
 	macSum := hex.EncodeToString(mac.Sum([]byte{}))
 	if macSum != hexdig {
