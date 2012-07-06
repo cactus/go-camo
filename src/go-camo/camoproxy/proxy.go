@@ -44,7 +44,7 @@ type proxyStatus struct {
 	bytesServed   uint64
 }
 
-func (ps *proxyStatus) IncServed() {
+func (ps *proxyStatus) AddServed() {
 	ps.Lock()
 	defer ps.Unlock()
 	ps.clientsServed += 1
@@ -93,10 +93,10 @@ func (p *ProxyHandler) StatsHandler() http.Handler {
 // proper image content types.
 func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	p.log.Debugln("Request:", req.URL)
-	p.stats.IncServed()
+	p.stats.AddServed()
 
 	vars := mux.Vars(req)
-	surl, ok := p.validateURL(vars["sigHash"], vars["encodedUrl"])
+	surl, ok := p.decodeUrl(vars["sigHash"], vars["encodedUrl"])
 	if !ok {
 		http.Error(w, "Bad Signature", http.StatusForbidden)
 		return
@@ -213,6 +213,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	bW, err := io.Copy(w, resp.Body)
 	if err != nil {
 		p.log.Println("Error writing response:", err)
+		return
 	}
 	p.stats.AddBytes(bW)
 	p.log.Debugln(req, resp.StatusCode)
@@ -221,7 +222,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 // validateURL ensures the url is properly verified via HMAC, and then
 // unencodes the url, returning the url (if valid) and whether the
 // HMAC was verified.
-func (p *ProxyHandler) validateURL(hexdig string, hexurl string) (surl string, valid bool) {
+func (p *ProxyHandler) decodeUrl(hexdig string, hexurl string) (surl string, valid bool) {
 	urlBytes, err := hex.DecodeString(hexurl)
 	if err != nil {
 		p.log.Println("Bad Hex Decode", hexurl)

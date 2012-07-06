@@ -37,7 +37,8 @@ func main() {
 	hmacKey := flag.String("hmac-key", "", "HMAC Key")
 	configFile := flag.String("config-file", "", "JSON Config File")
 	maxSize := flag.Int64("max-size", 5120, "Max size in KB to allow")
-	reqTimeout := flag.Uint("timeout", 4, "Upstream request timeout in seconds")
+	reqTimeout := flag.Uint("timeout", 4,
+		"Upstream request timeout in seconds")
 	follow := flag.Bool("follow-redirects", false,
 		"Enable following upstream redirects")
 	bindAddress := flag.String("bind-address", "0.0.0.0:8080",
@@ -45,14 +46,16 @@ func main() {
 	bindAddressSSL := flag.String("bind-address-ssl", "",
 		"Address:Port to bind to for HTTPS/SSL/TLS")
 	sslKey := flag.String("ssl-key", "",
-		"Path to ssl private key (key.pem). Required if bind-address-ssl is specified.")
+		"Path to ssl private key (key.pem). "+
+			"Required if bind-address-ssl is specified.")
 	sslCert := flag.String("ssl-cert", "",
-		"Path to ssl cert (cert.pem). Required if bind-address-ssl is specified.")
+		"Path to ssl cert (cert.pem). "+
+			"Required if bind-address-ssl is specified.")
 	// parse said flags
 	flag.Parse()
 
-	// Anonymous struct Container for holding configuration parameters parsed
-	// from JSON config file.
+	// Anonymous struct Container for holding configuration parameters
+	// parsed from JSON config file.
 	config := camoproxy.ProxyConfig{}
 
 	if *configFile != "" {
@@ -88,7 +91,6 @@ func main() {
 
 	// convert from KB to Bytes
 	config.MaxSize = config.MaxSize * 1024
-
 	config.RequestTimeout = *reqTimeout
 	config.FollowRedirects = *follow
 
@@ -98,7 +100,6 @@ func main() {
 	logger.ToggleOnSignal(syscall.SIGUSR1)
 
 	proxy := camoproxy.New(config, logger)
-
 	router := mux.NewRouter()
 	router.Handle("/favicon.ico", http.NotFoundHandler())
 	router.Handle("/status", proxy.StatsHandler())
