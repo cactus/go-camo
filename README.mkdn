@@ -20,6 +20,7 @@ Go version of [Camo][1] server.
     $ cd go-camo
     $ export GOPATH=$(pwd)
     $ go get github.com/cactus/gologit
+    $ go get code.google.com/p/gorilla/mux
     $ go install go-camo
 
 ## Running in production mode
@@ -31,7 +32,6 @@ Go version of [Camo][1] server.
 [Devweb][2] is useful for developing. To run under devweb:
 
     $ go get code.google.com/p/rsc/devweb
-    $ go install code.google.com/p/rsc/devweb
     $ PATH=.:$PATH $GOPATH/bin/devweb -addr=127.0.0.1:8080 go-camo/go-camo-devweb
     $ rm -f ./prox.exe  #devweb drops this file. clean it up
 
@@ -39,12 +39,17 @@ Go version of [Camo][1] server.
 
     $ $GOPATH/bin/go-camo -h
     Usage of go-camo:
-	  -bind-address="0.0.0.0:8080": Address:Port to bind to
-	  -config-file="": JSON Config File
-	  -hmac-key="": HMAC Key
-	  -debug=false: Enable Debug Logging
-	  -follow-redirects=false: Enable following upstream redirects
-	  -max-size=5120: Max size in KB to allow
+      -bind-address="0.0.0.0:8080": Address:Port to bind to for HTTP
+      -bind-address-ssl="": Address:Port to bind to for HTTPS/SSL/TLS
+      -config-file="": JSON Config File
+      -debug=false: Enable Debug Logging
+      -follow-redirects=false: Enable following upstream redirects
+      -hmac-key="": HMAC Key
+      -max-size=5120: Max size in KB to allow
+      -ssl-cert="": Path to ssl cert (cert.pem). Required if bind-address-ssl is specified.
+      -ssl-key="": Path to ssl private key (key.pem). Required if bind-address-ssl is specified.
+      -timeout=4: Upstream request timeout in seconds
+
     
     $ cat config.json
     {
