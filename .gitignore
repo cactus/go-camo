@@ -10,3 +10,4 @@
 /server.pem
 /server.key
 /server.crt
+*.py[co]
