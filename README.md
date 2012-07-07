@@ -47,7 +47,7 @@ Go version of [Camo][1] server.
       -debug=false: Enable Debug Logging
       -follow-redirects=false: Enable following upstream redirects
       -hmac-key="": HMAC Key
-      -max-size=5120: Max response image size in KB
+      -max-size=5120: Max response image size (KB)
       -ssl-cert="": Path to ssl cert (cert.pem). Required if bind-address-ssl is specified.
       -ssl-key="": Path to ssl private key (key.pem). Required if bind-address-ssl is specified.
       -timeout=4: Upstream request timeout in seconds
@@ -81,10 +81,14 @@ deny it.
 
 Option flags, if provided, override those in the config file.
 
+## Changelog
+
+See `CHANGELOG.md`
+
 ## License
 
 Released under the [MIT
-license](http://www.opensource.org/licenses/mit-license.php). See `LICENSE`
+license](http://www.opensource.org/licenses/mit-license.php). See `LICENSE.md`
 file for details.
 
 [1]: https://github.com/atmos/camo
