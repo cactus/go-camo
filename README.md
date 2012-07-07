@@ -10,9 +10,11 @@ Go version of [Camo][1] server.
 ### Supported Features
 
 *   Support for 'Path Format' only (does not support 'Query String Format').
-*   Supports an allow list as well as a deny list.
+*   Supports both allow and deny regex host filters.
 *   Supports client http keepalives.
-*   Supports using more than one os thread (via GOMAXPROCS).
+*   Native SSL Support
+*   Supports using more than one os thread (via GOMAXPROCS) without the need of
+    multiple instances or additional proxying.
 
 ## Building
 
@@ -45,7 +47,7 @@ Go version of [Camo][1] server.
       -debug=false: Enable Debug Logging
       -follow-redirects=false: Enable following upstream redirects
       -hmac-key="": HMAC Key
-      -max-size=5120: Max size in KB to allow
+      -max-size=5120: Max response image size in KB
       -ssl-cert="": Path to ssl cert (cert.pem). Required if bind-address-ssl is specified.
       -ssl-key="": Path to ssl private key (key.pem). Required if bind-address-ssl is specified.
       -timeout=4: Upstream request timeout in seconds

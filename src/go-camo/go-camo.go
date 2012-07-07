@@ -36,7 +36,7 @@ func main() {
 	debug := flag.Bool("debug", false, "Enable Debug Logging")
 	hmacKey := flag.String("hmac-key", "", "HMAC Key")
 	configFile := flag.String("config-file", "", "JSON Config File")
-	maxSize := flag.Int64("max-size", 5120, "Max size in KB to allow")
+	maxSize := flag.Int64("max-size", 5120, "Max response image size (KB)")
 	reqTimeout := flag.Uint("timeout", 4,
 		"Upstream request timeout in seconds")
 	follow := flag.Bool("follow-redirects", false,
