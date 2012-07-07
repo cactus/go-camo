@@ -10,4 +10,5 @@
 /server.pem
 /server.key
 /server.crt
+/test_internal
 *.py[co]
