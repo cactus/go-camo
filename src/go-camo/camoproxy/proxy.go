@@ -42,6 +42,7 @@ type proxyStatus struct {
 	sync.Mutex
 	clientsServed uint64
 	bytesServed   uint64
+	Enable        bool
 }
 
 func (ps *proxyStatus) AddServed() {
@@ -78,6 +79,7 @@ type ProxyHandler struct {
 // StatsHandler returns an http.Handler that returns running totals and stats
 // about the server.
 func (p *ProxyHandler) StatsHandler() http.Handler {
+	p.stats.Enable = true
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
@@ -93,7 +95,9 @@ func (p *ProxyHandler) StatsHandler() http.Handler {
 // proper image content types.
 func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	p.log.Debugln("Request:", req.URL)
-	p.stats.AddServed()
+	if p.stats.Enable {
+		p.stats.AddServed()
+	}
 
 	vars := mux.Vars(req)
 	surl, ok := p.decodeUrl(vars["sigHash"], vars["encodedUrl"])
@@ -215,7 +219,9 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		p.log.Println("Error writing response:", err)
 		return
 	}
-	p.stats.AddBytes(bW)
+	if p.stats.Enable {
+		p.stats.AddBytes(bW)
+	}
 	p.log.Debugln(req, resp.StatusCode)
 }
 
