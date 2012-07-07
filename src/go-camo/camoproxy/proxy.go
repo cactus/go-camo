@@ -109,7 +109,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	u, err := url.Parse(surl)
 	if err != nil {
-		log.Println(err)
+		p.log.Debugln(err)
 		http.Error(w, "Bad url", http.StatusBadRequest)
 		return
 	}
@@ -179,13 +179,13 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		// check content type
 		ct, ok := resp.Header[http.CanonicalHeaderKey("content-type")]
 		if !ok || ct[0][:6] != "image/" {
-			log.Println("Non-Image content-type returned", u)
+			p.log.Debugln("Non-Image content-type returned", u)
 			http.Error(w, "Non-Image content-type returned",
 				http.StatusBadRequest)
 			return
 		}
 	case 300:
-		log.Println("Multiple choices not supported")
+		p.log.Debugln("Multiple choices not supported")
 		http.Error(w, "Multiple choices not supported", http.StatusNotFound)
 		return
 	case 301, 302, 303:
@@ -231,7 +231,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 func (p *ProxyHandler) decodeUrl(hexdig string, hexurl string) (surl string, valid bool) {
 	urlBytes, err := hex.DecodeString(hexurl)
 	if err != nil {
-		p.log.Println("Bad Hex Decode", hexurl)
+		p.log.Debugln("Bad Hex Decode", hexurl)
 		return
 	}
 	surl = string(urlBytes)
