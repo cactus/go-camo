@@ -38,6 +38,8 @@ var validReqHeaders = map[string]bool{
 // no filtering.
 var validRespHeaders = map[string]bool{}
 
+var Logger = gologit.New(false)
+
 type proxyStatus struct {
 	sync.Mutex
 	clientsServed uint64
@@ -72,7 +74,6 @@ type ProxyHandler struct {
 	Allowlist []*regexp.Regexp
 	Denylist  []*regexp.Regexp
 	MaxSize   int64
-	log       *gologit.DebugLogger
 	stats     *proxyStatus
 }
 
@@ -94,7 +95,7 @@ func (p *ProxyHandler) StatsHandler() http.Handler {
 // valid requests to the desired endpoint. Responses are filtered for 
 // proper image content types.
 func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	p.log.Debugln("Request:", req.URL)
+	Logger.Debugln("Request:", req.URL)
 	if p.stats.Enable {
 		p.stats.AddServed()
 	}
@@ -105,11 +106,11 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Bad Signature", http.StatusForbidden)
 		return
 	}
-	p.log.Debugln("URL:", surl)
+	Logger.Debugln("URL:", surl)
 
 	u, err := url.Parse(surl)
 	if err != nil {
-		p.log.Debugln(err)
+		Logger.Debugln(err)
 		http.Error(w, "Bad url", http.StatusBadRequest)
 		return
 	}
@@ -145,7 +146,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	nreq, err := http.NewRequest("GET", surl, nil)
 	if err != nil {
-		p.log.Debugln("Could not create NewRequest", err)
+		Logger.Debugln("Could not create NewRequest", err)
 		http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
 		return
 	}
@@ -157,7 +158,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	resp, err := p.Client.Do(nreq)
 	if err != nil {
-		p.log.Debugln("Could not connect to endpoint", err)
+		Logger.Debugln("Could not connect to endpoint", err)
 		if strings.Contains(err.Error(), "timeout") {
 			http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
 		} else {
@@ -169,7 +170,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// check for too large a response
 	if resp.ContentLength > p.MaxSize {
-		p.log.Debugln("Content length exceeded", surl)
+		Logger.Debugln("Content length exceeded", surl)
 		http.Error(w, "Content length exceeded", http.StatusNotFound)
 		return
 	}
@@ -179,13 +180,13 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		// check content type
 		ct, ok := resp.Header[http.CanonicalHeaderKey("content-type")]
 		if !ok || ct[0][:6] != "image/" {
-			p.log.Debugln("Non-Image content-type returned", u)
+			Logger.Debugln("Non-Image content-type returned", u)
 			http.Error(w, "Non-Image content-type returned",
 				http.StatusBadRequest)
 			return
 		}
 	case 300:
-		p.log.Debugln("Multiple choices not supported")
+		Logger.Debugln("Multiple choices not supported")
 		http.Error(w, "Multiple choices not supported", http.StatusNotFound)
 		return
 	case 301, 302, 303:
@@ -216,13 +217,13 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(resp.StatusCode)
 	bW, err := io.Copy(w, resp.Body)
 	if err != nil {
-		p.log.Println("Error writing response:", err)
+		Logger.Println("Error writing response:", err)
 		return
 	}
 	if p.stats.Enable {
 		p.stats.AddBytes(bW)
 	}
-	p.log.Debugln(req, resp.StatusCode)
+	Logger.Debugln(req, resp.StatusCode)
 }
 
 // validateURL ensures the url is properly verified via HMAC, and then
@@ -231,7 +232,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 func (p *ProxyHandler) decodeUrl(hexdig string, hexurl string) (surl string, valid bool) {
 	urlBytes, err := hex.DecodeString(hexurl)
 	if err != nil {
-		p.log.Debugln("Bad Hex Decode", hexurl)
+		Logger.Debugln("Bad Hex Decode", hexurl)
 		return
 	}
 	surl = string(urlBytes)
@@ -239,7 +240,7 @@ func (p *ProxyHandler) decodeUrl(hexdig string, hexurl string) (surl string, val
 	mac.Write([]byte(surl))
 	macSum := hex.EncodeToString(mac.Sum([]byte{}))
 	if macSum != hexdig {
-		p.log.Debugf("Bad signature: %s != %s\n", macSum, hexdig)
+		Logger.Debugf("Bad signature: %s != %s\n", macSum, hexdig)
 		return
 	}
 	valid = true
@@ -274,7 +275,7 @@ type ProxyConfig struct {
 	RequestTimeout  uint
 }
 
-func New(pc ProxyConfig, logger *gologit.DebugLogger) *ProxyHandler {
+func New(pc ProxyConfig) *ProxyHandler {
 	tr := &http.Transport{
 		Dial: func(netw, addr string) (net.Conn, error) {
 			// 2 second timeout on requests
@@ -328,6 +329,5 @@ func New(pc ProxyConfig, logger *gologit.DebugLogger) *ProxyHandler {
 		Allowlist: allow,
 		Denylist:  deny,
 		MaxSize:   pc.MaxSize,
-		log:       logger,
 		stats:     &proxyStatus{}}
 }

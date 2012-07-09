@@ -5,7 +5,6 @@ import (
 	"code.google.com/p/gorilla/mux"
 	"encoding/json"
 	"flag"
-	"github.com/cactus/gologit"
 	"go-camo/camoproxy"
 	"io"
 	"io/ioutil"
@@ -94,12 +93,12 @@ func main() {
 	config.RequestTimeout = *reqTimeout
 	config.FollowRedirects = *follow
 
-	// create logger and start toggle on signal handler
-	logger := gologit.New(*debug)
-	logger.Debugln("Debug logging enabled")
-	logger.ToggleOnSignal(syscall.SIGUSR1)
+	// set logger debug level and start toggle on signal handler
+	camoproxy.Logger.Set(*debug)
+	camoproxy.Logger.Debugln("Debug logging enabled")
+	camoproxy.Logger.ToggleOnSignal(syscall.SIGUSR1)
 
-	proxy := camoproxy.New(config, logger)
+	proxy := camoproxy.New(config)
 	router := mux.NewRouter()
 	router.Handle("/favicon.ico", http.NotFoundHandler())
 	router.Handle("/status", proxy.StatsHandler())
