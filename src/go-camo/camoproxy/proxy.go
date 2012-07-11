@@ -311,14 +311,14 @@ func New(pc ProxyConfig) *ProxyHandler {
 	for _, v := range pc.DenyList {
 		c, err = regexp.Compile(v)
 		if err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 		deny = append(deny, c)
 	}
 	for _, v := range pc.AllowList {
 		c, err = regexp.Compile(v)
 		if err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 		allow = append(allow, c)
 	}
