@@ -50,11 +50,10 @@ dependencies.
       -follow-redirects=false: Enable following upstream redirects
       -hmac-key="": HMAC Key
       -max-size=5120: Max response image size (KB)
-      -ssl-cert="": Path to ssl cert (cert.pem). Required if bind-address-ssl is specified.
-      -ssl-key="": Path to ssl private key (key.pem). Required if bind-address-ssl is specified.
+      -ssl-cert="": ssl cert (cert.pem) path
+      -ssl-key="": ssl private key (key.pem) path
       -timeout=4: Upstream request timeout in seconds
 
-    
     $ cat config.json
     {
         "HmacKey": "Some long string here...",
