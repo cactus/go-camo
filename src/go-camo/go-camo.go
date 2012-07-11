@@ -23,6 +23,12 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+    defer func() {
+        if r := recover(); r != nil {
+            log.Fatal(r)
+        }
+    }()
+
 	var gmx int
 	if gmxEnv := os.Getenv("GOMAXPROCS"); gmxEnv != "" {
 		gmx, _ = strconv.Atoi(gmxEnv)

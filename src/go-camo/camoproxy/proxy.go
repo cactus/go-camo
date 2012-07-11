@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"github.com/cactus/gologit"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"net/url"
