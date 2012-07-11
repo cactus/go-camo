@@ -37,7 +37,7 @@ dependencies.
 
     $ go get code.google.com/p/rsc/devweb
     $ PATH=.:$PATH $GOPATH/bin/devweb -addr=127.0.0.1:8080 go-camo/go-camo-devweb
-    $ rm -f ./prox.exe  #devweb drops this file. clean it up
+    $ rm -f ./prox.exe  # devweb drops this file. clean it up
 
 ## Configuring
 
