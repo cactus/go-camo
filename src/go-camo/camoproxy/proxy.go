@@ -274,7 +274,7 @@ type ProxyConfig struct {
 	RequestTimeout  uint
 }
 
-func New(pc ProxyConfig) *ProxyHandler {
+func New(pc ProxyConfig) (*ProxyHandler, error) {
 	tr := &http.Transport{
 		Dial: func(netw, addr string) (net.Conn, error) {
 			// 2 second timeout on requests
@@ -310,14 +310,14 @@ func New(pc ProxyConfig) *ProxyHandler {
 	for _, v := range pc.DenyList {
 		c, err = regexp.Compile(v)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		deny = append(deny, c)
 	}
 	for _, v := range pc.AllowList {
 		c, err = regexp.Compile(v)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		allow = append(allow, c)
 	}
@@ -328,5 +328,5 @@ func New(pc ProxyConfig) *ProxyHandler {
 		Allowlist: allow,
 		Denylist:  deny,
 		MaxSize:   pc.MaxSize,
-		stats:     &proxyStatus{}}
+		stats:     &proxyStatus{}}, nil
 }

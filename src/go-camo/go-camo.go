@@ -23,12 +23,6 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-    defer func() {
-        if r := recover(); r != nil {
-            log.Fatal(r)
-        }
-    }()
-
 	var gmx int
 	if gmxEnv := os.Getenv("GOMAXPROCS"); gmxEnv != "" {
 		gmx, _ = strconv.Atoi(gmxEnv)
@@ -100,7 +94,10 @@ func main() {
 	camoproxy.Logger.Debugln("Debug logging enabled")
 	camoproxy.Logger.ToggleOnSignal(syscall.SIGUSR1)
 
-	proxy := camoproxy.New(config)
+	proxy, err := camoproxy.New(config)
+	if err != nil {
+		log.Fatal(err)
+	}
 	router := mux.NewRouter()
 	router.Handle("/favicon.ico", http.NotFoundHandler())
 	router.Handle("/status", proxy.StatsHandler())

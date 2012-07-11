@@ -23,9 +23,9 @@ dependencies.
 
     $ git clone https://github.com/cactus/go-camo.git  # Get code
     $ cd go-camo 
-    $ export GOPATH=$(pwd)  # set up env
-    $ go get -d -v go-camo  # get deps
-    $ go install go-camo    # build and place into $GOPATH/bin
+    $ export GOPATH=$(pwd)     # set up env
+    $ go get -d -v ...go-camo  # get deps
+    $ go install go-camo       # build and place into $GOPATH/bin
 
 ## Running in production mode
 
