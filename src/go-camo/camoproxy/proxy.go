@@ -274,6 +274,8 @@ type ProxyConfig struct {
 	RequestTimeout  uint
 }
 
+// Returns a new ProxyHandler. An error is returned if there was a failure
+// to parse the regex.
 func New(pc ProxyConfig) (*ProxyHandler, error) {
 	tr := &http.Transport{
 		Dial: func(netw, addr string) (net.Conn, error) {
