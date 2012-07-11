@@ -44,12 +44,8 @@ func main() {
 		"Address:Port to bind to for HTTP")
 	bindAddressSSL := flag.String("bind-address-ssl", "",
 		"Address:Port to bind to for HTTPS/SSL/TLS")
-	sslKey := flag.String("ssl-key", "",
-		"Path to ssl private key (key.pem). "+
-			"Required if bind-address-ssl is specified.")
-	sslCert := flag.String("ssl-cert", "",
-		"Path to ssl cert (cert.pem). "+
-			"Required if bind-address-ssl is specified.")
+	sslKey := flag.String("ssl-key", "", "ssl private key (key.pem) path")
+	sslCert := flag.String("ssl-cert", "", "ssl cert (cert.pem) path")
 	// parse said flags
 	flag.Parse()
 
