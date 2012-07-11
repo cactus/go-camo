@@ -21,15 +21,11 @@ Go version of [Camo][1] server.
 Building requires `git` and `hg` (mecurial). They are used to fetch
 dependencies.
 
-    # get code
-    $ git clone https://github.com/cactus/go-camo.git
-    $ cd go-camo
-    # set up env
-    $ export GOPATH=$(pwd)
-    # get deps
-    $ go get -d -v go-camo
-    # build and place into $GOPATH/bin
-    $ go install go-camo
+    $ git clone https://github.com/cactus/go-camo.git  # Get code
+    $ cd go-camo 
+    $ export GOPATH=$(pwd)  # set up env
+    $ go get -d -v go-camo  # get deps
+    $ go install go-camo    # build and place into $GOPATH/bin
 
 ## Running in production mode
 
