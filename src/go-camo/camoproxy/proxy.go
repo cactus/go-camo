@@ -16,9 +16,11 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 )
+
+// Logger
+var Logger = gologit.New(false)
 
 // Headers that are acceptible to pass from the client to the remote
 // server. Only those present and true, are forwarded.
@@ -37,32 +39,27 @@ var validReqHeaders = map[string]bool{
 // no filtering.
 var validRespHeaders = map[string]bool{}
 
-var Logger = gologit.New(false)
-
-type proxyStatus struct {
-	sync.Mutex
-	clientsServed uint64
-	bytesServed   uint64
-	Enable        bool
-}
-
-func (ps *proxyStatus) AddServed() {
-	ps.Lock()
-	defer ps.Unlock()
-	ps.clientsServed += 1
-}
-
-func (ps *proxyStatus) AddBytes(bc int64) {
-	ps.Lock()
-	defer ps.Unlock()
-	if bc <= 0 {
-		return
-	}
-	ps.bytesServed += uint64(bc)
-}
-
-func (ps *proxyStatus) GetStats() (b uint64, c uint64) {
-	return ps.clientsServed, ps.bytesServed
+// A ProxyConfig holds configuration data used when creating a
+// ProxyHandler.
+// HmacKey is a hmac string.
+// AllowList is a list of string represenstations of regex (not compiled
+// regex) that are used as a whitelist filter. If an AllowList is present,
+// then anything not matching is dropped. If no AllowList is present,
+// no Allow filtering is done.
+// DenyList is a list of string represenstations of regex (not compiled
+// regex). The deny filter check occurs after the allow filter check
+// (if any). 
+// MaxSize is the maximum valid image size response (in bytes).
+// FollowRedirects is a boolean that specifies whether upstream redirects
+// are followed (10 depth) or not.
+// Request timeout is a timeout for fetching upstream data.
+type ProxyConfig struct {
+	HmacKey         string
+	AllowList       []string
+	DenyList        []string
+	MaxSize         int64
+	FollowRedirects bool
+	RequestTimeout  uint
 }
 
 // A ProxyHandler is a Camo like HTTP proxy, that provides content type
@@ -73,7 +70,7 @@ type ProxyHandler struct {
 	Allowlist []*regexp.Regexp
 	Denylist  []*regexp.Regexp
 	MaxSize   int64
-	stats     *proxyStatus
+	stats     *proxyStats
 }
 
 // StatsHandler returns an http.Handler that returns running totals and stats
@@ -265,15 +262,6 @@ func (p *ProxyHandler) copyHeader(dst, src *http.Header, filter *map[string]bool
 	}
 }
 
-type ProxyConfig struct {
-	HmacKey         string
-	AllowList       []string
-	DenyList        []string
-	MaxSize         int64
-	FollowRedirects bool
-	RequestTimeout  uint
-}
-
 // Returns a new ProxyHandler. An error is returned if there was a failure
 // to parse the regex.
 func New(pc ProxyConfig) (*ProxyHandler, error) {
@@ -330,5 +318,5 @@ func New(pc ProxyConfig) (*ProxyHandler, error) {
 		Allowlist: allow,
 		Denylist:  deny,
 		MaxSize:   pc.MaxSize,
-		stats:     &proxyStatus{}}, nil
+		stats:     &proxyStats{}}, nil
 }

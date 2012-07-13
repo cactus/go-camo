@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"flag"
 	"go-camo/camoproxy"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -15,12 +14,6 @@ import (
 	"strconv"
 	"syscall"
 )
-
-func rootHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(200)
-	io.WriteString(w, "Go-Camo proxy")
-}
 
 func main() {
 	var gmx int
@@ -102,7 +95,7 @@ func main() {
 	router.Handle("/favicon.ico", http.NotFoundHandler())
 	router.Handle("/status", proxy.StatsHandler())
 	router.Handle("/{sigHash}/{encodedUrl}", proxy).Methods("GET")
-	router.HandleFunc("/", rootHandler)
+	router.HandleFunc("/", RootHandler)
 	http.Handle("/", router)
 
 	if *bindAddress != "" {
