@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-// Logger
+// Logger for handling logging.
 var Logger = gologit.New(false)
 
 // Headers that are acceptible to pass from the client to the remote
@@ -39,37 +39,37 @@ var validReqHeaders = map[string]bool{
 // no filtering.
 var validRespHeaders = map[string]bool{}
 
-// A ProxyConfig holds configuration data used when creating a
-// ProxyHandler.
-// HmacKey is a hmac string.
-// AllowList is a list of string represenstations of regex (not compiled
-// regex) that are used as a whitelist filter. If an AllowList is present,
-// then anything not matching is dropped. If no AllowList is present,
-// no Allow filtering is done.
-// DenyList is a list of string represenstations of regex (not compiled
-// regex). The deny filter check occurs after the allow filter check
-// (if any). 
-// MaxSize is the maximum valid image size response (in bytes).
-// FollowRedirects is a boolean that specifies whether upstream redirects
-// are followed (10 depth) or not.
-// Request timeout is a timeout for fetching upstream data.
+// ProxyConfig holds configuration data used when creating a
+// ProxyHandler with New.
 type ProxyConfig struct {
+	// HmacKey is a string to be used as the hmac key
 	HmacKey         string
+	// AllowList is a list of string represenstations of regex (not compiled
+	// regex) that are used as a whitelist filter. If an AllowList is present,
+	// then anything not matching is dropped. If no AllowList is present,
+	// no Allow filtering is done.
 	AllowList       []string
+	// DenyList is a list of string represenstations of regex (not compiled
+	// regex). The deny filter check occurs after the allow filter check
+	// (if any). 
 	DenyList        []string
+	// MaxSize is the maximum valid image size response (in bytes).
 	MaxSize         int64
+	// FollowRedirects is a boolean that specifies whether upstream redirects
+	// are followed (10 depth) or not.
 	FollowRedirects bool
+	// Request timeout is a timeout for fetching upstream data.
 	RequestTimeout  uint
 }
 
 // A ProxyHandler is a Camo like HTTP proxy, that provides content type
 // restrictions as well as regex host allow and deny list support
 type ProxyHandler struct {
-	Client    *http.Client
-	HMacKey   []byte
-	Allowlist []*regexp.Regexp
-	Denylist  []*regexp.Regexp
-	MaxSize   int64
+	client    *http.Client
+	hmacKey   []byte
+	allowList []*regexp.Regexp
+	denyList  []*regexp.Regexp
+	maxSize   int64
 	stats     *proxyStats
 }
 
@@ -116,11 +116,11 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// if Allowlist is set, require match
+	// if allowList is set, require match
 	matchFound := true
-	if len(p.Allowlist) > 0 {
+	if len(p.allowList) > 0 {
 		matchFound = false
-		for _, rgx := range p.Allowlist {
+		for _, rgx := range p.allowList {
 			if rgx.MatchString(u.Host) {
 				matchFound = true
 			}
@@ -131,9 +131,9 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// filter out Denylist urls based on regexes. Do this second
-	// as Denylist takes precedence
-	for _, rgx := range p.Denylist {
+	// filter out denyList urls based on regexes. Do this second
+	// as denyList takes precedence
+	for _, rgx := range p.denyList {
 		if rgx.MatchString(u.Host) {
 			http.Error(w, "Denylist host failure", http.StatusNotFound)
 			return
@@ -152,7 +152,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	nreq.Header.Add("connection", "close")
 	nreq.Header.Add("user-agent", "pew pew pew")
 
-	resp, err := p.Client.Do(nreq)
+	resp, err := p.client.Do(nreq)
 	if err != nil {
 		Logger.Debugln("Could not connect to endpoint", err)
 		if strings.Contains(err.Error(), "timeout") {
@@ -165,7 +165,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	defer resp.Body.Close()
 
 	// check for too large a response
-	if resp.ContentLength > p.MaxSize {
+	if resp.ContentLength > p.maxSize {
 		Logger.Debugln("Content length exceeded", surl)
 		http.Error(w, "Content length exceeded", http.StatusNotFound)
 		return
@@ -232,7 +232,7 @@ func (p *ProxyHandler) decodeUrl(hexdig string, hexurl string) (surl string, val
 		return
 	}
 	surl = string(urlBytes)
-	mac := hmac.New(sha1.New, p.HMacKey)
+	mac := hmac.New(sha1.New, p.hmacKey)
 	mac.Write([]byte(surl))
 	macSum := hex.EncodeToString(mac.Sum([]byte{}))
 	if macSum != hexdig {
@@ -263,7 +263,7 @@ func (p *ProxyHandler) copyHeader(dst, src *http.Header, filter *map[string]bool
 }
 
 // Returns a new ProxyHandler. An error is returned if there was a failure
-// to parse the regex.
+// to parse the regex from the passed ProxyConfig.
 func New(pc ProxyConfig) (*ProxyHandler, error) {
 	tr := &http.Transport{
 		Dial: func(netw, addr string) (net.Conn, error) {
@@ -313,10 +313,10 @@ func New(pc ProxyConfig) (*ProxyHandler, error) {
 	}
 
 	return &ProxyHandler{
-		Client:    client,
-		HMacKey:   []byte(pc.HmacKey),
-		Allowlist: allow,
-		Denylist:  deny,
-		MaxSize:   pc.MaxSize,
+		client:    client,
+		hmacKey:   []byte(pc.HmacKey),
+		allowList: allow,
+		denyList:  deny,
+		maxSize:   pc.MaxSize,
 		stats:     &proxyStats{}}, nil
 }
