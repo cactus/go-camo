@@ -1,4 +1,5 @@
 /bin
+/setenv
 /go-camo
 /config.json
 /simple-server
