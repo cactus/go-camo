@@ -25,8 +25,9 @@ var Logger = gologit.New(false)
 var ServerName = "go-camo"
 
 // Headers that are acceptible to pass from the client to the remote
-// server. Only those present and true, are forwarded.
-var validReqHeaders = map[string]bool{
+// server. Only those present and true, are forwarded. Empty implies
+// no filtering.
+var ValidReqHeaders = map[string]bool{
 	"Accept":            true,
 	"Accept-Charset":    true,
 	"Accept-Encoding":   true,
@@ -39,7 +40,18 @@ var validReqHeaders = map[string]bool{
 // Headers that are acceptible to pass from the remote server to the
 // client. Only those present and true, are forwarded. Empty implies
 // no filtering.
-var validRespHeaders = map[string]bool{}
+var ValidRespHeaders = map[string]bool{
+	// Do not offer to accept range requests
+	"Accept-Ranges":     false,
+	"Cache-Control":     true,
+	"Content-Encoding":  true,
+	"Content-Type":      true,
+	"Transfer-Encoding": true,
+	"Expires":           true,
+	"Last-Modified":     true,
+	// override with either nothing, or ServerName
+	"Server":            false,
+	}
 
 // ProxyConfig holds configuration data used when creating a
 // ProxyHandler with New.
@@ -53,7 +65,7 @@ type ProxyConfig struct {
 	AllowList       []string
 	// DenyList is a list of string represenstations of regex (not compiled
 	// regex). The deny filter check occurs after the allow filter check
-	// (if any). 
+	// (if any).
 	DenyList        []string
 	// MaxSize is the maximum valid image size response (in bytes).
 	MaxSize         int64
@@ -90,7 +102,7 @@ func (p *ProxyHandler) StatsHandler() http.Handler {
 
 // ServerHTTP handles the client request, validates the request is validly
 // HMAC signed, filters based on the Allow/Deny list, and then proxies
-// valid requests to the desired endpoint. Responses are filtered for 
+// valid requests to the desired endpoint. Responses are filtered for
 // proper image content types.
 func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	Logger.Debugln("Request:", req.URL)
@@ -155,7 +167,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// filter headers
-	p.copyHeader(&nreq.Header, &req.Header, &validReqHeaders)
+	p.copyHeader(&nreq.Header, &req.Header, &ValidReqHeaders)
 	nreq.Header.Add("connection", "close")
 	nreq.Header.Add("user-agent", "pew pew pew")
 
@@ -193,12 +205,13 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Multiple choices not supported", http.StatusNotFound)
 		return
 	case 301, 302, 303:
-		// if we get a redirect here, we either disabled following, 
+		// if we get a redirect here, we either disabled following,
 		// or followed until max depth and still got one (redirect loop)
 		http.Error(w, "Not Found", http.StatusNotFound)
 		return
 	case 304:
 		h := w.Header()
+		p.copyHeader(&h, &resp.Header, &ValidRespHeaders)
 		h.Set("X-Content-Type-Options", "nosniff")
 		w.WriteHeader(304)
 		return
@@ -215,7 +228,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	h := w.Header()
-	p.copyHeader(&h, &resp.Header, &validRespHeaders)
+	p.copyHeader(&h, &resp.Header, &ValidRespHeaders)
 	h.Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(resp.StatusCode)
 	bW, err := io.Copy(w, resp.Body)
