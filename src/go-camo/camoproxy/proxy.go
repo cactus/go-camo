@@ -22,6 +22,8 @@ import (
 // Logger for handling logging.
 var Logger = gologit.New(false)
 
+var ServerName = "go-camo"
+
 // Headers that are acceptible to pass from the client to the remote
 // server. Only those present and true, are forwarded.
 var validReqHeaders = map[string]bool{
@@ -94,6 +96,11 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	Logger.Debugln("Request:", req.URL)
 	if p.stats.Enable {
 		p.stats.AddServed()
+	}
+
+	if ServerName != "" {
+		h := w.Header()
+		h.Set("Server", ServerName)
 	}
 
 	vars := mux.Vars(req)
