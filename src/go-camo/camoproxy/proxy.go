@@ -231,11 +231,24 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	p.copyHeader(&h, &resp.Header, &ValidRespHeaders)
 	h.Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(resp.StatusCode)
+
+	// since this uses io.Copy from the respBody, it is streaming
+	// from the request to the response. This means it will nearly
+	// always end up with a chunked response.
+	// Change to the following to send whole body at once, and
+	// read whole body at once too:
+	//    body, err := ioutil.ReadAll(resp.Body)
+	//    if err != nil {
+	//        Logger.Println("Error writing response:", err)
+	//    }
+	//    w.Write(body)
+	//  Might use quite a bit of memory though. Untested.
 	bW, err := io.Copy(w, resp.Body)
 	if err != nil {
 		Logger.Println("Error writing response:", err)
 		return
 	}
+
 	if p.stats.Enable {
 		p.stats.AddBytes(bW)
 	}
