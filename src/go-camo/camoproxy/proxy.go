@@ -232,7 +232,7 @@ func (p *ProxyHandler) copyHeader(dst, src *http.Header, filter *map[string]bool
 	}
 
 	for k, vv := range *src {
-		if x, ok := f[k]; filtering && !ok && !x {
+		if x, ok := f[k]; filtering && (!ok || !x) {
 			continue
 		}
 		for _, v := range vv {
