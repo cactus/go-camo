@@ -97,7 +97,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	vars := mux.Vars(req)
-	surl, ok := p.decodeUrl(vars["sigHash"], vars["encodedUrl"])
+	surl, ok := DecodeUrl(&p.hmacKey, vars["sigHash"], vars["encodedUrl"])
 	if !ok {
 		http.Error(w, "Bad Signature", http.StatusForbidden)
 		return
@@ -222,27 +222,6 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	Logger.Debugln(req, resp.StatusCode)
 }
 
-// validateURL ensures the url is properly verified via HMAC, and then
-// unencodes the url, returning the url (if valid) and whether the
-// HMAC was verified.
-func (p *ProxyHandler) decodeUrl(hexdig string, hexurl string) (surl string, valid bool) {
-	urlBytes, err := hex.DecodeString(hexurl)
-	if err != nil {
-		Logger.Debugln("Bad Hex Decode", hexurl)
-		return
-	}
-	surl = string(urlBytes)
-	mac := hmac.New(sha1.New, p.hmacKey)
-	mac.Write([]byte(surl))
-	macSum := hex.EncodeToString(mac.Sum([]byte{}))
-	if macSum != hexdig {
-		Logger.Debugf("Bad signature: %s != %s\n", macSum, hexdig)
-		return
-	}
-	valid = true
-	return
-}
-
 // copy headers from src into dst
 // empty filter map will result in no filtering being done
 func (p *ProxyHandler) copyHeader(dst, src *http.Header, filter *map[string]bool) {
@@ -320,3 +299,34 @@ func New(pc ProxyConfig) (*ProxyHandler, error) {
 		maxSize:   pc.MaxSize,
 		stats:     &proxyStats{}}, nil
 }
+
+// DecodeUrl ensures the url is properly verified via HMAC, and then
+// unencodes the url, returning the url (if valid) and whether the
+// HMAC was verified.
+func DecodeUrl(hmackey *[]byte, hexdig string, hexurl string) (surl string, valid bool) {
+	urlBytes, err := hex.DecodeString(hexurl)
+	if err != nil {
+		Logger.Debugln("Bad Hex Decode", hexurl)
+		return
+	}
+	surl = string(urlBytes)
+	mac := hmac.New(sha1.New, *hmackey)
+	mac.Write([]byte(surl))
+	macSum := hex.EncodeToString(mac.Sum([]byte{}))
+	if macSum != hexdig {
+		Logger.Debugf("Bad signature: %s != %s\n", macSum, hexdig)
+		return
+	}
+	valid = true
+	return
+}
+
+func EncodeUrl(hmacKey *[]byte, oUrl string) string {
+	mac := hmac.New(sha1.New, *hmacKey)
+	mac.Write([]byte(oUrl))
+	macSum := hex.EncodeToString(mac.Sum([]byte{}))
+	encodedUrl := hex.EncodeToString([]byte(oUrl))
+	hexurl := "/" + macSum + "/" + encodedUrl
+	return hexurl
+}
+
