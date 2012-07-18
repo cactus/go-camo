@@ -83,9 +83,10 @@ func main() {
 	config.FollowRedirects = *follow
 
 	// set logger debug level and start toggle on signal handler
-	camoproxy.Logger.Set(*debug)
-	camoproxy.Logger.Debugln("Debug logging enabled")
-	camoproxy.Logger.ToggleOnSignal(syscall.SIGUSR1)
+	logger := camoproxy.Logger
+	logger.Set(*debug)
+	logger.Debugln("Debug logging enabled")
+	logger.ToggleOnSignal(syscall.SIGUSR1)
 
 	proxy, err := camoproxy.New(config)
 	if err != nil {

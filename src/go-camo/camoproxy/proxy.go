@@ -4,9 +4,6 @@ package camoproxy
 
 import (
 	"code.google.com/p/gorilla/mux"
-	"crypto/hmac"
-	"crypto/sha1"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/cactus/gologit"
@@ -49,7 +46,7 @@ var ValidRespHeaders = map[string]bool{
 	"Transfer-Encoding": true,
 	"Expires":           true,
 	"Last-Modified":     true,
-	// override with either nothing, or ServerName
+	// override in response with either nothing, or ServerName
 	"Server":            false,
 	}
 
@@ -242,7 +239,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	//        Logger.Println("Error writing response:", err)
 	//    }
 	//    w.Write(body)
-	//  Might use quite a bit of memory though. Untested.
+	// Might use quite a bit of memory though. Untested.
 	bW, err := io.Copy(w, resp.Body)
 	if err != nil {
 		Logger.Println("Error writing response:", err)
@@ -331,35 +328,5 @@ func New(pc ProxyConfig) (*ProxyHandler, error) {
 		denyList:  deny,
 		maxSize:   pc.MaxSize,
 		stats:     &proxyStats{}}, nil
-}
-
-// DecodeUrl ensures the url is properly verified via HMAC, and then
-// unencodes the url, returning the url (if valid) and whether the
-// HMAC was verified.
-func DecodeUrl(hmackey *[]byte, hexdig string, hexurl string) (surl string, valid bool) {
-	urlBytes, err := hex.DecodeString(hexurl)
-	if err != nil {
-		Logger.Debugln("Bad Hex Decode", hexurl)
-		return
-	}
-	surl = string(urlBytes)
-	mac := hmac.New(sha1.New, *hmackey)
-	mac.Write([]byte(surl))
-	macSum := hex.EncodeToString(mac.Sum([]byte{}))
-	if macSum != hexdig {
-		Logger.Debugf("Bad signature: %s != %s\n", macSum, hexdig)
-		return
-	}
-	valid = true
-	return
-}
-
-func EncodeUrl(hmacKey *[]byte, oUrl string) string {
-	mac := hmac.New(sha1.New, *hmacKey)
-	mac.Write([]byte(oUrl))
-	macSum := hex.EncodeToString(mac.Sum([]byte{}))
-	encodedUrl := hex.EncodeToString([]byte(oUrl))
-	hexurl := "/" + macSum + "/" + encodedUrl
-	return hexurl
 }
 
