@@ -29,4 +29,3 @@ func (ps *proxyStats) AddBytes(bc int64) {
 func (ps *proxyStats) GetStats() (b uint64, c uint64) {
 	return ps.clientsServed, ps.bytesServed
 }
-
