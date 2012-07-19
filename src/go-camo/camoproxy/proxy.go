@@ -104,7 +104,7 @@ func (p *ProxyHandler) StatsHandler() http.Handler {
 func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	Logger.Debugln("Request:", req.URL)
 	if p.stats.Enable {
-		p.stats.AddServed()
+		go p.stats.AddServed()
 	}
 
 	if ServerName != "" {
@@ -247,7 +247,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if p.stats.Enable {
-		p.stats.AddBytes(bW)
+		go p.stats.AddBytes(bW)
 	}
 	Logger.Debugln(req, resp.StatusCode)
 }
