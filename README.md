@@ -52,7 +52,7 @@ dependencies.
       -max-size=5120: Max response image size (KB)
       -ssl-cert="": ssl cert (cert.pem) path
       -ssl-key="": ssl private key (key.pem) path
-      -timeout=4: Upstream request timeout in seconds
+      -timeout=4s: Upstream request timeout
 
     $ cat config.json
     {

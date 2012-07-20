@@ -31,7 +31,7 @@ func main() {
 	configFile := flag.String("config-file", "", "JSON Config File")
 	maxSize := flag.Int64("max-size", 5120, "Max response image size (KB)")
 	reqTimeout := flag.Duration("timeout", 4*time.Second,
-		"Upstream request timeout in seconds")
+		"Upstream request timeout")
 	follow := flag.Bool("follow-redirects", false,
 		"Enable following upstream redirects")
 	bindAddress := flag.String("bind-address", "0.0.0.0:8080",
