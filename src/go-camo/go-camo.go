@@ -13,6 +13,7 @@ import (
 	"runtime"
 	"strconv"
 	"syscall"
+	"time"
 )
 
 func main() {
@@ -29,7 +30,7 @@ func main() {
 	hmacKey := flag.String("hmac-key", "", "HMAC Key")
 	configFile := flag.String("config-file", "", "JSON Config File")
 	maxSize := flag.Int64("max-size", 5120, "Max response image size (KB)")
-	reqTimeout := flag.Uint("timeout", 4,
+	reqTimeout := flag.Duration("timeout", 4*time.Second,
 		"Upstream request timeout in seconds")
 	follow := flag.Bool("follow-redirects", false,
 		"Enable following upstream redirects")

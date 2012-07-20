@@ -70,7 +70,7 @@ type ProxyConfig struct {
 	// are followed (10 depth) or not.
 	FollowRedirects bool
 	// Request timeout is a timeout for fetching upstream data.
-	RequestTimeout  uint
+	RequestTimeout  time.Duration
 }
 
 // A ProxyHandler is a Camo like HTTP proxy, that provides content type
@@ -276,14 +276,12 @@ func (p *ProxyHandler) copyHeader(dst, src *http.Header, filter *map[string]bool
 func New(pc ProxyConfig) (*ProxyHandler, error) {
 	tr := &http.Transport{
 		Dial: func(netw, addr string) (net.Conn, error) {
-			// 2 second timeout on requests
-			timeout := time.Second * time.Duration(pc.RequestTimeout)
-			c, err := net.DialTimeout(netw, addr, timeout)
+			c, err := net.DialTimeout(netw, addr, pc.RequestTimeout)
 			if err != nil {
 				return nil, err
 			}
 			// also set time limit on reading
-			c.SetDeadline(time.Now().Add(timeout))
+			c.SetDeadline(time.Now().Add(pc.RequestTimeout))
 			return c, nil
 		}}
 
