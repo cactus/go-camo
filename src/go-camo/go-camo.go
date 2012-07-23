@@ -45,7 +45,7 @@ func main() {
 
 	// Anonymous struct Container for holding configuration parameters
 	// parsed from JSON config file.
-	config := camoproxy.ProxyConfig{}
+	config := camoproxy.Config{}
 
 	if *configFile != "" {
 		b, err := ioutil.ReadFile(*configFile)

@@ -50,9 +50,9 @@ var ValidRespHeaders = map[string]bool{
 	"Server":            false,
 	}
 
-// ProxyConfig holds configuration data used when creating a
-// ProxyHandler with New.
-type ProxyConfig struct {
+// Config holds configuration data used when creating a
+// Proxy with New.
+type Config struct {
 	// HmacKey is a string to be used as the hmac key
 	HmacKey         string
 	// AllowList is a list of string represenstations of regex (not compiled
@@ -73,9 +73,9 @@ type ProxyConfig struct {
 	RequestTimeout  time.Duration
 }
 
-// A ProxyHandler is a Camo like HTTP proxy, that provides content type
+// A Proxy is a Camo like HTTP proxy, that provides content type
 // restrictions as well as regex host allow and deny list support
-type ProxyHandler struct {
+type Proxy struct {
 	client    *http.Client
 	hmacKey   []byte
 	allowList []*regexp.Regexp
@@ -86,7 +86,7 @@ type ProxyHandler struct {
 
 // StatsHandler returns an http.Handler that returns running totals and stats
 // about the server.
-func (p *ProxyHandler) StatsHandler() http.Handler {
+func (p *Proxy) StatsHandler() http.Handler {
 	p.stats.Enable = true
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
@@ -101,7 +101,7 @@ func (p *ProxyHandler) StatsHandler() http.Handler {
 // HMAC signed, filters based on the Allow/Deny list, and then proxies
 // valid requests to the desired endpoint. Responses are filtered for
 // proper image content types.
-func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	Logger.Debugln("Request:", req.URL)
 	if p.stats.Enable {
 		go p.stats.AddServed()
@@ -254,7 +254,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 // copy headers from src into dst
 // empty filter map will result in no filtering being done
-func (p *ProxyHandler) copyHeader(dst, src *http.Header, filter *map[string]bool) {
+func (p *Proxy) copyHeader(dst, src *http.Header, filter *map[string]bool) {
 	f := *filter
 	filtering := false
 	if len(f) > 0 {
@@ -271,9 +271,9 @@ func (p *ProxyHandler) copyHeader(dst, src *http.Header, filter *map[string]bool
 	}
 }
 
-// Returns a new ProxyHandler. An error is returned if there was a failure
-// to parse the regex from the passed ProxyConfig.
-func New(pc ProxyConfig) (*ProxyHandler, error) {
+// Returns a new Proxy. An error is returned if there was a failure
+// to parse the regex from the passed Config.
+func New(pc Config) (*Proxy, error) {
 	tr := &http.Transport{
 		Dial: func(netw, addr string) (net.Conn, error) {
 			c, err := net.DialTimeout(netw, addr, pc.RequestTimeout)
@@ -319,7 +319,7 @@ func New(pc ProxyConfig) (*ProxyHandler, error) {
 		allow = append(allow, c)
 	}
 
-	return &ProxyHandler{
+	return &Proxy{
 		client:    client,
 		hmacKey:   []byte(pc.HmacKey),
 		allowList: allow,
