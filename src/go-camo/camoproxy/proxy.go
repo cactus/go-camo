@@ -19,8 +19,6 @@ import (
 // Logger for handling logging.
 var Logger = gologit.New(false)
 
-var ServerName = "go-camo"
-
 // Headers that are acceptible to pass from the client to the remote
 // server. Only those present and true, are forwarded. Empty implies
 // no filtering.
@@ -46,9 +44,11 @@ var ValidRespHeaders = map[string]bool{
 	"Transfer-Encoding": true,
 	"Expires":           true,
 	"Last-Modified":     true,
-	// override in response with either nothing, or ServerName
+	// override in response with either nothing, or ServerNameVer
 	"Server":            false,
 	}
+
+var addr1918match, _ = regexp.Compile(`^(127\.|10\.|169\\.254|192\.168|^172\.(?:(?:1[6-9])|(?:2[0-9])|(?:3[0-1])))`)
 
 // Config holds configuration data used when creating a
 // Proxy with New.
@@ -107,10 +107,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		go p.stats.AddServed()
 	}
 
-	if ServerName != "" {
-		h := w.Header()
-		h.Set("Server", ServerName)
-	}
+    w.Header().Set("Server", ServerNameVer)
 
 	vars := mux.Vars(req)
 	surl, ok := DecodeUrl(&p.hmacKey, vars["sigHash"], vars["encodedUrl"])
@@ -166,7 +163,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// filter headers
 	p.copyHeader(&nreq.Header, &req.Header, &ValidReqHeaders)
 	nreq.Header.Add("connection", "close")
-	nreq.Header.Add("user-agent", "pew pew pew")
+    nreq.Header.Add("user-agent", ServerNameVer)
 
 	resp, err := p.client.Do(nreq)
 	if err != nil {

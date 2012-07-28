@@ -5,6 +5,7 @@ import (
 	"code.google.com/p/gorilla/mux"
 	"encoding/json"
 	"flag"
+    "fmt"
 	"go-camo/camoproxy"
 	"io/ioutil"
 	"log"
@@ -40,8 +41,14 @@ func main() {
 		"Address:Port to bind to for HTTPS/SSL/TLS")
 	sslKey := flag.String("ssl-key", "", "ssl private key (key.pem) path")
 	sslCert := flag.String("ssl-cert", "", "ssl cert (cert.pem) path")
+	version := flag.Bool("version", false, "print version and exit")
 	// parse said flags
 	flag.Parse()
+
+    if *version {
+        fmt.Println(camoproxy.ServerNameVer)
+        os.Exit(0)
+    }
 
 	// Anonymous struct Container for holding configuration parameters
 	// parsed from JSON config file.
