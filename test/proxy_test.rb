@@ -151,5 +151,10 @@ class CamoProxyTests < Test::Unit::TestCase
         request('http://iphone.internal.example.org/foo.cgi')
       end
     end
+
+    should "follow temporary redirects" do
+      response = request('http://d.pr/i/rr7F+')
+      assert_equal(200, response.code)
+    end
   end
 end

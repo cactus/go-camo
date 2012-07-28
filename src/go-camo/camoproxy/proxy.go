@@ -201,7 +201,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		Logger.Debugln("Multiple choices not supported")
 		http.Error(w, "Multiple choices not supported", http.StatusNotFound)
 		return
-	case 301, 302, 303:
+	case 301, 302, 303, 307:
 		// if we get a redirect here, we either disabled following,
 		// or followed until max depth and still got one (redirect loop)
 		http.Error(w, "Not Found", http.StatusNotFound)
