@@ -30,7 +30,7 @@ var ValidReqHeaders = map[string]bool{
 	"Cache-Control":     true,
 	"If-None-Match":     true,
 	"If-Modified-Since": true,
-    "X-Forwarded-For":   true,
+	"X-Forwarded-For":   true,
 }
 
 // Headers that are acceptible to pass from the remote server to the
@@ -108,7 +108,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		go p.stats.AddServed()
 	}
 
-    w.Header().Set("Server", ServerNameVer)
+	w.Header().Set("Server", ServerNameVer)
 
 	vars := mux.Vars(req)
 	surl, ok := DecodeUrl(&p.hmacKey, vars["sigHash"], vars["encodedUrl"])
@@ -163,14 +163,14 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// filter headers
 	p.copyHeader(&nreq.Header, &req.Header, &ValidReqHeaders)
-    if req.Header.Get("X-Forwarded-For") == "" {
-        host, _, err := net.SplitHostPort(req.RemoteAddr)
-        if err == nil && !addr1918match.MatchString(host) {
-            nreq.Header.Add("X-Forwarded-For", host)
-        }
-    }
+	if req.Header.Get("X-Forwarded-For") == "" {
+		host, _, err := net.SplitHostPort(req.RemoteAddr)
+		if err == nil && !addr1918match.MatchString(host) {
+			nreq.Header.Add("X-Forwarded-For", host)
+		}
+	}
 	nreq.Header.Add("connection", "close")
-    nreq.Header.Add("user-agent", ServerNameVer)
+	nreq.Header.Add("user-agent", ServerNameVer)
 
 	resp, err := p.client.Do(nreq)
 	if err != nil {
@@ -331,4 +331,3 @@ func New(pc Config) (*Proxy, error) {
 		maxSize:   pc.MaxSize,
 		stats:     &proxyStats{}}, nil
 }
-

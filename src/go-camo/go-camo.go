@@ -5,7 +5,7 @@ import (
 	"code.google.com/p/gorilla/mux"
 	"encoding/json"
 	"flag"
-    "fmt"
+	"fmt"
 	"go-camo/camoproxy"
 	"io/ioutil"
 	"log"
@@ -45,10 +45,10 @@ func main() {
 	// parse said flags
 	flag.Parse()
 
-    if *version {
-        fmt.Println(camoproxy.ServerNameVer)
-        os.Exit(0)
-    }
+	if *version {
+		fmt.Println(camoproxy.ServerNameVer)
+		os.Exit(0)
+	}
 
 	// Anonymous struct Container for holding configuration parameters
 	// parsed from JSON config file.
