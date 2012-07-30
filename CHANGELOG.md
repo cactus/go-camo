@@ -9,6 +9,7 @@ Changelog
 *   add default Server name
 *   fix bug dealing with header filtering logic
 *   add cli utility to encode/decode urls for testing, etc.
+*   change repo layout to be friendlier for Go development/building
 
 
 ## 0.0.2 2012-07-12
