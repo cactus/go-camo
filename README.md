@@ -19,11 +19,10 @@ Go version of [Camo][1] server.
 ## Building
 
 Building requires `git` and `hg` (mecurial). They are used to fetch
-dependencies.
+dependencies. A functional [Go][3] installation is also required.
 
     # Set GOPATH if appropriate
     $ go get github.com/cactus/go-camo
-    $ go install github.com/cactus/go-camo
 
 ## Running in production mode
 
@@ -92,3 +91,4 @@ file for details.
 
 [1]: https://github.com/atmos/camo
 [2]: http://code.google.com/p/rsc/source/browse/devweb
+[3]: http://golang.org/doc/install
