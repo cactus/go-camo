@@ -2,23 +2,23 @@
 package main
 
 import (
+	"code.google.com/p/gorilla/mux"
 	"code.google.com/p/rsc/devweb/slave"
 	"encoding/json"
 	"github.com/cactus/go-camo/camoproxy"
-	"github.com/cactus/gologit"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"runtime"
+	"time"
 )
 
 func main() {
 	// Anonymous struct Container for holding configuration parameters parsed
 	// from JSON config file.
-	config := &camoproxy.ProxyConfig{
+	config := camoproxy.Config{
 		MaxSize:         5120 * 1024,
 		FollowRedirects: true,
-		RequestTimeout:  5}
+		RequestTimeout:  5 * time.Second}
 
 	b, err := ioutil.ReadFile("config.json")
 	if err != nil {
@@ -29,13 +29,19 @@ func main() {
 		log.Fatal("Could not parse configFile", err)
 	}
 
-	// create logger and start toggle on signal handler
-	logger := gologit.New(true)
+	proxy, err := camoproxy.New(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+	logger := camoproxy.Logger
+	logger.Set(true)
+	logger.Debugln("Debug logging enabled")
 
-	proxy := camoproxy.New(config, logger)
-
-	http.Handle("/favicon.ico", http.NotFoundHandler())
-	http.Handle("/", proxy)
+	router := mux.NewRouter()
+	router.Handle("/favicon.ico", http.NotFoundHandler())
+	router.Handle("/status", proxy.StatsHandler())
+	router.Handle("/{sigHash}/{encodedUrl}", proxy).Methods("GET")
+	http.Handle("/", router)
 	log.Println("starting up camoproxy")
 	slave.Main()
 }
