@@ -4,8 +4,8 @@ package main
 import (
 	"code.google.com/p/rsc/devweb/slave"
 	"encoding/json"
+	"github.com/cactus/go-camo/camoproxy"
 	"github.com/cactus/gologit"
-	"go-camo/camoproxy"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -16,9 +16,9 @@ func main() {
 	// Anonymous struct Container for holding configuration parameters parsed
 	// from JSON config file.
 	config := &camoproxy.ProxyConfig{
-			MaxSize: 5120*1024,
-			FollowRedirects: true,
-			RequestTimeout: 5}
+		MaxSize:         5120 * 1024,
+		FollowRedirects: true,
+		RequestTimeout:  5}
 
 	b, err := ioutil.ReadFile("config.json")
 	if err != nil {

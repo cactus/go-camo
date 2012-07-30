@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"go-camo/camoproxy"
+	"github.com/cactus/go-camo/camoproxy"
 	"io/ioutil"
 	"log"
 	"net/http"

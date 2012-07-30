@@ -1,12 +1,8 @@
 /bin
 /setenv
-/go-camo
 /config.json
-/simple-server
 /pkg
-/src/github.com
-/src/code.google.com
-/src/bitbucket.org
+/src
 /prox.exe
 /server.pem
 /server.key
