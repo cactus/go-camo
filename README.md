@@ -39,8 +39,7 @@ Here it is in action:
 
 While Go-Camo will support proxying https images as well, for performance
 reasons you may choose to filter https requests out from proxying, and let the
-client simply fetch those as they are. The code example above is an example of
-this.
+client simply fetch those as they are. The code example above does this.
 
 Note that it is recommended to front Go-Camo with a CDN when possible.
 
