@@ -5,22 +5,22 @@ go-camo
 
 Go version of [Camo][1] server.
 
-[Camo][1] is a special type of image proxy that proxies unsecure images over
-ssl. This prevents mixed content warnings on secure pages.
+[Camo][1] is a special type of image proxy that proxies non-secure images over
+SSL/TLS. This prevents mixed content warnings on secure pages.
 
-It works in conjuction with backend code to rewrite image urls and sign them
-with an [hmac][4].
+It works in conjunction with back-end code to rewrite image URLs and sign them
+with an [HMAC][4].
 
 ## How it works
 
-First you parse the original url, generate an hmac signature of it, then hex
-encode it, and then place the peices into the expected format replacing the
-original image url.
+First you parse the original URL, generate an HMAC signature of it, then hex
+encode it, and then place the pieces into the expected format replacing the
+original image URL.
 
-The client requests the url to Go-Camo. Go-Camo validates the hmac, decodes the
-url, requests the content and streams it to the client.
+The client requests the URL to Go-Camo. Go-Camo validates the HMAC, decodes the
+URL, requests the content and streams it to the client.
 
-Here is some example python code that demonstrates generating an encoded url:
+Here is some example python code that demonstrates generating an encoded URL:
 
     import hashlib
     import hmac
@@ -37,8 +37,8 @@ Here it is in action:
     >>> mk_camo_url("test", "http://golang.org/doc/gopher/frontpage.png", "img.example.org")
     'https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67'
 
-While Go-Camo will support proxying https images as well, for performance
-reasons you may choose to filter https requests out from proxying, and let the
+While Go-Camo will support proxying HTTPS images as well, for performance
+reasons you may choose to filter HTTPS requests out from proxying, and let the
 client simply fetch those as they are. The code example above does this.
 
 Note that it is recommended to front Go-Camo with a CDN when possible.
@@ -48,7 +48,7 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
 *   Go-Camo Support for 'Path Format' only (does not support 'Query String
     Format').
 *   Go-Camo Supports both allow and deny regex host filters.
-*   Go-Camo Supports client http keepalives.
+*   Go-Camo Supports client http keep-alives.
 *   Go-Camo provides native SSL support.
 *   Go-Camo supports using more than one os thread (via GOMAXPROCS) without the
     need of multiple instances or additional proxying.
@@ -133,7 +133,7 @@ Go-Camo includes a couple of additional tools.
 
 ### url-tool
 
-The `url-tool` utility provides a simple way to generate signed urls from the command line.
+The `url-tool` utility provides a simple way to generate signed URLs from the command line.
 
     $ $GOPATH/bin/url-tool -h
     Usage of bin/url-tool:
