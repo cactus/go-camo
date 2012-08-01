@@ -12,6 +12,7 @@ Changelog
 *   change repo layout to be friendlier for Go development/building
 *   timeout flag is now a duration (15s, 10m, 1h, etc)
 *   X-Forwarded-For support
+*   Added more info to readme
 
 
 ## 0.0.2 2012-07-12

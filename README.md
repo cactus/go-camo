@@ -5,16 +5,56 @@ go-camo
 
 Go version of [Camo][1] server.
 
+[Camo][1] is a special type of image proxy that proxies unsecure images over
+ssl. This prevents mixed content warnings on secure pages.
+
+It works in conjuction with backend code to rewrite image urls and sign them
+with an [hmac][4].
+
+## How it works
+
+First you parse the original url, generate an hmac signature of it, then hex
+encode it, and then place the peices into the expected format replacing the
+original image url.
+
+The client requests the url to Go-Camo. Go-Camo validates the hmac, decodes the
+url, requests the content and streams it to the client.
+
+Here is some example python code that demonstrates generating an encoded url:
+
+    import hashlib
+    import hmac
+    def mk_camo_url(hmac_key, image_url, camo_host):
+        if image_url.startswith("https:"):
+            return image_url
+        hexdigest = hmac.new(hmac_key, image_url, hashlib.sha1).hexdigest()
+        hexurl = image_url.encode('hex')
+        requrl = 'https://%s/%s/%s' % (camo_host, hexdigest, hexurl)
+        return requrl
+
+Here it is in action:
+
+    >>> mk_camo_url("test", "http://golang.org/doc/gopher/frontpage.png", "img.example.org")
+    'https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67'
+
+While Go-Camo will support proxying https images as well, for performance
+reasons you may choose to filter https requests out from proxying, and let the
+client simply fetch those as they are. The code example above is an example of
+this.
+
+Note that it is recommended to front Go-Camo with a CDN when possible.
+
 ## Differences from Camo
 
-### Supported Features
-
-*   Support for 'Path Format' only (does not support 'Query String Format').
-*   Supports both allow and deny regex host filters.
-*   Supports client http keepalives.
-*   Native SSL Support
-*   Supports using more than one os thread (via GOMAXPROCS) without the need of
-    multiple instances or additional proxying.
+*   Go-Camo Support for 'Path Format' only (does not support 'Query String
+    Format').
+*   Go-Camo Supports both allow and deny regex host filters.
+*   Go-Camo Supports client http keepalives.
+*   Go-Camo provides native SSL support.
+*   Go-Camo supports using more than one os thread (via GOMAXPROCS) without the
+    need of multiple instances or additional proxying.
+*   Go-Camo builds to a static binary (only libc modules are dynamicly loaded).
+    This makes deploying to large numbers of servers a snap.
 
 ## Building
 
@@ -24,9 +64,18 @@ dependencies. A functional [Go][3] installation is also required.
     # Set GOPATH if appropriate
     $ go get github.com/cactus/go-camo
 
-## Running in production mode
+## Running
 
     $ $GOPATH/bin/go-camo -config-file=config.json -follow-redirects
+
+Go-Camo does not daemonize on its own. For production usage, it is recommended
+to launch in a process supervisor, and drop privileges as appropriate.
+
+Examples of supervisors include: [daemontools][5], [runit][6], [upstart][7],
+[launchd][8], and many more.
+
+For the reasoning behind lack of daemonization, see [daemontools/why][9]. In
+addition, the code is much simpler because of it.
 
 ## Running under devweb
 
@@ -79,6 +128,44 @@ deny it.
 
 Option flags, if provided, override those in the config file.
 
+## Additional tools
+
+Go-Camo includes a couple of additional tools.
+
+### url-tool
+
+The `url-tool` utility provides a simple way to generate signed urls from the command line.
+
+    $ $GOPATH/bin/url-tool -h
+    Usage of bin/url-tool:
+      -config-file="": JSON Config File
+      -decode=false: Decode a url and print result
+      -encode=false: Encode a url and print result
+      -hmac-key="": HMAC Key
+      -prefix="": Optional url prefix used by encode output
+
+Example usage:
+
+    $ $GOPATH/bin/url-tool -encode -hmac-key="test" -prefix="https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
+    https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67 
+
+Installation:
+
+    $ go install github.com/cactus/go-camo/url-tool
+
+### simple-server
+
+The `simple-server` utility is useful for testing. It serves the contents of a
+given directory over http. Nothing more.
+
+    $ $GOPATH/bin/simple-server -h
+    Usage of bin/simple-server:
+      -serve-dir=".": Directory to serve from
+
+Installation:
+
+    $ go install github.com/cactus/go-camo/simple-server
+
 ## Changelog
 
 See `CHANGELOG.md`
@@ -92,3 +179,9 @@ file for details.
 [1]: https://github.com/atmos/camo
 [2]: http://code.google.com/p/rsc/source/browse/devweb
 [3]: http://golang.org/doc/install
+[4]: http://en.wikipedia.org/wiki/HMAC
+[5]: http://cr.yp.to/daemontools.html
+[6]: http://smarden.org/runit/
+[7]: http://upstart.ubuntu.com/
+[8]: http://launchd.macosforge.org/
+[9]: http://cr.yp.to/daemontools/faq/create.html#why
