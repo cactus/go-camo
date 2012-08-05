@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## 0.0.3 (in progress)
+## 0.0.3 2012-08-05
 
 *   organize and clean up code
 *   make header filters exported 
