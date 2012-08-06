@@ -61,7 +61,17 @@ Building requires `git` and `hg` (mecurial). They are used to fetch
 dependencies. A functional [Go][3] installation is also required.
 
     # Set GOPATH if appropriate
-    $ go get github.com/cactus/go-camo
+
+    # get code and dependencies
+    $ go get -d github.com/cactus/go-camo
+
+    # build and install to GOPATH
+    $ go install github.com/cactus/go-camo
+
+    # as an alternative to the previous command, build and strip debug symbols.
+    # this is useful for production, and reduces the resulting file size.
+    $ go install -ldflags '-s' github.com/cactus/go-camo
+
 
 ## Running
 
