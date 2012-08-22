@@ -41,7 +41,7 @@ type Config struct {
 type ProxyMetrics interface {
 	AddBytes(bc int64)
 	AddServed()
-	GetStats() (b uint64, c uint64)
+	//GetStats() (b uint64, c uint64)
 }
 
 // A Proxy is a Camo like HTTP proxy, that provides content type
