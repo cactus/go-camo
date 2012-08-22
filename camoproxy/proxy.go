@@ -38,6 +38,8 @@ type Config struct {
 }
 
 // Interface for Proxy to use for stats/metrics
+// This must be goroutine safe, as AddBytes and AddServed will be called from
+// many goroutines.
 type ProxyMetrics interface {
 	AddBytes(bc int64)
 	AddServed()
