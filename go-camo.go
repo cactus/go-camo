@@ -100,9 +100,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	ps := &ProxyStats{}
+	proxy.SetMetricsCollector(ps)
+
 	router := mux.NewRouter()
 	router.Handle("/favicon.ico", http.NotFoundHandler())
-	router.Handle("/status", proxy.StatsHandler())
+	router.Handle("/status", StatsHandler(ps))
 	router.Handle("/{sigHash}/{encodedUrl}", proxy).Methods("GET")
 	router.HandleFunc("/", RootHandler)
 	http.Handle("/", router)

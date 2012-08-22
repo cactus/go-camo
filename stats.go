@@ -1,23 +1,23 @@
-package camoproxy
+package main
 
 import (
 	"sync"
 )
 
-type proxyStats struct {
+type ProxyStats struct {
 	sync.Mutex
 	clientsServed uint64
 	bytesServed   uint64
 	Enable        bool
 }
 
-func (ps *proxyStats) AddServed() {
+func (ps *ProxyStats) AddServed() {
 	ps.Lock()
 	defer ps.Unlock()
 	ps.clientsServed += 1
 }
 
-func (ps *proxyStats) AddBytes(bc int64) {
+func (ps *ProxyStats) AddBytes(bc int64) {
 	ps.Lock()
 	defer ps.Unlock()
 	if bc <= 0 {
@@ -26,6 +26,6 @@ func (ps *proxyStats) AddBytes(bc int64) {
 	ps.bytesServed += uint64(bc)
 }
 
-func (ps *proxyStats) GetStats() (b uint64, c uint64) {
+func (ps *ProxyStats) GetStats() (b uint64, c uint64) {
 	return ps.clientsServed, ps.bytesServed
 }

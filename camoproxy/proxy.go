@@ -38,6 +38,13 @@ type Config struct {
 	RequestTimeout  time.Duration
 }
 
+// Interface for Proxy to use for stats/metrics
+type ProxyMetrics interface {
+	AddBytes(bc int64)
+	AddServed()
+	GetStats() (b uint64, c uint64)
+}
+
 // A Proxy is a Camo like HTTP proxy, that provides content type
 // restrictions as well as regex host allow and deny list support
 type Proxy struct {
@@ -46,20 +53,7 @@ type Proxy struct {
 	allowList []*regexp.Regexp
 	denyList  []*regexp.Regexp
 	maxSize   int64
-	stats     *proxyStats
-}
-
-// StatsHandler returns an http.Handler that returns running totals and stats
-// about the server.
-func (p *Proxy) StatsHandler() http.Handler {
-	p.stats.Enable = true
-	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			w.WriteHeader(200)
-			c, b := p.stats.GetStats()
-			fmt.Fprintf(w, "ClientsServed, BytesServed\n%d, %d\n", c, b)
-		})
+	metrics   *ProxyMetrics
 }
 
 // ServerHTTP handles the client request, validates the request is validly
@@ -68,8 +62,8 @@ func (p *Proxy) StatsHandler() http.Handler {
 // proper image content types.
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	Logger.Debugln("Request:", req.URL)
-	if p.stats.Enable {
-		go p.stats.AddServed()
+	if p.metrics.Enable {
+		go p.metrics.AddServed()
 	}
 
 	w.Header().Set("Server", ServerNameVer)
@@ -214,8 +208,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if p.stats.Enable {
-		go p.stats.AddBytes(bW)
+	if p.metrics.Enable {
+		go p.metrics.AddBytes(bW)
 	}
 	Logger.Debugln(req, resp.StatusCode)
 }
@@ -237,6 +231,11 @@ func (p *Proxy) copyHeader(dst, src *http.Header, filter *map[string]bool) {
 			dst.Add(k, v)
 		}
 	}
+}
+
+// sets a proxy metrics (ProxyMetrics interface) for the proxy
+func (p *Proxy) SetMetricsCollector(pm *ProxyMetrics) {
+	p.metrics = pm
 }
 
 // Returns a new Proxy. An error is returned if there was a failure
@@ -293,5 +292,5 @@ func New(pc Config) (*Proxy, error) {
 		allowList: allow,
 		denyList:  deny,
 		maxSize:   pc.MaxSize,
-		stats:     &proxyStats{}}, nil
+		metrics:   nil}, nil
 }
