@@ -28,6 +28,7 @@ func main() {
 
 	// command line flags
 	debug := flag.Bool("debug", false, "Enable Debug Logging")
+	stats := flag.Bool("stats", false, "Enable Stats")
 	hmacKey := flag.String("hmac-key", "", "HMAC Key")
 	configFile := flag.String("config-file", "", "JSON Config File")
 	maxSize := flag.Int64("max-size", 5120, "Max response image size (KB)")
@@ -100,15 +101,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	ps := &ProxyStats{}
-	proxy.SetMetricsCollector(ps)
 
 	router := mux.NewRouter()
 	router.Handle("/favicon.ico", http.NotFoundHandler())
-	router.Handle("/status", StatsHandler(ps))
 	router.Handle("/{sigHash}/{encodedUrl}", proxy).Methods("GET")
 	router.HandleFunc("/", RootHandler)
 	http.Handle("/", router)
+
+	if *stats {
+		ps := &ProxyStats{}
+		proxy.SetMetricsCollector(ps)
+		log.Println("Enabling stats at /status")
+		router.Handle("/status", StatsHandler(ps))
+	}
 
 	if *bindAddress != "" {
 		log.Println("Starting server on", *bindAddress)

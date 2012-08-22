@@ -5,7 +5,6 @@ package camoproxy
 import (
 	"code.google.com/p/gorilla/mux"
 	"errors"
-	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -53,7 +52,7 @@ type Proxy struct {
 	allowList []*regexp.Regexp
 	denyList  []*regexp.Regexp
 	maxSize   int64
-	metrics   *ProxyMetrics
+	metrics   ProxyMetrics
 }
 
 // ServerHTTP handles the client request, validates the request is validly
@@ -62,7 +61,7 @@ type Proxy struct {
 // proper image content types.
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	Logger.Debugln("Request:", req.URL)
-	if p.metrics.Enable {
+	if p.metrics != nil {
 		go p.metrics.AddServed()
 	}
 
@@ -208,7 +207,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if p.metrics.Enable {
+	if p.metrics != nil {
 		go p.metrics.AddBytes(bW)
 	}
 	Logger.Debugln(req, resp.StatusCode)
@@ -234,7 +233,7 @@ func (p *Proxy) copyHeader(dst, src *http.Header, filter *map[string]bool) {
 }
 
 // sets a proxy metrics (ProxyMetrics interface) for the proxy
-func (p *Proxy) SetMetricsCollector(pm *ProxyMetrics) {
+func (p *Proxy) SetMetricsCollector(pm ProxyMetrics) {
 	p.metrics = pm
 }
 

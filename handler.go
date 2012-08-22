@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/cactus/go-camo/camoproxy"
 	"io"
 	"net/http"
