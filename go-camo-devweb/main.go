@@ -39,7 +39,6 @@ func main() {
 
 	router := mux.NewRouter()
 	router.Handle("/favicon.ico", http.NotFoundHandler())
-	router.Handle("/status", proxy.StatsHandler())
 	router.Handle("/{sigHash}/{encodedUrl}", proxy).Methods("GET")
 	http.Handle("/", router)
 	log.Println("starting up camoproxy")
