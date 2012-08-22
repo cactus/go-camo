@@ -290,6 +290,5 @@ func New(pc Config) (*Proxy, error) {
 		hmacKey:   []byte(pc.HmacKey),
 		allowList: allow,
 		denyList:  deny,
-		maxSize:   pc.MaxSize,
-		metrics:   nil}, nil
+		maxSize:   pc.MaxSize}, nil
 }
