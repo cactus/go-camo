@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/cactus/go-camo/camoproxy"
 	"io"
 	"net/http"
 )
@@ -16,12 +15,12 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 
 // StatsHandler returns an http.Handler that returns running totals and stats
 // about the server.
-func StatsHandler(pm camoproxy.ProxyMetrics) http.Handler {
+func StatsHandler(ps *ProxyStats) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 			w.WriteHeader(200)
-			c, b := pm.GetStats()
+			c, b := ps.GetStats()
 			fmt.Fprintf(w, "ClientsServed, BytesServed\n%d, %d\n", c, b)
 		})
 }
