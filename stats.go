@@ -8,7 +8,6 @@ type ProxyStats struct {
 	sync.Mutex
 	clientsServed uint64
 	bytesServed   uint64
-	Enable        bool
 }
 
 func (ps *ProxyStats) AddServed() {
