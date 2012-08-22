@@ -14,8 +14,7 @@ import (
 	"time"
 )
 
-// Config holds configuration data used when creating a
-// Proxy with New.
+// Config holds configuration data used when creating a Proxy with New.
 type Config struct {
 	// HmacKey is a string to be used as the hmac key
 	HmacKey         string
@@ -37,7 +36,7 @@ type Config struct {
 	RequestTimeout  time.Duration
 }
 
-// Interface for Proxy to use for stats/metrics
+// Interface for Proxy to use for stats/metrics.
 // This must be goroutine safe, as AddBytes and AddServed will be called from
 // many goroutines.
 type ProxyMetrics interface {
@@ -47,7 +46,7 @@ type ProxyMetrics interface {
 }
 
 // A Proxy is a Camo like HTTP proxy, that provides content type
-// restrictions as well as regex host allow and deny list support
+// restrictions as well as regex host allow and deny list support.
 type Proxy struct {
 	client    *http.Client
 	hmacKey   []byte
