@@ -24,8 +24,8 @@ func (ps *ProxyStats) AddBytes(bc int64) {
 }
 
 func ExampleProxyMetrics() {
-	proxy := &camoproxy.Proxy{}
 	config := camoproxy.Config{}
+	proxy := &camoproxy.Proxy{config}
 	ps := &ProxyStats{}
 	proxy.SetMetricsCollector(ps)
 }
