@@ -1,6 +1,12 @@
 Changelog
 =========
 
+## work-in-progress
+
+*   Refactor Stats code out of camoproxy
+*   Make stats a flag in go-camo
+*   Minor documentation cleanup
+
 ## 0.0.3 2012-08-05
 
 *   organize and clean up code
