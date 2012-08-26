@@ -107,7 +107,9 @@ addition, the code is much simpler because of it.
       -max-size=5120: Max response image size (KB)
       -ssl-cert="": ssl cert (cert.pem) path
       -ssl-key="": ssl private key (key.pem) path
+      -stats=false: Enable Stats
       -timeout=4s: Upstream request timeout
+      -version=false: print version and exit
 
     $ cat config.json
     {
