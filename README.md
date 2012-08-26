@@ -139,6 +139,9 @@ deny it.
 
 Option flags, if provided, override those in the config file.
 
+If stats flag is provided, then the service will track bytes and clients
+served, and offer them up at an http endpoint `/status` via GET request.
+
 ## Additional tools
 
 Go-Camo includes a couple of additional tools.
