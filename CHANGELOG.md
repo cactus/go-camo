@@ -4,8 +4,9 @@ Changelog
 ## work-in-progress
 
 *   Refactor Stats code out of camoproxy
-*   Make stats a flag in go-camo
+*   Make stats an optional flag in go-camo
 *   Minor documentation cleanup
+*   Clean up excessive logging on client initiated broken pipe
 
 ## 0.0.3 2012-08-05
 
