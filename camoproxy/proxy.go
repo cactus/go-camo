@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"syscall"
 )
 
 // Config holds configuration data used when creating a Proxy with New.
@@ -204,7 +205,12 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// Might use quite a bit of memory though. Untested.
 	bW, err := io.Copy(w, resp.Body)
 	if err != nil {
-		Logger.Println("Error writing response:", err)
+		// only log if not broken pipe, as this means the client terminated
+		// conn for some reason.
+		opErr, ok := err.(*net.OpError)
+		if !ok || opErr.Err != syscall.EPIPE {
+			Logger.Println("Error writing response:", err)
+		}
 		return
 	}
 
