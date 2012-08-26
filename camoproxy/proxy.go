@@ -260,6 +260,8 @@ func New(pc Config) (*Proxy, error) {
 
 	// spawn an idle conn trimmer
 	go func() {
+		// prunes every 5 minutes. this is just a guess at an
+		// initial value. very busy severs may want to lower this...
 		time.Sleep(5 * time.Minute)
 		tr.CloseIdleConnections()
 	}()
