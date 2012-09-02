@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## work-in-progress
+## 0.0.4 2012-09-02
 
 *   Refactor Stats code out of camoproxy
 *   Make stats an optional flag in go-camo
