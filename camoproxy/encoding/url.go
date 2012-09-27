@@ -1,9 +1,10 @@
-package camoproxy
+package encoding
 
 import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/hex"
+	"github.com/cactus/gologit"
 )
 
 // DecodeUrl ensures the url is properly verified via HMAC, and then
@@ -12,7 +13,7 @@ import (
 func DecodeUrl(hmackey *[]byte, hexdig string, hexurl string) (surl string, valid bool) {
 	urlBytes, err := hex.DecodeString(hexurl)
 	if err != nil {
-		Logger.Debugln("Bad Hex Decode", hexurl)
+		gologit.Debugln("Bad Hex Decode", hexurl)
 		return
 	}
 	surl = string(urlBytes)
@@ -20,7 +21,7 @@ func DecodeUrl(hmackey *[]byte, hexdig string, hexurl string) (surl string, vali
 	mac.Write([]byte(surl))
 	macSum := hex.EncodeToString(mac.Sum([]byte{}))
 	if macSum != hexdig {
-		Logger.Debugf("Bad signature: %s != %s\n", macSum, hexdig)
+		gologit.Debugf("Bad signature: %s != %s\n", macSum, hexdig)
 		return
 	}
 	valid = true

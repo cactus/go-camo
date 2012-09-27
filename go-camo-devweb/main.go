@@ -6,6 +6,7 @@ import (
 	"code.google.com/p/rsc/devweb/slave"
 	"encoding/json"
 	"github.com/cactus/go-camo/camoproxy"
+	"github.com/cactus/gologit"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -33,7 +34,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	logger := camoproxy.Logger
+	logger := gologit.Logger
 	logger.Set(true)
 	logger.Debugln("Debug logging enabled")
 

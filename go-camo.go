@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/cactus/go-camo/camoproxy"
+	"github.com/cactus/gologit"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -92,7 +93,7 @@ func main() {
 	config.FollowRedirects = *follow
 
 	// set logger debug level and start toggle on signal handler
-	logger := camoproxy.Logger
+	logger := gologit.Logger
 	logger.Set(*debug)
 	logger.Debugln("Debug logging enabled")
 	logger.ToggleOnSignal(syscall.SIGUSR1)

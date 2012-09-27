@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/cactus/go-camo/camoproxy"
+	"github.com/cactus/go-camo/camoproxy/encoding"
 	"io/ioutil"
 	"log"
 	"net/url"
@@ -27,7 +27,9 @@ func main() {
 
 	// Anonymous struct Container for holding configuration parameters
 	// parsed from JSON config file.
-	config := camoproxy.Config{}
+	config := struct {
+		HmacKey string
+	}{}
 
 	if *configFile != "" {
 		b, err := ioutil.ReadFile(*configFile)
@@ -61,7 +63,7 @@ func main() {
 	hmacKeyBytes := []byte(config.HmacKey)
 
 	if *encode == true {
-		outUrl := camoproxy.EncodeUrl(&hmacKeyBytes, oUrl)
+		outUrl := encoding.EncodeUrl(&hmacKeyBytes, oUrl)
 		fmt.Println(*prefix + outUrl)
 	}
 
@@ -71,7 +73,7 @@ func main() {
 			log.Fatal(err)
 		}
 		comp := strings.SplitN(u.Path, "/", 3)
-		decUrl, valid := camoproxy.DecodeUrl(&hmacKeyBytes, comp[1], comp[2])
+		decUrl, valid := encoding.DecodeUrl(&hmacKeyBytes, comp[1], comp[2])
 		if !valid {
 			log.Fatal("hmac is invalid")
 		}

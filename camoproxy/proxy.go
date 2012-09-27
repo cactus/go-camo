@@ -4,6 +4,8 @@ package camoproxy
 
 import (
 	"code.google.com/p/gorilla/mux"
+	"github.com/cactus/go-camo/camoproxy/encoding"
+	"github.com/cactus/gologit"
 	"errors"
 	"io"
 	"net"
@@ -62,7 +64,7 @@ type Proxy struct {
 // valid requests to the desired endpoint. Responses are filtered for
 // proper image content types.
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	Logger.Debugln("Request:", req.URL)
+	gologit.Debugln("Request:", req.URL)
 	if p.metrics != nil {
 		go p.metrics.AddServed()
 	}
@@ -70,16 +72,16 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Server", ServerNameVer)
 
 	vars := mux.Vars(req)
-	surl, ok := DecodeUrl(&p.hmacKey, vars["sigHash"], vars["encodedUrl"])
+	surl, ok := encoding.DecodeUrl(&p.hmacKey, vars["sigHash"], vars["encodedUrl"])
 	if !ok {
 		http.Error(w, "Bad Signature", http.StatusForbidden)
 		return
 	}
-	Logger.Debugln("URL:", surl)
+	gologit.Debugln("URL:", surl)
 
 	u, err := url.Parse(surl)
 	if err != nil {
-		Logger.Debugln(err)
+		gologit.Debugln(err)
 		http.Error(w, "Bad url", http.StatusBadRequest)
 		return
 	}
@@ -115,7 +117,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	nreq, err := http.NewRequest("GET", surl, nil)
 	if err != nil {
-		Logger.Debugln("Could not create NewRequest", err)
+		gologit.Debugln("Could not create NewRequest", err)
 		http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
 		return
 	}
@@ -133,7 +135,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	resp, err := p.client.Do(nreq)
 	if err != nil {
-		Logger.Debugln("Could not connect to endpoint", err)
+		gologit.Debugln("Could not connect to endpoint", err)
 		if strings.Contains(err.Error(), "timeout") {
 			http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
 		} else {
@@ -145,7 +147,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// check for too large a response
 	if resp.ContentLength > p.maxSize {
-		Logger.Debugln("Content length exceeded", surl)
+		gologit.Debugln("Content length exceeded", surl)
 		http.Error(w, "Content length exceeded", http.StatusNotFound)
 		return
 	}
@@ -155,13 +157,13 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		// check content type
 		ct, ok := resp.Header[http.CanonicalHeaderKey("content-type")]
 		if !ok || ct[0][:6] != "image/" {
-			Logger.Debugln("Non-Image content-type returned", u)
+			gologit.Debugln("Non-Image content-type returned", u)
 			http.Error(w, "Non-Image content-type returned",
 				http.StatusBadRequest)
 			return
 		}
 	case 300:
-		Logger.Debugln("Multiple choices not supported")
+		gologit.Debugln("Multiple choices not supported")
 		http.Error(w, "Multiple choices not supported", http.StatusNotFound)
 		return
 	case 301, 302, 303, 307:
@@ -199,7 +201,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// read whole body at once too:
 	//    body, err := ioutil.ReadAll(resp.Body)
 	//    if err != nil {
-	//        Logger.Println("Error writing response:", err)
+	//        gologit.Println("Error writing response:", err)
 	//    }
 	//    w.Write(body)
 	// Might use quite a bit of memory though. Untested.
@@ -209,7 +211,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		// terminated conn for some reason.
 		opErr, ok := err.(*net.OpError)
 		if !ok || opErr.Err != syscall.EPIPE {
-			Logger.Println("Error writing response:", err)
+			gologit.Println("Error writing response:", err)
 		}
 		return
 	}
@@ -217,7 +219,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if p.metrics != nil {
 		go p.metrics.AddBytes(bW)
 	}
-	Logger.Debugln(req, resp.StatusCode)
+	gologit.Debugln(req, resp.StatusCode)
 }
 
 // copy headers from src into dst

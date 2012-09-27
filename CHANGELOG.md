@@ -1,6 +1,12 @@
 Changelog
 =========
 
+## 0.0.5 in-progress
+
+*   Refactor logging a bit
+*   Move encoding functionality into a submodule to reduce import size (and
+    thus resultant binary size) for url-tool
+
 ## 0.0.4 2012-09-02
 
 *   Refactor Stats code out of camoproxy

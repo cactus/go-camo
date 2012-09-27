@@ -2,7 +2,6 @@ package camoproxy
 
 import (
 	"fmt"
-	"github.com/cactus/gologit"
 	"regexp"
 )
 
@@ -13,9 +12,6 @@ const (
 
 // Server Name with version
 var ServerNameVer = fmt.Sprintf("%s %s", ServerName, ServerVersion)
-
-// Logger for handling logging.
-var Logger = gologit.New(false)
 
 // Headers that are acceptible to pass from the client to the remote
 // server. Only those present and true, are forwarded. Empty implies
