@@ -17,9 +17,9 @@ func main() {
 	// Anonymous struct Container for holding configuration parameters parsed
 	// from JSON config file.
 	config := camoproxy.Config{
-		MaxSize:         5120 * 1024,
-		FollowRedirects: true,
-		RequestTimeout:  5 * time.Second}
+		MaxSize:           5120 * 1024,
+		NoFollowRedirects: false,
+		RequestTimeout:    5 * time.Second}
 
 	b, err := ioutil.ReadFile("config.json")
 	if err != nil {

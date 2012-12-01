@@ -32,9 +32,9 @@ type Config struct {
 	DenyList        []string
 	// MaxSize is the maximum valid image size response (in bytes).
 	MaxSize         int64
-	// FollowRedirects is a boolean that specifies whether upstream redirects
+	// NoFollowRedirects is a boolean that specifies whether upstream redirects
 	// are followed (10 depth) or not.
-	FollowRedirects bool
+	NoFollowRedirects bool
 	// Request timeout is a timeout for fetching upstream data.
 	RequestTimeout  time.Duration
 }
@@ -275,7 +275,7 @@ func New(pc Config) (*Proxy, error) {
 
 	// build/compile regex
 	client := &http.Client{Transport: tr}
-	if !pc.FollowRedirects {
+	if pc.NoFollowRedirects {
 		client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 			return errors.New("Not following redirect")
 		}

@@ -35,8 +35,8 @@ func main() {
 	maxSize := flag.Int64("max-size", 5120, "Max response image size (KB)")
 	reqTimeout := flag.Duration("timeout", 4*time.Second,
 		"Upstream request timeout")
-	follow := flag.Bool("follow-redirects", false,
-		"Enable following upstream redirects")
+	noFollow := flag.Bool("no-follow-redirects", false,
+		"Disable following upstream redirects")
 	bindAddress := flag.String("bind-address", "0.0.0.0:8080",
 		"Address:Port to bind to for HTTP")
 	bindAddressSSL := flag.String("bind-address-ssl", "",
@@ -52,8 +52,6 @@ func main() {
 		os.Exit(0)
 	}
 
-	// Anonymous struct Container for holding configuration parameters
-	// parsed from JSON config file.
 	config := camoproxy.Config{}
 
 	if *configFile != "" {
@@ -90,7 +88,7 @@ func main() {
 	// convert from KB to Bytes
 	config.MaxSize = config.MaxSize * 1024
 	config.RequestTimeout = *reqTimeout
-	config.FollowRedirects = *follow
+	config.NoFollowRedirects = *noFollow
 
 	// set logger debug level and start toggle on signal handler
 	logger := gologit.Logger
