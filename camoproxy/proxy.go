@@ -91,6 +91,10 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if req.Header.Get("Via") == "ServerNameVer" {
+		http.Error(w, "Request loop failure", http.StatusNotFound)
+	}
+
 	// if allowList is set, require match
 	matchFound := true
 	if len(p.allowList) > 0 {
@@ -132,6 +136,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 	nreq.Header.Add("connection", "close")
 	nreq.Header.Add("user-agent", ServerNameVer)
+	nreq.Header.Add("via", ServerNameVer)
 
 	resp, err := p.client.Do(nreq)
 	if err != nil {

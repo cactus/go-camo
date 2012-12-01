@@ -156,5 +156,11 @@ class CamoProxyTests < Test::Unit::TestCase
       response = request('http://d.pr/i/rr7F+')
       assert_equal(200, response.code)
     end
+
+    should "404 on request from self" do
+      assert_raise RestClient::ResourceNotFound do
+        response = request("#{config['host']}/favicon.ico")
+      end
+    end
   end
 end
