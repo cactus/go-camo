@@ -43,5 +43,9 @@ var ValidRespHeaders = map[string]bool{
 	"Server":            false,
 	}
 
-// addr1918match is a regex for matching hosts to rfc1918 addresses
-var addr1918match, _ = regexp.Compile(`^(127\.|10\.|169\\.254|192\.168|^172\.(?:(?:1[6-9])|(?:2[0-9])|(?:3[0-1])))`)
+// addr1918PrefixMatch is a regex for matching the prefix of hosts in
+// x-forward-for header filtering for rfc1918 addresses
+var addr1918PrefixRegex = regexp.MustCompile(`^(127\.|10\.|169\.254|192\.168|172\.(?:(?:1[6-9])|(?:2[0-9])|(?:3[0-1])))`)
+
+// match for localhost
+var localhostRegex = regexp.MustCompile(`^localhost\.?(localdomain)?\.?$`)

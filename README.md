@@ -47,7 +47,7 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
 
 *   Go-Camo Support for 'Path Format' only (does not support 'Query String
     Format').
-*   Go-Camo Supports both allow and deny regex host filters.
+*   Go-Camo Supports allow regex host filters.
 *   Go-Camo Supports client http keep-alives.
 *   Go-Camo provides native SSL support.
 *   Go-Camo supports using more than one os thread (via GOMAXPROCS) without the
@@ -114,28 +114,16 @@ addition, the code is much simpler because of it.
     $ cat config.json
     {
         "HmacKey": "Some long string here...",
-        "AllowList": [],
-        "DenyList": [
-            "^10\\.",
-            "^169\\.254",
-            "^192\\.168",
-            "^172\\.(?:(?:1[6-9])|(?:2[0-9])|(?:3[0-1]))",
-            "^(?:.*\\.)?example\\.(?:com|org|net)$"
-        ]
+        "AllowList": []
     }
 
 *   `HmacKey` is a secret key seed to the HMAC used for signing and
     validation.
 *   `Allowlist` is a list of host matches to always allow.
-*   `Denylist` is a list of host matches to reject.
 
 If an AllowList is defined, and a request does not match the host regex,
 then the request is denied. Default is all requests pass the Allowlist if
 none is specified.
-
-DenyList entries are matched after Allowlist, so they take precedence.
-Even if a request would be allowed by an Allowlist, a Denylist match would
-deny it.
 
 Option flags, if provided, override those in the config file.
 

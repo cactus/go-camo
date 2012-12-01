@@ -1,5 +1,5 @@
 // Package camoproxy provides an HTTP proxy server with content type
-// restrictions as well as regex host allow and deny list support.
+// restrictions as well as regex host allow list support.
 package camoproxy
 
 import (
@@ -26,10 +26,6 @@ type Config struct {
 	// then anything not matching is dropped. If no AllowList is present,
 	// no Allow filtering is done.
 	AllowList       []string
-	// DenyList is a list of string represenstations of regex (not compiled
-	// regex). The deny filter check occurs after the allow filter check
-	// (if any).
-	DenyList        []string
 	// MaxSize is the maximum valid image size response (in bytes).
 	MaxSize         int64
 	// NoFollowRedirects is a boolean that specifies whether upstream redirects
@@ -49,18 +45,17 @@ type ProxyMetrics interface {
 }
 
 // A Proxy is a Camo like HTTP proxy, that provides content type
-// restrictions as well as regex host allow and deny list support.
+// restrictions as well as regex host allow list support.
 type Proxy struct {
 	client    *http.Client
 	hmacKey   []byte
 	allowList []*regexp.Regexp
-	denyList  []*regexp.Regexp
 	maxSize   int64
 	metrics   ProxyMetrics
 }
 
 // ServerHTTP handles the client request, validates the request is validly
-// HMAC signed, filters based on the Allow/Deny list, and then proxies
+// HMAC signed, filters based on the Allow list, and then proxies
 // valid requests to the desired endpoint. Responses are filtered for
 // proper image content types.
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -86,7 +81,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if u.Host == "" {
+	u.Host = strings.ToLower(u.Host)
+	if u.Host == "" || localhostRegex.MatchString(u.Host) {
 		http.Error(w, "Bad url", http.StatusNotFound)
 		return
 	}
@@ -110,10 +106,10 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// filter out denyList urls based on regexes. Do this second
-	// as denyList takes precedence
-	for _, rgx := range p.denyList {
-		if rgx.MatchString(u.Host) {
+	// filter out rfc1918 hosts
+	ip := net.ParseIP(u.Host)
+	if ip != nil {
+		if addr1918PrefixRegex.MatchString(ip.String()) {
 			http.Error(w, "Denylist host failure", http.StatusNotFound)
 			return
 		}
@@ -130,7 +126,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	p.copyHeader(&nreq.Header, &req.Header, &ValidReqHeaders)
 	if req.Header.Get("X-Forwarded-For") == "" {
 		host, _, err := net.SplitHostPort(req.RemoteAddr)
-		if err == nil && !addr1918match.MatchString(host) {
+		if err == nil && !addr1918PrefixRegex.MatchString(host) {
 			nreq.Header.Add("X-Forwarded-For", host)
 		}
 	}
@@ -282,17 +278,9 @@ func New(pc Config) (*Proxy, error) {
 	}
 
 	allow := make([]*regexp.Regexp, 0)
-	deny := make([]*regexp.Regexp, 0)
-
 	var c *regexp.Regexp
 	var err error
-	for _, v := range pc.DenyList {
-		c, err = regexp.Compile(v)
-		if err != nil {
-			return nil, err
-		}
-		deny = append(deny, c)
-	}
+	// compile allow list
 	for _, v := range pc.AllowList {
 		c, err = regexp.Compile(v)
 		if err != nil {
@@ -305,6 +293,5 @@ func New(pc Config) (*Proxy, error) {
 		client:    client,
 		hmacKey:   []byte(pc.HmacKey),
 		allowList: allow,
-		denyList:  deny,
 		maxSize:   pc.MaxSize}, nil
 }

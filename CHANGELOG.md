@@ -1,12 +1,17 @@
 Changelog
 =========
 
-## 0.0.5 in-progress
+## 0.1.0 in-progress
 
 *   Refactor logging a bit
 *   Move encoding functionality into a submodule to reduce import size (and
     thus resultant binary size) for url-tool
 *   Prevent request loop
+*   Remove custom Denylist support. Filtering should be done on signed url
+    generation. rfc1918 filtering retained and internalized so as do reduce
+    internal network exposue surface and avoid non-routable effort.
+*   Inverted redirect boolean. Redirects are now followed by default, and 
+    the flag `no-follow-redirects` was learned.
 
 ## 0.0.4 2012-09-02
 
