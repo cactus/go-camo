@@ -75,7 +75,7 @@ dependencies. A functional [Go][3] installation is also required.
 
 ## Running
 
-    $ $GOPATH/bin/go-camo -config-file=config.json -follow-redirects
+    $ $GOPATH/bin/go-camo -config-file=config.json
 
 Go-Camo does not daemonize on its own. For production usage, it is recommended
 to launch in a process supervisor, and drop privileges as appropriate.
@@ -102,7 +102,7 @@ addition, the code is much simpler because of it.
       -bind-address-ssl="": Address:Port to bind to for HTTPS/SSL/TLS
       -config-file="": JSON Config File
       -debug=false: Enable Debug Logging
-      -follow-redirects=false: Enable following upstream redirects
+      -no-follow-redirects=false: Disable following upstream redirects
       -hmac-key="": HMAC Key
       -max-size=5120: Max response image size (KB)
       -ssl-cert="": ssl cert (cert.pem) path
