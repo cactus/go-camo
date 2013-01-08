@@ -4,10 +4,10 @@ package main
 import (
 	"code.google.com/p/gorilla/mux"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"github.com/cactus/go-camo/camoproxy"
 	"github.com/cactus/gologit"
+	flags "github.com/jessevdk/go-flags"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -28,34 +28,41 @@ func main() {
 	runtime.GOMAXPROCS(gmx)
 
 	// command line flags
-	debug := flag.Bool("debug", false, "Enable Debug Logging")
-	stats := flag.Bool("stats", false, "Enable Stats")
-	hmacKey := flag.String("hmac-key", "", "HMAC Key")
-	configFile := flag.String("config-file", "", "JSON Config File")
-	maxSize := flag.Int64("max-size", 5120, "Max response image size (KB)")
-	reqTimeout := flag.Duration("timeout", 4*time.Second,
-		"Upstream request timeout")
-	noFollow := flag.Bool("no-follow-redirects", false,
-		"Disable following upstream redirects")
-	bindAddress := flag.String("bind-address", "0.0.0.0:8080",
-		"Address:Port to bind to for HTTP")
-	bindAddressSSL := flag.String("bind-address-ssl", "",
-		"Address:Port to bind to for HTTPS/SSL/TLS")
-	sslKey := flag.String("ssl-key", "", "ssl private key (key.pem) path")
-	sslCert := flag.String("ssl-cert", "", "ssl cert (cert.pem) path")
-	version := flag.Bool("version", false, "print version and exit")
-	// parse said flags
-	flag.Parse()
+	var opts struct {
+		ConfigFile     string        `short:"c" long:"config" description:"JSON Config File"`
+		HmacKey        string        `short:"k" long:"key" description:"HMAC key"`
+		Stats          bool          `long:"stats" description:"Enable Stats"`
+		MaxSize        int64         `long:"max-size" default:"5120" description:"Max response image size (KB)"`
+		ReqTimeout     time.Duration `long:"timeout" default:"4s" description:"Upstream request timeout"`
+		NoFollow       bool          `long:"no-follow" description:"Disable following upstream redirects"`
+		BindAddress    string        `long:"listen" default:"0.0.0.0:8080" description:"Address:Port to bind to for HTTP"`
+		BindAddressSSL string        `long:"ssl-listen" description:"Address:Port to bind to for HTTPS/SSL/TLS"`
+		SSLKey         string        `long:"ssl-key" description:"ssl private key (key.pem) path"`
+		SSLCert        string        `long:"ssl-cert" description:"ssl cert (cert.pem) path"`
+		Verbose        bool          `short:"v" long:"verbose" description:"Show verbose (debug) log level output"`
+		Version        bool          `short:"V" long:"version" description:"print version and exit"`
+	}
 
-	if *version {
+	// parse said flags
+	_, err := flags.Parse(&opts)
+	if err != nil {
+		if e, ok := err.(*flags.Error); ok {
+			if e.Type == flags.ErrHelp {
+				os.Exit(0)
+			}
+		}
+		os.Exit(1)
+	}
+
+	if opts.Version {
 		fmt.Println(camoproxy.ServerNameVer)
 		os.Exit(0)
 	}
 
 	config := camoproxy.Config{}
 
-	if *configFile != "" {
-		b, err := ioutil.ReadFile(*configFile)
+	if opts.ConfigFile != "" {
+		b, err := ioutil.ReadFile(opts.ConfigFile)
 		if err != nil {
 			log.Fatal("Could not read configFile", err)
 		}
@@ -66,33 +73,33 @@ func main() {
 	}
 
 	// flags override config file
-	if *hmacKey != "" {
-		config.HmacKey = *hmacKey
+	if opts.HmacKey != "" {
+		config.HmacKey = opts.HmacKey
 	}
 
 	if config.MaxSize == 0 {
-		config.MaxSize = *maxSize
+		config.MaxSize = opts.MaxSize
 	}
 
-	if *bindAddress == "" && *bindAddressSSL == "" {
+	if opts.BindAddress == "" && opts.BindAddressSSL == "" {
 		log.Fatal("One of bind-address or bind-ssl-address required")
 	}
 
-	if *bindAddressSSL != "" && *sslKey == "" {
+	if opts.BindAddressSSL != "" && opts.SSLKey == "" {
 		log.Fatal("ssl-key is required when specifying bind-ssl-address")
 	}
-	if *bindAddressSSL != "" && *sslCert == "" {
+	if opts.BindAddressSSL != "" && opts.SSLCert == "" {
 		log.Fatal("ssl-cert is required when specifying bind-ssl-address")
 	}
 
 	// convert from KB to Bytes
 	config.MaxSize = config.MaxSize * 1024
-	config.RequestTimeout = *reqTimeout
-	config.NoFollowRedirects = *noFollow
+	config.RequestTimeout = opts.ReqTimeout
+	config.NoFollowRedirects = opts.NoFollow
 
 	// set logger debug level and start toggle on signal handler
 	logger := gologit.Logger
-	logger.Set(*debug)
+	logger.Set(opts.Verbose)
 	logger.Debugln("Debug logging enabled")
 	logger.ToggleOnSignal(syscall.SIGUSR1)
 
@@ -107,24 +114,24 @@ func main() {
 	router.HandleFunc("/", RootHandler)
 	http.Handle("/", router)
 
-	if *stats {
+	if opts.Stats {
 		ps := &ProxyStats{}
 		proxy.SetMetricsCollector(ps)
 		log.Println("Enabling stats at /status")
 		router.Handle("/status", StatsHandler(ps))
 	}
 
-	if *bindAddress != "" {
-		log.Println("Starting server on", *bindAddress)
+	if opts.BindAddress != "" {
+		log.Println("Starting server on", opts.BindAddress)
 		go func() {
-			log.Fatal(http.ListenAndServe(*bindAddress, nil))
+			log.Fatal(http.ListenAndServe(opts.BindAddress, nil))
 		}()
 	}
-	if *bindAddressSSL != "" {
-		log.Println("Starting TLS server on", *bindAddressSSL)
+	if opts.BindAddressSSL != "" {
+		log.Println("Starting TLS server on", opts.BindAddressSSL)
 		go func() {
 			log.Fatal(http.ListenAndServeTLS(
-				*bindAddressSSL, *sslCert, *sslKey, nil))
+				opts.BindAddressSSL, opts.SSLCert, opts.SSLKey, nil))
 		}()
 	}
 
