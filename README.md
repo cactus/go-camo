@@ -45,15 +45,15 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
 
 ## Differences from Camo
 
-*   Go-Camo Support for 'Path Format' only (does not support 'Query String
-    Format').
-*   Go-Camo Supports allow regex host filters.
-*   Go-Camo Supports client http keep-alives.
+*   Go-Camo supports 'Path Format' url format only. Camo's "Query
+    String Format" is not supported.
+*   Go-Camo supports "allow regex host filters".
+*   Go-Camo supports client http keep-alives.
 *   Go-Camo provides native SSL support.
 *   Go-Camo supports using more than one os thread (via GOMAXPROCS) without the
     need of multiple instances or additional proxying.
-*   Go-Camo builds to a static binary (only libc modules are dynamicly loaded).
-    This makes deploying to large numbers of servers a snap.
+*   Go-Camo builds to a static binary. This makes deploying to large numbers
+    of servers a snap.
 
 ## Building
 
@@ -75,7 +75,7 @@ dependencies. A functional [Go][3] installation is also required.
 
 ## Running
 
-    $ $GOPATH/bin/go-camo -config-file=config.json
+    $ $GOPATH/bin/go-camo -c config.json
 
 Go-Camo does not daemonize on its own. For production usage, it is recommended
 to launch in a process supervisor, and drop privileges as appropriate.
@@ -125,16 +125,16 @@ addition, the code is much simpler because of it.
 
 *   `HmacKey` is a secret key seed to the HMAC used for signing and
     validation.
-*   `Allowlist` is a list of host matches to always allow.
+*   `Allowlist` is a list of regex host matches to allow.
 
-If an AllowList is defined, and a request does not match the host regex,
-then the request is denied. Default is all requests pass the Allowlist if
-none is specified.
+If an AllowList is defined, and a request does not match one of the listed host
+regex, then the request is denied. Default is all requests pass the Allowlist
+if none is specified.
 
 Option flags, if provided, override those in the config file.
 
 If stats flag is provided, then the service will track bytes and clients
-served, and offer them up at an http endpoint `/status` via GET request.
+served, and offer them up at an http endpoint `/status` via HTPT GET request.
 
 ## Additional tools
 
@@ -145,16 +145,22 @@ Go-Camo includes a couple of additional tools.
 The `url-tool` utility provides a simple way to generate signed URLs from the command line.
 
     $ $GOPATH/bin/url-tool -h
-    Usage of bin/url-tool:
-      -config-file="": JSON Config File
-      -decode=false: Decode a url and print result
-      -encode=false: Encode a url and print result
-      -hmac-key="": HMAC Key
-      -prefix="": Optional url prefix used by encode output
+    Usage:
+      url-tool [OPTIONS]
+
+    Help Options:
+      -h, --help      Show this help message
+
+    Application Options:
+      -c, --config    JSON Config File
+      -k, --key       HMAC key
+      -e, --encode    Encode a url and print result
+      -d, --decode    Decode a url and print result
+          --prefix    Optional url prefix used by encode output
 
 Example usage:
 
-    $ $GOPATH/bin/url-tool -encode -hmac-key="test" -prefix="https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
+    $ $GOPATH/bin/url-tool -e -k "test" --prefix="https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
     https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67 
 
 Installation:
@@ -167,8 +173,8 @@ The `simple-server` utility is useful for testing. It serves the contents of a
 given directory over http. Nothing more.
 
     $ $GOPATH/bin/simple-server -h
-    Usage of bin/simple-server:
-      -serve-dir=".": Directory to serve from
+    Usage of ./simple-server:
+      -d=".": Directory to serve from
 
 Installation:
 
