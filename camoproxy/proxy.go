@@ -20,19 +20,19 @@ import (
 // Config holds configuration data used when creating a Proxy with New.
 type Config struct {
 	// HmacKey is a string to be used as the hmac key
-	HmacKey         string
+	HmacKey           string
 	// AllowList is a list of string represenstations of regex (not compiled
 	// regex) that are used as a whitelist filter. If an AllowList is present,
 	// then anything not matching is dropped. If no AllowList is present,
 	// no Allow filtering is done.
-	AllowList       []string
+	AllowList         []string
 	// MaxSize is the maximum valid image size response (in bytes).
-	MaxSize         int64
+	MaxSize           int64
 	// NoFollowRedirects is a boolean that specifies whether upstream redirects
 	// are followed (10 depth) or not.
 	NoFollowRedirects bool
 	// Request timeout is a timeout for fetching upstream data.
-	RequestTimeout  time.Duration
+	RequestTimeout    time.Duration
 }
 
 // Interface for Proxy to use for stats/metrics.
@@ -41,7 +41,6 @@ type Config struct {
 type ProxyMetrics interface {
 	AddBytes(bc int64)
 	AddServed()
-	//GetStats() (b uint64, c uint64)
 }
 
 // A Proxy is a Camo like HTTP proxy, that provides content type
