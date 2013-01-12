@@ -41,7 +41,7 @@ var ValidRespHeaders = map[string]bool{
 	"Last-Modified":     true,
 	// override in response with either nothing, or ServerNameVer
 	"Server":            false,
-	}
+}
 
 // addr1918PrefixMatch is a regex for matching the prefix of hosts in
 // x-forward-for header filtering for rfc1918 addresses

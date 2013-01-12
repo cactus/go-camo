@@ -2,8 +2,8 @@
 package main
 
 import (
-	"net/http"
 	"flag"
+	"net/http"
 	"runtime"
 )
 
@@ -13,5 +13,5 @@ func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	flag.Parse()
 	panic(http.ListenAndServe("127.0.0.1:8000", http.FileServer(
-			http.Dir(*serveDir))))
+		http.Dir(*serveDir))))
 }

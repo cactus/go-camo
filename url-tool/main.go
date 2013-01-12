@@ -3,9 +3,9 @@ package main
 
 import (
 	"encoding/json"
-	flags "github.com/jessevdk/go-flags"
 	"fmt"
 	"github.com/cactus/go-camo/camoproxy/encoding"
+	flags "github.com/jessevdk/go-flags"
 	"io/ioutil"
 	"log"
 	"net/url"
@@ -17,11 +17,11 @@ func main() {
 
 	// command line flags
 	var opts struct {
-		ConfigFile     string        `short:"c" long:"config" description:"JSON Config File"`
-		HmacKey        string        `short:"k" long:"key" description:"HMAC key"`
-		Encode         bool          `short:"e" long:"encode" description:"Encode a url and print result"`
-		Decode         bool          `short:"d" long:"decode" description:"Decode a url and print result"`
-		Prefix         string        `long:"prefix" default:"" description:"Optional url prefix used by encode output"`
+		ConfigFile string `short:"c" long:"config" description:"JSON Config File"`
+		HmacKey    string `short:"k" long:"key" description:"HMAC key"`
+		Encode     bool   `short:"e" long:"encode" description:"Encode a url and print result"`
+		Decode     bool   `short:"d" long:"decode" description:"Decode a url and print result"`
+		Prefix     string `long:"prefix" default:"" description:"Optional url prefix used by encode output"`
 	}
 
 	// parse said flags

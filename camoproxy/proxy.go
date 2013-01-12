@@ -4,17 +4,17 @@ package camoproxy
 
 import (
 	"code.google.com/p/gorilla/mux"
+	"errors"
 	"github.com/cactus/go-camo/camoproxy/encoding"
 	"github.com/cactus/gologit"
-	"errors"
 	"io"
 	"net"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
-	"time"
 	"syscall"
+	"time"
 )
 
 // Config holds configuration data used when creating a Proxy with New.
