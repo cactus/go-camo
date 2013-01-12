@@ -3,24 +3,37 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
+	flags "github.com/jessevdk/go-flags"
 	"fmt"
 	"github.com/cactus/go-camo/camoproxy/encoding"
 	"io/ioutil"
 	"log"
 	"net/url"
+	"os"
 	"strings"
 )
 
 func main() {
+
 	// command line flags
-	hmacKey := flag.String("hmac-key", "", "HMAC Key")
-	configFile := flag.String("config-file", "", "JSON Config File")
-	prefix := flag.String("prefix", "", "Optional url prefix used by encode output")
-	encode := flag.Bool("encode", false, "Encode a url and print result")
-	decode := flag.Bool("decode", false, "Decode a url and print result")
+	var opts struct {
+		ConfigFile     string        `short:"c" long:"config" description:"JSON Config File"`
+		HmacKey        string        `short:"k" long:"key" description:"HMAC key"`
+		Encode         bool          `short:"e" long:"encode" description:"Encode a url and print result"`
+		Decode         bool          `short:"d" long:"decode" description:"Decode a url and print result"`
+		Prefix         string        `long:"prefix" default:"" description:"Optional url prefix used by encode output"`
+	}
+
 	// parse said flags
-	flag.Parse()
+	args, err := flags.Parse(&opts)
+	if err != nil {
+		if e, ok := err.(*flags.Error); ok {
+			if e.Type == flags.ErrHelp {
+				os.Exit(0)
+			}
+		}
+		os.Exit(1)
+	}
 
 	// clear log prefix -- not needed for tool
 	log.SetFlags(0)
@@ -31,8 +44,8 @@ func main() {
 		HmacKey string
 	}{}
 
-	if *configFile != "" {
-		b, err := ioutil.ReadFile(*configFile)
+	if opts.ConfigFile != "" {
+		b, err := ioutil.ReadFile(opts.ConfigFile)
 		if err != nil {
 			log.Fatal("Could not read configFile", err)
 		}
@@ -42,32 +55,36 @@ func main() {
 		}
 	}
 
-	if *encode == true && *decode == true {
+	if opts.Encode == true && opts.Decode == true {
 		log.Fatal("Encode and Decode are mutually exclusive. Doing nothing.")
 	}
 
-	if *encode == false && *decode == false {
+	if opts.Encode == false && opts.Decode == false {
 		log.Fatal("No action requested. Doing nothing.")
 	}
 
 	// flags override config file
-	if *hmacKey != "" {
-		config.HmacKey = *hmacKey
+	if opts.HmacKey != "" {
+		config.HmacKey = opts.HmacKey
 	}
 
-	oUrl := flag.Arg(0)
+	if len(args) == 0 {
+		log.Fatal("No url argument provided")
+	}
+
+	oUrl := args[0]
 	if oUrl == "" {
 		log.Fatal("No url argument provided")
 	}
 
 	hmacKeyBytes := []byte(config.HmacKey)
 
-	if *encode == true {
+	if opts.Encode == true {
 		outUrl := encoding.EncodeUrl(&hmacKeyBytes, oUrl)
-		fmt.Println(*prefix + outUrl)
+		fmt.Println(opts.Prefix + outUrl)
 	}
 
-	if *decode == true {
+	if opts.Decode == true {
 		u, err := url.Parse(oUrl)
 		if err != nil {
 			log.Fatal(err)
