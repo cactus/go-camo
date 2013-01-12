@@ -11,7 +11,8 @@ Changelog
     generation. rfc1918 filtering retained and internalized so as do reduce
     internal network exposue surface and avoid non-routable effort.
 *   Inverted redirect boolean. Redirects are now followed by default, and 
-    the flag `no-follow-redirects` was learned.
+    the flag `no-follow` was learned.
+*   Use new flag parsing library for nicer help and cleaner usage.
 
 ## 0.0.4 2012-09-02
 
