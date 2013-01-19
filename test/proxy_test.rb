@@ -162,5 +162,11 @@ class CamoProxyTests < Test::Unit::TestCase
         response = request("#{config['host']}/favicon.ico")
       end
     end
+
+    should "supply accept header if none provided by client" do
+      image_url = "http://images.anandtech.com/doci/6673/OpenMoboAMD30_575px.png"
+      response = RestClient.get(request_uri(image_url), :accept => '')
+      assert_equal(200, response.code)
+    end
   end
 end
