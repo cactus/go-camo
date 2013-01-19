@@ -129,6 +129,12 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			nreq.Header.Add("X-Forwarded-For", host)
 		}
 	}
+
+	// add an accept header if the client didn't send one
+	if nreq.Header.Get("Accept") == "" {
+		nreq.Header.Add("Accept", "image/*")
+	}
+
 	nreq.Header.Add("connection", "close")
 	nreq.Header.Add("user-agent", ServerNameVer)
 	nreq.Header.Add("via", ServerNameVer)
