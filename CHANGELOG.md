@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## 0.1.0 in-progress
+## 0.1.0 2013-01-19
 
 *   Refactor logging a bit
 *   Move encoding functionality into a submodule to reduce import size (and
@@ -13,6 +13,7 @@ Changelog
 *   Inverted redirect boolean. Redirects are now followed by default, and 
     the flag `no-follow` was learned.
 *   Use new flag parsing library for nicer help and cleaner usage.
+*   Specify a fallback accept header if none is provided by client.
 
 ## 0.0.4 2012-09-02
 
