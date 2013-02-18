@@ -198,6 +198,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	h := w.Header()
 	p.copyHeader(&h, &resp.Header, &ValidRespHeaders)
 	h.Set("X-Content-Type-Options", "nosniff")
+	h.Set("Date", formattedDate)
 	w.WriteHeader(resp.StatusCode)
 
 	// since this uses io.Copy from the respBody, it is streaming
@@ -274,6 +275,14 @@ func New(pc Config) (*Proxy, error) {
 		tr.CloseIdleConnections()
 	}()
 
+	// spawn a single formattedDate updater
+	onceDataUpdater.Do(func() {
+		go func() {
+			<-time.After(time.Second)
+			formattedDate = time.Now().UTC().Format(TimeFormat)
+		}()
+	})
+
 	// build/compile regex
 	client := &http.Client{Transport: tr}
 	if pc.NoFollowRedirects {
@@ -300,3 +309,5 @@ func New(pc Config) (*Proxy, error) {
 		allowList: allow,
 		maxSize:   pc.MaxSize}, nil
 }
+
+

@@ -1,30 +1,28 @@
 package main
 
 import (
-	"sync"
+	"sync/atomic"
 )
 
 type ProxyStats struct {
-	sync.Mutex
 	clientsServed uint64
 	bytesServed   uint64
 }
 
 func (ps *ProxyStats) AddServed() {
-	ps.Lock()
-	defer ps.Unlock()
 	ps.clientsServed += 1
+	atomic.AddUint64(&ps.clientsServed, 1)
 }
 
 func (ps *ProxyStats) AddBytes(bc int64) {
-	ps.Lock()
-	defer ps.Unlock()
 	if bc <= 0 {
 		return
 	}
-	ps.bytesServed += uint64(bc)
+	atomic.AddUint64(&ps.bytesServed, uint64(bc))
 }
 
 func (ps *ProxyStats) GetStats() (b uint64, c uint64) {
-	return ps.clientsServed, ps.bytesServed
+	b = atomic.LoadUint64(&ps.clientsServed)
+	c = atomic.LoadUint64(&ps.bytesServed)
+	return b, c
 }
