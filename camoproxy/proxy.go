@@ -309,5 +309,3 @@ func New(pc Config) (*Proxy, error) {
 		allowList: allow,
 		maxSize:   pc.MaxSize}, nil
 }
-
-
