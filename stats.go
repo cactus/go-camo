@@ -10,7 +10,6 @@ type ProxyStats struct {
 }
 
 func (ps *ProxyStats) AddServed() {
-	ps.clientsServed += 1
 	atomic.AddUint64(&ps.clientsServed, 1)
 }
 
