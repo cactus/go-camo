@@ -3,14 +3,11 @@ package camoproxy
 import (
 	"fmt"
 	"regexp"
-	"time"
-	"sync"
 )
 
 const (
 	ServerName    = "go-camo"
 	ServerVersion = "0.1.0"
-	TimeFormat = "Mon, 02 Jan 2006 15:04:05 GMT"
 )
 
 // Server Name with version
@@ -52,7 +49,3 @@ var addr1918PrefixRegex = regexp.MustCompile(`^(127\.|10\.|169\.254|192\.168|172
 
 // match for localhost
 var localhostRegex = regexp.MustCompile(`^localhost\.?(localdomain)?\.?$`)
-
-// holds current date stamp formatting for http Date header
-var formattedDate string = time.Now().UTC().Format(TimeFormat)
-var onceDataUpdater sync.Once

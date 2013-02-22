@@ -198,7 +198,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	h := w.Header()
 	p.copyHeader(&h, &resp.Header, &ValidRespHeaders)
 	h.Set("X-Content-Type-Options", "nosniff")
-	h.Set("Date", formattedDate)
+	h.Set("Date", formattedDate.String())
 	w.WriteHeader(resp.StatusCode)
 
 	// since this uses io.Copy from the respBody, it is streaming
@@ -274,14 +274,6 @@ func New(pc Config) (*Proxy, error) {
 		time.Sleep(5 * time.Minute)
 		tr.CloseIdleConnections()
 	}()
-
-	// spawn a single formattedDate updater
-	onceDataUpdater.Do(func() {
-		go func() {
-			<-time.After(time.Second)
-			formattedDate = time.Now().UTC().Format(TimeFormat)
-		}()
-	})
 
 	// build/compile regex
 	client := &http.Client{Transport: tr}
