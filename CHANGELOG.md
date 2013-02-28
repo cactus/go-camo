@@ -1,6 +1,12 @@
 Changelog
 =========
 
+## 0.1.1 2013-02-27
+
+*   optimize date header generation to use a ticker
+*   performance improvements
+*   fix a few subtle race conditions with stats
+
 ## 0.1.0 2013-01-19
 
 *   Refactor logging a bit
