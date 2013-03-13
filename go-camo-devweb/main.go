@@ -2,7 +2,7 @@
 package main
 
 import (
-	"code.google.com/p/gorilla/mux"
+	"github.com/gorilla/mux"
 	"code.google.com/p/rsc/devweb/slave"
 	"encoding/json"
 	"github.com/cactus/go-camo/camoproxy"
