@@ -124,14 +124,19 @@ func main() {
 	if opts.BindAddress != "" {
 		log.Println("Starting server on", opts.BindAddress)
 		go func() {
-			log.Fatal(http.ListenAndServe(opts.BindAddress, nil))
+			srv := &http.Server{
+				Addr: opts.BindAddress,
+				ReadTimeout: 30*time.Second}
+			log.Fatal(srv.ListenAndServe())
 		}()
 	}
 	if opts.BindAddressSSL != "" {
 		log.Println("Starting TLS server on", opts.BindAddressSSL)
 		go func() {
-			log.Fatal(http.ListenAndServeTLS(
-				opts.BindAddressSSL, opts.SSLCert, opts.SSLKey, nil))
+			srv := &http.Server{
+				Addr: opts.BindAddressSSL,
+				ReadTimeout: 30*time.Second}
+			log.Fatal(srv.ListenAndServeTLS(opts.SSLCert, opts.SSLKey))
 		}()
 	}
 
