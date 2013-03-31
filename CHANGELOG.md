@@ -1,6 +1,10 @@
 Changelog
 =========
 
+## 0.1.2 2013-03-30
+
+*   Add ReadTimeout to http.Server, to close excessive keepalive goroutines
+
 ## 0.1.1 2013-02-27
 
 *   optimize date header generation to use a ticker
