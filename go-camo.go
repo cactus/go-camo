@@ -2,11 +2,11 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
 	"encoding/json"
 	"fmt"
 	"github.com/cactus/go-camo/camoproxy"
 	"github.com/cactus/gologit"
+	"github.com/gorilla/mux"
 	flags "github.com/jessevdk/go-flags"
 	"io/ioutil"
 	"log"
@@ -55,7 +55,7 @@ func main() {
 	}
 
 	if opts.Version {
-		fmt.Println(camoproxy.ServerNameVer)
+		fmt.Printf("%s (%s,%s-%s)\n", camoproxy.ServerNameVer, runtime.Version(), runtime.Compiler, runtime.GOARCH)
 		os.Exit(0)
 	}
 
@@ -125,8 +125,8 @@ func main() {
 		log.Println("Starting server on", opts.BindAddress)
 		go func() {
 			srv := &http.Server{
-				Addr: opts.BindAddress,
-				ReadTimeout: 30*time.Second}
+				Addr:        opts.BindAddress,
+				ReadTimeout: 30 * time.Second}
 			log.Fatal(srv.ListenAndServe())
 		}()
 	}
@@ -134,8 +134,8 @@ func main() {
 		log.Println("Starting TLS server on", opts.BindAddressSSL)
 		go func() {
 			srv := &http.Server{
-				Addr: opts.BindAddressSSL,
-				ReadTimeout: 30*time.Second}
+				Addr:        opts.BindAddressSSL,
+				ReadTimeout: 30 * time.Second}
 			log.Fatal(srv.ListenAndServeTLS(opts.SSLCert, opts.SSLKey))
 		}()
 	}
