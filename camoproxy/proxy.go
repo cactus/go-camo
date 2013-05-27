@@ -271,8 +271,10 @@ func New(pc Config) (*Proxy, error) {
 	go func() {
 		// prunes every 5 minutes. this is just a guess at an
 		// initial value. very busy severs may want to lower this...
-		time.Sleep(5 * time.Minute)
-		tr.CloseIdleConnections()
+		for {
+			time.Sleep(5 * time.Minute)
+			tr.CloseIdleConnections()
+		}
 	}()
 
 	// build/compile regex
