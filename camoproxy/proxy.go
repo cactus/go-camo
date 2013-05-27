@@ -257,6 +257,7 @@ func (p *Proxy) SetMetricsCollector(pm ProxyMetrics) {
 // to parse the regex from the passed Config.
 func New(pc Config) (*Proxy, error) {
 	tr := &http.Transport{
+		MaxIdleConnsPerHost: 8,
 		Dial: func(netw, addr string) (net.Conn, error) {
 			c, err := net.DialTimeout(netw, addr, pc.RequestTimeout)
 			if err != nil {
