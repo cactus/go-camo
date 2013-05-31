@@ -25,7 +25,6 @@
 # Modified to remove Query String tests (CamoProxyQueryStringTest).
 
 require 'rubygems'
-require 'base64'
 require 'openssl'
 require 'rest_client'
 require 'addressable/uri'
