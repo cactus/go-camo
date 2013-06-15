@@ -65,6 +65,11 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Server", ServerNameVer)
 
+	if req.Header.Get("Via") == ServerNameVer {
+		http.Error(w, "Request loop failure", http.StatusNotFound)
+		return
+	}
+
 	vars := mux.Vars(req)
 	surl, ok := encoding.DecodeUrl(&p.hmacKey, vars["sigHash"], vars["encodedUrl"])
 	if !ok {
@@ -84,10 +89,6 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if u.Host == "" || localhostRegex.MatchString(u.Host) {
 		http.Error(w, "Bad url", http.StatusNotFound)
 		return
-	}
-
-	if req.Header.Get("Via") == "ServerNameVer" {
-		http.Error(w, "Request loop failure", http.StatusNotFound)
 	}
 
 	// if allowList is set, require match
