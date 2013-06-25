@@ -1,6 +1,12 @@
 Changelog
 =========
 
+## 0.1.3 2013-06-24
+
+*   fix bug in loop prevention
+*   bump max idle conn count
+*   keep idle conn trimmer running
+
 ## 0.1.2 2013-03-30
 
 *   Add ReadTimeout to http.Server, to close excessive keepalive goroutines
