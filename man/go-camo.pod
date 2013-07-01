@@ -4,9 +4,11 @@
 
 go-camo - Go version of Camo server
 
+
 =head1 SYNOPSIS
 
 B<go-camo> [I<OPTIONS>] [I<OPTION-ARGUMENTS>]
+
 
 =head1 DESCRIPTION
 
@@ -37,6 +39,8 @@ Enable stats collection and reporting functionality.
 
 If stats flag is provided, then the service will track bytes and clients
 served, and offer them up at an http endpoint /status via HTPT GET request.
+
+See L<STATS|"STATS"> for more info.
 
 =item B<--max-size> <size>
 
@@ -82,6 +86,7 @@ Show help output and exit
 
 =back
 
+
 =head1 CONFIG_JSON
 
 An example config json file:
@@ -109,15 +114,30 @@ B<allowlist> if none is specified.
 
 I<Note>: Option flags, if provided, override those in the config file.
 
+
+=head1 STATS
+
+If the B<--stats> flag is provided, then the service will track bytes and
+clients served, and offer them up at an http endpoint C</status> via HTTP GET
+request.
+
+The output format is show as an example:
+
+    ClientsServed, BytesServed
+    4, 27300
+
+
 =head1 EXAMPLES
 
 Listen on loopback port 8080 with a upstream timeout of 6 seconds:
 
     go-camo -k BEEFBEEFBEEF --timeout=6s --listen=127.0.0.1:8080
 
+
 =head1 WWW
 
 https://github.com/cactus/go-camo
+
 
 =head1 SEE ALSO
 
@@ -126,3 +146,5 @@ https://github.com/cactus/go-camo
 =item L<Camo|https://github.com/atmos/camo>
 
 =back
+
+=cut
