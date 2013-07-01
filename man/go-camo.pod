@@ -91,10 +91,10 @@ Show help output and exit
 
 An example config json file:
 
-    {
-        "hmackey": "Some long string here...",
-        "allowlist": []
-    }
+ {
+  "hmackey": "Some long string here...",
+  "allowlist": []
+ }
 
 =over
 
@@ -123,15 +123,15 @@ request.
 
 The output format is show as an example:
 
-    ClientsServed, BytesServed
-    4, 27300
+ ClientsServed, BytesServed
+ 4, 27300
 
 
 =head1 EXAMPLES
 
 Listen on loopback port 8080 with a upstream timeout of 6 seconds:
 
-    go-camo -k BEEFBEEFBEEF --timeout=6s --listen=127.0.0.1:8080
+ go-camo -k BEEFBEEFBEEF --timeout=6s --listen=127.0.0.1:8080
 
 
 =head1 WWW
