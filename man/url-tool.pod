@@ -75,8 +75,6 @@ Encode a url:
 
 Decode a url:
 
-=begin text
-
  url-tool -d -k test https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67
  http://golang.org/doc/gopher/frontpage.png
 
