@@ -8,4 +8,8 @@
 /server.key
 /server.crt
 /test_internal
+/build
+/go-camo
+/url-tool/url-tool
+/simple-server/simple-server
 *.py[co]

@@ -1,0 +1,128 @@
+=encoding utf8
+
+=head1 NAME
+
+go-camo - Go version of Camo server
+
+=head1 SYNOPSIS
+
+B<go-camo> [I<OPTIONS>] [I<OPTION-ARGUMENTS>]
+
+=head1 DESCRIPTION
+
+B<go-camo> is an implementation of Camo in Go.
+
+Camo is a special type of image proxy that proxies non-secure images over
+SSL/TLS. This prevents mixed content warnings on secure pages.
+
+It works in conjunction with back-end code to rewrite image URLs and sign them
+with an HMAC.
+
+
+=head1 OPTIONS
+
+=over
+
+=item B<-c, --config> <file-name>
+
+JSON config file. See L<CONFIG_JSON|"CONFIG_JSON">
+
+=item B<-k, --key> <hmac-key>
+
+The HMAC key to use.
+
+=item B<--stats>
+
+Enable stats collection and reporting functionality.
+
+If stats flag is provided, then the service will track bytes and clients
+served, and offer them up at an http endpoint /status via HTPT GET request.
+
+=item B<--max-size> <size>
+
+Max response image size in KB. Default: 5120
+
+=item B<--timeout> <time>
+
+Timeout value for upstream response. Format is "4s" where I<s> means seconds.
+Default: 4s
+
+=item B<--no-follow>
+
+Disable following upstream redirects.
+
+=item B<--listen> <address-port>
+
+Address and port to listen to, as a string of "address:port".
+Default: "0.0.0.0:8080"
+
+=item B<--ssl-listen> <address-port>
+
+Address and port to listen via SSL to, as a string of "address:port".
+
+=item B<--ssl-key> <ssl-key-file>
+
+Path to ssl private key. Default: key.pem
+
+=item B<--ssl-cert> <ssl-cert-file>
+
+Path to ssl certificate. Default: cert.pem
+
+=item B<-v, --verbose>
+
+Show verbose (debug) level log output
+
+=item B<-V, --version>
+
+Print version and exit
+
+=item B<-h, --help>
+
+Show help output and exit
+
+=back
+
+=head1 CONFIG_JSON
+
+An example config json file:
+
+    {
+        "hmackey": "Some long string here...",
+        "allowlist": []
+    }
+
+=over
+
+=item B<hmackey>
+
+B<hmackey> is a secret key seed to the HMAC used for signing and validation
+
+=item B<allowlist>
+
+B<allowlist> is a list of regex host matches to allow.
+
+If an B<allowlist> is defined, and a request does not match one of the listed
+host regex, then the request is denied. Default is all requests pass the
+B<allowlist> if none is specified.
+
+=back
+
+I<Note>: Option flags, if provided, override those in the config file.
+
+=head1 EXAMPLES
+
+Listen on loopback port 8080 with a upstream timeout of 6 seconds:
+
+    go-camo -k BEEFBEEFBEEF --timeout=6s --listen=127.0.0.1:8080
+
+=head1 WWW
+
+https://github.com/cactus/go-camo
+
+=head1 SEE ALSO
+
+=over
+
+=item L<Camo|https://github.com/atmos/camo>
+
+=back
