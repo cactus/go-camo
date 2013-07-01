@@ -8,7 +8,7 @@ FPM_OPTIONS       :=
 GOCAMO_VER        := $(shell grep -F 'ServerVersion =' ./camoproxy/vars.go |awk -F\" '{print $$2}')
 ITERATION         := 1
 
-.PHONY: help clean build man rpm
+.PHONY: help clean build man rpm all
 
 help:
 	@echo "Available targets:"
@@ -66,11 +66,13 @@ rpm: all
 	@cp ${BUILDDIR}/bin/* ${RPMBUILDDIR}/usr/local/bin
 	@cp ${BUILDDIR}/man/man1/* ${RPMBUILDDIR}/usr/local/share/man/man1
 	fpm -s dir -t rpm -n go-camo \
+		--url "https://github.com/cactus/go-camo" \
 		-v "${GOCAMO_VER}" \
 		--iteration "${ITERATION}" \
 		-C "${RPMBUILDDIR}" \
 		${FPM_OPTIONS} \
 		usr/local/bin usr/local/share/man/man1
+	@mv *.rpm ${BUILDDIR}/
 
 build: build-go-camo build-url-tool build-simple-server
 man: man-camo man-url-tool man-simple-server
