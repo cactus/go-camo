@@ -6,6 +6,7 @@ ARCH              := $(shell uname -m)
 FPM_VERSION       := $(shell gem list fpm|grep fpm|sed -E 's/fpm \((.*)\)/\1/g')
 FPM_OPTIONS       :=
 GOCAMO_VER        := $(shell grep -F 'ServerVersion =' ./camoproxy/vars.go |awk -F\" '{print $$2}')
+ITERATION         := 1
 
 .PHONY: help clean build man rpm
 
@@ -13,6 +14,7 @@ help:
 	@echo "Available targets:"
 	@echo "  help                this help"
 	@echo "  clean               clean up"
+	@echo "  all                 build binaries and man pages"
 	@echo "  build               build all"
 	@echo "  build-go-camo       build go-camo"
 	@echo "  build-url-tool      build url tool"
@@ -21,6 +23,7 @@ help:
 	@echo "  man-go-camo         build go-camo man pages"
 	@echo "  man-url-tool        build url-tool man pages"
 	@echo "  man-simple-server   build simple-server man pages"
+	@echo "  rpm                 build rpm"
 
 clean:
 	-rm -rf "${BUILDDIR}"
@@ -57,5 +60,18 @@ man-url-tool: man-setup
 man-simple-server: man-setup
 	@pod2man -s 1 -r "simple-server ${GOCAMO_VER}" -n simple-server --center="go-camo manual" man/simple-server.pod |gzip > build/man/man1/simple-server.1.gz
 
+rpm: all
+	@mkdir -p ${RPMBUILDDIR}/usr/local/bin
+	@mkdir -p ${RPMBUILDDIR}/usr/local/share/man/man1
+	@cp ${BUILDDIR}/bin/* ${RPMBUILDDIR}/usr/local/bin
+	@cp ${BUILDDIR}/man/man1/* ${RPMBUILDDIR}/usr/local/share/man/man1
+	fpm -s dir -t rpm -n go-camo \
+		-v "${GOCAMO_VER}" \
+		--iteration "${ITERATION}" \
+		-C "${RPMBUILDDIR}" \
+		${FPM_OPTIONS} \
+		usr/local/bin usr/local/share/man/man1
+
 build: build-go-camo build-url-tool build-simple-server
 man: man-camo man-url-tool man-simple-server
+all: build man
