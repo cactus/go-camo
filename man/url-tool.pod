@@ -1,0 +1,85 @@
+=encoding utf8
+
+=head1 NAME
+
+url-tool - provides a simple way to generate signed URLs from the command line
+
+
+=head1 SYNOPSIS
+
+B<url-tool> [I<OPTIONS>] [I<OPTION-ARGUMENTS>]
+
+
+=head1 DESCRIPTION
+
+B<url-tool> provides a simple way to generate signed URLs from the command line
+compatible with L<go-camo(1)>.
+
+
+=head1 OPTIONS
+
+=over
+
+=item B<-c, --config> <file-name>
+
+JSON config file. See L<CONFIG_JSON|"CONFIG_JSON">
+
+=item B<-k, --key> <hmac-key>
+
+The HMAC key to use.
+
+=item B<-e, --encode>
+
+Perform an encode. Mutually exclusive with B<--decode>.
+
+=item B<-d, --decode>
+
+Perform an decode. Mutually exclusive with B<--encode>.
+
+=item B<--prefix> <prefix>
+
+Optional url prefix used by encode output.
+
+=item B<-h, --help>
+
+Show help output and exit
+
+=back
+
+
+=head1 CONFIG_JSON
+
+An example config json file:
+
+    {
+        "hmackey": "Some long string here...",
+    }
+
+=over
+
+=item B<hmackey>
+
+B<hmackey> is a secret key seed to the HMAC used for signing and validation
+
+=back
+
+I<Note>: Option flags, if provided, override those in the config file.
+
+
+=head1 EXAMPLES
+
+Encode a url:
+
+    url-tool -e -k test --prefix="https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
+    https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67 
+
+Decode a url:
+
+    url-tool -d -k test https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67
+    http://golang.org/doc/gopher/frontpage.png
+
+=head1 WWW
+
+https://github.com/cactus/go-camo
+
+=cut

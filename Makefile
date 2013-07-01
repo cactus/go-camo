@@ -51,4 +51,7 @@ man-setup:
 man-camo:
 	@pod2man -s 1 -r "go-camo ${GOCAMO_VER}" -n go-camo --center="go-camo manual" man/go-camo.pod |gzip > build/go-camo.1.gz
 
+man-url-tool:
+	@pod2man -s 1 -r "url-tool ${GOCAMO_VER}" -n url-tool --center="go-camo manual" man/url-tool.pod |gzip > build/url-tool.1.gz
+
 build: build-go-camo build-url-tool build-simple-server
