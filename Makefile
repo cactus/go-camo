@@ -48,10 +48,14 @@ build-devweb: build-setup
 man-setup:
 	@mkdir -p "${BUILDDIR}/man/man1"
 
-man-camo:
-	@pod2man -s 1 -r "go-camo ${GOCAMO_VER}" -n go-camo --center="go-camo manual" man/go-camo.pod |gzip > build/go-camo.1.gz
+man-camo: man-setup
+	@pod2man -s 1 -r "go-camo ${GOCAMO_VER}" -n go-camo --center="go-camo manual" man/go-camo.pod |gzip > build/man/man1/go-camo.1.gz
 
-man-url-tool:
-	@pod2man -s 1 -r "url-tool ${GOCAMO_VER}" -n url-tool --center="go-camo manual" man/url-tool.pod |gzip > build/url-tool.1.gz
+man-url-tool: man-setup
+	@pod2man -s 1 -r "url-tool ${GOCAMO_VER}" -n url-tool --center="go-camo manual" man/url-tool.pod |gzip > build/man/man1/url-tool.1.gz
+
+man-simple-server: man-setup
+	@pod2man -s 1 -r "simple-server ${GOCAMO_VER}" -n simple-server --center="go-camo manual" man/simple-server.pod |gzip > build/man/man1/simple-server.1.gz
 
 build: build-go-camo build-url-tool build-simple-server
+man: man-camo man-url-tool man-simple-server

@@ -1,0 +1,42 @@
+=encoding utf8
+
+=head1 NAME
+
+simple-server - serves the contents of a given directory over http
+
+
+=head1 SYNOPSIS
+
+B<simple-server> [I<OPTIONS>] [I<OPTION-ARGUMENTS>]
+
+
+=head1 DESCRIPTION
+
+The B<simple-server> utility is useful for testing. It serves the contents of a
+given directory over http. Nothing more.
+
+
+=head1 OPTIONS
+
+=over
+
+=item B<-d> <directory>
+
+Directory to serve from. Defaults to current dir (C<.>).
+
+=item B<-h, --help>
+
+Show help output and exit
+
+=back
+
+
+=head1 EXAMPLES
+
+ simple-server -d /tmp/images
+
+=head1 WWW
+
+https://github.com/cactus/go-camo
+
+=cut
