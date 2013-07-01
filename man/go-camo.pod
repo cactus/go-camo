@@ -112,7 +112,7 @@ B<allowlist> if none is specified.
 
 =back
 
-I<Note>: Option flags, if provided, override those in the config file.
+I<Note>: L<Option flags|"OPTIONS">, if provided, override those in the config file.
 
 
 =head1 STATS
