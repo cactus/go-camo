@@ -27,7 +27,7 @@ help:
 
 clean:
 	-rm -rf "${BUILDDIR}"
-	
+
 build-setup:
 	@mkdir -p "${GOPATH}/src/github.com/cactus"
 	@test -d "${GOPATH}/src/github.com/cactus/go-camo" || ln -s "${CURDIR}" "${GOPATH}/src/github.com/cactus/go-camo"
