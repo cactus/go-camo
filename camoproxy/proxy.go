@@ -3,10 +3,10 @@
 package camoproxy
 
 import (
-	"github.com/gorilla/mux"
 	"errors"
 	"github.com/cactus/go-camo/camoproxy/encoding"
 	"github.com/cactus/gologit"
+	"github.com/gorilla/mux"
 	"io"
 	"net"
 	"net/http"

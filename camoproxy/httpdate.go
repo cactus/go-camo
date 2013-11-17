@@ -9,8 +9,8 @@ const TimeFormat = "Mon, 02 Jan 2006 15:04:05 GMT"
 
 // holds current date stamp formatting for http Date header
 type HttpDate struct {
-	dateStamp string
-	mu sync.RWMutex
+	dateStamp   string
+	mu          sync.RWMutex
 	onceUpdater sync.Once
 }
 
@@ -27,7 +27,7 @@ func (h *HttpDate) Update() {
 }
 
 func newHttpDate() *HttpDate {
-	d := &HttpDate{dateStamp:time.Now().UTC().Format(TimeFormat)}
+	d := &HttpDate{dateStamp: time.Now().UTC().Format(TimeFormat)}
 	// spawn a single formattedDate updater
 	d.onceUpdater.Do(func() {
 		go func() {

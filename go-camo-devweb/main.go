@@ -2,11 +2,11 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
 	"code.google.com/p/rsc/devweb/slave"
 	"encoding/json"
 	"github.com/cactus/go-camo/camoproxy"
 	"github.com/cactus/gologit"
+	"github.com/gorilla/mux"
 	"io/ioutil"
 	"log"
 	"net/http"
