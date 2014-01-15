@@ -29,36 +29,40 @@ clean:
 	-rm -rf "${BUILDDIR}"
 
 build-setup:
+	@mkdir -p "${GOPATH}/src"
+	@env GOPATH="${GOPATH}" godep restore
 	@mkdir -p "${GOPATH}/src/github.com/cactus"
 	@test -d "${GOPATH}/src/github.com/cactus/go-camo" || ln -s "${CURDIR}" "${GOPATH}/src/github.com/cactus/go-camo"
 
 build-go-camo: build-setup
-	@env GOPATH="${GOPATH}" go get -d github.com/cactus/go-camo
-	@env GOPATH="${GOPATH}" go install -v github.com/cactus/go-camo
+	@env GOPATH="${GOPATH}" go install -v -x github.com/cactus/go-camo
 
 build-url-tool: build-setup
-	@env GOPATH="${GOPATH}" go get -d github.com/cactus/go-camo/url-tool
 	@env GOPATH="${GOPATH}" go install -v github.com/cactus/go-camo/url-tool
 
 build-simple-server: build-setup
-	@env GOPATH="${GOPATH}" go get -d github.com/cactus/go-camo/simple-server
 	@env GOPATH="${GOPATH}" go install -v github.com/cactus/go-camo/simple-server
 
 build-devweb: build-setup
-	@env GOPATH="${GOPATH}" go get -d github.com/cactus/go-camo/go-camo-devweb
 	@env GOPATH="${GOPATH}" go install -v github.com/cactus/go-camo/go-camo-devweb
 
 man-setup:
 	@mkdir -p "${BUILDDIR}/man/man1"
 
 man-camo: man-setup
-	@pod2man -s 1 -r "go-camo ${GOCAMO_VER}" -n go-camo --center="go-camo manual" man/go-camo.pod |gzip > build/man/man1/go-camo.1.gz
+	@pod2man -s 1 -r "go-camo ${GOCAMO_VER}" -n go-camo \
+		--center="go-camo manual" man/go-camo.pod | \
+		gzip > build/man/man1/go-camo.1.gz
 
 man-url-tool: man-setup
-	@pod2man -s 1 -r "url-tool ${GOCAMO_VER}" -n url-tool --center="go-camo manual" man/url-tool.pod |gzip > build/man/man1/url-tool.1.gz
+	@pod2man -s 1 -r "url-tool ${GOCAMO_VER}" -n url-tool \
+		--center="go-camo manual" man/url-tool.pod | \
+		gzip > build/man/man1/url-tool.1.gz
 
 man-simple-server: man-setup
-	@pod2man -s 1 -r "simple-server ${GOCAMO_VER}" -n simple-server --center="go-camo manual" man/simple-server.pod |gzip > build/man/man1/simple-server.1.gz
+	@pod2man -s 1 -r "simple-server ${GOCAMO_VER}" -n simple-server \
+		--center="go-camo manual" man/simple-server.pod | \
+		gzip > build/man/man1/simple-server.1.gz
 
 rpm: all
 	@mkdir -p ${RPMBUILDDIR}/usr/local/bin

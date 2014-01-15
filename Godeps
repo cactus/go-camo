@@ -1,0 +1,31 @@
+{
+	"ImportPath": "github.com/cactus/go-camo",
+	"GoVersion": "go1.2",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "code.google.com/p/rsc/devweb/slave",
+			"Comment": "null-199",
+			"Rev": "384a08d46a10f740c6430b7217bb791916aa1549"
+		},
+		{
+			"ImportPath": "github.com/cactus/gologit",
+			"Rev": "0464a496f516d52d786b9a2c9fa5c43d672f951e"
+		},
+		{
+			"ImportPath": "github.com/gorilla/context",
+			"Rev": "a08edd30ad9e104612741163dc087a613829a23c"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Rev": "9ede152210fa25c1377d33e867cb828c19316445"
+		},
+		{
+			"ImportPath": "github.com/jessevdk/go-flags",
+			"Comment": "v1-111-g8e054df",
+			"Rev": "8e054df750e8371c394e95da0a852e29212dba45"
+		}
+	]
+}
