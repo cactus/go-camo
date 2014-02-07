@@ -57,20 +57,32 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
 
 ## Building
 
-Building requires `git` and `hg` (mecurial). They are used to fetch
-dependencies. A functional [Go][3] installation is also required.
+Building requires `git`, `hg` (mecurial), and `make`. Optional requirements are
+`pod2man` (to build man pages), and fpm (to build rpms).  A functional [Go][3]
+installation is also required.
 
-    # Set GOPATH if appropriate
+    # show make targets
+    $ make
+    Available targets:
+      help                this help
+      clean               clean up
+      all                 build binaries and man pages
+      build               build all
+      build-go-camo       build go-camo
+      build-url-tool      build url tool
+      build-simple-server build simple server
+      man                 build all man pages
+      man-go-camo         build go-camo man pages
+      man-url-tool        build url-tool man pages
+      man-simple-server   build simple-server man pages
+      rpm                 build rpm
 
-    # get code and dependencies
-    $ go get -d github.com/cactus/go-camo
-
-    # build and install to GOPATH
-    $ go install github.com/cactus/go-camo
+    # build all binaries and man pages. results will be in build/ dir
+    $ make all
 
     # as an alternative to the previous command, build and strip debug symbols.
     # this is useful for production, and reduces the resulting file size.
-    $ go install -ldflags '-s' github.com/cactus/go-camo
+    $ make all GOBUILD_OPTS="-ldflags '-s'"
 
 
 ## Running
@@ -163,10 +175,6 @@ Example usage:
     $ $GOPATH/bin/url-tool -e -k "test" --prefix="https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
     https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67 
 
-Installation:
-
-    $ go install github.com/cactus/go-camo/url-tool
-
 ### simple-server
 
 The `simple-server` utility is useful for testing. It serves the contents of a
@@ -175,10 +183,6 @@ given directory over http. Nothing more.
     $ $GOPATH/bin/simple-server -h
     Usage of ./simple-server:
       -d=".": Directory to serve from
-
-Installation:
-
-    $ go install github.com/cactus/go-camo/simple-server
 
 ## Changelog
 
