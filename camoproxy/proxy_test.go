@@ -1,27 +1,25 @@
 package camoproxy
 
 import (
-	"net/http"
-	"net/http/httptest"
-	"time"
-	"testing"
-	"github.com/gorilla/mux"
 	"fmt"
 	"github.com/cactus/go-camo/camoproxy/encoding"
+	"github.com/gorilla/mux"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
 )
 
 type testStruct struct {
-	Desc string
-	Url  string
+	Desc   string
+	Url    string
 	Status int
 }
 
-
 var camoConfig = Config{
-	HmacKey: "0x24FEEDFACEDEADBEEFCAFE",
-	MaxSize: 5120*1024,
+	HmacKey:        "0x24FEEDFACEDEADBEEFCAFE",
+	MaxSize:        5120 * 1024,
 	RequestTimeout: time.Duration(4) * time.Second}
-
 
 func makeReq(testUrl string) (*http.Request, error) {
 	k := []byte(camoConfig.HmacKey)
@@ -62,8 +60,6 @@ func makeTestReq(testUrl string, status int) (*httptest.ResponseRecorder, error)
 	}
 	return record, nil
 }
-
-
 
 func TestSimpleValidImageUrl(t *testing.T) {
 	t.Parallel()
@@ -204,7 +200,7 @@ func Test404On172Dot16Net(t *testing.T) {
 	t.Parallel()
 	for i := 16; i < 32; i++ {
 		testUrl := "http://172.%d.0.1/foo.cgi"
-		_, err := makeTestReq(fmt.Sprintf(testUrl,i), 404)
+		_, err := makeTestReq(fmt.Sprintf(testUrl, i), 404)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
