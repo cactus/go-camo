@@ -26,6 +26,13 @@ func DecodeUrl(hmackey *[]byte, hexdig string, hexurl string) (string, bool) {
 	mac := hmac.New(sha1.New, *hmackey)
 	mac.Write(urlBytes)
 	macSum := mac.Sum(nil)
+
+	// ensure lengths are equal. if not, return false
+	if len(macSum) != len(macBytes) {
+		gologit.Debugf("Bad signature: %x != %x\n", macSum, macBytes)
+		return "", false
+	}
+
 	if subtle.ConstantTimeCompare(macSum, macBytes) != 1 {
 		gologit.Debugf("Bad signature: %x != %x\n", macSum, macBytes)
 		return "", false

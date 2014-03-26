@@ -64,6 +64,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Header().Set("Server", ServerNameVer)
+	w.Header().Set("X-Content-Type-Options", "nosniff")
 
 	if req.Header.Get("Via") == ServerNameVer {
 		http.Error(w, "Request loop failure", http.StatusNotFound)
@@ -181,7 +182,6 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	case 304:
 		h := w.Header()
 		p.copyHeader(&h, &resp.Header, &ValidRespHeaders)
-		h.Set("X-Content-Type-Options", "nosniff")
 		w.WriteHeader(304)
 		return
 	case 404:
@@ -198,7 +198,6 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	h := w.Header()
 	p.copyHeader(&h, &resp.Header, &ValidRespHeaders)
-	h.Set("X-Content-Type-Options", "nosniff")
 	h.Set("Date", formattedDate.String())
 	w.WriteHeader(resp.StatusCode)
 
