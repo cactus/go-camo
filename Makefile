@@ -9,7 +9,7 @@ GOCAMO_VER        := $(shell grep -F 'ServerVersion =' ./camoproxy/vars.go |awk 
 ITERATION         := 1
 GOBUILD_OPTS      := 
 
-.PHONY: help clean build man rpm all
+.PHONY: help clean build test man rpm all
 
 help:
 	@echo "Available targets:"
@@ -20,6 +20,7 @@ help:
 	@echo "  build-go-camo       build go-camo"
 	@echo "  build-url-tool      build url tool"
 	@echo "  build-simple-server build simple server"
+	@echo "  test                run tests"
 	@echo "  man                 build all man pages"
 	@echo "  man-go-camo         build go-camo man pages"
 	@echo "  man-url-tool        build url-tool man pages"
@@ -55,6 +56,10 @@ build-simple-server: build-setup
 build-devweb: build-setup
 	@echo "Building go-camo-devweb..."
 	@env GOPATH="${GOPATH}" go install ${GOBUILD_OPTS} github.com/cactus/go-camo/go-camo-devweb
+
+test: build-setup
+	@echo "Running tests..."
+	@env GOPATH="${GOPATH}" go test github.com/cactus/go-camo/camoproxy
 
 man-setup:
 	@mkdir -p "${BUILDDIR}/man/man1"
