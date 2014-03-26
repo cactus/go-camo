@@ -42,7 +42,7 @@ class CamoProxyTests < Test::Unit::TestCase
 
   def request_uri(image_url)
     hexdigest = OpenSSL::HMAC.hexdigest(
-      OpenSSL::Digest::Digest.new('sha1'), config['key'], image_url)
+      OpenSSL::Digest.new('sha1'), config['key'], image_url)
     encoded_image_url = hexenc(image_url)
     "#{config['host']}/#{hexdigest}/#{encoded_image_url}"
   end
