@@ -59,7 +59,7 @@ build-devweb: build-setup
 
 test: build-setup
 	@echo "Running tests..."
-	@env GOPATH="${GOPATH}" go test github.com/cactus/go-camo/camoproxy
+	@env GOPATH="${GOPATH}" go test ./camoproxy/...
 
 man-setup:
 	@mkdir -p "${BUILDDIR}/man/man1"
