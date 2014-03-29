@@ -71,6 +71,7 @@ installation is also required.
       build-go-camo       build go-camo
       build-url-tool      build url tool
       build-simple-server build simple server
+      test                run tests
       man                 build all man pages
       man-go-camo         build go-camo man pages
       man-url-tool        build url-tool man pages

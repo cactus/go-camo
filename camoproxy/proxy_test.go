@@ -124,7 +124,7 @@ func TestFollowTempRedirects(t *testing.T) {
 	}
 }
 
-func Test404InifiRedirect(t *testing.T) {
+func Test404InfiniRedirect(t *testing.T) {
 	t.Parallel()
 	testUrl := "http://modeselektor.herokuapp.com/"
 	_, err := makeTestReq(testUrl, 404)
