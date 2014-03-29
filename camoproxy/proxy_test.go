@@ -19,7 +19,7 @@ type testStruct struct {
 var camoConfig = Config{
 	HmacKey:        "0x24FEEDFACEDEADBEEFCAFE",
 	MaxSize:        5120 * 1024,
-	RequestTimeout: time.Duration(4) * time.Second}
+	RequestTimeout: time.Duration(6) * time.Second}
 
 func makeReq(testUrl string) (*http.Request, error) {
 	k := []byte(camoConfig.HmacKey)
