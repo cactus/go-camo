@@ -103,9 +103,9 @@ addition, the code is much simpler because of it.
 
 In order to use this on Heroku with the provided Procfile, you need to:
 
-1. Create an app specifying the https://github.com/kr/heroku-buildpack-go
-buildpack
-2. Set `HMAC_KEY` to the key you are using
+1.	Create an app specifying the https://github.com/kr/heroku-buildpack-go
+	buildpack
+2.	Set `HMAC_KEY` to the key you are using
 
 ## Running under devweb
 
