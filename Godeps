@@ -1,22 +1,21 @@
 {
 	"ImportPath": "github.com/cactus/go-camo",
-	"GoVersion": "go1.2",
+	"GoVersion": "go1.2.1",
 	"Packages": [
 		"./..."
 	],
 	"Deps": [
 		{
-			"ImportPath": "code.google.com/p/rsc/devweb/slave",
-			"Comment": "null-199",
-			"Rev": "384a08d46a10f740c6430b7217bb791916aa1549"
-		},
-		{
+            "ImportPath": "code.google.com/p/rsc/devweb/slave",
+            "Rev": "4760ffc84dde42d4d35651d9c9110208094edf7b"
+        },
+        {
 			"ImportPath": "github.com/cactus/gologit",
 			"Rev": "0464a496f516d52d786b9a2c9fa5c43d672f951e"
 		},
 		{
 			"ImportPath": "github.com/gorilla/context",
-			"Rev": "a08edd30ad9e104612741163dc087a613829a23c"
+			"Rev": "1be7a086a5fd6440ef16fe96baeda0c78282b980"
 		},
 		{
 			"ImportPath": "github.com/gorilla/mux",
@@ -24,8 +23,11 @@
 		},
 		{
 			"ImportPath": "github.com/jessevdk/go-flags",
-			"Comment": "v1-111-g8e054df",
-			"Rev": "8e054df750e8371c394e95da0a852e29212dba45"
+			"Rev": "cee4db96aec1f7382a0b09d8249c09a8bb8d160b"
+		},
+		{
+			"ImportPath": "github.com/mreiferson/go-httpclient",
+			"Rev": "daccf73cf401529a4408a2fc93f8eadd8af5123d"
 		}
 	]
 }
