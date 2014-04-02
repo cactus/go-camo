@@ -57,9 +57,9 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
 
 ## Building
 
-Building requires `git`, `hg` (mecurial), and `make`. Optional requirements are
-`pod2man` (to build man pages), and fpm (to build rpms).  A functional [Go][3]
-installation is also required.
+Building requires `git` and `make`. Optional requirements are `pod2man` (to
+build man pages), and fpm (to build rpms).  A functional [Go][3] installation
+is also required.
 
     # show make targets
     $ make
