@@ -34,7 +34,7 @@ func main() {
 		Stats          bool          `long:"stats" description:"Enable Stats"`
 		MaxSize        int64         `long:"max-size" default:"5120" description:"Max response image size (KB)"`
 		ReqTimeout     time.Duration `long:"timeout" default:"4s" description:"Upstream request timeout"`
-		NoFollow       bool          `long:"no-follow" description:"Disable following upstream redirects"`
+		MaxRedirects   int           `long:"max-redirects" default:"3" description:"Maximum number of redirects to follow"`
 		BindAddress    string        `long:"listen" default:"0.0.0.0:8080" description:"Address:Port to bind to for HTTP"`
 		BindAddressSSL string        `long:"ssl-listen" description:"Address:Port to bind to for HTTPS/SSL/TLS"`
 		SSLKey         string        `long:"ssl-key" description:"ssl private key (key.pem) path"`
@@ -95,7 +95,7 @@ func main() {
 	// convert from KB to Bytes
 	config.MaxSize = config.MaxSize * 1024
 	config.RequestTimeout = opts.ReqTimeout
-	config.NoFollowRedirects = opts.NoFollow
+	config.MaxRedirects = opts.MaxRedirects
 
 	// set logger debug level and start toggle on signal handler
 	logger := gologit.Logger

@@ -121,22 +121,23 @@ buildpack
     Usage:
       go-camo [OPTIONS]
 
+    Application Options:
+	  -c, --config=        JSON Config File
+	  -k, --key=           HMAC key
+		  --stats          Enable Stats
+		  --max-size=      Max response image size (KB) (5120)
+		  --timeout=       Upstream request timeout (4s)
+		  --max-redirects= Maximum number of redirects to follow (3)
+		  --listen=        Address:Port to bind to for HTTP (0.0.0.0:8080)
+		  --ssl-listen=    Address:Port to bind to for HTTPS/SSL/TLS
+		  --ssl-key=       ssl private key (key.pem) path
+		  --ssl-cert=      ssl cert (cert.pem) path
+	  -v, --verbose        Show verbose (debug) log level output
+	  -V, --version        print version and exit
+
     Help Options:
       -h, --help          Show this help message
 
-    Application Options:
-      -c, --config        JSON Config File
-      -k, --key           HMAC key
-          --stats         Enable Stats
-          --max-size      Max response image size (KB) (5120)
-          --timeout       Upstream request timeout (4s)
-          --no-follow     Disable following upstream redirects
-          --listen        Address:Port to bind to for HTTP (0.0.0.0:8080)
-          --ssl-listen    Address:Port to bind to for HTTPS/SSL/TLS
-          --ssl-key       ssl private key (key.pem) path
-          --ssl-cert      ssl cert (cert.pem) path
-      -v, --verbose       Show verbose (debug) log level output
-      -V, --version       print version and exit
 
     $ cat config.json
     {

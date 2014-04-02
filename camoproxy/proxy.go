@@ -7,6 +7,7 @@ import (
 	"github.com/cactus/go-camo/camoproxy/encoding"
 	"github.com/cactus/gologit"
 	"github.com/gorilla/mux"
+	httpclient "github.com/mreiferson/go-httpclient"
 	"io"
 	"net"
 	"net/http"
@@ -28,9 +29,8 @@ type Config struct {
 	AllowList         []string
 	// MaxSize is the maximum valid image size response (in bytes).
 	MaxSize           int64
-	// NoFollowRedirects is a boolean that specifies whether upstream redirects
-	// are followed (10 depth) or not.
-	NoFollowRedirects bool
+	// MaxRedirects is the maximum number of redirects to follow.
+	MaxRedirects	  int
 	// Request timeout is a timeout for fetching upstream data.
 	RequestTimeout    time.Duration
 }
@@ -256,17 +256,10 @@ func (p *Proxy) SetMetricsCollector(pm ProxyMetrics) {
 // Returns a new Proxy. An error is returned if there was a failure
 // to parse the regex from the passed Config.
 func New(pc Config) (*Proxy, error) {
-	tr := &http.Transport{
+	tr := &httpclient.Transport{
 		MaxIdleConnsPerHost: 8,
-		Dial: func(netw, addr string) (net.Conn, error) {
-			c, err := net.DialTimeout(netw, addr, pc.RequestTimeout)
-			if err != nil {
-				return nil, err
-			}
-			// also set time limit on reading
-			c.SetDeadline(time.Now().Add(pc.RequestTimeout))
-			return c, nil
-		}}
+		ConnectTimeout:		 2*time.Second,
+		RequestTimeout:		 pc.RequestTimeout}
 
 	// spawn an idle conn trimmer
 	go func() {
@@ -278,12 +271,12 @@ func New(pc Config) (*Proxy, error) {
 		}
 	}()
 
-	// build/compile regex
 	client := &http.Client{Transport: tr}
-	if pc.NoFollowRedirects {
-		client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-			return errors.New("Not following redirect")
+	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		if len(via) >= pc.MaxRedirects {
+			return errors.New("Too many redirects")
 		}
+		return nil
 	}
 
 	allow := make([]*regexp.Regexp, 0)
