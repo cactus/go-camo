@@ -7,7 +7,7 @@ import (
 
 const (
 	ServerName    = "go-camo"
-	ServerVersion = "0.1.4"
+	ServerVersion = "0.1.3"
 )
 
 // Server Name with version
