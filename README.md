@@ -99,6 +99,14 @@ Examples of supervisors include: [daemontools][5], [runit][6], [upstart][7],
 For the reasoning behind lack of daemonization, see [daemontools/why][9]. In
 addition, the code is much simpler because of it.
 
+## Running on Heroku
+
+In order to use this on Heroku with the provided Procfile, you need to:
+
+1. Create an app specifying the https://github.com/kr/heroku-buildpack-go
+buildpack
+2. Set `HMAC_KEY` to the key you are using
+
 ## Running under devweb
 
 [Devweb][2] is useful for developing. To run under devweb:
@@ -174,7 +182,7 @@ The `url-tool` utility provides a simple way to generate signed URLs from the co
 Example usage:
 
     $ $GOPATH/bin/url-tool -e -k "test" --prefix="https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
-    https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67 
+    https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67
 
 ### simple-server
 
