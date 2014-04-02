@@ -5,10 +5,6 @@
 		"./..."
 	],
 	"Deps": [
-		{
-            "ImportPath": "code.google.com/p/rsc/devweb/slave",
-            "Rev": "4760ffc84dde42d4d35651d9c9110208094edf7b"
-        },
         {
 			"ImportPath": "github.com/cactus/gologit",
 			"Rev": "0464a496f516d52d786b9a2c9fa5c43d672f951e"

@@ -53,10 +53,6 @@ build-simple-server: build-setup
 	@echo "Building simple-server..."
 	@env GOPATH="${GOPATH}" go install ${GOBUILD_OPTS} github.com/cactus/go-camo/simple-server
 
-build-devweb: build-setup
-	@echo "Building go-camo-devweb..."
-	@env GOPATH="${GOPATH}" go install ${GOBUILD_OPTS} github.com/cactus/go-camo/go-camo-devweb
-
 test: build-setup
 	@echo "Running tests..."
 	@env GOPATH="${GOPATH}" go test ./camoproxy/...

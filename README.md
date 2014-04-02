@@ -107,14 +107,6 @@ In order to use this on Heroku with the provided Procfile, you need to:
 	buildpack
 2.	Set `HMAC_KEY` to the key you are using
 
-## Running under devweb
-
-[Devweb][2] is useful for developing. To run under devweb:
-
-    $ go get code.google.com/p/rsc/devweb
-    $ PATH=.:$PATH $GOPATH/bin/devweb -addr=127.0.0.1:8080 github.com/cactus/go-camo/go-camo-devweb
-    $ rm -f ./prox.exe  # devweb drops this file. clean it up
-
 ## Configuring
 
     $ $GOPATH/bin/go-camo -h
@@ -205,7 +197,6 @@ license](http://www.opensource.org/licenses/mit-license.php). See `LICENSE.md`
 file for details.
 
 [1]: https://github.com/atmos/camo
-[2]: http://code.google.com/p/rsc/source/browse/devweb
 [3]: http://golang.org/doc/install
 [4]: http://en.wikipedia.org/wiki/HMAC
 [5]: http://cr.yp.to/daemontools.html
