@@ -1,6 +1,8 @@
 go-camo
 =======
 
+[![Build Status](https://travis-ci.org/cactus/go-camo.png?branch=master)](https://travis-ci.org/cactus/go-camo)
+
 ## About
 
 Go version of [Camo][1] server.
