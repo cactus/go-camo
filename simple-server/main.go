@@ -2,16 +2,31 @@
 package main
 
 import (
-	"flag"
+	flags "github.com/jessevdk/go-flags"
 	"net/http"
+	"os"
 	"runtime"
 )
 
-var serveDir = flag.String("d", ".", "Directory to serve from")
-
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	flag.Parse()
-	panic(http.ListenAndServe("127.0.0.1:8000", http.FileServer(
-		http.Dir(*serveDir))))
+
+	// command line flags
+	var opts struct {
+			BindAddress string `long:"listen" short:"l" default:"0.0.0.0:8000" description:"Address:Port to bind to for HTTP"`
+			ServeDir    string `long:"serve-dir" short:"d" default:"." description:"Directory to serve from"`
+	}
+
+	// parse said flags
+	_, err := flags.Parse(&opts)
+	if err != nil {
+			if e, ok := err.(*flags.Error); ok {
+					if e.Type == flags.ErrHelp {
+							os.Exit(0)
+					}
+			}
+			os.Exit(1)
+	}
+
+	panic(http.ListenAndServe(opts.BindAddress, http.FileServer(http.Dir(opts.ServeDir))))
 }
