@@ -5,7 +5,7 @@ RPMBUILDDIR       := ${BUILDDIR}/rpm
 ARCH              := $(shell uname -m)
 FPM_VERSION       := $(shell gem list fpm|grep fpm|sed -E 's/fpm \((.*)\)/\1/g')
 FPM_OPTIONS       :=
-GOCAMO_VER        := $(shell grep -F 'ServerVersion =' ./camoproxy/vars.go |awk -F\" '{print $$2}')
+GOCAMO_VER        := $(shell grep -F 'ServerVersion =' ./go-camo.go |awk -F\" '{print $$2}')
 ITERATION         := 1
 GOBUILD_OPTS      := 
 
