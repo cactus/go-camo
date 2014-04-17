@@ -261,8 +261,8 @@ func (p *Proxy) SetMetricsCollector(pm ProxyMetrics) {
 func New(pc Config) (*Proxy, error) {
 	tr := &httpclient.Transport{
 		MaxIdleConnsPerHost: 8,
-		ConnectTimeout:		 2*time.Second,
-		RequestTimeout:		 pc.RequestTimeout}
+		ConnectTimeout:      2 * time.Second,
+		RequestTimeout:      pc.RequestTimeout}
 
 	// spawn an idle conn trimmer
 	go func() {
@@ -295,9 +295,9 @@ func New(pc Config) (*Proxy, error) {
 	}
 
 	return &Proxy{
-		client:    client,
-		hmacKey:   []byte(pc.HmacKey),
-		allowList: allow,
-		maxSize:   pc.MaxSize,
+		client:     client,
+		hmacKey:    []byte(pc.HmacKey),
+		allowList:  allow,
+		maxSize:    pc.MaxSize,
 		serverName: pc.ServerName}, nil
 }
