@@ -1,17 +1,8 @@
 package camoproxy
 
 import (
-	"fmt"
 	"regexp"
 )
-
-const (
-	ServerName    = "go-camo"
-	ServerVersion = "0.1.3"
-)
-
-// Server Name with version
-var ServerNameVer = fmt.Sprintf("%s %s", ServerName, ServerVersion)
 
 // Headers that are acceptible to pass from the client to the remote
 // server. Only those present and true, are forwarded. Empty implies

@@ -18,6 +18,14 @@ import (
 	"time"
 )
 
+const (
+	ServerName    = "go-camo"
+	ServerVersion = "0.2.0"
+)
+
+// Server Name with version
+var ServerNameVer = fmt.Sprintf("%s %s", ServerName, ServerVersion)
+
 func main() {
 	var gmx int
 	if gmxEnv := os.Getenv("GOMAXPROCS"); gmxEnv != "" {
@@ -96,6 +104,7 @@ func main() {
 	config.MaxSize = config.MaxSize * 1024
 	config.RequestTimeout = opts.ReqTimeout
 	config.MaxRedirects = opts.MaxRedirects
+	config.ServerName = ServerName
 
 	// set logger debug level and start toggle on signal handler
 	logger := gologit.Logger

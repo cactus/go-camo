@@ -33,6 +33,8 @@ type Config struct {
 	MaxRedirects	  int
 	// Request timeout is a timeout for fetching upstream data.
 	RequestTimeout    time.Duration
+	// Server name used in Headers and Via checks
+	ServerName        string
 }
 
 // Interface for Proxy to use for stats/metrics.
@@ -46,11 +48,12 @@ type ProxyMetrics interface {
 // A Proxy is a Camo like HTTP proxy, that provides content type
 // restrictions as well as regex host allow list support.
 type Proxy struct {
-	client    *http.Client
-	hmacKey   []byte
-	allowList []*regexp.Regexp
-	maxSize   int64
-	metrics   ProxyMetrics
+	client     *http.Client
+	hmacKey    []byte
+	allowList  []*regexp.Regexp
+	maxSize    int64
+	metrics    ProxyMetrics
+	serverName string
 }
 
 // ServerHTTP handles the client request, validates the request is validly
@@ -63,10 +66,10 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		go p.metrics.AddServed()
 	}
 
-	w.Header().Set("Server", ServerNameVer)
+	w.Header().Set("Server", p.serverName)
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 
-	if req.Header.Get("Via") == ServerNameVer {
+	if req.Header.Get("Via") == p.serverName {
 		http.Error(w, "Request loop failure", http.StatusNotFound)
 		return
 	}
@@ -138,8 +141,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	nreq.Header.Add("connection", "close")
-	nreq.Header.Add("user-agent", ServerNameVer)
-	nreq.Header.Add("via", ServerNameVer)
+	nreq.Header.Add("user-agent", p.serverName)
+	nreq.Header.Add("via", p.serverName)
 
 	resp, err := p.client.Do(nreq)
 	if err != nil {
@@ -295,5 +298,6 @@ func New(pc Config) (*Proxy, error) {
 		client:    client,
 		hmacKey:   []byte(pc.HmacKey),
 		allowList: allow,
-		maxSize:   pc.MaxSize}, nil
+		maxSize:   pc.MaxSize,
+		serverName: pc.ServerName}, nil
 }
