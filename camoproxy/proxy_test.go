@@ -20,7 +20,8 @@ var camoConfig = Config{
 	HmacKey:        "0x24FEEDFACEDEADBEEFCAFE",
 	MaxSize:        5120 * 1024,
 	RequestTimeout: time.Duration(10) * time.Second,
-	MaxRedirects:   3}
+	MaxRedirects:   3,
+	ServerName:     "go-camo"}
 
 func makeReq(testUrl string) (*http.Request, error) {
 	k := []byte(camoConfig.HmacKey)
