@@ -5,9 +5,9 @@ Changelog
 
 ## 0.2.0 2014-04-17
 
-*	Remove NoFollowRedirects and add MaxRedirects
-*	Use https://github.com/mreiferson/go-httpclient to handle timeouts more
-	cleanly
+*   Remove NoFollowRedirects and add MaxRedirects
+*   Use https://github.com/mreiferson/go-httpclient to handle timeouts more
+    cleanly
 
 ## 0.1.3 2013-06-24
 
