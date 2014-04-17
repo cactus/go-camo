@@ -63,7 +63,7 @@ func main() {
 	}
 
 	if opts.Version {
-		fmt.Printf("%s (%s,%s-%s)\n", camoproxy.ServerNameVer, runtime.Version(), runtime.Compiler, runtime.GOARCH)
+		fmt.Printf("%s (%s,%s-%s)\n", ServerNameVer, runtime.Version(), runtime.Compiler, runtime.GOARCH)
 		os.Exit(0)
 	}
 
