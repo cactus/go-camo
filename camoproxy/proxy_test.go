@@ -128,7 +128,7 @@ func TestFollowTempRedirects(t *testing.T) {
 
 func Test404InfiniRedirect(t *testing.T) {
 	t.Parallel()
-	testUrl := "http://modeselektor.herokuapp.com/"
+	testUrl := "http://httpbin.org/redirect/4"
 	_, err := makeTestReq(testUrl, 404)
 	if err != nil {
 		t.Errorf(err.Error())
