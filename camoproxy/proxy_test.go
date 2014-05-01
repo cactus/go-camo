@@ -119,7 +119,7 @@ func TestRedirectsWithPathOnly(t *testing.T) {
 
 func TestFollowTempRedirects(t *testing.T) {
 	t.Parallel()
-	testUrl := "http://d.pr/i/rr7F+"
+	testUrl := "http://httpbin.org/redirect-to?url=http://www.google.com/images/srpr/logo11w.png"
 	_, err := makeTestReq(testUrl, 200)
 	if err != nil {
 		t.Errorf(err.Error())
