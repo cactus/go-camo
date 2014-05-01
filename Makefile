@@ -7,7 +7,7 @@ FPM_VERSION       := $(shell gem list fpm|grep fpm|sed -E 's/fpm \((.*)\)/\1/g')
 FPM_OPTIONS       :=
 GOCAMO_VER        := $(shell grep -F 'ServerVersion =' ./go-camo.go |awk -F\" '{print $$2}')
 ITERATION         := 1
-GOBUILD_OPTS      := 
+GOBUILD_OPTS      :=
 
 .PHONY: help clean build test man rpm all
 
@@ -33,7 +33,7 @@ clean:
 ${GOPATH}/bin/godep:
 	@mkdir -p "${GOPATH}/src"
 	@echo "Building godep..."
-	@env GOPATH="${GOPATH}" go get github.com/kr/godep
+	@env GOPATH="${GOPATH}" go get ${GOBUILD_OPTS} github.com/kr/godep
 
 build-setup: ${GOPATH}/bin/godep
 	@echo "Restoring deps with godep..."
