@@ -189,8 +189,14 @@ The `simple-server` utility is useful for testing. It serves the contents of a
 given directory over http. Nothing more.
 
     $ $GOPATH/bin/simple-server -h
-    Usage of ./simple-server:
-      -d=".": Directory to serve from
+	Usage:
+	  simple-server [OPTIONS] DIR
+
+	Application Options:
+	  -l, --listen= Address:Port to bind to for HTTP (0.0.0.0:8000)
+
+	Help Options:
+	  -h, --help    Show this help message
 
 ## Changelog
 
