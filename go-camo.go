@@ -80,7 +80,12 @@ func main() {
 		}
 	}
 
-	// flags override config file
+	// env var overrides config file
+	if hmacKey := os.Getenv("GOCAMO_HMAC"); hmacKey != "" {
+		config.HmacKey = hmacKey
+	}
+
+	// flags override config file and env var
 	if opts.HmacKey != "" {
 		config.HmacKey = opts.HmacKey
 	}
