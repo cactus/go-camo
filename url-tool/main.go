@@ -13,7 +13,7 @@ import (
 )
 
 type Command struct {
-	Name    string
+	Name string
 }
 
 func (c *Command) Usage() string {
@@ -68,9 +68,9 @@ var opts struct {
 func main() {
 	parser := flags.NewParser(&opts, flags.Default)
 	parser.AddCommand("encode", "Encode a url and print result",
-					  "Encode a url and print result", &Command{Name:"encode"})
+		"Encode a url and print result", &Command{Name: "encode"})
 	parser.AddCommand("decode", "Decode a url and print result",
-					  "Decode a url and print result", &Command{Name:"decode"})
+		"Decode a url and print result", &Command{Name: "decode"})
 
 	// parse said flags
 	_, err := parser.Parse()
