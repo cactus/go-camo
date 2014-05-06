@@ -162,22 +162,26 @@ The `url-tool` utility provides a simple way to generate signed URLs from the co
 
     $ $GOPATH/bin/url-tool -h
     Usage:
-      url-tool [OPTIONS]
-
-    Help Options:
-      -h, --help      Show this help message
+      url-tool [OPTIONS] <decode | encode>
 
     Application Options:
-      -c, --config    JSON Config File
-      -k, --key       HMAC key
-      -e, --encode    Encode a url and print result
-      -d, --decode    Decode a url and print result
-          --prefix    Optional url prefix used by encode output
+      -k, --key=    HMAC key
+      -p, --prefix= Optional url prefix used by encode output
+
+    Help Options:
+      -h, --help    Show this help message
+
+    Available commands:
+      decode  Decode a url and print result
+      encode  Encode a url and print result
 
 Example usage:
 
-    $ $GOPATH/bin/url-tool -e -k "test" --prefix="https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
+    $ $GOPATH/bin/url-tool -k "test" -p "https://img.example.org" encode "http://golang.org/doc/gopher/frontpage.png"
     https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67
+
+    $ $GOPATH/bin/url-tool -k "test" decode "https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67"
+    http://golang.org/doc/gopher/frontpage.png
 
 ### simple-server
 
