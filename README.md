@@ -22,8 +22,11 @@ original image URL.
 The client requests the URL to Go-Camo. Go-Camo validates the HMAC, decodes the
 URL, requests the content and streams it to the client.
 
+Go-Camo supports both hex and base64 encoded urls. Base64 urls are shorter, but a bit more
+computationally expensive to decode. Hex urls are longer, but are case insensitive.
+
 Here is some example python code that demonstrates generating an encoded URL in
-hex and base64:
+both hex and base64:
 
     import hashlib
     import hmac
