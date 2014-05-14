@@ -25,7 +25,7 @@ var camoConfig = Config{
 
 func makeReq(testUrl string) (*http.Request, error) {
 	k := []byte(camoConfig.HmacKey)
-	hexurl := encoding.EncodeUrl(&k, testUrl)
+	hexurl := encoding.B64EncodeUrl(k, testUrl)
 	out := "http://example.com" + hexurl
 	req, err := http.NewRequest("GET", out, nil)
 	if err != nil {

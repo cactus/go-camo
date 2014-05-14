@@ -75,7 +75,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	vars := mux.Vars(req)
-	surl, ok := encoding.DecodeUrl(&p.hmacKey, vars["sigHash"], vars["encodedUrl"])
+	surl, ok := encoding.DecodeUrl(p.hmacKey, vars["sigHash"], vars["encodedUrl"])
 	if !ok {
 		http.Error(w, "Bad Signature", http.StatusForbidden)
 		return

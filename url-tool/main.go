@@ -12,18 +12,41 @@ import (
 	"strings"
 )
 
-type Command struct {
-	Name string
+type EncodeCommand struct {
+	Base    string `short:"b" long:"base" default:"hex" description:"Encode/Decode base. Either hex or base64"`
 }
 
-func (c *Command) Usage() string {
-	return fmt.Sprintf("[%s-OPTIONS] URL", c.Name)
+func (c *EncodeCommand) Execute(args []string) error {
+	if opts.HmacKey == "" {
+		return errors.New("Empty HMAC")
+	}
+
+	if len(args) == 0 {
+		return errors.New("No url argument provided")
+	}
+
+	oUrl := args[0]
+	if oUrl == "" {
+		return errors.New("No url argument provided")
+	}
+
+	hmacKeyBytes := []byte(opts.HmacKey)
+	var outUrl string
+	switch c.Base {
+	case "base64":
+		outUrl = encoding.B64EncodeUrl(hmacKeyBytes, oUrl)
+	case "hex":
+		outUrl = encoding.HexEncodeUrl(hmacKeyBytes, oUrl)
+	default:
+		return errors.New("Invalid base provided")
+	}
+	fmt.Println(opts.Prefix + outUrl)
+	return nil
 }
 
-func (c *Command) Execute(args []string) error {
-	// clear log prefix -- not needed for tool
-	log.SetFlags(0)
+type DecodeCommand struct {}
 
+func (c *DecodeCommand) Execute(args []string) error {
 	if opts.HmacKey == "" {
 		return errors.New("Empty HMAC")
 	}
@@ -39,25 +62,17 @@ func (c *Command) Execute(args []string) error {
 
 	hmacKeyBytes := []byte(opts.HmacKey)
 
-	switch c.Name {
-	case "encode":
-		outUrl := encoding.EncodeUrl(&hmacKeyBytes, oUrl)
-		fmt.Println(opts.Prefix + outUrl)
-		return nil
-	case "decode":
-		u, err := url.Parse(oUrl)
-		if err != nil {
-			return err
-		}
-		comp := strings.SplitN(u.Path, "/", 3)
-		decUrl, valid := encoding.DecodeUrl(&hmacKeyBytes, comp[1], comp[2])
-		if !valid {
-			return errors.New("hmac is invalid")
-		}
-		log.Println(decUrl)
-		return nil
+	u, err := url.Parse(oUrl)
+	if err != nil {
+		return err
 	}
-	return errors.New("unknown command")
+	comp := strings.SplitN(u.Path, "/", 3)
+	decUrl, valid := encoding.DecodeUrl(hmacKeyBytes, comp[1], comp[2])
+	if !valid {
+		return errors.New("hmac is invalid")
+	}
+	log.Println(decUrl)
+	return nil
 }
 
 var opts struct {
@@ -66,11 +81,14 @@ var opts struct {
 }
 
 func main() {
+	// clear log prefix -- not needed for tool
+	log.SetFlags(0)
+
 	parser := flags.NewParser(&opts, flags.Default)
 	parser.AddCommand("encode", "Encode a url and print result",
-		"Encode a url and print result", &Command{Name: "encode"})
+		"Encode a url and print result", &EncodeCommand{})
 	parser.AddCommand("decode", "Decode a url and print result",
-		"Decode a url and print result", &Command{Name: "decode"})
+		"Decode a url and print result", &DecodeCommand{})
 
 	// parse said flags
 	_, err := parser.Parse()
