@@ -22,8 +22,9 @@ original image URL.
 The client requests the URL to Go-Camo. Go-Camo validates the HMAC, decodes the
 URL, requests the content and streams it to the client.
 
-Go-Camo supports both hex and base64 encoded urls. Base64 urls are shorter, but a bit more
-computationally expensive to decode. Hex urls are longer, but are case insensitive.
+Go-Camo supports both hex and base64 encoded urls at the same time. Base64 urls
+are shorter, but a bit more computationally expensive to decode. Hex urls are
+longer, but are case insensitive.
 
 Here is some example python code that demonstrates generating an encoded URL in
 both hex and base64:
@@ -71,7 +72,8 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
     need of multiple instances or additional proxying.
 *   Go-Camo builds to a static binary. This makes deploying to large numbers
     of servers a snap.
-*	Support for both Hex and Base64 urls. Base64 urls are smaller, but case sensitive.
+*	Go-Camo supports both Hex and Base64 urls. Base64 urls are smaller, but
+    case sensitive.
 
 ## Building
 
