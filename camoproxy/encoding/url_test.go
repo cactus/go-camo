@@ -75,6 +75,30 @@ func TestDecoder(t *testing.T) {
 	}
 }
 
+func BenchmarkHexDecoder(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		HexDecodeUrl([]byte("test"), "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3", "687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67")
+	}
+}
+
+func BenchmarkB64Decoder(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		B64DecodeUrl([]byte("test"), "D23vHLFHsOhPOcvdxeoQyAJTpvM", "aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n")
+	}
+}
+
+func BenchmarkGuessingDecoderHex(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		DecodeUrl([]byte("test"), "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3", "687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67")
+	}
+}
+
+func BenchmarkGuessingDecoderB64(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		DecodeUrl([]byte("test"), "D23vHLFHsOhPOcvdxeoQyAJTpvM", "aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n")
+	}
+}
+
 var baddectests = []dectesto{
 	// hex
 	{HexDecodeUrl, "test", "000",

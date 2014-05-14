@@ -108,24 +108,18 @@ func B64EncodeUrl(hmacKey []byte, oUrl string) string {
 }
 
 
-const b64hintchars = "GHIJKLMNOPQRSTUVWXYZghijklmnopqrstuvwxyz-_"
-
 // DecodeUrl ensures the url is properly verified via HMAC, and then
 // unencodes the url, returning the url (if valid) and whether the
 // HMAC was verified. Tries to HexDecode the url, then B64Decode if that fails.
 func DecodeUrl(hmackey []byte, encdig string, encurl string) (string, bool) {
-	// see if we get any b64 only chars, and if so, decode as base64
-	if strings.ContainsAny(encdig, b64hintchars) {
-		urlBytes, ok := B64DecodeUrl(hmackey, encdig, encurl)
-		if !ok {
-			gologit.Debugln("Bad Decode of URL", encurl)
-			return "", false
-		}
-		return string(urlBytes), true
+	var decoder func([]byte, string, string) (string, bool)
+	if len(encdig) == 40 {
+		decoder = HexDecodeUrl
+	} else {
+		decoder = B64DecodeUrl
 	}
 
-	// didn't get any b64 chars. use hex then
-	urlBytes, ok := HexDecodeUrl(hmackey, encdig, encurl)
+	urlBytes, ok := decoder(hmackey, encdig, encurl)
 	if !ok {
 		gologit.Debugln("Bad Decode of URL", encurl)
 		return "", false
