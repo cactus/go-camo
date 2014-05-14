@@ -22,11 +22,13 @@ original image URL.
 The client requests the URL to Go-Camo. Go-Camo validates the HMAC, decodes the
 URL, requests the content and streams it to the client.
 
-Here is some example python code that demonstrates generating an encoded URL:
+Here is some example python code that demonstrates generating an encoded URL in
+hex and base64:
 
     import hashlib
     import hmac
-    def mk_camo_url(hmac_key, image_url, camo_host):
+	import base64
+    def hex_camo_url(hmac_key, image_url, camo_host):
         if image_url.startswith("https:"):
             return image_url
         hexdigest = hmac.new(hmac_key, image_url, hashlib.sha1).hexdigest()
@@ -34,10 +36,20 @@ Here is some example python code that demonstrates generating an encoded URL:
         requrl = 'https://%s/%s/%s' % (camo_host, hexdigest, hexurl)
         return requrl
 
-Here it is in action:
-
-    >>> mk_camo_url("test", "http://golang.org/doc/gopher/frontpage.png", "img.example.org")
+    >>> hex_camo_url("test", "http://golang.org/doc/gopher/frontpage.png", "img.example.org")
     'https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67'
+
+    def b64_camo_url(hmac_key, image_url, camo_host):
+        if image_url.startswith("https:"):
+            return image_url
+        b64digest = base64.urlsafe_b64encode(
+			hmac.new(hmac_key, image_url, hashlib.sha1).digest()).strip('=')
+        b64url = base64.urlsafe_b64encode(image_url).strip('=')
+        requrl = 'https://%s/%s/%s' % (camo_host, b64digest, b64url)
+        return requrl
+
+    >>> b64_camo_url("test", "http://golang.org/doc/gopher/frontpage.png", "img.example.org")
+    'https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n'
 
 While Go-Camo will support proxying HTTPS images as well, for performance
 reasons you may choose to filter HTTPS requests out from proxying, and let the
@@ -56,6 +68,7 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
     need of multiple instances or additional proxying.
 *   Go-Camo builds to a static binary. This makes deploying to large numbers
     of servers a snap.
+*	Support for both Hex and Base64 urls. Base64 urls are smaller, but case sensitive.
 
 ## Building
 

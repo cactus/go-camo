@@ -3,6 +3,8 @@ Changelog
 
 ## Next Release
 
+*	Transparent base64 url support
+
 ## 0.2.0 2014-04-17
 
 *   Remove NoFollowRedirects and add MaxRedirects
