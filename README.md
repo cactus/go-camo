@@ -15,16 +15,19 @@ with an [HMAC][4].
 
 ## How it works
 
-First you parse the original URL, generate an HMAC signature of it, then hex
-encode it, and then place the pieces into the expected format replacing the
-original image URL.
+First you parse the original URL, generate an HMAC signature of it, then encode
+it, and then place the pieces into the expected format replacing the original
+image URL.
 
 The client requests the URL to Go-Camo. Go-Camo validates the HMAC, decodes the
 URL, requests the content and streams it to the client.
 
-Go-Camo supports both hex and base64 encoded urls at the same time. Base64 urls
-are shorter, but a bit more computationally expensive to decode. Hex urls are
-longer, but are case insensitive.
+Go-Camo supports both hex and base64 encoded urls at the same time.
+
+| encoding | tradeoffs                                               |
+| -------- | ------------------------------------------------------- |
+| hex      | longer, case insensitive, slightly faster encode/decode |
+| base64   | shorter, case sensitive, slightly slower encode/decode  |
 
 Here is some example python code that demonstrates generating an encoded URL in
 both hex and base64:
