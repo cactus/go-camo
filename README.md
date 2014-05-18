@@ -29,34 +29,7 @@ Go-Camo supports both hex and base64 encoded urls at the same time.
 | hex      | longer, case insensitive, slightly faster encode/decode |
 | base64   | shorter, case sensitive, slightly slower encode/decode  |
 
-Here is some example python code that demonstrates generating an encoded URL in
-both hex and base64:
-
-    import hashlib
-    import hmac
-	import base64
-    def hex_camo_url(hmac_key, image_url, camo_host):
-        if image_url.startswith("https:"):
-            return image_url
-        hexdigest = hmac.new(hmac_key, image_url, hashlib.sha1).hexdigest()
-        hexurl = image_url.encode('hex')
-        requrl = 'https://%s/%s/%s' % (camo_host, hexdigest, hexurl)
-        return requrl
-
-    >>> hex_camo_url("test", "http://golang.org/doc/gopher/frontpage.png", "img.example.org")
-    'https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67'
-
-    def b64_camo_url(hmac_key, image_url, camo_host):
-        if image_url.startswith("https:"):
-            return image_url
-        b64digest = base64.urlsafe_b64encode(
-			hmac.new(hmac_key, image_url, hashlib.sha1).digest()).strip('=')
-        b64url = base64.urlsafe_b64encode(image_url).strip('=')
-        requrl = 'https://%s/%s/%s' % (camo_host, b64digest, b64url)
-        return requrl
-
-    >>> b64_camo_url("test", "http://golang.org/doc/gopher/frontpage.png", "img.example.org")
-    'https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n'
+For examples of url generation, see the `examples` directory.
 
 While Go-Camo will support proxying HTTPS images as well, for performance
 reasons you may choose to filter HTTPS requests out from proxying, and let the
