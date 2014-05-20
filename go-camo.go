@@ -24,9 +24,6 @@ const (
 	ServerVersion = "0.3.0"
 )
 
-// Server Name with version
-var ServerNameVer = fmt.Sprintf("%s %s", ServerName, ServerVersion)
-
 func main() {
 	var gmx int
 	if gmxEnv := os.Getenv("GOMAXPROCS"); gmxEnv != "" {
@@ -64,7 +61,7 @@ func main() {
 	}
 
 	if opts.Version {
-		fmt.Printf("%s (%s,%s-%s)\n", ServerNameVer, runtime.Version(), runtime.Compiler, runtime.GOARCH)
+		fmt.Printf("%s %s (%s,%s-%s)\n", ServerName, ServerVersion, runtime.Version(), runtime.Compiler, runtime.GOARCH)
 		os.Exit(0)
 	}
 
