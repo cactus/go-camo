@@ -4,10 +4,6 @@ package camoproxy
 
 import (
 	"errors"
-	"github.com/cactus/go-camo/camoproxy/encoding"
-	"github.com/cactus/gologit"
-	"github.com/gorilla/mux"
-	httpclient "github.com/mreiferson/go-httpclient"
 	"io"
 	"net"
 	"net/http"
@@ -16,25 +12,30 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/cactus/go-camo/camoproxy/encoding"
+	"github.com/cactus/gologit"
+	"github.com/gorilla/mux"
+	httpclient "github.com/mreiferson/go-httpclient"
 )
 
 // Config holds configuration data used when creating a Proxy with New.
 type Config struct {
 	// HmacKey is a string to be used as the hmac key
-	HmacKey           string
+	HmacKey string
 	// AllowList is a list of string represenstations of regex (not compiled
 	// regex) that are used as a whitelist filter. If an AllowList is present,
 	// then anything not matching is dropped. If no AllowList is present,
 	// no Allow filtering is done.
-	AllowList         []string
+	AllowList []string
 	// MaxSize is the maximum valid image size response (in bytes).
-	MaxSize           int64
+	MaxSize int64
 	// MaxRedirects is the maximum number of redirects to follow.
-	MaxRedirects	  int
+	MaxRedirects int
 	// Request timeout is a timeout for fetching upstream data.
-	RequestTimeout    time.Duration
+	RequestTimeout time.Duration
 	// Server name used in Headers and Via checks
-	ServerName        string
+	ServerName string
 }
 
 // Interface for Proxy to use for stats/metrics.
@@ -75,14 +76,14 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	vars := mux.Vars(req)
-	surl, ok := encoding.DecodeUrl(p.hmacKey, vars["sigHash"], vars["encodedUrl"])
+	sURL, ok := encoding.DecodeURL(p.hmacKey, vars["sigHash"], vars["encodedURL"])
 	if !ok {
 		http.Error(w, "Bad Signature", http.StatusForbidden)
 		return
 	}
-	gologit.Debugln("URL:", surl)
+	gologit.Debugln("URL:", sURL)
 
-	u, err := url.Parse(surl)
+	u, err := url.Parse(sURL)
 	if err != nil {
 		gologit.Debugln(err)
 		http.Error(w, "Bad url", http.StatusBadRequest)
@@ -119,7 +120,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	nreq, err := http.NewRequest("GET", surl, nil)
+	nreq, err := http.NewRequest("GET", sURL, nil)
 	if err != nil {
 		gologit.Debugln("Could not create NewRequest", err)
 		http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
@@ -158,7 +159,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// check for too large a response
 	if resp.ContentLength > p.maxSize {
-		gologit.Debugln("Content length exceeded", surl)
+		gologit.Debugln("Content length exceeded", sURL)
 		http.Error(w, "Content length exceeded", http.StatusNotFound)
 		return
 	}

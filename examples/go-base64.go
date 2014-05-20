@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
-	"strings"
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/base64"
+	"fmt"
+	"strings"
 )
 
 var CAMO_HOST = "https://img.example.com"

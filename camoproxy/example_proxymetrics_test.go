@@ -1,9 +1,10 @@
 package camoproxy_test
 
 import (
-	"github.com/cactus/go-camo/camoproxy"
 	"log"
 	"sync"
+
+	"github.com/cactus/go-camo/camoproxy"
 )
 
 type ProxyStats struct {

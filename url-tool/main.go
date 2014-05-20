@@ -4,16 +4,17 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/cactus/go-camo/camoproxy/encoding"
-	flags "github.com/jessevdk/go-flags"
 	"log"
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/cactus/go-camo/camoproxy/encoding"
+	flags "github.com/jessevdk/go-flags"
 )
 
 type EncodeCommand struct {
-	Base    string `short:"b" long:"base" default:"hex" description:"Encode/Decode base. Either hex or base64"`
+	Base string `short:"b" long:"base" default:"hex" description:"Encode/Decode base. Either hex or base64"`
 }
 
 func (c *EncodeCommand) Execute(args []string) error {
@@ -25,26 +26,26 @@ func (c *EncodeCommand) Execute(args []string) error {
 		return errors.New("No url argument provided")
 	}
 
-	oUrl := args[0]
-	if oUrl == "" {
+	oURL := args[0]
+	if oURL == "" {
 		return errors.New("No url argument provided")
 	}
 
 	hmacKeyBytes := []byte(opts.HmacKey)
-	var outUrl string
+	var outURL string
 	switch c.Base {
 	case "base64":
-		outUrl = encoding.B64EncodeUrl(hmacKeyBytes, oUrl)
+		outURL = encoding.B64EncodeURL(hmacKeyBytes, oURL)
 	case "hex":
-		outUrl = encoding.HexEncodeUrl(hmacKeyBytes, oUrl)
+		outURL = encoding.HexEncodeURL(hmacKeyBytes, oURL)
 	default:
 		return errors.New("Invalid base provided")
 	}
-	fmt.Println(opts.Prefix + outUrl)
+	fmt.Println(opts.Prefix + outURL)
 	return nil
 }
 
-type DecodeCommand struct {}
+type DecodeCommand struct{}
 
 func (c *DecodeCommand) Execute(args []string) error {
 	if opts.HmacKey == "" {
@@ -55,23 +56,23 @@ func (c *DecodeCommand) Execute(args []string) error {
 		return errors.New("No url argument provided")
 	}
 
-	oUrl := args[0]
-	if oUrl == "" {
+	oURL := args[0]
+	if oURL == "" {
 		return errors.New("No url argument provided")
 	}
 
 	hmacKeyBytes := []byte(opts.HmacKey)
 
-	u, err := url.Parse(oUrl)
+	u, err := url.Parse(oURL)
 	if err != nil {
 		return err
 	}
 	comp := strings.SplitN(u.Path, "/", 3)
-	decUrl, valid := encoding.DecodeUrl(hmacKeyBytes, comp[1], comp[2])
+	decURL, valid := encoding.DecodeURL(hmacKeyBytes, comp[1], comp[2])
 	if !valid {
 		return errors.New("hmac is invalid")
 	}
-	log.Println(decUrl)
+	log.Println(decURL)
 	return nil
 }
 

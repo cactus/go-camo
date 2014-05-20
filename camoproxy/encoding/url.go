@@ -4,13 +4,14 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"crypto/subtle"
-	"encoding/hex"
 	"encoding/base64"
-	"github.com/cactus/gologit"
+	"encoding/hex"
 	"strings"
+
+	"github.com/cactus/gologit"
 )
 
-func validateUrl(hmackey *[]byte, macbytes *[]byte, urlbytes *[]byte) bool {
+func validateURL(hmackey *[]byte, macbytes *[]byte, urlbytes *[]byte) bool {
 	mac := hmac.New(sha1.New, *hmackey)
 	mac.Write(*urlbytes)
 	macSum := mac.Sum(nil)
@@ -41,87 +42,86 @@ func b64decode(str string) ([]byte, error) {
 	return decBytes, ok
 }
 
-// HexDecodeUrl ensures the url is properly verified via HMAC, and then
+// HexDecodeURL ensures the url is properly verified via HMAC, and then
 // unencodes the url, returning the url (if valid) and whether the
 // HMAC was verified.
-func HexDecodeUrl(hmackey []byte, hexdig string, hexurl string) (string, bool) {
-	urlBytes, err := hex.DecodeString(hexurl)
+func HexDecodeURL(hmackey []byte, hexdig string, hexURL string) (string, bool) {
+	urlBytes, err := hex.DecodeString(hexURL)
 	if err != nil {
-		gologit.Debugln("Bad Hex Decode of URL", hexurl)
+		gologit.Debugln("Bad Hex Decode of URL", hexURL)
 		return "", false
 	}
 	macBytes, err := hex.DecodeString(hexdig)
 	if err != nil {
-		gologit.Debugln("Bad Hex Decode of MAC", hexurl)
+		gologit.Debugln("Bad Hex Decode of MAC", hexURL)
 		return "", false
 	}
 
-	if ok := validateUrl(&hmackey, &macBytes, &urlBytes); !ok {
+	if ok := validateURL(&hmackey, &macBytes, &urlBytes); !ok {
 		return "", false
 	}
 	return string(urlBytes), true
 }
 
-// HexEncodeUrl takes an HMAC key and a url, and returns url
+// HexEncodeURL takes an HMAC key and a url, and returns url
 // path partial consisitent of signature and encoded url.
-func HexEncodeUrl(hmacKey []byte, oUrl string) string {
-	oBytes := []byte(oUrl)
+func HexEncodeURL(hmacKey []byte, oURL string) string {
+	oBytes := []byte(oURL)
 	mac := hmac.New(sha1.New, hmacKey)
 	mac.Write(oBytes)
 	macSum := hex.EncodeToString(mac.Sum(nil))
-	encodedUrl := hex.EncodeToString(oBytes)
-	hexurl := "/" + macSum + "/" + encodedUrl
-	return hexurl
+	encodedURL := hex.EncodeToString(oBytes)
+	hexURL := "/" + macSum + "/" + encodedURL
+	return hexURL
 }
 
-// B64DecodeUrl ensures the url is properly verified via HMAC, and then
+// B64DecodeURL ensures the url is properly verified via HMAC, and then
 // unencodes the url, returning the url (if valid) and whether the
 // HMAC was verified.
-func B64DecodeUrl(hmackey []byte, encdig string, encurl string) (string, bool) {
-	urlBytes, err := b64decode(encurl)
+func B64DecodeURL(hmackey []byte, encdig string, encURL string) (string, bool) {
+	urlBytes, err := b64decode(encURL)
 	if err != nil {
-		gologit.Debugln("Bad B64 Decode of URL", encurl)
+		gologit.Debugln("Bad B64 Decode of URL", encURL)
 		return "", false
 	}
 	macBytes, err := b64decode(encdig)
 	if err != nil {
-		gologit.Debugln("Bad B64 Decode of MAC", encurl)
+		gologit.Debugln("Bad B64 Decode of MAC", encURL)
 		return "", false
 	}
 
-	if ok := validateUrl(&hmackey, &macBytes, &urlBytes); !ok {
+	if ok := validateURL(&hmackey, &macBytes, &urlBytes); !ok {
 		return "", false
 	}
 	return string(urlBytes), true
 }
 
-// B64EncodeUrl takes an HMAC key and a url, and returns url
+// B64EncodeURL takes an HMAC key and a url, and returns url
 // path partial consisitent of signature and encoded url.
-func B64EncodeUrl(hmacKey []byte, oUrl string) string {
-	oBytes := []byte(oUrl)
+func B64EncodeURL(hmacKey []byte, oURL string) string {
+	oBytes := []byte(oURL)
 	mac := hmac.New(sha1.New, hmacKey)
 	mac.Write(oBytes)
 	macSum := b64encode(mac.Sum(nil))
-	encodedUrl := b64encode(oBytes)
-	encurl := "/" + macSum + "/" + encodedUrl
-	return encurl
+	encodedURL := b64encode(oBytes)
+	encURL := "/" + macSum + "/" + encodedURL
+	return encURL
 }
 
-
-// DecodeUrl ensures the url is properly verified via HMAC, and then
+// DecodeURL ensures the url is properly verified via HMAC, and then
 // unencodes the url, returning the url (if valid) and whether the
 // HMAC was verified. Tries to HexDecode the url, then B64Decode if that fails.
-func DecodeUrl(hmackey []byte, encdig string, encurl string) (string, bool) {
+func DecodeURL(hmackey []byte, encdig string, encURL string) (string, bool) {
 	var decoder func([]byte, string, string) (string, bool)
 	if len(encdig) == 40 {
-		decoder = HexDecodeUrl
+		decoder = HexDecodeURL
 	} else {
-		decoder = B64DecodeUrl
+		decoder = B64DecodeURL
 	}
 
-	urlBytes, ok := decoder(hmackey, encdig, encurl)
+	urlBytes, ok := decoder(hmackey, encdig, encURL)
 	if !ok {
-		gologit.Debugln("Bad Decode of URL", encurl)
+		gologit.Debugln("Bad Decode of URL", encURL)
 		return "", false
 	}
 	return string(urlBytes), true

@@ -1,26 +1,25 @@
 package encoding
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
-
 type enctesto struct {
-	encoder func(hmacKey []byte, oUrl string) string
-	hmac, edig, eurl, surl string
+	encoder                func(hmacKey []byte, oURL string) string
+	hmac, edig, eURL, sURL string
 }
 
 var enctests = []enctesto{
 	// hex
-	{HexEncodeUrl, "test", "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3",
-	 "687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67",
-	 "http://golang.org/doc/gopher/frontpage.png"},
+	{HexEncodeURL, "test", "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3",
+		"687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67",
+		"http://golang.org/doc/gopher/frontpage.png"},
 
 	// base64
-	{B64EncodeUrl, "test", "D23vHLFHsOhPOcvdxeoQyAJTpvM",
-	 "aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n",
-	 "http://golang.org/doc/gopher/frontpage.png"},
+	{B64EncodeURL, "test", "D23vHLFHsOhPOcvdxeoQyAJTpvM",
+		"aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n",
+		"http://golang.org/doc/gopher/frontpage.png"},
 }
 
 func TestEncoder(t *testing.T) {
@@ -28,28 +27,28 @@ func TestEncoder(t *testing.T) {
 	for _, p := range enctests {
 		hmacKey := []byte(p.hmac)
 		// test specific encoder
-		encodedUrl := p.encoder(hmacKey, p.surl)
-		if encodedUrl != fmt.Sprintf("/%s/%s", p.edig, p.eurl) {
+		encodedURL := p.encoder(hmacKey, p.sURL)
+		if encodedURL != fmt.Sprintf("/%s/%s", p.edig, p.eURL) {
 			t.Error("encoded url does not match")
 		}
 	}
 }
 
 type dectesto struct {
-	decoder func(hmackey []byte, encdig string, encurl string) (string, bool)
-	hmac, edig, eurl, surl string
+	decoder                func(hmackey []byte, encdig string, encURL string) (string, bool)
+	hmac, edig, eURL, sURL string
 }
 
 var dectests = []dectesto{
 	// hex
-	{HexDecodeUrl, "test", "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3",
-	 "687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67",
-	 "http://golang.org/doc/gopher/frontpage.png"},
+	{HexDecodeURL, "test", "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3",
+		"687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67",
+		"http://golang.org/doc/gopher/frontpage.png"},
 
 	// base64
-	{B64DecodeUrl, "test", "D23vHLFHsOhPOcvdxeoQyAJTpvM",
-	 "aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n",
-	 "http://golang.org/doc/gopher/frontpage.png"},
+	{B64DecodeURL, "test", "D23vHLFHsOhPOcvdxeoQyAJTpvM",
+		"aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n",
+		"http://golang.org/doc/gopher/frontpage.png"},
 }
 
 func TestDecoder(t *testing.T) {
@@ -57,19 +56,19 @@ func TestDecoder(t *testing.T) {
 	for _, p := range dectests {
 		hmacKey := []byte(p.hmac)
 		// test specific decoder
-		encodedUrl, ok := p.decoder(hmacKey, p.edig, p.eurl)
+		encodedURL, ok := p.decoder(hmacKey, p.edig, p.eURL)
 		if !ok {
 			t.Error("decoded url failed to verify")
 		}
-		if encodedUrl != p.surl {
+		if encodedURL != p.sURL {
 			t.Error("decoded url does not match")
 		}
 		// also test generic "guessing" decoder
-		encodedUrl, ok = DecodeUrl(hmacKey, p.edig, p.eurl)
+		encodedURL, ok = DecodeURL(hmacKey, p.edig, p.eURL)
 		if !ok {
 			t.Error("decoded url failed to verify")
 		}
-		if encodedUrl != p.surl {
+		if encodedURL != p.sURL {
 			t.Error("decoded url does not match")
 		}
 	}
@@ -77,51 +76,51 @@ func TestDecoder(t *testing.T) {
 
 func BenchmarkHexDecoder(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		HexDecodeUrl([]byte("test"), "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3", "687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67")
+		HexDecodeURL([]byte("test"), "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3", "687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67")
 	}
 }
 
 func BenchmarkB64Decoder(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		B64DecodeUrl([]byte("test"), "D23vHLFHsOhPOcvdxeoQyAJTpvM", "aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n")
+		B64DecodeURL([]byte("test"), "D23vHLFHsOhPOcvdxeoQyAJTpvM", "aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n")
 	}
 }
 
 func BenchmarkGuessingDecoderHex(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		DecodeUrl([]byte("test"), "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3", "687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67")
+		DecodeURL([]byte("test"), "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3", "687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67")
 	}
 }
 
 func BenchmarkGuessingDecoderB64(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		DecodeUrl([]byte("test"), "D23vHLFHsOhPOcvdxeoQyAJTpvM", "aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n")
+		DecodeURL([]byte("test"), "D23vHLFHsOhPOcvdxeoQyAJTpvM", "aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n")
 	}
 }
 
 var baddectests = []dectesto{
 	// hex
-	{HexDecodeUrl, "test", "000",
-	 "687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67", ""},
-	{HexDecodeUrl, "test", "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3",
-	 "000000000000000000000000000000000000000000000000000000000000000000000000000000000000", ""},
+	{HexDecodeURL, "test", "000",
+		"687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67", ""},
+	{HexDecodeURL, "test", "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3",
+		"000000000000000000000000000000000000000000000000000000000000000000000000000000000000", ""},
 
 	// base64
-	{B64DecodeUrl, "test", "000",
-	 "aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n", ""},
-	{B64DecodeUrl, "test", "D23vHLFHsOhPOcvdxeoQyAJTpvM",
-	 "00000000000000000000000000000000000000000000000000000000", ""},
+	{B64DecodeURL, "test", "000",
+		"aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n", ""},
+	{B64DecodeURL, "test", "D23vHLFHsOhPOcvdxeoQyAJTpvM",
+		"00000000000000000000000000000000000000000000000000000000", ""},
 
 	// mixmatch
 	// hex
-	{HexDecodeUrl, "test", "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3",
-	 "aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n",
-	 "http://golang.org/doc/gopher/frontpage.png"},
+	{HexDecodeURL, "test", "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3",
+		"aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n",
+		"http://golang.org/doc/gopher/frontpage.png"},
 
 	// base64
-	{B64DecodeUrl, "test", "D23vHLFHsOhPOcvdxeoQyAJTpvM",
-	 "687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67",
-	 "http://golang.org/doc/gopher/frontpage.png"},
+	{B64DecodeURL, "test", "D23vHLFHsOhPOcvdxeoQyAJTpvM",
+		"687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67",
+		"http://golang.org/doc/gopher/frontpage.png"},
 }
 
 func TestBadDecodes(t *testing.T) {
@@ -129,19 +128,19 @@ func TestBadDecodes(t *testing.T) {
 	for _, p := range baddectests {
 		hmacKey := []byte(p.hmac)
 		// test specific decoder
-		encodedUrl, ok := p.decoder(hmacKey, p.edig, p.eurl)
+		encodedURL, ok := p.decoder(hmacKey, p.edig, p.eURL)
 		if ok {
 			t.Error("decoded url failed to verify")
 		}
-		if encodedUrl != "" {
+		if encodedURL != "" {
 			t.Error("decoded url result not empty")
 		}
 		// also test generic "guessing" decoder
-		encodedUrl, ok = DecodeUrl(hmacKey, p.edig, p.eurl)
+		encodedURL, ok = DecodeURL(hmacKey, p.edig, p.eURL)
 		if ok {
 			t.Error("decoded url failed to verify")
 		}
-		if encodedUrl != "" {
+		if encodedURL != "" {
 			t.Error("decoded url result not empty")
 		}
 	}

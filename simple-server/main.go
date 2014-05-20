@@ -2,11 +2,12 @@
 package main
 
 import (
-	flags "github.com/jessevdk/go-flags"
+	"log"
 	"net/http"
 	"os"
-	"log"
 	"runtime"
+
+	flags "github.com/jessevdk/go-flags"
 )
 
 func main() {

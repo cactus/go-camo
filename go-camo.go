@@ -4,10 +4,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cactus/go-camo/camoproxy"
-	"github.com/cactus/gologit"
-	"github.com/gorilla/mux"
-	flags "github.com/jessevdk/go-flags"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -16,6 +12,11 @@ import (
 	"strconv"
 	"syscall"
 	"time"
+
+	"github.com/cactus/go-camo/camoproxy"
+	"github.com/cactus/gologit"
+	"github.com/gorilla/mux"
+	flags "github.com/jessevdk/go-flags"
 )
 
 const (
@@ -124,7 +125,7 @@ func main() {
 
 	router := mux.NewRouter()
 	router.Handle("/favicon.ico", http.NotFoundHandler())
-	router.Handle("/{sigHash}/{encodedUrl}", proxy).Methods("GET")
+	router.Handle("/{sigHash}/{encodedURL}", proxy).Methods("GET")
 	router.HandleFunc("/", RootHandler)
 	http.Handle("/", router)
 

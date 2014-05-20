@@ -31,7 +31,7 @@ var ValidRespHeaders = map[string]bool{
 	"Expires":           true,
 	"Last-Modified":     true,
 	// override in response with either nothing, or ServerNameVer
-	"Server":            false,
+	"Server": false,
 }
 
 // addr1918PrefixMatch is a regex for matching the prefix of hosts in
