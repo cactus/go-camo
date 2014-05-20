@@ -107,7 +107,7 @@ In order to use this on Heroku with the provided Procfile, you need to:
 
 ### Environment Vars
 
-	`GOCAMO_HMAC` - HMAC key to use.
+*   `GOCAMO_HMAC` - HMAC key to use.
 
 ### Command line flags
 
