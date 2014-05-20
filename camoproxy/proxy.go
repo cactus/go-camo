@@ -289,12 +289,13 @@ func New(pc Config) (*Proxy, error) {
 	var err error
 	// compile allow list
 	for _, v := range pc.AllowList {
-		c, err = regexp.Compile(v)
+		c, err = regexp.Compile(strings.TrimSpace(v))
 		if err != nil {
 			return nil, err
 		}
 		allow = append(allow, c)
 	}
+	gologit.Println(allow)
 
 	return &Proxy{
 		client:     client,

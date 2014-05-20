@@ -2,7 +2,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -10,6 +9,7 @@ import (
 	"os"
 	"runtime"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -35,9 +35,9 @@ func main() {
 
 	// command line flags
 	var opts struct {
-		ConfigFile     string        `short:"c" long:"config" description:"JSON Config File"`
 		HmacKey        string        `short:"k" long:"key" description:"HMAC key"`
 		Stats          bool          `long:"stats" description:"Enable Stats"`
+		AllowList      string        `long:"allow-list" description:"Text file of hostname allow regexes (one per line)"`
 		MaxSize        int64         `long:"max-size" default:"5120" description:"Max response image size (KB)"`
 		ReqTimeout     time.Duration `long:"timeout" default:"4s" description:"Upstream request timeout"`
 		MaxRedirects   int           `long:"max-redirects" default:"3" description:"Maximum number of redirects to follow"`
@@ -67,25 +67,25 @@ func main() {
 
 	config := camoproxy.Config{}
 
-	if opts.ConfigFile != "" {
-		b, err := ioutil.ReadFile(opts.ConfigFile)
+	if opts.AllowList != "" {
+		b, err := ioutil.ReadFile(opts.AllowList)
 		if err != nil {
-			log.Fatal("Could not read configFile", err)
+			log.Fatal("Could not read alllow-list. ", err)
 		}
-		err = json.Unmarshal(b, &config)
-		if err != nil {
-			log.Fatal("Could not parse configFile", err)
-		}
+		config.AllowList = strings.Split(string(b), "\n")
 	}
 
-	// env var overrides config file
 	if hmacKey := os.Getenv("GOCAMO_HMAC"); hmacKey != "" {
 		config.HmacKey = hmacKey
 	}
 
-	// flags override config file and env var
+	// flags override env var
 	if opts.HmacKey != "" {
 		config.HmacKey = opts.HmacKey
+	}
+
+	if config.HmacKey == "" {
+		log.Fatal("HMAC key required")
 	}
 
 	if config.MaxSize == 0 {

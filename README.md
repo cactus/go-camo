@@ -105,14 +105,20 @@ In order to use this on Heroku with the provided Procfile, you need to:
 
 ## Configuring
 
+### Environment Vars
+
+	`GOCAMO_HMAC` - HMAC key to use.
+
+### Command line flags
+
     $ $GOPATH/bin/go-camo -h
     Usage:
       go-camo [OPTIONS]
 
     Application Options:
-	  -c, --config=        JSON Config File
 	  -k, --key=           HMAC key
 		  --stats          Enable Stats
+		  --allow-list=    Text file of hostname allow regexes (one per line)
 		  --max-size=      Max response image size (KB) (5120)
 		  --timeout=       Upstream request timeout (4s)
 		  --max-redirects= Maximum number of redirects to follow (3)
@@ -127,24 +133,15 @@ In order to use this on Heroku with the provided Procfile, you need to:
       -h, --help          Show this help message
 
 
-    $ cat config.json
-    {
-        "HmacKey": "Some long string here...",
-        "AllowList": []
-    }
-
-*   `HmacKey` is a secret key seed to the HMAC used for signing and
-    validation.
-*   `Allowlist` is a list of regex host matches to allow.
-
-If an AllowList is defined, and a request does not match one of the listed host
-regex, then the request is denied. Default is all requests pass the Allowlist
-if none is specified.
-
-Option flags, if provided, override those in the config file.
+If an allow-list file is defined, that file is read and each line converted
+into a hostname regex. If a request does not match one of the listed host
+regex, then the request is denied.
 
 If stats flag is provided, then the service will track bytes and clients
 served, and offer them up at an http endpoint `/status` via HTTP GET request.
+
+If the HMAC key is provided on the command line, it will override (if present),
+an HMAC key set in the environment var.
 
 ## Additional tools
 
