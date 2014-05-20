@@ -9,7 +9,7 @@ GOCAMO_VER        := $(shell grep -F 'ServerVersion =' ./go-camo.go |awk -F\" '{
 ITERATION         := 1
 GOBUILD_OPTS      :=
 
-.PHONY: help clean build test man rpm all
+.PHONY: help clean build test cover man rpm all
 
 help:
 	@echo "Available targets:"
@@ -21,6 +21,7 @@ help:
 	@echo "  build-url-tool      build url tool"
 	@echo "  build-simple-server build simple server"
 	@echo "  test                run tests"
+	@echo "  cover               run tests with cover output"
 	@echo "  man                 build all man pages"
 	@echo "  man-go-camo         build go-camo man pages"
 	@echo "  man-url-tool        build url-tool man pages"
@@ -56,6 +57,10 @@ build-simple-server: build-setup
 test: build-setup
 	@echo "Running tests..."
 	@env GOPATH="${GOPATH}" go test ./camoproxy/...
+
+cover: build-setup
+	@echo "Running tests with coverage..."
+	@env GOPATH="${GOPATH}" go test -cover ./camoproxy/...
 
 man-setup:
 	@mkdir -p "${BUILDDIR}/man/man1"
