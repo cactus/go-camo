@@ -8,21 +8,30 @@ import (
 )
 
 type ProxyStats struct {
-	sync.Mutex
-	clientsServed uint64
-	bytesServed   uint64
+	sync.RWMutex
+	clients uint64
+	bytes   uint64
 }
 
 func (ps *ProxyStats) AddServed() {
 	ps.Lock()
-	defer ps.Unlock()
-	ps.clientsServed += 1
+	ps.clients++
+	ps.Unlock()
 }
 
 func (ps *ProxyStats) AddBytes(bc int64) {
+	if bc <= 0 {
+		return
+	}
 	ps.Lock()
-	defer ps.Unlock()
-	ps.bytesServed += uint64(bc)
+	ps.bytes += uint64(bc)
+	ps.Unlock()
+}
+
+func (ps *ProxyStats) GetStats() (uint64, uint64) {
+	ps.RLock()
+	defer ps.RUnlock()
+	return ps.bytes, ps.clients
 }
 
 func ExampleProxyMetrics() {

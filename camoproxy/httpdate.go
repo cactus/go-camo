@@ -5,29 +5,29 @@ import (
 	"time"
 )
 
-const TimeFormat = "Mon, 02 Jan 2006 15:04:05 GMT"
+const timeFormat = "Mon, 02 Jan 2006 15:04:05 GMT"
 
-// holds current date stamp formatting for http Date header
-type HttpDate struct {
+// HTTPDate holds current date stamp formatting for HTTP date header
+type HTTPDate struct {
 	dateStamp   string
 	mu          sync.RWMutex
 	onceUpdater sync.Once
 }
 
-func (h *HttpDate) String() string {
+func (h *HTTPDate) String() string {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 	return h.dateStamp
 }
 
-func (h *HttpDate) Update() {
+func (h *HTTPDate) Update() {
 	h.mu.Lock()
 	defer h.mu.Unlock()
-	h.dateStamp = time.Now().UTC().Format(TimeFormat)
+	h.dateStamp = time.Now().UTC().Format(timeFormat)
 }
 
-func newHttpDate() *HttpDate {
-	d := &HttpDate{dateStamp: time.Now().UTC().Format(TimeFormat)}
+func newHTTPDate() *HTTPDate {
+	d := &HTTPDate{dateStamp: time.Now().UTC().Format(timeFormat)}
 	// spawn a single formattedDate updater
 	d.onceUpdater.Do(func() {
 		go func() {
@@ -38,4 +38,4 @@ func newHttpDate() *HttpDate {
 	return d
 }
 
-var formattedDate = newHttpDate()
+var formattedDate = newHTTPDate()

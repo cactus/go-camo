@@ -38,7 +38,7 @@ type Config struct {
 	ServerName string
 }
 
-// Interface for Proxy to use for stats/metrics.
+// ProxyMetrics interface for Proxy to use for stats/metrics.
 // This must be goroutine safe, as AddBytes and AddServed will be called from
 // many goroutines.
 type ProxyMetrics interface {
@@ -252,12 +252,13 @@ func (p *Proxy) copyHeader(dst, src *http.Header, filter *map[string]bool) {
 	}
 }
 
-// sets a proxy metrics (ProxyMetrics interface) for the proxy
+// SetMetricsCollector sets a proxy metrics (ProxyMetrics interface) for
+// the proxy
 func (p *Proxy) SetMetricsCollector(pm ProxyMetrics) {
 	p.metrics = pm
 }
 
-// Returns a new Proxy. An error is returned if there was a failure
+// New returns a new Proxy. An error is returned if there was a failure
 // to parse the regex from the passed Config.
 func New(pc Config) (*Proxy, error) {
 	tr := &httpclient.Transport{
@@ -283,7 +284,7 @@ func New(pc Config) (*Proxy, error) {
 		return nil
 	}
 
-	allow := make([]*regexp.Regexp, 0)
+	var allow []*regexp.Regexp
 	var c *regexp.Regexp
 	var err error
 	// compile allow list

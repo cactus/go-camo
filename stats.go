@@ -12,7 +12,7 @@ type ProxyStats struct {
 
 func (ps *ProxyStats) AddServed() {
 	ps.Lock()
-	ps.clients += 1
+	ps.clients++
 	ps.Unlock()
 }
 
