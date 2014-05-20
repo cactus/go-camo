@@ -21,13 +21,22 @@ It works in conjunction with back-end code to rewrite image URLs and sign them
 with an HMAC.
 
 
-=head1 OPTIONS
+=head1 ENVIRONMENT VARS
 
 =over
 
-=item B<-c, --config> <file-name>
+=item B<GOCAMO_HMAC>
 
-JSON config file. See L<CONFIG_JSON|"CONFIG_JSON">
+The HMAC key to use.
+
+=back 
+
+I<Note>: L<Option flags|"OPTIONS">, if provided, override those defined in environment variables.
+
+
+=head1 OPTIONS
+
+=over
 
 =item B<-k, --key> <hmac-key>
 
@@ -41,6 +50,14 @@ If stats flag is provided, then the service will track bytes and clients
 served, and offer them up at an http endpoint /status via HTPT GET request.
 
 See L<STATS|"STATS"> for more info.
+
+=item B<--allow-list> <file>
+
+Path to a text file that contains a list (one per line) of regex host matches
+to allow.
+
+If an allow list is defined, and a request does not match one of the listed
+host regex, then the request is denied.
 
 =item B<--max-size> <size>
 
@@ -86,35 +103,6 @@ Show help output and exit
 
 =back
 
-
-=head1 CONFIG_JSON
-
-An example config json file:
-
- {
-  "hmackey": "Some long string here...",
-  "allowlist": []
- }
-
-=over
-
-=item B<hmackey>
-
-B<hmackey> is a secret key seed to the HMAC used for signing and validation
-
-=item B<allowlist>
-
-B<allowlist> is a list of regex host matches to allow.
-
-If an B<allowlist> is defined, and a request does not match one of the listed
-host regex, then the request is denied. Default is all requests pass the
-B<allowlist> if none is specified.
-
-=back
-
-I<Note>: L<Option flags|"OPTIONS">, if provided, override those in the config file.
-
-
 =head1 STATS
 
 If the B<--stats> flag is provided, then the service will track bytes and
@@ -132,6 +120,11 @@ The output format is show as an example:
 Listen on loopback port 8080 with a upstream timeout of 6 seconds:
 
  go-camo -k BEEFBEEFBEEF --timeout=6s --listen=127.0.0.1:8080
+
+Set HMAC key via env var:
+
+ export GOCAMO_HMAC=BEEFBEEFBEEF
+ go-camo --timeout=6s --listen=127.0.0.1:8080
 
 
 =head1 WWW

@@ -7,22 +7,22 @@ simple-server - serves the contents of a given directory over http
 
 =head1 SYNOPSIS
 
-B<simple-server> [I<OPTIONS>] [I<OPTION-ARGUMENTS>]
+B<simple-server> [I<OPTIONS>] [I<directory>]
 
 
 =head1 DESCRIPTION
 
 The B<simple-server> utility is useful for testing. It serves the contents of a
-given directory over http. Nothing more.
+given I<directory>  over http. Nothing more.
 
 
 =head1 OPTIONS
 
 =over
 
-=item B<-d> <directory>
+=item B<-l, --listen> <listen-addr>
 
-Directory to serve from. Defaults to current dir (C<.>).
+Address:port to bind to for HTTP.
 
 =item B<-h, --help>
 
@@ -33,7 +33,13 @@ Show help output and exit
 
 =head1 EXAMPLES
 
+Serve from /tmp/images:
+
  simple-server -d /tmp/images
+
+Serve from CWD, and listen on an alternate port:
+
+ simple-server -l 0.0.0.0:9999
 
 =head1 WWW
 

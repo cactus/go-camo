@@ -20,21 +20,9 @@ compatible with L<go-camo(1)>.
 
 =over
 
-=item B<-c, --config> <file-name>
-
-JSON config file. See L<CONFIG_JSON|"CONFIG_JSON">
-
 =item B<-k, --key> <hmac-key>
 
 The HMAC key to use.
-
-=item B<-e, --encode>
-
-Perform an encode. Mutually exclusive with B<--decode>.
-
-=item B<-d, --decode>
-
-Perform an decode. Mutually exclusive with B<--encode>.
 
 =item B<--prefix> <prefix>
 
@@ -46,36 +34,46 @@ Show help output and exit
 
 =back
 
+=head1 COMMANDS
 
-=head1 CONFIG_JSON
-
-An example config json file:
-
- {
-  "hmackey": "Some long string here...",
- }
+url-tool has two subcommands.
 
 =over
 
-=item B<hmackey>
+=item B<encode>
 
-B<hmackey> is a secret key seed to the HMAC used for signing and validation
+=over
+
+=item B<-b, --base> <base>
+
+The base encoding to use. Can be one of I<hex> or I<base64>.
 
 =back
 
-I<Note>: Option flags, if provided, override those in the config file.
+=item B<decode>
 
+=back
 
 =head1 EXAMPLES
 
-Encode a url:
+Encode a url as hex:
 
- url-tool -e -k test --prefix="https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
- https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67 
+ $ ./url-tool -k "test" -p "https://img.example.org" encode "http://golang.org/doc/gopher/frontpage.png"
+ https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67
 
-Decode a url:
+Encode a url as base64:
 
- url-tool -d -k test https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67
+ $ ./url-tool -k "test" -p "https://img.example.org" encode -b base64 "http://golang.org/doc/gopher/frontpage.png"
+ https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n
+
+Decode a hex url:
+
+ $ ./url-tool -k "test" decode "https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67"
+ http://golang.org/doc/gopher/frontpage.png
+
+Decode a base64 url:
+
+ $ ./url-tool -k "test" decode "https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n"
  http://golang.org/doc/gopher/frontpage.png
 
 =head1 WWW
