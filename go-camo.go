@@ -21,7 +21,7 @@ import (
 
 const (
 	ServerName    = "go-camo"
-	ServerVersion = "0.3.0"
+	ServerVersion = "0.3.1"
 )
 
 func main() {
@@ -88,10 +88,6 @@ func main() {
 		log.Fatal("HMAC key required")
 	}
 
-	if config.MaxSize == 0 {
-		config.MaxSize = opts.MaxSize
-	}
-
 	if opts.BindAddress == "" && opts.BindAddressSSL == "" {
 		log.Fatal("One of bind-address or bind-ssl-address required")
 	}
@@ -104,7 +100,7 @@ func main() {
 	}
 
 	// convert from KB to Bytes
-	config.MaxSize = config.MaxSize * 1024
+	config.MaxSize = opts.MaxSize * 1024
 	config.RequestTimeout = opts.ReqTimeout
 	config.MaxRedirects = opts.MaxRedirects
 	config.ServerName = ServerName
