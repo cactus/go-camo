@@ -3,7 +3,7 @@ Changelog
 
 ## Next Release
 
-## 2014-05-13
+## 0.3.0 2014-05-13
 
 *   Transparent base64 url support
 
