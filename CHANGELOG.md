@@ -3,7 +3,7 @@ Changelog
 
 ## Next Release
 
-## 0.3.1 2014-05-23
+## 0.4.0 2014-05-23
 
 *   remove config support (use env or cli flags)
 *   turn allowlist into a cli flag to parse a plain text file vs json config

@@ -21,7 +21,7 @@ import (
 
 const (
 	ServerName    = "go-camo"
-	ServerVersion = "0.3.1"
+	ServerVersion = "0.4.0"
 )
 
 func main() {
