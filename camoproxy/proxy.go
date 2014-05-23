@@ -295,7 +295,6 @@ func New(pc Config) (*Proxy, error) {
 		}
 		allow = append(allow, c)
 	}
-	gologit.Println(allow)
 
 	return &Proxy{
 		client:     client,
