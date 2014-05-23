@@ -14,8 +14,8 @@ import (
 )
 
 type EncodeCommand struct {
-	Base string `short:"b" long:"base" default:"hex" description:"Encode/Decode base. Either hex or base64"`
-	Prefix  string `short:"p" long:"prefix" default:"" description:"Optional url prefix used by encode output"`
+	Base   string `short:"b" long:"base" default:"hex" description:"Encode/Decode base. Either hex or base64"`
+	Prefix string `short:"p" long:"prefix" default:"" description:"Optional url prefix used by encode output"`
 }
 
 func (c *EncodeCommand) Execute(args []string) error {
