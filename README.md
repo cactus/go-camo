@@ -29,7 +29,7 @@ Go-Camo supports both hex and base64 encoded urls at the same time.
 | hex      | longer, case insensitive, slightly faster encode/decode |
 | base64   | shorter, case sensitive, slightly slower encode/decode  |
 
-For examples of url generation, see the `examples` directory.
+For examples of url generation, see the [examples](examples/) directory.
 
 While Go-Camo will support proxying HTTPS images as well, for performance
 reasons you may choose to filter HTTPS requests out from proxying, and let the
