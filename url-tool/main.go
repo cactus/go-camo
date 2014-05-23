@@ -15,6 +15,7 @@ import (
 
 type EncodeCommand struct {
 	Base string `short:"b" long:"base" default:"hex" description:"Encode/Decode base. Either hex or base64"`
+	Prefix  string `short:"p" long:"prefix" default:"" description:"Optional url prefix used by encode output"`
 }
 
 func (c *EncodeCommand) Execute(args []string) error {
@@ -41,7 +42,7 @@ func (c *EncodeCommand) Execute(args []string) error {
 	default:
 		return errors.New("Invalid base provided")
 	}
-	fmt.Println(opts.Prefix + outURL)
+	fmt.Println(c.Prefix + outURL)
 	return nil
 }
 
@@ -78,7 +79,6 @@ func (c *DecodeCommand) Execute(args []string) error {
 
 var opts struct {
 	HmacKey string `short:"k" long:"key" description:"HMAC key"`
-	Prefix  string `short:"p" long:"prefix" default:"" description:"Optional url prefix used by encode output"`
 }
 
 func main() {
