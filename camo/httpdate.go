@@ -1,4 +1,4 @@
-package camoproxy
+package camo
 
 import (
 	"sync"

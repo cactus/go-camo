@@ -1,10 +1,10 @@
-package camoproxy_test
+package camo_test
 
 import (
 	"log"
 	"sync"
 
-	"github.com/cactus/go-camo/camoproxy"
+	"github.com/cactus/go-camo/camo"
 )
 
 type ProxyStats struct {
@@ -35,8 +35,8 @@ func (ps *ProxyStats) GetStats() (uint64, uint64) {
 }
 
 func ExampleProxyMetrics() {
-	config := camoproxy.Config{}
-	proxy, err := camoproxy.New(config)
+	config := camo.Config{}
+	proxy, err := camo.New(config)
 	if err != nil {
 		log.Fatal("Error: ", err)
 	}

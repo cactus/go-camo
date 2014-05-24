@@ -56,11 +56,11 @@ build-simple-server: build-setup
 
 test: build-setup
 	@echo "Running tests..."
-	@env GOPATH="${GOPATH}" go test ./camoproxy/...
+	@env GOPATH="${GOPATH}" go test ./camo/...
 
 cover: build-setup
 	@echo "Running tests with coverage..."
-	@env GOPATH="${GOPATH}" go test -cover ./camoproxy/...
+	@env GOPATH="${GOPATH}" go test -cover ./camo/...
 
 man-setup:
 	@mkdir -p "${BUILDDIR}/man/man1"

@@ -13,7 +13,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/cactus/go-camo/camoproxy"
+	"github.com/cactus/go-camo/camo"
 	"github.com/cactus/gologit"
 	"github.com/gorilla/mux"
 	flags "github.com/jessevdk/go-flags"
@@ -65,7 +65,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	config := camoproxy.Config{}
+	config := camo.Config{}
 
 	if opts.AllowList != "" {
 		b, err := ioutil.ReadFile(opts.AllowList)
@@ -111,7 +111,7 @@ func main() {
 	logger.Debugln("Debug logging enabled")
 	logger.ToggleOnSignal(syscall.SIGUSR1)
 
-	proxy, err := camoproxy.New(config)
+	proxy, err := camo.New(config)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,4 +1,4 @@
-package camoproxy
+package camo
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cactus/go-camo/camoproxy/encoding"
+	"github.com/cactus/go-camo/camo/encoding"
 	"github.com/gorilla/mux"
 )
 
@@ -32,7 +32,7 @@ func makeReq(testURL string) (*http.Request, error) {
 func processRequest(req *http.Request, status int) (*httptest.ResponseRecorder, error) {
 	camoServer, err := New(camoConfig)
 	if err != nil {
-		return nil, fmt.Errorf("Error building CamoProxy: %s", err.Error())
+		return nil, fmt.Errorf("Error building Camo: %s", err.Error())
 	}
 
 	router := mux.NewRouter()

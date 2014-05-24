@@ -1,6 +1,6 @@
-// Package camoproxy provides an HTTP proxy server with content type
+// Package camo provides an HTTP proxy server with content type
 // restrictions as well as regex host allow list support.
-package camoproxy
+package camo
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/cactus/go-camo/camoproxy/encoding"
+	"github.com/cactus/go-camo/camo/encoding"
 	"github.com/cactus/gologit"
 	"github.com/gorilla/mux"
 	httpclient "github.com/mreiferson/go-httpclient"

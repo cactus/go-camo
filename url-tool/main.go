@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/cactus/go-camo/camoproxy/encoding"
+	"github.com/cactus/go-camo/camo/encoding"
 	flags "github.com/jessevdk/go-flags"
 )
 
