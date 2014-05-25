@@ -35,6 +35,10 @@ help:
 clean:
 	-rm -rf "${BUILDDIR}"
 
+build-clean:
+	-rm -rf "${BUILDDIR}/pkg"
+	-rm -rf "${BUILDDIR}/src"
+
 ${GOPATH}/bin/godep:
 	@mkdir -p "${GOPATH}/src"
 	@echo "Building godep..."
