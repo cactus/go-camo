@@ -1,16 +1,17 @@
 
-BUILDDIR          := ${CURDIR}/build
-GOPATH            := ${BUILDDIR}
-RPMBUILDDIR       := ${BUILDDIR}/rpm
-ARCH              := $(shell uname -m)
-FPM_VERSION       := $(shell gem list fpm|grep fpm|sed -E 's/fpm \((.*)\)/\1/g')
-FPM_OPTIONS       ?=
-ITERATION         ?= 1
+BUILDDIR        := ${CURDIR}/build
+GOPATH          := ${BUILDDIR}
+RPMBUILDDIR     := ${BUILDDIR}/rpm
+ARCH            := $(shell uname -m)
+FPM_VERSION     := $(shell gem list fpm|grep fpm|sed -E 's/fpm \((.*)\)/\1/g')
+FPM_OPTIONS     ?=
+ITERATION       ?= 1
 
-GOCAMO_VER        := $(shell git describe --always --dirty --tags|sed 's/^v//')
-VERSION_VAR       := main.ServerVersion
-GOBUILD_LDFLAGS   := -ldflags "-X $(VERSION_VAR) $(GOCAMO_VER)"
-GOBUILD_FLAGS     ?= -tags netgo
+GOCAMO_VER      := $(shell git describe --always --dirty --tags|sed 's/^v//')
+RPM_VER         := $(shell git describe --always --tags --abbrev=0|sed 's/^v//')
+VERSION_VAR     := main.ServerVersion
+GOBUILD_LDFLAGS := -ldflags "-X $(VERSION_VAR) $(GOCAMO_VER)"
+GOBUILD_FLAGS   ?= -tags netgo
 
 .PHONY: help clean build test cover man rpm all
 
@@ -94,7 +95,7 @@ rpm: all
 	@cp ${BUILDDIR}/man/man1/* ${RPMBUILDDIR}/usr/local/share/man/man1
 	@fpm -s dir -t rpm -n go-camo \
 		--url "https://github.com/cactus/go-camo" \
-		-v "${GOCAMO_VER}" \
+		-v "${GOCAMO_VER_RPM}" \
 		--iteration "${ITERATION}" \
 		-C "${RPMBUILDDIR}" \
 		${FPM_OPTIONS} \
