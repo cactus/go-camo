@@ -82,6 +82,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	gologit.Debugln("URL:", sURL)
+	gologit.Debugln("Client request:", req)
 
 	u, err := url.Parse(sURL)
 	if err != nil {
@@ -120,7 +121,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	nreq, err := http.NewRequest("GET", sURL, nil)
+	nreq, err := http.NewRequest(req.Method, sURL, nil)
 	if err != nil {
 		gologit.Debugln("Could not create NewRequest", err)
 		http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
@@ -145,6 +146,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	nreq.Header.Add("user-agent", p.serverName)
 	nreq.Header.Add("via", p.serverName)
 
+	gologit.Debugln("Built outgoing request:", nreq)
+
 	resp, err := p.client.Do(nreq)
 	if err != nil {
 		gologit.Debugln("Could not connect to endpoint", err)
@@ -156,6 +159,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	defer resp.Body.Close()
+	gologit.Debugln("Response from upstream:", resp)
 
 	// check for too large a response
 	if resp.ContentLength > p.maxSize {
@@ -230,7 +234,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if p.metrics != nil {
 		go p.metrics.AddBytes(bW)
 	}
-	gologit.Debugln(req, resp.StatusCode)
+	gologit.Debugln("Response to client:", w)
 }
 
 // copy headers from src into dst

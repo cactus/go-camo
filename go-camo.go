@@ -118,7 +118,7 @@ func main() {
 
 	router := mux.NewRouter()
 	router.Handle("/favicon.ico", http.NotFoundHandler())
-	router.Handle("/{sigHash}/{encodedURL}", proxy).Methods("GET")
+	router.Handle("/{sigHash}/{encodedURL}", proxy).Methods("HEAD", "GET")
 	router.HandleFunc("/", RootHandler)
 	http.Handle("/", router)
 
