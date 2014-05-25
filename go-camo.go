@@ -19,9 +19,9 @@ import (
 	flags "github.com/jessevdk/go-flags"
 )
 
-const (
+var (
 	ServerName    = "go-camo"
-	ServerVersion = "0.4.0"
+	ServerVersion = "no-version"
 )
 
 func main() {

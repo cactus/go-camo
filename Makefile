@@ -4,10 +4,14 @@ GOPATH            := ${BUILDDIR}
 RPMBUILDDIR       := ${BUILDDIR}/rpm
 ARCH              := $(shell uname -m)
 FPM_VERSION       := $(shell gem list fpm|grep fpm|sed -E 's/fpm \((.*)\)/\1/g')
-FPM_OPTIONS       :=
+FPM_OPTIONS       ?=
 GOCAMO_VER        := $(shell grep -F 'ServerVersion =' ./go-camo.go |awk -F\" '{print $$2}')
-ITERATION         := 1
-GOBUILD_OPTS      :=
+ITERATION         ?= 1
+GOBUILD_FLAGS     ?= -tags netgo
+
+VERSION_VAR := main.ServerVersion
+REPO_VERSION := $(shell git describe --always --dirty --tags)
+GOBUILD_LDFLAGS := -ldflags "-X $(VERSION_VAR) $(REPO_VERSION)"
 
 .PHONY: help clean build test cover man rpm all
 
@@ -34,7 +38,7 @@ clean:
 ${GOPATH}/bin/godep:
 	@mkdir -p "${GOPATH}/src"
 	@echo "Building godep..."
-	@env GOPATH="${GOPATH}" go get ${GOBUILD_OPTS} github.com/kr/godep
+	@env GOPATH="${GOPATH}" go get ${GOBUILD_FLAGS} github.com/kr/godep
 
 build-setup: ${GOPATH}/bin/godep
 	@echo "Restoring deps with godep..."
@@ -44,15 +48,15 @@ build-setup: ${GOPATH}/bin/godep
 
 build-go-camo: build-setup
 	@echo "Building go-camo..."
-	@env GOPATH="${GOPATH}" go install ${GOBUILD_OPTS} github.com/cactus/go-camo
+	@env GOPATH="${GOPATH}" go install ${GOBUILD_FLAGS} ${GOBUILD_LDFLAGS} github.com/cactus/go-camo
 
 build-url-tool: build-setup
 	@echo "Building url-tool..."
-	@env GOPATH="${GOPATH}" go install ${GOBUILD_OPTS} github.com/cactus/go-camo/url-tool
+	@env GOPATH="${GOPATH}" go install ${GOBUILD_FLAGS} ${GOBUILD_LDFLAGS} github.com/cactus/go-camo/url-tool
 
 build-simple-server: build-setup
 	@echo "Building simple-server..."
-	@env GOPATH="${GOPATH}" go install ${GOBUILD_OPTS} github.com/cactus/go-camo/simple-server
+	@env GOPATH="${GOPATH}" go install ${GOBUILD_FLAGS} ${GOBUILD_LDFLAGS} github.com/cactus/go-camo/simple-server
 
 test: build-setup
 	@echo "Running tests..."
