@@ -5,13 +5,12 @@ RPMBUILDDIR       := ${BUILDDIR}/rpm
 ARCH              := $(shell uname -m)
 FPM_VERSION       := $(shell gem list fpm|grep fpm|sed -E 's/fpm \((.*)\)/\1/g')
 FPM_OPTIONS       ?=
-GOCAMO_VER        := $(shell grep -F 'ServerVersion =' ./go-camo.go |awk -F\" '{print $$2}')
 ITERATION         ?= 1
 
+GOCAMO_VER        := $(shell git describe --always --dirty --tags|sed 's/^v//')
 VERSION_VAR       := main.ServerVersion
-REPO_VERSION      := $(shell git describe --always --dirty --tags)
+GOBUILD_LDFLAGS   := -ldflags "-X $(VERSION_VAR) $(GOCAMO_VER)"
 GOBUILD_FLAGS     ?= -tags netgo
-GOBUILD_LDFLAGS   := -ldflags "-X $(VERSION_VAR) $(REPO_VERSION)"
 
 .PHONY: help clean build test cover man rpm all
 
