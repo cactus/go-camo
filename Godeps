@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/cactus/go-camo",
-	"GoVersion": "go1.2.1",
+	"GoVersion": "go1.2.2",
 	"Packages": [
 		"./..."
 	],
@@ -11,19 +11,19 @@
 		},
 		{
 			"ImportPath": "github.com/gorilla/context",
-			"Rev": "1be7a086a5fd6440ef16fe96baeda0c78282b980"
+			"Rev": "1f3e8a46c5bb4c29971d9867ede6e198ca5eddce"
 		},
 		{
 			"ImportPath": "github.com/gorilla/mux",
-			"Rev": "9ede152210fa25c1377d33e867cb828c19316445"
+			"Rev": "136d54f81f00414c45c3c68dd47e98cc97519c5e"
 		},
 		{
 			"ImportPath": "github.com/jessevdk/go-flags",
-			"Rev": "cee4db96aec1f7382a0b09d8249c09a8bb8d160b"
+			"Rev": "8454d731db1463469818d7004cbb34fdd52d13bb"
 		},
 		{
 			"ImportPath": "github.com/mreiferson/go-httpclient",
-			"Rev": "daccf73cf401529a4408a2fc93f8eadd8af5123d"
+			"Rev": "c121dfe45d66997e43e25a6823fbe7466c8403fe"
 		}
 	]
 }
