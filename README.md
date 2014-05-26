@@ -71,6 +71,7 @@ is also required.
       build-url-tool      build url tool
       build-simple-server build simple server
       test                run tests
+      cover               run tests with cover output
       man                 build all man pages
       man-go-camo         build go-camo man pages
       man-url-tool        build url-tool man pages
@@ -82,7 +83,7 @@ is also required.
 
     # as an alternative to the previous command, build and strip debug symbols.
     # this is useful for production, and reduces the resulting file size.
-    $ make all GOBUILD_OPTS="-ldflags '-s'"
+    $ make all GOBUILD_LDFLAGS="-s"
 
 
 ## Running
