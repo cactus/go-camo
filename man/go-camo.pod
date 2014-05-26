@@ -42,6 +42,11 @@ I<Note>: L<Option flags|"OPTIONS">, if provided, override those defined in envir
 
 The HMAC key to use.
 
+=item B<-H, --header> <header>
+
+Extra header to return for each response. This option can be used multiple
+times to add multiple headers.
+
 =item B<--stats>
 
 Enable stats collection and reporting functionality.
@@ -121,10 +126,10 @@ Listen on loopback port 8080 with a upstream timeout of 6 seconds:
 
  go-camo -k BEEFBEEFBEEF --timeout=6s --listen=127.0.0.1:8080
 
-Set HMAC key via env var:
+Set HMAC key via env var, and an HSTS header:
 
  export GOCAMO_HMAC=BEEFBEEFBEEF
- go-camo --timeout=6s --listen=127.0.0.1:8080
+ go-camo --timeout=6s --listen=127.0.0.1:8080 -H "Strict-Transport-Security:  max-age=16070400"
 
 
 =head1 WWW
