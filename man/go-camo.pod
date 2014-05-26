@@ -33,6 +33,8 @@ The HMAC key to use.
 
 I<Note>: L<Option flags|"OPTIONS">, if provided, override those defined in environment variables.
 
+For exmaple, if the HMAC key is provided on the command line, it will override
+(if present), an HMAC key set in the environment var.
 
 =head1 OPTIONS
 
@@ -46,6 +48,8 @@ The HMAC key to use.
 
 Extra header to return for each response. This option can be used multiple
 times to add multiple headers.
+
+See L<ADD_HEADERS|"ADD_HEADERS"> for more info.
 
 =item B<--stats>
 
@@ -73,9 +77,9 @@ Max response image size in KB. Default: 5120
 Timeout value for upstream response. Format is "4s" where I<s> means seconds.
 Default: 4s
 
-=item B<--no-follow>
+=item B<--max-redirects>
 
-Disable following upstream redirects.
+Maximum number of redirects to follow. Default: 3
 
 =item B<--listen> <address-port>
 
@@ -108,6 +112,24 @@ Show help output and exit
 
 =back
 
+=head1 ADD_HEADERS
+
+Additional default headers (headers sent on every reply) can be set with the
+B<-H, --header> flag. This option can be used multiple times.
+
+The list of default headers sent are:
+
+ X-Content-Type-Options: nosniff
+ X-XSS-Protection: 1; mode=block
+ Content-Security-Policy: default-src 'none'`
+
+Additional headers are added to the above set.
+
+As an example, if you wanted to return an I<Strict-Transport-Security> header
+by default, you could add this to the command line:
+
+ -H "Strict-Transport-Security:  max-age=16070400"
+
 =head1 STATS
 
 If the B<--stats> flag is provided, then the service will track bytes and
@@ -124,12 +146,15 @@ The output format is show as an example:
 
 Listen on loopback port 8080 with a upstream timeout of 6 seconds:
 
- go-camo -k BEEFBEEFBEEF --timeout=6s --listen=127.0.0.1:8080
+ go-camo -k BEEFBEEFBEEF --listen=127.0.0.1:8080 \
+   --timeout=6s 
 
 Set HMAC key via env var, and an HSTS header:
 
  export GOCAMO_HMAC=BEEFBEEFBEEF
- go-camo --timeout=6s --listen=127.0.0.1:8080 -H "Strict-Transport-Security:  max-age=16070400"
+ go-camo --listen=127.0.0.1:8080 \
+   --timeout=6s \
+   -H "Strict-Transport-Security: max-age=16070400"
 
 
 =head1 WWW
