@@ -48,7 +48,7 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
     need of multiple instances or additional proxying.
 *   Go-Camo builds to a static binary. This makes deploying to large numbers
     of servers a snap.
-*	Go-Camo supports both Hex and Base64 urls. Base64 urls are smaller, but
+*   Go-Camo supports both Hex and Base64 urls. Base64 urls are smaller, but
     case sensitive.
 *   Go-Camo adds support for HTTP HEAD requests.
 
@@ -100,9 +100,9 @@ addition, the code is much simpler because of it.
 
 In order to use this on Heroku with the provided Procfile, you need to:
 
-1.	Create an app specifying the https://github.com/kr/heroku-buildpack-go
-	buildpack
-2.	Set `HMAC_KEY` to the key you are using
+1.  Create an app specifying the https://github.com/kr/heroku-buildpack-go
+    buildpack
+2.  Set `HMAC_KEY` to the key you are using
 
 ## Configuring
 
@@ -152,14 +152,14 @@ Additional default headers (headers sent on every reply) can also be set. The
 
 The list of default headers sent are:
 
- 	X-Content-Type-Options: nosniff
- 	X-XSS-Protection: 1; mode=block
- 	Content-Security-Policy: default-src 'none'`
+    X-Content-Type-Options: nosniff
+    X-XSS-Protection: 1; mode=block
+    Content-Security-Policy: default-src 'none'`
 
 As an example, if you wanted to return a `Strict-Transport-Security` header
 by default, you could add this to the command line:
 
-	-H "Strict-Transport-Security:  max-age=16070400"
+    -H "Strict-Transport-Security:  max-age=16070400"
 
 ## Additional tools
 
@@ -186,16 +186,16 @@ The `url-tool` utility provides a simple way to generate signed URLs from the co
 
 Example usage:
 
-	# hex
+    # hex
     $ $GOPATH/bin/url-tool -k "test" encode -p "https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
     https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67
 
     $ $GOPATH/bin/url-tool -k "test" decode "https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67"
     http://golang.org/doc/gopher/frontpage.png
 
-	# base64
+    # base64
     $ $GOPATH/bin/url-tool -k "test" encode -b base64 -p "https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
-	https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n
+    https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n
 
     $ $GOPATH/bin/url-tool -k "test" decode "https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n"
     http://golang.org/doc/gopher/frontpage.png
@@ -206,14 +206,14 @@ The `simple-server` utility is useful for testing. It serves the contents of a
 given directory over http. Nothing more.
 
     $ $GOPATH/bin/simple-server -h
-	Usage:
-	  simple-server [OPTIONS] DIR
+    Usage:
+      simple-server [OPTIONS] DIR
 
-	Application Options:
-	  -l, --listen= Address:Port to bind to for HTTP (0.0.0.0:8000)
+    Application Options:
+      -l, --listen= Address:Port to bind to for HTTP (0.0.0.0:8000)
 
-	Help Options:
-	  -h, --help    Show this help message
+    Help Options:
+      -h, --help    Show this help message
 
 ## Changelog
 
