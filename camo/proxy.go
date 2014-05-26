@@ -163,7 +163,6 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		nreq.Header.Add("Accept", "image/*")
 	}
 
-	nreq.Header.Del("connection")
 	nreq.Header.Add("user-agent", p.config.ServerName)
 	nreq.Header.Add("via", p.config.ServerName)
 
