@@ -58,6 +58,21 @@ type Proxy struct {
 	metrics   ProxyMetrics
 }
 
+// NotFound handles client requests that did not match a valid
+// mux route.
+func (p *Proxy) NotFoundHandler() http.Handler {
+	handler := func(w http.ResponseWriter, req *http.Request) {
+		h := w.Header()
+		for k, v := range p.config.AddHeaders {
+			h.Set(k, v)
+		}
+		h.Set("Server", p.config.ServerName)
+		h.Set("Date", formattedDate.String())
+		http.Error(w, "404 Not Found", 404)
+	}
+	return http.HandlerFunc(handler)
+}
+
 // ServerHTTP handles the client request, validates the request is validly
 // HMAC signed, filters based on the Allow list, and then proxies
 // valid requests to the desired endpoint. Responses are filtered for
