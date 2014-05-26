@@ -51,6 +51,8 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
 *   Go-Camo supports both Hex and Base64 urls. Base64 urls are smaller, but
     case sensitive.
 *   Go-Camo adds support for HTTP HEAD requests.
+*   Go-Camo allows custom default headers to be added -- useful for things
+    like adding [HSTS][10] headers.
 
 ## Building
 
@@ -233,3 +235,4 @@ file for details.
 [7]: http://upstart.ubuntu.com/
 [8]: http://launchd.macosforge.org/
 [9]: http://cr.yp.to/daemontools/faq/create.html#why
+[10]: https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
