@@ -21,8 +21,8 @@ import (
 
 // Config holds configuration data used when creating a Proxy with New.
 type Config struct {
-	// HmacKey is a string to be used as the hmac key
-	HmacKey string
+	// HMACKey is a byte slice to be used as the hmac key
+	HMACKey []byte
 	// AllowList is a list of string represenstations of regex (not compiled
 	// regex) that are used as a whitelist filter. If an AllowList is present,
 	// then anything not matching is dropped. If no AllowList is present,
@@ -36,6 +36,8 @@ type Config struct {
 	RequestTimeout time.Duration
 	// Server name used in Headers and Via checks
 	ServerName string
+	// Default headers to add to each response
+	AddHeaders map[string]string
 }
 
 // ProxyMetrics interface for Proxy to use for stats/metrics.
@@ -49,12 +51,11 @@ type ProxyMetrics interface {
 // A Proxy is a Camo like HTTP proxy, that provides content type
 // restrictions as well as regex host allow list support.
 type Proxy struct {
-	client     *http.Client
-	hmacKey    []byte
-	allowList  []*regexp.Regexp
-	maxSize    int64
-	metrics    ProxyMetrics
-	serverName string
+	client *http.Client
+	config *Config
+	// compiled allow list regex
+	allowList []*regexp.Regexp
+	metrics   ProxyMetrics
 }
 
 // ServerHTTP handles the client request, validates the request is validly
@@ -67,16 +68,21 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		go p.metrics.AddServed()
 	}
 
-	w.Header().Set("Server", p.serverName)
-	w.Header().Set("X-Content-Type-Options", "nosniff")
+	// add default headers
+	wh := w.Header()
+	for k, v := range p.config.AddHeaders {
+		wh.Set(k, v)
+	}
+	wh.Set("Server", p.config.ServerName)
+	wh.Set("Date", formattedDate.String())
 
-	if req.Header.Get("Via") == p.serverName {
+	if req.Header.Get("Via") == p.config.ServerName {
 		http.Error(w, "Request loop failure", http.StatusNotFound)
 		return
 	}
 
 	vars := mux.Vars(req)
-	sURL, ok := encoding.DecodeURL(p.hmacKey, vars["sigHash"], vars["encodedURL"])
+	sURL, ok := encoding.DecodeURL(p.config.HMACKey, vars["sigHash"], vars["encodedURL"])
 	if !ok {
 		http.Error(w, "Bad Signature", http.StatusForbidden)
 		return
@@ -143,8 +149,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	nreq.Header.Add("connection", "close")
-	nreq.Header.Add("user-agent", p.serverName)
-	nreq.Header.Add("via", p.serverName)
+	nreq.Header.Add("user-agent", p.config.ServerName)
+	nreq.Header.Add("via", p.config.ServerName)
 
 	gologit.Debugln("Built outgoing request:", nreq)
 
@@ -162,7 +168,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	gologit.Debugln("Response from upstream:", resp)
 
 	// check for too large a response
-	if resp.ContentLength > p.maxSize {
+	if resp.ContentLength > p.config.MaxSize {
 		gologit.Debugln("Content length exceeded", sURL)
 		http.Error(w, "Content length exceeded", http.StatusNotFound)
 		return
@@ -206,7 +212,6 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	h := w.Header()
 	p.copyHeader(&h, &resp.Header, &ValidRespHeaders)
-	h.Set("Date", formattedDate.String())
 	w.WriteHeader(resp.StatusCode)
 
 	// since this uses io.Copy from the respBody, it is streaming
@@ -301,9 +306,7 @@ func New(pc Config) (*Proxy, error) {
 	}
 
 	return &Proxy{
-		client:     client,
-		hmacKey:    []byte(pc.HmacKey),
-		allowList:  allow,
-		maxSize:    pc.MaxSize,
-		serverName: pc.ServerName}, nil
+		client:    client,
+		config:    &pc,
+		allowList: allow}, nil
 }

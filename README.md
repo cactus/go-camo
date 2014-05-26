@@ -50,6 +50,7 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
     of servers a snap.
 *	Go-Camo supports both Hex and Base64 urls. Base64 urls are smaller, but
     case sensitive.
+*   Go-Camo adds support for HTTP HEAD requests.
 
 ## Building
 
@@ -116,18 +117,21 @@ In order to use this on Heroku with the provided Procfile, you need to:
       go-camo [OPTIONS]
 
     Application Options:
-	  -k, --key=           HMAC key
-		  --stats          Enable Stats
-		  --allow-list=    Text file of hostname allow regexes (one per line)
-		  --max-size=      Max response image size (KB) (5120)
-		  --timeout=       Upstream request timeout (4s)
-		  --max-redirects= Maximum number of redirects to follow (3)
-		  --listen=        Address:Port to bind to for HTTP (0.0.0.0:8080)
-		  --ssl-listen=    Address:Port to bind to for HTTPS/SSL/TLS
-		  --ssl-key=       ssl private key (key.pem) path
-		  --ssl-cert=      ssl cert (cert.pem) path
-	  -v, --verbose        Show verbose (debug) log level output
-	  -V, --version        print version and exit
+      -k, --key=           HMAC key
+      -H, --header=        Extra header to return for each response. This
+                           option can be used multiple times to add multiple
+                           headers
+          --stats          Enable Stats
+          --allow-list=    Text file of hostname allow regexes (one per line)
+          --max-size=      Max response image size (KB) (5120)
+          --timeout=       Upstream request timeout (4s)
+          --max-redirects= Maximum number of redirects to follow (3)
+          --listen=        Address:Port to bind to for HTTP (0.0.0.0:8080)
+          --ssl-listen=    Address:Port to bind to for HTTPS/SSL/TLS
+          --ssl-key=       ssl private key (key.pem) path
+          --ssl-cert=      ssl cert (cert.pem) path
+      -v, --verbose        Show verbose (debug) log level output
+      -V, --version        print version and exit
 
     Help Options:
       -h, --help          Show this help message
@@ -142,6 +146,20 @@ served, and offer them up at an http endpoint `/status` via HTTP GET request.
 
 If the HMAC key is provided on the command line, it will override (if present),
 an HMAC key set in the environment var.
+
+Additional default headers (headers sent on every reply) can also be set. The
+`-H, --header` argument may be specified many times.
+
+The list of default headers sent are:
+
+ 	X-Content-Type-Options: nosniff
+ 	X-XSS-Protection: 1; mode=block
+ 	Content-Security-Policy: default-src 'none'`
+
+As an example, if you wanted to return a `Strict-Transport-Security` header
+by default, you could add this to the command line:
+
+	-H "Strict-Transport-Security:  max-age=16070400"
 
 ## Additional tools
 

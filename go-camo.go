@@ -35,7 +35,8 @@ func main() {
 
 	// command line flags
 	var opts struct {
-		HmacKey        string        `short:"k" long:"key" description:"HMAC key"`
+		HMACKey        string        `short:"k" long:"key" description:"HMAC key"`
+		AddHeaders     []string      `short:"H" long:"header" description:"Extra header to return for each response. This option can be used multiple times to add multiple headers"`
 		Stats          bool          `long:"stats" description:"Enable Stats"`
 		AllowList      string        `long:"allow-list" description:"Text file of hostname allow regexes (one per line)"`
 		MaxSize        int64         `long:"max-size" default:"5120" description:"Max response image size (KB)"`
@@ -66,25 +67,16 @@ func main() {
 	}
 
 	config := camo.Config{}
-
-	if opts.AllowList != "" {
-		b, err := ioutil.ReadFile(opts.AllowList)
-		if err != nil {
-			log.Fatal("Could not read alllow-list. ", err)
-		}
-		config.AllowList = strings.Split(string(b), "\n")
-	}
-
 	if hmacKey := os.Getenv("GOCAMO_HMAC"); hmacKey != "" {
-		config.HmacKey = hmacKey
+		config.HMACKey = []byte(hmacKey)
 	}
 
 	// flags override env var
-	if opts.HmacKey != "" {
-		config.HmacKey = opts.HmacKey
+	if opts.HMACKey != "" {
+		config.HMACKey = []byte(opts.HMACKey)
 	}
 
-	if config.HmacKey == "" {
+	if len(config.HMACKey) == 0 {
 		log.Fatal("HMAC key required")
 	}
 
@@ -97,6 +89,29 @@ func main() {
 	}
 	if opts.BindAddressSSL != "" && opts.SSLCert == "" {
 		log.Fatal("ssl-cert is required when specifying bind-ssl-address")
+	}
+
+	if opts.AllowList != "" {
+		b, err := ioutil.ReadFile(opts.AllowList)
+		if err != nil {
+			log.Fatal("Could not read alllow-list. ", err)
+		}
+		config.AllowList = strings.Split(string(b), "\n")
+	}
+
+	config.AddHeaders = map[string]string{
+		"X-Content-Type-Options":  "nosniff",
+		"X-XSS-Protection":        "1; mode=block",
+		"Content-Security-Policy": "default-src 'none'",
+	}
+
+	for _, v := range opts.AddHeaders {
+		s := strings.Split(v, ":")
+		if len(s) == 2 && len(s[0]) > 0 && len(s[1]) > 0 {
+			config.AddHeaders[s[0]] = s[1]
+		} else {
+			log.Printf("ignoring bad header: '%s'\n", v)
+		}
 	}
 
 	// convert from KB to Bytes
