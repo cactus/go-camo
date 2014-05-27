@@ -181,8 +181,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		} else if strings.Contains(errString, "use of closed") {
 			http.Error(w, "Error Fetching Resource", http.StatusGatewayTimeout)
 		} else {
-			// some other error. call it a bad gateway
-			http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
+			// some other error. call it a not found (camo compliant)
+			http.Error(w, "Error Fetching Resource", http.StatusNotFound)
 		}
 		return
 	}
