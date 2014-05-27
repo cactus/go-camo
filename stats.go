@@ -28,5 +28,5 @@ func (ps *ProxyStats) AddBytes(bc int64) {
 func (ps *ProxyStats) GetStats() (uint64, uint64) {
 	ps.RLock()
 	defer ps.RUnlock()
-	return ps.bytes, ps.clients
+	return ps.clients, ps.bytes
 }
