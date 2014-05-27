@@ -191,8 +191,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	switch resp.StatusCode {
 	case 200:
 		// check content type
-		ct := resp.Header.Get("Content-Type")
-		if !strings.HasPrefix(ct, "image/") {
+		if !strings.HasPrefix(resp.Header.Get("Content-Type"), "image/") {
 			gologit.Debugln("Non-Image content-type returned", u)
 			http.Error(w, "Non-Image content-type returned",
 				http.StatusBadRequest)

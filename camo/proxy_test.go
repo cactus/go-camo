@@ -156,6 +156,15 @@ func TestFollowTempRedirects(t *testing.T) {
 	}
 }
 
+func TestBadContentType(t *testing.T) {
+	t.Parallel()
+	testURL := "http://httpbin.org/response-headers?Content-Type=what"
+	_, err := makeTestReq(testURL, 400)
+	if err != nil {
+		t.Error(err.Error())
+	}
+}
+
 func Test404InfiniRedirect(t *testing.T) {
 	t.Parallel()
 	testURL := "http://httpbin.org/redirect/4"
