@@ -107,7 +107,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	u, err := url.Parse(sURL)
 	if err != nil {
-		gologit.Debugln(err)
+		gologit.Debugln("url parse error:", err)
 		http.Error(w, "Bad url", http.StatusBadRequest)
 		return
 	}
