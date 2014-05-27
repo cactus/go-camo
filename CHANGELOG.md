@@ -4,12 +4,12 @@ Changelog
 ## Next Release
 
 *   some minor changes to Makefile/building
-*   BUG: fix array index out of bound on short content type header (issue #3)
 *   add support for HTTP HEAD requests
 *   add support for adding custom default response headers
 *   return custom headers on 404s as well.
 *   enable http keepalives on upstream/backends
 *   upgrade library deps
+*   various bug fixes
 
 ## 0.4.0 2014-05-23
 
