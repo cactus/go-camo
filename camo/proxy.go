@@ -171,10 +171,18 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	resp, err := p.client.Do(nreq)
 	if err != nil {
 		gologit.Debugln("Could not connect to endpoint", err)
-		if strings.Contains(err.Error(), "timeout") {
+		// this is a bit janky, but better than peeling off the
+		// 3 layers of wrapped errors and trying to get to net.OpErr and
+		// still having to rely on string comparison to find out if it is
+		// a net.errClosing or not.
+		errString := err.Error()
+		if strings.Contains(errString, "timeout") {
 			http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
+		} else if strings.Contains(errString, "use of closed") {
+			http.Error(w, "Error Fetching Resource", http.StatusGatewayTimeout)
 		} else {
-			http.Error(w, "Error Fetching Resource", http.StatusNotFound)
+			// some other error. call it a bad gateway
+			http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
 		}
 		return
 	}
