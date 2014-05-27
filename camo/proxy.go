@@ -230,21 +230,23 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// since this uses io.Copy from the respBody, it is streaming
 	// from the request to the response. This means it will nearly
 	// always end up with a chunked response.
-	// Change to the following to send whole body at once, and
-	// read whole body at once too:
-	//    body, err := ioutil.ReadAll(resp.Body)
-	//    if err != nil {
-	//        gologit.Println("Error writing response:", err)
-	//    }
-	//    w.Write(body)
-	// Might use quite a bit of memory though. Untested.
 	bW, err := io.Copy(w, resp.Body)
 	if err != nil {
-		// only log if not broken pipe. broken pipe means the client
-		// terminated conn for some reason.
 		opErr, ok := err.(*net.OpError)
-		if !ok || opErr.Err != syscall.EPIPE {
-			gologit.Println("Error writing response:", err)
+		if !ok {
+			switch opErr.Err {
+			case syscall.EPIPE:
+				// broken pipe - endpoint terminated the conn
+				// log as debug only.
+				gologit.Debugln("Error writing response:", err)
+			case syscall.ECONNRESET:
+				// connection reset by peer - endpoint terminated the conn
+				// log as debug only.
+				gologit.Debugln("Error writing response:", err)
+			default:
+				// log anything else normally
+				gologit.Println("Error writing response:", err)
+			}
 		}
 		return
 	}
