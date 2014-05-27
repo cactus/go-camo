@@ -248,8 +248,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 				gologit.Println("OpError writing response:", err)
 			}
 		} else {
-			// unknown error and not an OpError. just debug log for now.
-			gologit.Debugln("Error writing response:", err)
+			// unknown error and not an OpError.
+			gologit.Println("Error writing response:", err)
 		}
 		return
 	}
