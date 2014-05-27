@@ -233,20 +233,23 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	bW, err := io.Copy(w, resp.Body)
 	if err != nil {
 		opErr, ok := err.(*net.OpError)
-		if !ok {
+		if ok {
 			switch opErr.Err {
 			case syscall.EPIPE:
 				// broken pipe - endpoint terminated the conn
 				// log as debug only.
-				gologit.Debugln("Error writing response:", err)
+				gologit.Debugln("OpError writing response:", err)
 			case syscall.ECONNRESET:
 				// connection reset by peer - endpoint terminated the conn
 				// log as debug only.
-				gologit.Debugln("Error writing response:", err)
+				gologit.Debugln("OpError writing response:", err)
 			default:
 				// log anything else normally
-				gologit.Println("Error writing response:", err)
+				gologit.Println("OpError writing response:", err)
 			}
+		} else {
+			// unknown error and not an OpError. just debug log for now.
+			gologit.Debugln("Error writing response:", err)
 		}
 		return
 	}
