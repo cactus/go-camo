@@ -1,173 +1,144 @@
-=encoding utf8
-
-=head1 NAME
-
-go-camo - Go version of Camo server
-
-
-=head1 SYNOPSIS
-
-B<go-camo> [I<OPTIONS>] [I<OPTION-ARGUMENTS>]
-
-
-=head1 DESCRIPTION
-
-B<go-camo> is an implementation of Camo in Go.
-
+.Dd May 26, 2014
+.Dt GO-CAMO \&1 "GO-CAMO MANUAL"
+.Os GO-CAMO VERSION
+.Sh NAME
+.Nm go-camo 
+.Nd \&Go version of Camo server 
+.Sh SYNOPSIS
+.Nm go-camo
+.Oo
+.Em OPTIONS Ns 
+.Oc
+.Oo
+.Em OPTION-ARGUMENTS Ns 
+.Oc
+.Sh DESCRIPTION
+.Sy go-camo
+is an implementation of Camo in Go.
+.Pp
 Camo is a special type of image proxy that proxies non-secure images over
 SSL/TLS. This prevents mixed content warnings on secure pages.
-
+.Pp
 It works in conjunction with back-end code to rewrite image URLs and sign them
 with an HMAC.
-
-
-=head1 ENVIRONMENT VARS
-
-=over
-
-=item B<GOCAMO_HMAC>
-
+.Sh ENVIRONMENT VARS
+.Bl -tag -width Ds
+.It Sy GOCAMO_HMAC
 The HMAC key to use.
-
-=back 
-
-I<Note>: L<Option flags|"OPTIONS">, if provided, override those defined in environment variables.
-
+.El
+.Pp
+.Em Note Ns 
+: 
+.Sx "OPTIONS" Ns
+, if provided, override those defined in environment variables.
+.Pp
 For exmaple, if the HMAC key is provided on the command line, it will override
 (if present), an HMAC key set in the environment var.
-
-=head1 OPTIONS
-
-=over
-
-=item B<-k, --key> <hmac-key>
-
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl k Ns , Fl -key Ns = Aq Ar hmac-key
 The HMAC key to use.
-
-=item B<-H, --header> <header>
-
+.It Fl H Ns , Fl -header Ns = Ns Aq Ar header
 Extra header to return for each response. This option can be used multiple
 times to add multiple headers.
-
-See L<ADD_HEADERS|"ADD_HEADERS"> for more info.
-
-=item B<--stats>
-
+.Pp
+See 
+.Sx "ADD_HEADERS"
+for more info.
+.It Fl -stats
 Enable stats collection and reporting functionality.
-
+.Pp
 If stats flag is provided, then the service will track bytes and clients
 served, and offer them up at an http endpoint /status via HTPT GET request.
-
-See L<STATS|"STATS"> for more info.
-
-=item B<--allow-list> <file>
-
+.Pp
+See 
+.Sx "STATS"
+for more info.
+.It Fl -allow-list Ns = Ns Aq Ar file
 Path to a text file that contains a list (one per line) of regex host matches
 to allow.
-
+.Pp
 If an allow list is defined, and a request does not match one of the listed
 host regex, then the request is denied.
-
-=item B<--max-size> <size>
-
+.It Fl -max-size Ns = Ns Aq Ar size
 Max response image size in KB. Default: 5120
-
-=item B<--timeout> <time>
-
-Timeout value for upstream response. Format is "4s" where I<s> means seconds.
+.It Fl -timeout Ns = Ns Aq Ar time
+Timeout value for upstream response. Format is "4s" where 
+.Em s
+means seconds.
 Default: 4s
-
-=item B<--max-redirects>
-
+.It Fl -max-redirects
 Maximum number of redirects to follow. Default: 3
-
-=item B<--listen> <address-port>
-
+.It Fl -listen Ns = Ns Aq Ar address:port
 Address and port to listen to, as a string of "address:port".
 Default: "0.0.0.0:8080"
-
-=item B<--ssl-listen> <address-port>
-
+.It Fl -ssl-listen Ns = Ns Aq Ar address:port
 Address and port to listen via SSL to, as a string of "address:port".
-
-=item B<--ssl-key> <ssl-key-file>
-
+.It Fl -ssl-key Ns = Ns Aq Ar ssl-key-file
 Path to ssl private key. Default: key.pem
-
-=item B<--ssl-cert> <ssl-cert-file>
-
+.It Fl -ssl-cert Ns = Ns Aq Ar ssl-cert-file
 Path to ssl certificate. Default: cert.pem
-
-=item B<-v, --verbose>
-
+.It Fl v Ns , Fl -verbose
 Show verbose (debug) level log output
-
-=item B<-V, --version>
-
+.It Fl V Ns , Fl -version
 Print version and exit
-
-=item B<-h, --help>
-
+.It Fl h Ns , Fl -help
 Show help output and exit
-
-=back
-
-=head1 ADD_HEADERS
-
+.El
+.Sh ADD_HEADERS
 Additional default headers (headers sent on every reply) can be set with the
-B<-H, --header> flag. This option can be used multiple times.
-
+.Fl H Ns , Fl -header
+flag. This option can be used multiple times.
+.Pp
 The list of default headers sent are:
-
+.Bd -literal
  X-Content-Type-Options: nosniff
  X-XSS-Protection: 1; mode=block
  Content-Security-Policy: default-src 'none'`
-
+.Ed
+.Pp
 Additional headers are added to the above set.
-
-As an example, if you wanted to return an I<Strict-Transport-Security> header
+.Pp
+As an example, if you wanted to return an 
+.Em Strict-Transport-Security
+header
 by default, you could add this to the command line:
-
+.Bd -literal
  -H "Strict-Transport-Security:  max-age=16070400"
-
-=head1 STATS
-
-If the B<--stats> flag is provided, then the service will track bytes and
-clients served, and offer them up at an http endpoint C</status> via HTTP GET
+.Ed
+.Sh STATS
+If the 
+.Fl -stats
+flag is provided, then the service will track bytes and
+clients served, and offer them up at an http endpoint 
+.Qo Li /status Qc 
+via HTTP GET
 request.
-
+.Pp
 The output format is show as an example:
-
+.Bd -literal
  ClientsServed, BytesServed
  4, 27300
-
-
-=head1 EXAMPLES
-
+.Ed
+.Sh EXAMPLES
 Listen on loopback port 8080 with a upstream timeout of 6 seconds:
-
- go-camo -k BEEFBEEFBEEF --listen=127.0.0.1:8080 \
+.Bd -literal
+ go-camo -k BEEFBEEFBEEF --listen=127.0.0.1:8080 \e
    --timeout=6s 
-
+.Ed
+.Pp
 Set HMAC key via env var, and an HSTS header:
-
+.Bd -literal
  export GOCAMO_HMAC=BEEFBEEFBEEF
- go-camo --listen=127.0.0.1:8080 \
-   --timeout=6s \
+ go-camo --listen=127.0.0.1:8080 \e
+   --timeout=6s \e
    -H "Strict-Transport-Security: max-age=16070400"
-
-
-=head1 WWW
-
-https://github.com/cactus/go-camo
-
-
-=head1 SEE ALSO
-
-=over
-
-=item L<Camo|https://github.com/atmos/camo>
-
-=back
-
-=cut
+.Ed
+.Sh WWW
+.Bl -tag -width Ds
+.It Lk https://github.com/cactus/go-camo
+.El
+.Sh SEE ALSO
+.Bl -tag -width Ds
+.It Lk https://github.com/atmos/camo
+.El

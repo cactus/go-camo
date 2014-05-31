@@ -14,7 +14,7 @@ GOBUILD_DEPFLAGS  := -tags netgo
 GOBUILD_LDFLAGS   ?=
 GOBUILD_FLAGS     := $(GOBUILD_DEPFLAGS) -ldflags "$(GOBUILD_LDFLAGS) -X $(VERSION_VAR) $(GOCAMO_VER)"
 
-.PHONY: help clean build test cover man rpm all
+.PHONY: help clean build test cover man man-copy rpm all
 
 help:
 	@echo "Available targets:"
@@ -71,26 +71,13 @@ cover: build-setup
 	@echo "Running tests with coverage..."
 	@env GOPATH="${GOPATH}" go test -cover ./camo/...
 
-man-setup:
+${BUILDDIR}/man/man1/%.1: man/%.mdoc
 	@mkdir -p "${BUILDDIR}/man/man1"
+	@cp $< $@
 
-man-camo: man-setup
-	@echo "Building go-camo manpage..."
-	@pod2man -s 1 -r "go-camo ${GOCAMO_VER}" -n go-camo \
-		--center="go-camo manual" man/go-camo.pod | \
-		gzip > build/man/man1/go-camo.1.gz
-
-man-url-tool: man-setup
-	@echo "Building url-tool manpage..."
-	@pod2man -s 1 -r "url-tool ${GOCAMO_VER}" -n url-tool \
-		--center="go-camo manual" man/url-tool.pod | \
-		gzip > build/man/man1/url-tool.1.gz
-
-man-simple-server: man-setup
-	@echo "Building simple-server manpage..."
-	@pod2man -s 1 -r "simple-server ${GOCAMO_VER}" -n simple-server \
-		--center="go-camo manual" man/simple-server.pod | \
-		gzip > build/man/man1/simple-server.1.gz
+man-camo: ${BUILDDIR}/man/man1/go-camo.1
+man-url-tool: ${BUILDDIR}/man/man1/url-tool.1
+man-simple-server: ${BUILDDIR}/man/man1/simple-server.1
 
 rpm: all
 	@echo "Building rpm..."

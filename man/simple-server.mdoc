@@ -1,0 +1,44 @@
+.Dd May 19, 2014
+.Dt SIMPLE-SERVER 1
+.Os GO-CAMO VERSION
+.Sh NAME
+.Nm simple-server 
+.Nd serves the contents of a given directory over http 
+.Sh SYNOPSIS
+.Nm simple-server
+.Oo
+.Em OPTIONS Ns 
+.Oc
+.Oo
+.Em directory Ns 
+.Oc
+.Sh DESCRIPTION
+The 
+.Sy simple-server
+utility is useful for testing. It serves the contents of a
+given 
+.Em directory
+over http. Nothing more.
+.Pp
+If
+.Em directory
+is omitted, the current working directory is assume.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl l Ns , Fl -listen Ns = Ns Aq Ar address:port
+Address:port to bind to for HTTP.
+.It Fl h Ns , Fl -help
+Show help output and exit
+.El
+.Sh EXAMPLES
+Serve from /tmp/images:
+.Bd -literal
+ simple-server -d /tmp/images
+.Ed
+.Pp
+Serve from CWD, and listen on an alternate port:
+.Bd -literal
+ simple-server -l 0.0.0.0:9999
+.Ed
+.Sh WWW
+https://github.com/cactus/go-camo
