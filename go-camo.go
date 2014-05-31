@@ -35,19 +35,21 @@ func main() {
 
 	// command line flags
 	var opts struct {
-		HMACKey        string        `short:"k" long:"key" description:"HMAC key"`
-		AddHeaders     []string      `short:"H" long:"header" description:"Extra header to return for each response. This option can be used multiple times to add multiple headers"`
-		Stats          bool          `long:"stats" description:"Enable Stats"`
-		AllowList      string        `long:"allow-list" description:"Text file of hostname allow regexes (one per line)"`
-		MaxSize        int64         `long:"max-size" default:"5120" description:"Max response image size (KB)"`
-		ReqTimeout     time.Duration `long:"timeout" default:"4s" description:"Upstream request timeout"`
-		MaxRedirects   int           `long:"max-redirects" default:"3" description:"Maximum number of redirects to follow"`
-		BindAddress    string        `long:"listen" default:"0.0.0.0:8080" description:"Address:Port to bind to for HTTP"`
-		BindAddressSSL string        `long:"ssl-listen" description:"Address:Port to bind to for HTTPS/SSL/TLS"`
-		SSLKey         string        `long:"ssl-key" description:"ssl private key (key.pem) path"`
-		SSLCert        string        `long:"ssl-cert" description:"ssl cert (cert.pem) path"`
-		Verbose        bool          `short:"v" long:"verbose" description:"Show verbose (debug) log level output"`
-		Version        bool          `short:"V" long:"version" description:"print version and exit"`
+		HMACKey             string        `short:"k" long:"key" description:"HMAC key"`
+		AddHeaders          []string      `short:"H" long:"header" description:"Extra header to return for each response. This option can be used multiple times to add multiple headers"`
+		Stats               bool          `long:"stats" description:"Enable Stats"`
+		AllowList           string        `long:"allow-list" description:"Text file of hostname allow regexes (one per line)"`
+		MaxSize             int64         `long:"max-size" default:"5120" description:"Max response image size (KB)"`
+		ReqTimeout          time.Duration `long:"timeout" default:"4s" description:"Upstream request timeout"`
+		MaxRedirects        int           `long:"max-redirects" default:"3" description:"Maximum number of redirects to follow"`
+		DisableKeepAlivesFE bool          `long:"no-fk" description:"Disable frontend http keep-alive support"`
+		DisableKeepAlivesBE bool          `long:"no-bk" description:"Disable backend http keep-alive support"`
+		BindAddress         string        `long:"listen" default:"0.0.0.0:8080" description:"Address:Port to bind to for HTTP"`
+		BindAddressSSL      string        `long:"ssl-listen" description:"Address:Port to bind to for HTTPS/SSL/TLS"`
+		SSLKey              string        `long:"ssl-key" description:"ssl private key (key.pem) path"`
+		SSLCert             string        `long:"ssl-cert" description:"ssl cert (cert.pem) path"`
+		Verbose             bool          `short:"v" long:"verbose" description:"Show verbose (debug) log level output"`
+		Version             bool          `short:"V" long:"version" description:"print version and exit"`
 	}
 
 	// parse said flags
@@ -90,6 +92,10 @@ func main() {
 	if opts.BindAddressSSL != "" && opts.SSLCert == "" {
 		log.Fatal("ssl-cert is required when specifying bind-ssl-address")
 	}
+
+	// set keepalive options
+	opts.DisableKeepAlivesBE = config.DisableKeepAlivesBE
+	opts.DisableKeepAlivesFE = config.DisableKeepAlivesFE
 
 	if opts.AllowList != "" {
 		b, err := ioutil.ReadFile(opts.AllowList)

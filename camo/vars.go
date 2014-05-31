@@ -10,7 +10,9 @@ import (
 var ValidReqHeaders = map[string]bool{
 	"Accept":            true,
 	"Accept-Charset":    true,
-	"Accept-Encoding":   true,
+	// images (aside from xml/svg), don't generally benefit (generally) from
+	// compression
+	"Accept-Encoding":   false,
 	"Accept-Language":   true,
 	"Cache-Control":     true,
 	"If-None-Match":     true,

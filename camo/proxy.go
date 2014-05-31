@@ -38,6 +38,9 @@ type Config struct {
 	ServerName string
 	// Default headers to add to each response
 	AddHeaders map[string]string
+	// Keepalive enable/disable
+	DisableKeepAlivesFE bool
+	DisableKeepAlivesBE bool
 }
 
 // ProxyMetrics interface for Proxy to use for stats/metrics.
@@ -90,6 +93,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 	wh.Set("Server", p.config.ServerName)
 	wh.Set("Date", formattedDate.String())
+	if p.config.DisableKeepAlivesFE {
+		wh.Set("Connection", "close")
+	}
 
 	if req.Header.Get("Via") == p.config.ServerName {
 		http.Error(w, "Request loop failure", http.StatusNotFound)
@@ -299,7 +305,13 @@ func New(pc Config) (*Proxy, error) {
 	tr := &httpclient.Transport{
 		MaxIdleConnsPerHost: 8,
 		ConnectTimeout:      2 * time.Second,
-		RequestTimeout:      pc.RequestTimeout}
+		RequestTimeout:      pc.RequestTimeout,
+		DisableKeepAlives:   pc.DisableKeepAlivesBE,
+		// no need for compression with images
+		// some xml/svg can be compressed, but apparently some clients can
+		// exhibit weird behavior when those are compressed
+		DisableCompression:  true,
+	}
 
 	// spawn an idle conn trimmer
 	go func() {
