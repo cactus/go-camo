@@ -121,14 +121,15 @@ In order to use this on Heroku with the provided Procfile, you need to:
 
     Application Options:
       -k, --key=           HMAC key
-      -H, --header=        Extra header to return for each response. This
-                           option can be used multiple times to add multiple
-                           headers
+      -H, --header=        Extra header to return for each response. This option
+                           can be used multiple times to add multiple headers
           --stats          Enable Stats
           --allow-list=    Text file of hostname allow regexes (one per line)
           --max-size=      Max response image size (KB) (5120)
           --timeout=       Upstream request timeout (4s)
           --max-redirects= Maximum number of redirects to follow (3)
+          --no-fk          Disable frontend http keep-alive support
+          --no-bk          Disable backend http keep-alive support
           --listen=        Address:Port to bind to for HTTP (0.0.0.0:8080)
           --ssl-listen=    Address:Port to bind to for HTTPS/SSL/TLS
           --ssl-key=       ssl private key (key.pem) path

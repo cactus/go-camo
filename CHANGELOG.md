@@ -8,6 +8,7 @@ Changelog
 *   add support for adding custom default response headers
 *   return custom headers on 404s as well.
 *   enable http keepalives on upstream/backends
+*   add support for disable http keepalives on frontend/backend separately
 *   upgrade library deps
 *   various bug fixes
 
