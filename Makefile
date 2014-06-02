@@ -83,7 +83,8 @@ rpm: all
 	@echo "Building rpm..."
 	@mkdir -p ${RPMBUILDDIR}/usr/local/bin
 	@mkdir -p ${RPMBUILDDIR}/usr/local/share/man/man1
-	@cp ${BUILDDIR}/bin/* ${RPMBUILDDIR}/usr/local/bin
+	@cp ${BUILDDIR}/bin/{go-camo,simple-server,url-tool} \
+		${RPMBUILDDIR}/usr/local/bin
 	@cp ${BUILDDIR}/man/man1/* ${RPMBUILDDIR}/usr/local/share/man/man1
 	@fpm -s dir -t rpm -n go-camo \
 		--url "https://github.com/cactus/go-camo" \
