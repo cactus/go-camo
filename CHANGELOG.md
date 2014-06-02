@@ -3,6 +3,8 @@ Changelog
 
 ## Next Release
 
+## 0.5.0 2014-06-02
+
 *   some minor changes to Makefile/building
 *   add support for HTTP HEAD requests
 *   add support for adding custom default response headers
