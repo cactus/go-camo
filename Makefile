@@ -87,7 +87,7 @@ rpm: all
 	@cp ${BUILDDIR}/man/man1/* ${RPMBUILDDIR}/usr/local/share/man/man1
 	@fpm -s dir -t rpm -n go-camo \
 		--url "https://github.com/cactus/go-camo" \
-		-v "${GOCAMO_VER_RPM}" \
+		-v "${RPM_VER}" \
 		--iteration "${ITERATION}" \
 		-C "${RPMBUILDDIR}" \
 		${FPM_OPTIONS} \
