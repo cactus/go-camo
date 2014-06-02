@@ -90,6 +90,8 @@ rpm: all
 		--url "https://github.com/cactus/go-camo" \
 		-v "${RPM_VER}" \
 		--iteration "${ITERATION}" \
+		--license MIT \
+		--description "Camo is a special type of image proxy that proxies non-secure images over SSL/TLS. This prevents mixed content warnings on secure pages.\nIt works in conjunction with back-end code to rewrite image URLs and sign them with an HMAC." \
 		-C "${RPMBUILDDIR}" \
 		${FPM_OPTIONS} \
 		usr/local/bin usr/local/share/man/man1
