@@ -120,7 +120,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	u.Host = strings.ToLower(u.Host)
 	if u.Host == "" || localhostRegex.MatchString(u.Host) {
-		http.Error(w, "Bad url", http.StatusNotFound)
+		http.Error(w, "Bad url host", http.StatusNotFound)
 		return
 	}
 
@@ -183,9 +183,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		// a net.errClosing or not.
 		errString := err.Error()
 		if strings.Contains(errString, "timeout") {
-			http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
-		} else if strings.Contains(errString, "use of closed") {
 			http.Error(w, "Error Fetching Resource", http.StatusGatewayTimeout)
+		} else if strings.Contains(errString, "use of closed") {
+			http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
 		} else {
 			// some other error. call it a not found (camo compliant)
 			http.Error(w, "Error Fetching Resource", http.StatusNotFound)
@@ -246,14 +246,10 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// always end up with a chunked response.
 	bW, err := io.Copy(w, resp.Body)
 	if err != nil {
-		opErr, ok := err.(*net.OpError)
-		if ok {
+		if opErr, ok := err.(*net.OpError); ok {
 			switch opErr.Err {
-			case syscall.EPIPE:
+			case syscall.EPIPE, syscall.ECONNRESET:
 				// broken pipe - endpoint terminated the conn
-				// log as debug only.
-				gologit.Debugln("OpError writing response:", err)
-			case syscall.ECONNRESET:
 				// connection reset by peer - endpoint terminated the conn
 				// log as debug only.
 				gologit.Debugln("OpError writing response:", err)
