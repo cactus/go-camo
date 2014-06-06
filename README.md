@@ -85,10 +85,33 @@ is also required.
     # this is useful for production, and reduces the resulting file size.
     $ make all GOBUILD_LDFLAGS="-s"
 
+Note: By default, Go-Camo builds with `-tags netgo`. However, this will not
+actually result in Go-Camo using the netgo resolver unless your Go stdlib is
+similarly compiled. There are [known][11] issues with using the libc resolver
+with significant traffic amounts over time. The use of netgo is recommended. To
+recompile your Go net libraries to use netgo, do the following as root (or the
+owner of your GOROOT install) before building Go-Camo:
+
+    $ go install -a -tags netgo std
+
+To confirm that you are using the netgo resolver:
+
+    $ make build
+    $ ldd build/bin/go-camo
+	not a dynamic executable
+
+If you are using the libc resolver, you will see something like this instead:
+
+    $ make build
+    $ ldd build/bin/go-camo
+    linux-vdso.so.1 =>  (0x00007fff98fff000)
+    libpthread.so.0 => /lib64/libpthread.so.0 (0x0000003fb2a00000)
+    libc.so.6 => /lib64/libc.so.6 (0x0000003fb2600000)
+    /lib64/ld-linux-x86-64.so.2 (0x0000003fb2200000)
 
 ## Running
 
-    $ $GOPATH/bin/go-camo -c config.json
+    $ $GOPATH/bin/go-camo -k "somekey"
 
 Go-Camo does not daemonize on its own. For production usage, it is recommended
 to launch in a process supervisor, and drop privileges as appropriate.
@@ -238,3 +261,4 @@ file for details.
 [8]: http://launchd.macosforge.org/
 [9]: http://cr.yp.to/daemontools/faq/create.html#why
 [10]: https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
+[11]: https://github.com/cactus/go-camo/issues/6
