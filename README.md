@@ -85,7 +85,7 @@ is also required.
     # this is useful for production, and reduces the resulting file size.
     $ make all GOBUILD_LDFLAGS="-s"
 
-Note: By default, Go-Camo builds with `-tags netgo`. However, this will not
+By default, Go-Camo builds with `-tags netgo`. However, this will not
 actually result in Go-Camo using the netgo resolver unless your Go stdlib is
 similarly compiled. There are [known][11] issues with using the libc resolver
 with significant traffic amounts over time. The use of netgo is recommended. To
