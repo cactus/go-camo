@@ -3,6 +3,8 @@ package encoding
 import (
 	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type enctesto struct {
@@ -28,9 +30,7 @@ func TestEncoder(t *testing.T) {
 		hmacKey := []byte(p.hmac)
 		// test specific encoder
 		encodedURL := p.encoder(hmacKey, p.sURL)
-		if encodedURL != fmt.Sprintf("/%s/%s", p.edig, p.eURL) {
-			t.Error("encoded url does not match")
-		}
+		assert.Equal(t, encodedURL, fmt.Sprintf("/%s/%s", p.edig, p.eURL), "encoded url does not match")
 	}
 }
 
@@ -57,20 +57,13 @@ func TestDecoder(t *testing.T) {
 		hmacKey := []byte(p.hmac)
 		// test specific decoder
 		encodedURL, ok := p.decoder(hmacKey, p.edig, p.eURL)
-		if !ok {
-			t.Error("decoded url failed to verify")
-		}
-		if encodedURL != p.sURL {
-			t.Error("decoded url does not match")
-		}
+		assert.True(t, ok, "decoded url failed to verify")
+		assert.Equal(t, encodedURL, p.sURL, "decoded url does not match")
+
 		// also test generic "guessing" decoder
 		encodedURL, ok = DecodeURL(hmacKey, p.edig, p.eURL)
-		if !ok {
-			t.Error("decoded url failed to verify")
-		}
-		if encodedURL != p.sURL {
-			t.Error("decoded url does not match")
-		}
+		assert.True(t, ok, "decoded url failed to verify")
+		assert.Equal(t, encodedURL, p.sURL, "decoded url does not match")
 	}
 }
 
@@ -129,19 +122,12 @@ func TestBadDecodes(t *testing.T) {
 		hmacKey := []byte(p.hmac)
 		// test specific decoder
 		encodedURL, ok := p.decoder(hmacKey, p.edig, p.eURL)
-		if ok {
-			t.Error("decoded url failed to verify")
-		}
-		if encodedURL != "" {
-			t.Error("decoded url result not empty")
-		}
+		assert.False(t, ok, "decoded url verfied when it shouldn't have")
+		assert.Equal(t, encodedURL, "", "decoded url result not empty")
+
 		// also test generic "guessing" decoder
 		encodedURL, ok = DecodeURL(hmacKey, p.edig, p.eURL)
-		if ok {
-			t.Error("decoded url failed to verify")
-		}
-		if encodedURL != "" {
-			t.Error("decoded url result not empty")
-		}
+		assert.False(t, ok, "decoded url verfied when it shouldn't have")
+		assert.Equal(t, encodedURL, "", "decoded url result not empty")
 	}
 }
