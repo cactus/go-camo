@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/cactus/go-camo/camo/encoding"
-	"github.com/gorilla/mux"
+	"github.com/cactus/go-camo/router"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,7 +18,6 @@ var camoConfig = Config{
 	RequestTimeout: time.Duration(10) * time.Second,
 	MaxRedirects:   3,
 	ServerName:     "go-camo",
-	AddHeaders:     map[string]string{"X-Go-Camo": "test"},
 }
 
 func makeReq(testURL string) (*http.Request, error) {
@@ -38,9 +37,21 @@ func processRequest(req *http.Request, status int) (*httptest.ResponseRecorder, 
 		return nil, fmt.Errorf("Error building Camo: %s", err.Error())
 	}
 
-	router := mux.NewRouter()
-	router.NotFoundHandler = camoServer.NotFoundHandler()
-	router.Handle("/{sigHash}/{encodedURL}", camoServer).Methods("GET")
+	rootHandler := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.WriteHeader(200)
+		fmt.Fprintf(w, "Go-Camo")
+	}
+
+	router := &router.DumbRouter{
+	    AddHeaders:      map[string]string{"X-Go-Camo": "test"},
+		ServerName:      camoConfig.ServerName,
+		RootHandler:     rootHandler,
+		CamoHandler:     camoServer,
+	}
+	if router.StatsHandler == nil {
+		fmt.Printf("%#v\n", router.StatsHandler)
+	}
 
 	record := httptest.NewRecorder()
 	router.ServeHTTP(record, req)

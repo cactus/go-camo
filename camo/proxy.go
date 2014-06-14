@@ -35,8 +35,6 @@ type Config struct {
 	RequestTimeout time.Duration
 	// Server name used in Headers and Via checks
 	ServerName string
-	// Default headers to add to each response
-	AddHeaders map[string]string
 	// Keepalive enable/disable
 	DisableKeepAlivesFE bool
 	DisableKeepAlivesBE bool
@@ -60,21 +58,6 @@ type Proxy struct {
 	metrics   ProxyMetrics
 }
 
-// NotFound handles client requests that did not match a valid
-// mux route.
-func (p *Proxy) NotFoundHandler() http.Handler {
-	handler := func(w http.ResponseWriter, req *http.Request) {
-		h := w.Header()
-		for k, v := range p.config.AddHeaders {
-			h.Set(k, v)
-		}
-		h.Set("Server", p.config.ServerName)
-		h.Set("Date", formattedDate.String())
-		http.Error(w, "404 Not Found", 404)
-	}
-	return http.HandlerFunc(handler)
-}
-
 // ServerHTTP handles the client request, validates the request is validly
 // HMAC signed, filters based on the Allow list, and then proxies
 // valid requests to the desired endpoint. Responses are filtered for
@@ -85,15 +68,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		go p.metrics.AddServed()
 	}
 
-	// add default headers
-	wh := w.Header()
-	for k, v := range p.config.AddHeaders {
-		wh.Set(k, v)
-	}
-	wh.Set("Server", p.config.ServerName)
-	wh.Set("Date", formattedDate.String())
 	if p.config.DisableKeepAlivesFE {
-		wh.Set("Connection", "close")
+		w.Header().Set("Connection", "close")
 	}
 
 	if req.Header.Get("Via") == p.config.ServerName {
@@ -175,8 +151,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		nreq.Header.Add("Accept", "image/*")
 	}
 
-	nreq.Header.Add("user-agent", p.config.ServerName)
-	nreq.Header.Add("via", p.config.ServerName)
+	nreq.Header.Add("User-Agent", p.config.ServerName)
+	nreq.Header.Add("Via", p.config.ServerName)
 
 	gologit.Debugln("Built outgoing request:", nreq)
 

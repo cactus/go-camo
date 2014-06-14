@@ -14,8 +14,8 @@ import (
 	"time"
 
 	"github.com/cactus/go-camo/camo"
+	"github.com/cactus/go-camo/router"
 	"github.com/cactus/gologit"
-	"github.com/gorilla/mux"
 	flags "github.com/jessevdk/go-flags"
 )
 
@@ -105,19 +105,27 @@ func main() {
 		config.AllowList = strings.Split(string(b), "\n")
 	}
 
-	config.AddHeaders = map[string]string{
+	AddHeaders := map[string]string{
 		"X-Content-Type-Options":  "nosniff",
 		"X-XSS-Protection":        "1; mode=block",
 		"Content-Security-Policy": "default-src 'none'",
 	}
 
 	for _, v := range opts.AddHeaders {
-		s := strings.Split(v, ":")
-		if len(s) == 2 && len(s[0]) > 0 && len(s[1]) > 0 {
-			config.AddHeaders[s[0]] = s[1]
-		} else {
+		s := strings.SplitN(v, ":", 2)
+		if len(s) != 2 {
 			log.Printf("ignoring bad header: '%s'\n", v)
+			continue
 		}
+
+		s0 := strings.TrimSpace(s[0])
+		s1 := strings.TrimSpace(s[1])
+
+		if len(s0) == 0 || len(s1) == 0 {
+			log.Printf("ignoring bad header: '%s'\n", v)
+			continue
+		}
+		AddHeaders[s[0]] = s[1]
 	}
 
 	// convert from KB to Bytes
@@ -137,18 +145,21 @@ func main() {
 		log.Fatal(err)
 	}
 
-	router := mux.NewRouter()
-	router.NotFoundHandler = proxy.NotFoundHandler()
-	router.Handle("/{sigHash}/{encodedURL}", proxy).Methods("HEAD", "GET")
-	router.HandleFunc("/", RootHandler)
-	http.Handle("/", router)
+	dumbrouter := &router.DumbRouter{
+		ServerName:      config.ServerName,
+		AddHeaders:      AddHeaders,
+		RootHandler:     RootHandler,
+		CamoHandler:     proxy,
+	}
 
 	if opts.Stats {
 		ps := &ProxyStats{}
 		proxy.SetMetricsCollector(ps)
 		log.Println("Enabling stats at /status")
-		router.Handle("/status", StatsHandler(ps))
+		dumbrouter.StatsHandler = StatsHandler(ps)
 	}
+
+	http.Handle("/", dumbrouter)
 
 	if opts.BindAddress != "" {
 		log.Println("Starting server on", opts.BindAddress)

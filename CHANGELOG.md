@@ -3,6 +3,9 @@ Changelog
 
 ## Next Release
 
+*   use simple router instead of gorilla/mux to reduce overhead
+*   move some code from camo proxy into the simple router
+
 ## 0.5.0 2014-06-02
 
 *   some minor changes to Makefile/building

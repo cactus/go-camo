@@ -1,6 +1,7 @@
 
 BUILDDIR          := ${CURDIR}/build
 GOPATH            := ${BUILDDIR}
+GODEP             := ${GOPATH}/bin/godep
 RPMBUILDDIR       := ${BUILDDIR}/rpm
 ARCH              := $(shell uname -m)
 FPM_VERSION       := $(shell gem list fpm|grep fpm|sed -E 's/fpm \((.*)\)/\1/g')
@@ -10,6 +11,7 @@ ITERATION         ?= 1
 GOCAMO_VER        := $(shell git describe --always --dirty --tags|sed 's/^v//')
 RPM_VER           := $(shell git describe --always --tags --abbrev=0|sed 's/^v//')
 VERSION_VAR       := main.ServerVersion
+GOTEST_FLAGS      :=
 GOBUILD_DEPFLAGS  := -tags netgo
 GOBUILD_LDFLAGS   ?=
 GOBUILD_FLAGS     := $(GOBUILD_DEPFLAGS) -ldflags "$(GOBUILD_LDFLAGS) -X $(VERSION_VAR) $(GOCAMO_VER)"
@@ -36,18 +38,14 @@ help:
 clean:
 	-rm -rf "${BUILDDIR}"
 
-build-clean:
-	-rm -rf "${BUILDDIR}/pkg"
-	-rm -rf "${BUILDDIR}/src"
-
-${GOPATH}/bin/godep:
+${GODEP}:
 	@mkdir -p "${GOPATH}/src"
 	@echo "Building godep..."
 	@env GOPATH="${GOPATH}" go get ${GOBUILD_DEPFLAGS} github.com/kr/godep
 
-build-setup: ${GOPATH}/bin/godep
+build-setup: ${GODEP}
 	@echo "Restoring deps with godep..."
-	@env GOPATH="${GOPATH}" ${GOPATH}/bin/godep restore
+	@env GOPATH="${GOPATH}" ${GODEP} restore
 	@mkdir -p "${GOPATH}/src/github.com/cactus"
 	@test -d "${GOPATH}/src/github.com/cactus/go-camo" || ln -s "${CURDIR}" "${GOPATH}/src/github.com/cactus/go-camo"
 
@@ -65,11 +63,11 @@ build-simple-server: build-setup
 
 test: build-setup
 	@echo "Running tests..."
-	@env GOPATH="${GOPATH}" go test ./camo/...
+	@env GOPATH="${GOPATH}" go test ${GOTEST_FLAGS} ./camo/...
 
 cover: build-setup
 	@echo "Running tests with coverage..."
-	@env GOPATH="${GOPATH}" go test -cover ./camo/...
+	@env GOPATH="${GOPATH}" go test -cover ${GOTEST_FLAGS} ./camo/...
 
 ${BUILDDIR}/man/man1/%.1: man/%.mdoc
 	@mkdir -p "${BUILDDIR}/man/man1"
