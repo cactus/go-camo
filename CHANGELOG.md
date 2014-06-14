@@ -3,6 +3,8 @@ Changelog
 
 ## Next Release
 
+## 0.6.0 2014-06-13
+
 *   use simple router instead of gorilla/mux to reduce overhead
     and increase performance.
 *   move some code from camo proxy into the simple router
