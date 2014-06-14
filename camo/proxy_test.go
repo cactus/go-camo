@@ -37,20 +37,10 @@ func processRequest(req *http.Request, status int) (*httptest.ResponseRecorder, 
 		return nil, fmt.Errorf("Error building Camo: %s", err.Error())
 	}
 
-	rootHandler := func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(200)
-		fmt.Fprintf(w, "Go-Camo")
-	}
-
 	router := &router.DumbRouter{
 	    AddHeaders:      map[string]string{"X-Go-Camo": "test"},
 		ServerName:      camoConfig.ServerName,
-		RootHandler:     rootHandler,
 		CamoHandler:     camoServer,
-	}
-	if router.StatsHandler == nil {
-		fmt.Printf("%#v\n", router.StatsHandler)
 	}
 
 	record := httptest.NewRecorder()

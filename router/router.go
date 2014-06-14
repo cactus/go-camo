@@ -1,6 +1,7 @@
 package router
 
 import (
+	"io"
 	"net/http"
 	"strings"
 )
@@ -8,7 +9,6 @@ import (
 type DumbRouter struct {
 	ServerName   string
 	AddHeaders   map[string]string
-	RootHandler  http.HandlerFunc
 	StatsHandler http.HandlerFunc
 	CamoHandler  http.Handler
 }
@@ -20,6 +20,13 @@ func (dr *DumbRouter) SetHeaders(w http.ResponseWriter) {
 	}
 	h.Set("Date", formattedDate.String())
 	h.Set("Server", dr.ServerName)
+}
+
+// RootHandler is a simple http hander for / that returns "Go-Camo"
+func (dr *DumbRouter) RootHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(200)
+	io.WriteString(w, dr.ServerName)
 }
 
 func (dr *DumbRouter) HeadGet(w http.ResponseWriter, r *http.Request, handler http.HandlerFunc) {
