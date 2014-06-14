@@ -15,7 +15,6 @@ import (
 
 	"github.com/cactus/go-camo/camo/encoding"
 	"github.com/cactus/gologit"
-	"github.com/gorilla/mux"
 	httpclient "github.com/mreiferson/go-httpclient"
 )
 
@@ -102,8 +101,15 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	vars := mux.Vars(req)
-	sURL, ok := encoding.DecodeURL(p.config.HMACKey, vars["sigHash"], vars["encodedURL"])
+	// split path and get components
+	components := strings.Split(req.URL.Path, "/")
+	if len(components) < 3 {
+		http.Error(w, "Malformed request path", http.StatusNotFound)
+		return
+	}
+	sigHash, encodedURL := components[1], components[2]
+
+	sURL, ok := encoding.DecodeURL(p.config.HMACKey, sigHash, encodedURL)
 	if !ok {
 		http.Error(w, "Bad Signature", http.StatusForbidden)
 		return
