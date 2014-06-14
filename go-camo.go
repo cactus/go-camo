@@ -15,6 +15,7 @@ import (
 
 	"github.com/cactus/go-camo/camo"
 	"github.com/cactus/go-camo/router"
+	"github.com/cactus/go-camo/stats"
 	"github.com/cactus/gologit"
 	flags "github.com/jessevdk/go-flags"
 )
@@ -152,10 +153,10 @@ func main() {
 	}
 
 	if opts.Stats {
-		ps := &ProxyStats{}
+		ps := &stats.ProxyStats{}
 		proxy.SetMetricsCollector(ps)
 		log.Println("Enabling stats at /status")
-		dumbrouter.StatsHandler = StatsHandler(ps)
+		dumbrouter.StatsHandler = stats.StatsHandler(ps)
 	}
 
 	http.Handle("/", dumbrouter)
