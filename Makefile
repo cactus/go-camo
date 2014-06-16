@@ -71,7 +71,7 @@ cover: build-setup
 
 ${BUILDDIR}/man/man1/%.1: man/%.mdoc
 	@mkdir -p "${BUILDDIR}/man/man1"
-	@cp $< $@
+	@cat $< | sed "s#.Os GO-CAMO VERSION#.Os GO-CAMO ${GOCAMO_VER}#" > $@
 
 man-camo: ${BUILDDIR}/man/man1/go-camo.1
 man-url-tool: ${BUILDDIR}/man/man1/url-tool.1
