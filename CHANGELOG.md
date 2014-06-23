@@ -3,6 +3,11 @@ Changelog
 
 ## Next Release
 
+## 1.0.0 2014-06-22
+
+*   minor code organization changes
+*   fix for heroku build issue with example code
+
 ## 0.6.0 2014-06-13
 
 *   use simple router instead of gorilla/mux to reduce overhead
