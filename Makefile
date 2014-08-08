@@ -1,7 +1,7 @@
 
 BUILDDIR          := ${CURDIR}/build
 GOPATH            := ${BUILDDIR}
-GODEP             := ${GOPATH}/bin/godep
+GODEP             := $(shell type -p godep || printf "${GOPATH}/bin/godep")
 RPMBUILDDIR       := ${BUILDDIR}/rpm
 ARCH              := $(shell uname -m)
 FPM_VERSION       := $(shell gem list fpm|grep fpm|sed -E 's/fpm \((.*)\)/\1/g')
