@@ -15,25 +15,39 @@ GOTEST_FLAGS      :=
 GOBUILD_DEPFLAGS  := -tags netgo
 GOBUILD_LDFLAGS   ?=
 GOBUILD_FLAGS     := $(GOBUILD_DEPFLAGS) -ldflags "$(GOBUILD_LDFLAGS) -X $(VERSION_VAR) $(GOCAMO_VER)"
+GO                := env GOPATH="${GOPATH}" go
+
+define GO_CAMO_RPM_DESCRIPTION
+Camo is a special type of image proxy that proxies non-secure images over
+SSL/TLS. This prevents mixed content warnings on secure pages.
+It works in conjunction with back-end code to rewrite image URLs and sign them
+with an HMAC.
+endef
+export GO_CAMO_RPM_DESCRIPTION
+
+define HELP_OUTPUT
+Available targets:
+  help                this help
+  clean               clean up
+  all                 build binaries and man pages
+  build               build all
+  build-go-camo       build go-camo
+  build-url-tool      build url tool
+  build-simple-server build simple server
+  test                run tests
+  cover               run tests with cover output
+  man                 build all man pages
+  man-go-camo         build go-camo man pages
+  man-url-tool        build url-tool man pages
+  man-simple-server   build simple-server man pages
+  rpm                 build rpm
+endef
+export HELP_OUTPUT
 
 .PHONY: help clean build test cover man man-copy rpm all
 
 help:
-	@echo "Available targets:"
-	@echo "  help                this help"
-	@echo "  clean               clean up"
-	@echo "  all                 build binaries and man pages"
-	@echo "  build               build all"
-	@echo "  build-go-camo       build go-camo"
-	@echo "  build-url-tool      build url tool"
-	@echo "  build-simple-server build simple server"
-	@echo "  test                run tests"
-	@echo "  cover               run tests with cover output"
-	@echo "  man                 build all man pages"
-	@echo "  man-go-camo         build go-camo man pages"
-	@echo "  man-url-tool        build url-tool man pages"
-	@echo "  man-simple-server   build simple-server man pages"
-	@echo "  rpm                 build rpm"
+	@echo "$$HELP_OUTPUT"
 
 clean:
 	-rm -rf "${BUILDDIR}"
@@ -41,7 +55,7 @@ clean:
 ${GODEP}:
 	@mkdir -p "${GOPATH}/src"
 	@echo "Building godep..."
-	@env GOPATH="${GOPATH}" go get ${GOBUILD_DEPFLAGS} github.com/kr/godep
+	@GO get ${GOBUILD_DEPFLAGS} github.com/kr/godep
 
 build-setup: ${GODEP}
 	@echo "Restoring deps with godep..."
@@ -51,23 +65,23 @@ build-setup: ${GODEP}
 
 build-go-camo: build-setup
 	@echo "Building go-camo..."
-	@env GOPATH="${GOPATH}" go install ${GOBUILD_FLAGS} github.com/cactus/go-camo
+	@GO install ${GOBUILD_FLAGS} github.com/cactus/go-camo
 
 build-url-tool: build-setup
 	@echo "Building url-tool..."
-	@env GOPATH="${GOPATH}" go install ${GOBUILD_FLAGS} github.com/cactus/go-camo/url-tool
+	@GO install ${GOBUILD_FLAGS} github.com/cactus/go-camo/url-tool
 
 build-simple-server: build-setup
 	@echo "Building simple-server..."
-	@env GOPATH="${GOPATH}" go install ${GOBUILD_FLAGS} github.com/cactus/go-camo/simple-server
+	@GO install ${GOBUILD_FLAGS} github.com/cactus/go-camo/simple-server
 
 test: build-setup
 	@echo "Running tests..."
-	@env GOPATH="${GOPATH}" go test ${GOTEST_FLAGS} ./camo/...
+	@GO test ${GOTEST_FLAGS} ./camo/...
 
 cover: build-setup
 	@echo "Running tests with coverage..."
-	@env GOPATH="${GOPATH}" go test -cover ${GOTEST_FLAGS} ./camo/...
+	@GO test -cover ${GOTEST_FLAGS} ./camo/...
 
 ${BUILDDIR}/man/man1/%.1: man/%.mdoc
 	@mkdir -p "${BUILDDIR}/man/man1"
@@ -89,7 +103,7 @@ rpm: all
 		-v "${RPM_VER}" \
 		--iteration "${ITERATION}" \
 		--license MIT \
-		--description "Camo is a special type of image proxy that proxies non-secure images over SSL/TLS. This prevents mixed content warnings on secure pages.\nIt works in conjunction with back-end code to rewrite image URLs and sign them with an HMAC." \
+		--description "$$GO_CAMO_RPM_DESCRIPTION" \
 		-C "${RPMBUILDDIR}" \
 		${FPM_OPTIONS} \
 		usr/local/bin usr/local/share/man/man1
