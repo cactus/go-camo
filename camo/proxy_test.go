@@ -79,7 +79,7 @@ func TestNotFound(t *testing.T) {
 
 func TestSimpleValidImageURL(t *testing.T) {
 	t.Parallel()
-	testURL := "http://media.ebaumsworld.com/picture/Mincemeat/Pimp.jpg"
+	testURL := "http://www.google.com/images/srpr/logo11w.png"
 	record, err := makeTestReq(testURL, 200)
 	assert.Nil(t, err)
 	// validate headers
@@ -117,7 +117,7 @@ func TestStrangeFormatRedirects(t *testing.T) {
 
 func TestRedirectsWithPathOnly(t *testing.T) {
 	t.Parallel()
-	testURL := "httpbin.org/redirect-to?url=%2Fredirect-to%3Furl%3Dhttp%3A%2F%2Fmedia.ebaumsworld.com%2Fpicture%2FMincemeat%2FPimp.jpg"
+	testURL := "http://httpbin.org/redirect-to?url=%2Fredirect-to%3Furl%3Dhttp%3A%2F%2Fwww.google.com%2Fimages%2Fsrpr%2Flogo11w.png"
 	_, err := makeTestReq(testURL, 200)
 	assert.Nil(t, err)
 }
