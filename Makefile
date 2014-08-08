@@ -58,6 +58,7 @@ ${GODEP}:
 	@${GO} get ${GOBUILD_DEPFLAGS} github.com/kr/godep
 
 build-setup: ${GODEP}
+	@mkdir -p "${GOPATH}/src"
 	@echo "Restoring deps with godep..."
 	@env GOPATH="${GOPATH}" ${GODEP} restore
 	@mkdir -p "${GOPATH}/src/github.com/cactus"
