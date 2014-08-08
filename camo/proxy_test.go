@@ -117,7 +117,7 @@ func TestStrangeFormatRedirects(t *testing.T) {
 
 func TestRedirectsWithPathOnly(t *testing.T) {
 	t.Parallel()
-	testURL := "http://blogs.msdn.com/photos/noahric/images/9948044/425x286.aspx"
+	testURL := "httpbin.org/redirect-to?url=%2Fredirect-to%3Furl%3Dhttp%3A%2F%2Fmedia.ebaumsworld.com%2Fpicture%2FMincemeat%2FPimp.jpg"
 	_, err := makeTestReq(testURL, 200)
 	assert.Nil(t, err)
 }
