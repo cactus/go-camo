@@ -55,7 +55,7 @@ clean:
 ${GODEP}:
 	@mkdir -p "${GOPATH}/src"
 	@echo "Building godep..."
-	@GO get ${GOBUILD_DEPFLAGS} github.com/kr/godep
+	@${GO} get ${GOBUILD_DEPFLAGS} github.com/kr/godep
 
 build-setup: ${GODEP}
 	@echo "Restoring deps with godep..."
@@ -65,23 +65,23 @@ build-setup: ${GODEP}
 
 build-go-camo: build-setup
 	@echo "Building go-camo..."
-	@GO install ${GOBUILD_FLAGS} github.com/cactus/go-camo
+	@${GO} install ${GOBUILD_FLAGS} github.com/cactus/go-camo
 
 build-url-tool: build-setup
 	@echo "Building url-tool..."
-	@GO install ${GOBUILD_FLAGS} github.com/cactus/go-camo/url-tool
+	@${GO} install ${GOBUILD_FLAGS} github.com/cactus/go-camo/url-tool
 
 build-simple-server: build-setup
 	@echo "Building simple-server..."
-	@GO install ${GOBUILD_FLAGS} github.com/cactus/go-camo/simple-server
+	@${GO} install ${GOBUILD_FLAGS} github.com/cactus/go-camo/simple-server
 
 test: build-setup
 	@echo "Running tests..."
-	@GO test ${GOTEST_FLAGS} ./camo/...
+	@${GO} test ${GOTEST_FLAGS} ./camo/...
 
 cover: build-setup
 	@echo "Running tests with coverage..."
-	@GO test -cover ${GOTEST_FLAGS} ./camo/...
+	@${GO} test -cover ${GOTEST_FLAGS} ./camo/...
 
 ${BUILDDIR}/man/man1/%.1: man/%.mdoc
 	@mkdir -p "${BUILDDIR}/man/man1"
