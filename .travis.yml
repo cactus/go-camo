@@ -1,5 +1,5 @@
 language: go
-script: make -n test;make test
+script: make test
 go:
     - 1.2
     - 1.3
