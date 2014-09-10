@@ -5,7 +5,7 @@
 		"./..."
 	],
 	"Deps": [
-        {
+		{
 			"ImportPath": "github.com/cactus/gologit",
 			"Rev": "0464a496f516d52d786b9a2c9fa5c43d672f951e"
 		},
@@ -14,12 +14,12 @@
 			"Rev": "8454d731db1463469818d7004cbb34fdd52d13bb"
 		},
 		{
-			"ImportPath": "github.com/stretchr/testify/assert",
-			"Rev": "3e03dde72495487a4deb74152ac205d0619fbc8d"
-		},
-		{
 			"ImportPath": "github.com/mreiferson/go-httpclient",
 			"Rev": "c121dfe45d66997e43e25a6823fbe7466c8403fe"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Rev": "3e03dde72495487a4deb74152ac205d0619fbc8d"
 		}
 	]
 }
