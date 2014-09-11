@@ -288,7 +288,7 @@ func New(pc Config) (*Proxy, error) {
 		// no need for compression with images
 		// some xml/svg can be compressed, but apparently some clients can
 		// exhibit weird behavior when those are compressed
-		DisableCompression:  true,
+		DisableCompression: true,
 	}
 
 	// spawn an idle conn trimmer

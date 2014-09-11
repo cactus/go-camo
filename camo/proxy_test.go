@@ -38,9 +38,9 @@ func processRequest(req *http.Request, status int) (*httptest.ResponseRecorder, 
 	}
 
 	router := &router.DumbRouter{
-	    AddHeaders:      map[string]string{"X-Go-Camo": "test"},
-		ServerName:      camoConfig.ServerName,
-		CamoHandler:     camoServer,
+		AddHeaders:  map[string]string{"X-Go-Camo": "test"},
+		ServerName:  camoConfig.ServerName,
+		CamoHandler: camoServer,
 	}
 
 	record := httptest.NewRecorder()

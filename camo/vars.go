@@ -8,8 +8,8 @@ import (
 // server. Only those present and true, are forwarded. Empty implies
 // no filtering.
 var ValidReqHeaders = map[string]bool{
-	"Accept":            true,
-	"Accept-Charset":    true,
+	"Accept":         true,
+	"Accept-Charset": true,
 	// images (aside from xml/svg), don't generally benefit (generally) from
 	// compression
 	"Accept-Encoding":   false,

@@ -1,13 +1,13 @@
 
 BUILDDIR          := ${CURDIR}/build
 GOPATH            := ${BUILDDIR}
-GODEP             := $(shell command -v godep || printf "${GOPATH}/bin/godep")
 RPMBUILDDIR       := ${BUILDDIR}/rpm
 ARCH              := $(shell uname -m)
 FPM_VERSION       := $(shell gem list fpm|grep fpm|sed -E 's/fpm \((.*)\)/\1/g')
 FPM_OPTIONS       ?=
 ITERATION         ?= 1
 
+GPM               := ${CURDIR}/.tools/gpm
 GOCAMO_VER        := $(shell git describe --always --dirty --tags|sed 's/^v//')
 RPM_VER           := $(shell git describe --always --tags --abbrev=0|sed 's/^v//')
 VERSION_VAR       := main.ServerVersion
@@ -44,7 +44,7 @@ Available targets:
 endef
 export HELP_OUTPUT
 
-.PHONY: help clean build test cover man man-copy rpm all
+.PHONY: help clean build build-setup test cover man man-copy rpm all
 
 help:
 	@echo "$$HELP_OUTPUT"
@@ -52,15 +52,10 @@ help:
 clean:
 	-rm -rf "${BUILDDIR}"
 
-${GODEP}:
+build-setup:
 	@mkdir -p "${GOPATH}/src"
-	@echo "Building godep..."
-	@${GO} get ${GOBUILD_DEPFLAGS} github.com/kr/godep
-
-build-setup: ${GODEP}
-	@mkdir -p "${GOPATH}/src"
-	@echo "Restoring deps with godep..."
-	@env GOPATH="${GOPATH}" ${GODEP} restore
+	@echo "Restoring deps..."
+	@env GOPATH="${GOPATH}" ${GPM} install
 	@mkdir -p "${GOPATH}/src/github.com/cactus"
 	@test -d "${GOPATH}/src/github.com/cactus/go-camo" || ln -s "${CURDIR}" "${GOPATH}/src/github.com/cactus/go-camo"
 

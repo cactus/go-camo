@@ -147,9 +147,9 @@ func main() {
 	}
 
 	dumbrouter := &router.DumbRouter{
-		ServerName:      config.ServerName,
-		AddHeaders:      AddHeaders,
-		CamoHandler:     proxy,
+		ServerName:  config.ServerName,
+		AddHeaders:  AddHeaders,
+		CamoHandler: proxy,
 	}
 
 	if opts.Stats {

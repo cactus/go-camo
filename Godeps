@@ -1,25 +1,4 @@
-{
-	"ImportPath": "github.com/cactus/go-camo",
-	"GoVersion": "go1.2.2",
-	"Packages": [
-		"./..."
-	],
-	"Deps": [
-        {
-			"ImportPath": "github.com/cactus/gologit",
-			"Rev": "0464a496f516d52d786b9a2c9fa5c43d672f951e"
-		},
-		{
-			"ImportPath": "github.com/jessevdk/go-flags",
-			"Rev": "8454d731db1463469818d7004cbb34fdd52d13bb"
-		},
-		{
-			"ImportPath": "github.com/stretchr/testify/assert",
-			"Rev": "3e03dde72495487a4deb74152ac205d0619fbc8d"
-		},
-		{
-			"ImportPath": "github.com/mreiferson/go-httpclient",
-			"Rev": "c121dfe45d66997e43e25a6823fbe7466c8403fe"
-		}
-	]
-}
+github.com/cactus/gologit           0464a496f516d52d786b9a2c9fa5c43d672f951e
+github.com/jessevdk/go-flags        8454d731db1463469818d7004cbb34fdd52d13bb
+github.com/stretchr/testify/assert  3e03dde72495487a4deb74152ac205d0619fbc8d
+github.com/mreiferson/go-httpclient c121dfe45d66997e43e25a6823fbe7466c8403fe
