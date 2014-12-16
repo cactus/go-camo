@@ -1,7 +1,9 @@
 Changelog
 =========
 
-## Next Release
+## 1.0.1 2014-12-16
+*   optimization for allow-list checks
+*   keepalive options fix
 
 ## 1.0.0 2014-06-22
 
