@@ -95,13 +95,13 @@ func main() {
 	}
 
 	// set keepalive options
-	opts.DisableKeepAlivesBE = config.DisableKeepAlivesBE
-	opts.DisableKeepAlivesFE = config.DisableKeepAlivesFE
+	config.DisableKeepAlivesBE = opts.DisableKeepAlivesBE
+	config.DisableKeepAlivesFE = opts.DisableKeepAlivesFE
 
 	if opts.AllowList != "" {
 		b, err := ioutil.ReadFile(opts.AllowList)
 		if err != nil {
-			log.Fatal("Could not read alllow-list. ", err)
+			log.Fatal("Could not read allow-list", err)
 		}
 		config.AllowList = strings.Split(string(b), "\n")
 	}
