@@ -109,6 +109,9 @@ If you are using the libc resolver, you will see something like this instead:
     libc.so.6 => /lib64/libc.so.6 (0x0000003fb2600000)
     /lib64/ld-linux-x86-64.so.2 (0x0000003fb2200000)
 
+**NOTE**: Rebuilding the go stdlib with netgo is currently broken in go 1.4.
+[more info][12].
+
 ## Running
 
     $ $GOPATH/bin/go-camo -k "somekey"
@@ -262,3 +265,4 @@ file for details.
 [9]: http://cr.yp.to/daemontools/faq/create.html#why
 [10]: https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
 [11]: https://github.com/cactus/go-camo/issues/6
+[12]: https://codereview.appspot.com/151730045#msg10
