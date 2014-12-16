@@ -107,23 +107,17 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// if allowList is set, require match
-	matchFound := true
 	if len(p.allowList) > 0 {
-		matchFound = false
 		for _, rgx := range p.allowList {
 			if rgx.MatchString(u.Host) {
-				matchFound = true
+				http.Error(w, "Allowlist host failure", http.StatusNotFound)
+				return
 			}
 		}
 	}
-	if !matchFound {
-		http.Error(w, "Allowlist host failure", http.StatusNotFound)
-		return
-	}
 
 	// filter out rfc1918 hosts
-	ip := net.ParseIP(u.Host)
-	if ip != nil {
+	if ip := net.ParseIP(u.Host); ip != nil {
 		if addr1918PrefixRegex.MatchString(ip.String()) {
 			http.Error(w, "Denylist host failure", http.StatusNotFound)
 			return
