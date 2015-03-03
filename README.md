@@ -92,6 +92,8 @@ with significant traffic amounts over time. The use of netgo is recommended. To
 recompile your Go net libraries to use netgo, do the following as root (or the
 owner of your GOROOT install) before building Go-Camo:
 
+    # this first line appears to be required for go-1.4
+    $ go clean -i net
     $ go install -a -tags netgo std
 
 To confirm that you are using the netgo resolver:
@@ -108,9 +110,6 @@ If you are using the libc resolver, you will see something like this instead:
     libpthread.so.0 => /lib64/libpthread.so.0 (0x0000003fb2a00000)
     libc.so.6 => /lib64/libc.so.6 (0x0000003fb2600000)
     /lib64/ld-linux-x86-64.so.2 (0x0000003fb2200000)
-
-**NOTE**: Rebuilding the go stdlib with netgo is currently broken in go 1.4.
-[more info][12].
 
 ## Running
 
