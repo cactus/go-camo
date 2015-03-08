@@ -73,11 +73,11 @@ build-simple-server: build-setup
 
 test: build-setup
 	@echo "Running tests..."
-	@${GO} test ${GOTEST_FLAGS} ./camo/...
+	@${GO} test ${GOTEST_FLAGS} ./camo/... ./router/...
 
 cover: build-setup
 	@echo "Running tests with coverage..."
-	@${GO} test -cover ${GOTEST_FLAGS} ./camo/...
+	@${GO} test -cover ${GOTEST_FLAGS} ./camo/... ./router/...
 
 ${BUILDDIR}/man/man1/%.1: man/%.mdoc
 	@mkdir -p "${BUILDDIR}/man/man1"
