@@ -31,8 +31,9 @@ func newHTTPDate() *HTTPDate {
 	// spawn a single formattedDate updater
 	d.onceUpdater.Do(func() {
 		go func() {
-			<-time.After(time.Second)
-			d.Update()
+			for range time.Tick(1 * time.Second) {
+				t.Update()
+			}
 		}()
 	})
 	return d
