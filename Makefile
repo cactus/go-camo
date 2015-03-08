@@ -2,7 +2,9 @@
 BUILDDIR          := ${CURDIR}/build
 GOPATH            := ${BUILDDIR}
 RPMBUILDDIR       := ${BUILDDIR}/rpm
-ARCH              := $(shell uname -m)
+TARBUILDDIR       := ${BUILDDIR}/tar
+ARCH              := $(shell uname -m|tr '[:upper:]' '[:lower:]')
+OS                := $(shell uname -s|tr '[:upper:]' '[:lower:]')
 FPM_VERSION       := $(shell gem list fpm|grep fpm|sed -E 's/fpm \((.*)\)/\1/g')
 FPM_OPTIONS       ?=
 ITERATION         ?= 1
@@ -86,6 +88,16 @@ ${BUILDDIR}/man/man1/%.1: man/%.mdoc
 man-camo: ${BUILDDIR}/man/man1/go-camo.1
 man-url-tool: ${BUILDDIR}/man/man1/url-tool.1
 man-simple-server: ${BUILDDIR}/man/man1/simple-server.1
+
+tar: all
+	@echo "Building tar..."
+	@mkdir -p ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/{bin,man}
+	@cp ${BUILDDIR}/bin/{go-camo,simple-server,url-tool} \
+		${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin
+	@cp ${BUILDDIR}/man/man1/* ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/man
+	@tar -C ${TARBUILDDIR} -czf go-camo-${GOCAMO_VER}.${OS}.${ARCH}.tar.gz \
+		go-camo-${GOCAMO_VER}
+	@mv go-camo-${GOCAMO_VER}.${OS}.${ARCH}.tar.gz ${BUILDDIR}/
 
 rpm: all
 	@echo "Building rpm..."
