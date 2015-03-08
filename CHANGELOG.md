@@ -1,6 +1,9 @@
 Changelog
 =========
 
+## 1.0.2 2015-03-08
+*   fix issue with http date header generation
+
 ## 1.0.1 2014-12-16
 *   optimization for allow-list checks
 *   keepalive options fix
