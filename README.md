@@ -58,7 +58,7 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
 
 Building requires `git` and `make`. Optional requirements are `pod2man` (to
 build man pages), and fpm (to build rpms).  A functional [Go][3] installation
-is also required.
+(version >= 1.4) is also required.
 
     # show make targets
     $ make
@@ -92,7 +92,6 @@ with significant traffic amounts over time. The use of netgo is recommended. To
 recompile your Go net libraries to use netgo, do the following as root (or the
 owner of your GOROOT install) before building Go-Camo:
 
-    # this first line appears to be required for go-1.4
     $ go clean -i net
     $ go install -a -tags netgo std
 
