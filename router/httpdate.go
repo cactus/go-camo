@@ -32,7 +32,7 @@ func newHTTPDate() *HTTPDate {
 	d.onceUpdater.Do(func() {
 		go func() {
 			for range time.Tick(1 * time.Second) {
-				t.Update()
+				d.Update()
 			}
 		}()
 	})
