@@ -105,10 +105,12 @@ Additional headers are added to the above set.
 .Pp
 As an example, if you wanted to return an 
 .Em Strict-Transport-Security
-header
-by default, you could add this to the command line:
+and an
+.Em X-Frame-Options
+header by default, you could add this to the command line:
 .Bd -literal
- -H "Strict-Transport-Security: max-age=16070400"
+ -H "Strict-Transport-Security: max-age=16070400" \\
+ -H "X-Frame-Options: deny"
 .Ed
 .Sh STATS
 If the 
