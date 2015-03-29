@@ -112,7 +112,7 @@ If you are using the libc resolver, you will see something like this instead:
 
 ## Running
 
-    $ $GOPATH/bin/go-camo -k "somekey"
+    $ go-camo -k "somekey"
 
 Go-Camo does not daemonize on its own. For production usage, it is recommended
 to launch in a process supervisor, and drop privileges as appropriate.
@@ -139,7 +139,7 @@ In order to use this on Heroku with the provided Procfile, you need to:
 
 ### Command line flags
 
-    $ $GOPATH/bin/go-camo -h
+    $ go-camo -h
     Usage:
       go-camo [OPTIONS]
 
@@ -197,7 +197,7 @@ Go-Camo includes a couple of additional tools.
 
 The `url-tool` utility provides a simple way to generate signed URLs from the command line.
 
-    $ $GOPATH/bin/url-tool -h
+    $ url-tool -h
     Usage:
       url-tool [OPTIONS] <decode | encode>
 
@@ -215,17 +215,17 @@ The `url-tool` utility provides a simple way to generate signed URLs from the co
 Example usage:
 
     # hex
-    $ $GOPATH/bin/url-tool -k "test" encode -p "https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
+    $ url-tool -k "test" encode -p "https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
     https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67
 
-    $ $GOPATH/bin/url-tool -k "test" decode "https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67"
+    $ url-tool -k "test" decode "https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67"
     http://golang.org/doc/gopher/frontpage.png
 
     # base64
-    $ $GOPATH/bin/url-tool -k "test" encode -b base64 -p "https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
+    $ url-tool -k "test" encode -b base64 -p "https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
     https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n
 
-    $ $GOPATH/bin/url-tool -k "test" decode "https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n"
+    $ url-tool -k "test" decode "https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n"
     http://golang.org/doc/gopher/frontpage.png
 
 ### simple-server
@@ -233,7 +233,7 @@ Example usage:
 The `simple-server` utility is useful for testing. It serves the contents of a
 given directory over http. Nothing more.
 
-    $ $GOPATH/bin/simple-server -h
+    $ simple-server -h
     Usage:
       simple-server [OPTIONS] DIR
 
