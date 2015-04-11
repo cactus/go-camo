@@ -1,6 +1,9 @@
 Changelog
 =========
 
+## HEAD
+*   revert to stdlib http client
+
 ## 1.0.2 2015-03-08
 *   fix issue with http date header generation
 
