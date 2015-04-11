@@ -218,7 +218,7 @@ func TestSupplyAcceptIfNoneGiven(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestTimeoutBeforeHeader(t *testing.T) {
+func TestTimeout(t *testing.T) {
 	t.Parallel()
 	c := Config{
 		HMACKey:        []byte("0x24FEEDFACEDEADBEEFCAFE"),
@@ -228,8 +228,12 @@ func TestTimeoutBeforeHeader(t *testing.T) {
 		ServerName:     "go-camo",
 	}
 	cc := make(chan bool, 1)
+	received := make(chan bool)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		received <- true
 		<-cc
+		r.Close = true
+		w.Write([]byte("ok"))
 		return
 	}))
 	defer ts.Close()
@@ -243,6 +247,7 @@ func TestTimeoutBeforeHeader(t *testing.T) {
 		errc <- err
 	}()
 
+	<-received
 	select {
 	case e := <-errc:
 		assert.Nil(t, e)
@@ -251,4 +256,5 @@ func TestTimeoutBeforeHeader(t *testing.T) {
 		cc <- true
 		fmt.Errorf("timeout didn't fire in time")
 	}
+	close(cc)
 }
