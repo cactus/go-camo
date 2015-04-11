@@ -13,7 +13,7 @@ GPM               := ${CURDIR}/.tools/gpm
 GOCAMO_VER        := $(shell git describe --always --dirty --tags|sed 's/^v//')
 RPM_VER           := $(shell git describe --always --tags --abbrev=0|sed 's/^v//')
 VERSION_VAR       := main.ServerVersion
-GOTEST_FLAGS      :=
+GOTEST_FLAGS      := -cpu=1,2 -v
 GOBUILD_DEPFLAGS  := -tags netgo
 GOBUILD_LDFLAGS   ?=
 GOBUILD_FLAGS     := $(GOBUILD_DEPFLAGS) -ldflags "$(GOBUILD_LDFLAGS) -X $(VERSION_VAR) $(GOCAMO_VER)"
