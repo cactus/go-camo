@@ -31,7 +31,7 @@ func makeReq(testURL string) (*http.Request, error) {
 	return req, nil
 }
 
-func processRequest(req *http.Request, status int) (*httptest.ResponseRecorder, error) {
+func processRequest(req *http.Request, status int, camoConfig Config) (*httptest.ResponseRecorder, error) {
 	camoServer, err := New(camoConfig)
 	if err != nil {
 		return nil, fmt.Errorf("Error building Camo: %s", err.Error())
@@ -46,7 +46,7 @@ func processRequest(req *http.Request, status int) (*httptest.ResponseRecorder, 
 	record := httptest.NewRecorder()
 	router.ServeHTTP(record, req)
 	if got, want := record.Code, status; got != want {
-		return nil, fmt.Errorf("response code = %d, wanted %d", got, want)
+		return record, fmt.Errorf("response code = %d, wanted %d", got, want)
 	}
 	return record, nil
 }
@@ -56,7 +56,7 @@ func makeTestReq(testURL string, status int) (*httptest.ResponseRecorder, error)
 	if err != nil {
 		return nil, err
 	}
-	record, err := processRequest(req, status)
+	record, err := processRequest(req, status, camoConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func TestNotFound(t *testing.T) {
 	req, err := http.NewRequest("GET", "http://example.com/favicon.ico", nil)
 	assert.Nil(t, err)
 
-	record, err := processRequest(req, 404)
+	record, err := processRequest(req, 404, camoConfig)
 	assert.Nil(t, err)
 	assert.Equal(t, record.Code, 404, "Expected 404 but got '%d' instead", record.Code)
 	assert.Equal(t, record.Body.String(), "404 Not Found\n", "Expected 404 response body but got '%s' instead", record.Body.String())
@@ -214,6 +214,41 @@ func TestSupplyAcceptIfNoneGiven(t *testing.T) {
 	req, err := makeReq(testURL)
 	req.Header.Del("Accept")
 	assert.Nil(t, err)
-	_, err = processRequest(req, 200)
+	_, err = processRequest(req, 200, camoConfig)
 	assert.Nil(t, err)
+}
+
+func TestTimeoutBeforeHeader(t *testing.T) {
+	t.Parallel()
+	c := Config{
+		HMACKey:        []byte("0x24FEEDFACEDEADBEEFCAFE"),
+		MaxSize:        5120 * 1024,
+		RequestTimeout: time.Duration(500) * time.Millisecond,
+		MaxRedirects:   3,
+		ServerName:     "go-camo",
+	}
+	cc := make(chan bool, 1)
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		<-cc
+		return
+	}))
+	defer ts.Close()
+
+	req, err := makeReq(ts.URL)
+	assert.Nil(t, err)
+
+	errc := make(chan error, 1)
+	go func() {
+		_, err := processRequest(req, 502, c)
+		errc <- err
+	}()
+
+	select {
+	case e := <-errc:
+		assert.Nil(t, e)
+		cc <- true
+	case <-time.After(1 * time.Second):
+		cc <- true
+		fmt.Errorf("timeout didn't fire in time")
+	}
 }

@@ -15,7 +15,6 @@ import (
 
 	"github.com/cactus/go-camo/camo/encoding"
 	"github.com/cactus/gologit"
-	httpclient "github.com/mreiferson/go-httpclient"
 )
 
 // Config holds configuration data used when creating a Proxy with New.
@@ -274,10 +273,13 @@ func (p *Proxy) SetMetricsCollector(pm ProxyMetrics) {
 // New returns a new Proxy. An error is returned if there was a failure
 // to parse the regex from the passed Config.
 func New(pc Config) (*Proxy, error) {
-	tr := &httpclient.Transport{
+	tr := &http.Transport{
+		Dial: (&net.Dialer{
+			Timeout:   3 * time.Second,
+			KeepAlive: 30 * time.Second,
+		}).Dial,
+		TLSHandshakeTimeout: 3 * time.Second,
 		MaxIdleConnsPerHost: 8,
-		ConnectTimeout:      2 * time.Second,
-		RequestTimeout:      pc.RequestTimeout,
 		DisableKeepAlives:   pc.DisableKeepAlivesBE,
 		// no need for compression with images
 		// some xml/svg can be compressed, but apparently some clients can
@@ -295,7 +297,11 @@ func New(pc Config) (*Proxy, error) {
 		}
 	}()
 
-	client := &http.Client{Transport: tr}
+	client := &http.Client{
+		Transport: tr,
+		// timeout
+		Timeout: pc.RequestTimeout,
+	}
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		if len(via) >= pc.MaxRedirects {
 			return errors.New("Too many redirects")
