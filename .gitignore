@@ -8,7 +8,7 @@
 /server.key
 /server.crt
 /test_internal
-/build
+/_build
 /go-camo
 /url-tool/url-tool
 /simple-server/simple-server

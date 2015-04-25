@@ -1,5 +1,5 @@
 
-BUILDDIR          := ${CURDIR}/build
+BUILDDIR          := ${CURDIR}/_build
 GOPATH            := ${BUILDDIR}
 RPMBUILDDIR       := ${BUILDDIR}/rpm
 TARBUILDDIR       := ${BUILDDIR}/tar
