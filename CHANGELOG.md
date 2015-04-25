@@ -2,6 +2,8 @@ Changelog
 =========
 
 ## HEAD
+
+## 1.0.3 2015-04-25
 *   revert to stdlib http client
 
 ## 1.0.2 2015-03-08
