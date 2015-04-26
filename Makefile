@@ -91,9 +91,11 @@ man-simple-server: ${BUILDDIR}/man/man1/simple-server.1
 
 tar: all
 	@echo "Building tar..."
-	@mkdir -p ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/{bin,man}
-	@cp ${BUILDDIR}/bin/{go-camo,simple-server,url-tool} \
-		${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin
+	@mkdir -p ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin
+	@mkdir -p ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/man
+	@cp ${BUILDDIR}/bin/go-camo ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin
+	@cp ${BUILDDIR}/bin/simple-server ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin
+	@cp ${BUILDDIR}/bin/url-tool ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin
 	@cp ${BUILDDIR}/man/man1/* ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/man
 	@tar -C ${TARBUILDDIR} -czf go-camo-${GOCAMO_VER}.${OS}.${ARCH}.tar.gz \
 		go-camo-${GOCAMO_VER}
