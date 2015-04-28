@@ -2,6 +2,7 @@
 BUILDDIR          := ${CURDIR}/_build
 GOPATH            := ${BUILDDIR}
 RPMBUILDDIR       := ${BUILDDIR}/rpm
+GOXBUILDDIR       := ${BUILDDIR}/gox
 TARBUILDDIR       := ${BUILDDIR}/tar
 ARCH              := $(shell uname -m|tr '[:upper:]' '[:lower:]')
 OS                := $(shell uname -s|tr '[:upper:]' '[:lower:]')
@@ -18,6 +19,7 @@ GOBUILD_DEPFLAGS  := -tags netgo
 GOBUILD_LDFLAGS   ?=
 GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR} ${GOCAMO_VER}"
 GO                := env GOPATH="${GOPATH}" go
+XCOMPILE_ARCHES   := darwin.amd64 freebsd.amd64 linux.amd64
 
 define GO_CAMO_RPM_DESCRIPTION
 Camo is a special type of image proxy that proxies non-secure images over
@@ -32,21 +34,17 @@ Available targets:
   help                this help
   clean               clean up
   all                 build binaries and man pages
-  build               build all
-  build-go-camo       build go-camo
-  build-url-tool      build url tool
-  build-simple-server build simple server
   test                run tests
   cover               run tests with cover output
+  build               build all binaries
   man                 build all man pages
-  man-go-camo         build go-camo man pages
-  man-url-tool        build url-tool man pages
-  man-simple-server   build simple-server man pages
+  tar                 build release tarball
   rpm                 build rpm
+  cross-tar           cross compile and build release tarballs
 endef
 export HELP_OUTPUT
 
-.PHONY: help clean build build-setup test cover man man-copy rpm all
+.PHONY: help clean build build-setup test cover man man-copy rpm all tar cross-tar
 
 help:
 	@echo "$$HELP_OUTPUT"
@@ -61,15 +59,11 @@ build-setup:
 	@mkdir -p "${GOPATH}/src/github.com/cactus"
 	@test -d "${GOPATH}/src/github.com/cactus/go-camo" || ln -s "${CURDIR}" "${GOPATH}/src/github.com/cactus/go-camo"
 
-build-go-camo: build-setup
+build: build-setup
 	@echo "Building go-camo..."
 	@${GO} install ${GOBUILD_FLAGS} github.com/cactus/go-camo
-
-build-url-tool: build-setup
 	@echo "Building url-tool..."
 	@${GO} install ${GOBUILD_FLAGS} github.com/cactus/go-camo/url-tool
-
-build-simple-server: build-setup
 	@echo "Building simple-server..."
 	@${GO} install ${GOBUILD_FLAGS} github.com/cactus/go-camo/simple-server
 
@@ -85,9 +79,7 @@ ${BUILDDIR}/man/man1/%.1: man/%.mdoc
 	@mkdir -p "${BUILDDIR}/man/man1"
 	@cat $< | sed "s#.Os GO-CAMO VERSION#.Os GO-CAMO ${GOCAMO_VER}#" > $@
 
-man-camo: ${BUILDDIR}/man/man1/go-camo.1
-man-url-tool: ${BUILDDIR}/man/man1/url-tool.1
-man-simple-server: ${BUILDDIR}/man/man1/simple-server.1
+man: $(patsubst man/%.mdoc,${BUILDDIR}/man/man1/%.1,$(wildcard man/*.mdoc))
 
 tar: all
 	@echo "Building tar..."
@@ -119,6 +111,25 @@ rpm: all
 		usr/local/bin usr/local/share/man/man1
 	@mv *.rpm ${BUILDDIR}/
 
-build: build-go-camo build-url-tool build-simple-server
-man: man-camo man-url-tool man-simple-server
+cross-tar: build-setup man
+	@[ -f "${BUILDDIR}/bin/gox" ] || ${GO} get github.com/mitchellh/gox
+	@${BUILDDIR}/bin/gox ${GOBUILD_FLAGS} \
+		-osarch="freebsd/amd64 darwin/amd64 linux/amd64" \
+		-output="${GOXBUILDDIR}/{{.OS}}.{{.Arch}}/{{.Dir}}" \
+		github.com/cactus/go-camo \
+		github.com/cactus/go-camo/url-tool \
+		github.com/cactus/go-camo/simple-server
+	@(cd ${GOXBUILDDIR}; for x in ${XCOMPILE_ARCHES}; do \
+		echo "Making tar for go-camo.$${x}"; \
+		mkdir -p ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/bin; \
+		mkdir -p ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/man; \
+		cp $${x}/go-camo ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/bin; \
+		cp $${x}/simple-server ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/bin; \
+		cp $${x}/url-tool ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/bin; \
+		cp ${BUILDDIR}/man/man1/* ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/man; \
+		tar -C ${TARBUILDDIR}/$${x} -czf go-camo-${GOCAMO_VER}.$${x}.tar.gz \
+		   go-camo-${GOCAMO_VER}; \
+		mv go-camo-${GOCAMO_VER}.$${x}.tar.gz ${BUILDDIR}/; \
+	 done)
+
 all: build man
