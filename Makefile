@@ -75,20 +75,20 @@ cover: build-setup
 	@echo "Running tests with coverage..."
 	@${GO} test -cover ${GOTEST_FLAGS} ./camo/... ./router/...
 
-${BUILDDIR}/man/man1/%.1: man/%.mdoc
-	@mkdir -p "${BUILDDIR}/man/man1"
+${BUILDDIR}/man/%: man/%.mdoc
+	@mkdir -p "${BUILDDIR}/man"
 	@cat $< | sed "s#.Os GO-CAMO VERSION#.Os GO-CAMO ${GOCAMO_VER}#" > $@
 
-man: $(patsubst man/%.mdoc,${BUILDDIR}/man/man1/%.1,$(wildcard man/*.mdoc))
+man: $(patsubst man/%.mdoc,${BUILDDIR}/man/%,$(wildcard man/*.1.mdoc))
 
 tar: all
 	@echo "Building tar..."
 	@mkdir -p ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin
 	@mkdir -p ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/man
-	@cp ${BUILDDIR}/bin/go-camo ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin
-	@cp ${BUILDDIR}/bin/simple-server ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin
-	@cp ${BUILDDIR}/bin/url-tool ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin
-	@cp ${BUILDDIR}/man/man1/* ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/man
+	@cp ${BUILDDIR}/bin/go-camo ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin/
+	@cp ${BUILDDIR}/bin/simple-server ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin/
+	@cp ${BUILDDIR}/bin/url-tool ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin/
+	@cp ${BUILDDIR}/man/* ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/man/
 	@tar -C ${TARBUILDDIR} -czf go-camo-${GOCAMO_VER}.${OS}.${ARCH}.tar.gz \
 		go-camo-${GOCAMO_VER}
 	@mv go-camo-${GOCAMO_VER}.${OS}.${ARCH}.tar.gz ${BUILDDIR}/
@@ -99,7 +99,7 @@ rpm: all
 	@mkdir -p ${RPMBUILDDIR}/usr/local/share/man/man1
 	@cp ${BUILDDIR}/bin/{go-camo,simple-server,url-tool} \
 		${RPMBUILDDIR}/usr/local/bin
-	@cp ${BUILDDIR}/man/man1/* ${RPMBUILDDIR}/usr/local/share/man/man1
+	@cp ${BUILDDIR}/man/* ${RPMBUILDDIR}/usr/local/share/man/man1/
 	@fpm -s dir -t rpm -n go-camo \
 		--url "https://github.com/cactus/go-camo" \
 		-v "${RPM_VER}" \
@@ -121,12 +121,12 @@ cross-tar: build-setup man
 		github.com/cactus/go-camo/simple-server
 	@(cd ${GOXBUILDDIR}; for x in ${XCOMPILE_ARCHES}; do \
 		echo "Making tar for go-camo.$${x}"; \
-		mkdir -p ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/bin; \
-		mkdir -p ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/man; \
-		cp $${x}/go-camo ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/bin; \
-		cp $${x}/simple-server ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/bin; \
-		cp $${x}/url-tool ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/bin; \
-		cp ${BUILDDIR}/man/man1/* ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/man; \
+		mkdir -p ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/bin/; \
+		mkdir -p ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/man/; \
+		cp $${x}/go-camo ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/bin/; \
+		cp $${x}/simple-server ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/bin/; \
+		cp $${x}/url-tool ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/bin/; \
+		cp ${BUILDDIR}/man/* ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/man/; \
 		tar -C ${TARBUILDDIR}/$${x} -czf go-camo-${GOCAMO_VER}.$${x}.tar.gz \
 		   go-camo-${GOCAMO_VER}; \
 		mv go-camo-${GOCAMO_VER}.$${x}.tar.gz ${BUILDDIR}/; \
