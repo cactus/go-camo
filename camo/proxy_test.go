@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"runtime"
+	"strings"
 	"testing"
 	"time"
 
@@ -243,7 +245,11 @@ func TestTimeout(t *testing.T) {
 
 	errc := make(chan error, 1)
 	go func() {
-		_, err := processRequest(req, 504, c)
+		code := 502
+		if strings.Contains(runtime.Version(), "go1.5") {
+			code = 504
+		}
+		_, err := processRequest(req, code, c)
 		errc <- err
 	}()
 

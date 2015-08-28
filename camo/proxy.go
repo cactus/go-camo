@@ -157,6 +157,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		// still having to rely on string comparison to find out if it is
 		// a net.errClosing or not.
 		errString := err.Error()
+		// go 1.5 changes this to http.httpError
+		// go 1.4 has this as net.OpError
+		// and the error strings are different depending on which version too.
 		if strings.Contains(errString, "timeout") || strings.Contains(errString, "Client.Timeout") {
 			http.Error(w, "Error Fetching Resource", http.StatusGatewayTimeout)
 		} else if strings.Contains(errString, "use of closed") {
