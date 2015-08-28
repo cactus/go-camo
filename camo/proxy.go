@@ -157,7 +157,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		// still having to rely on string comparison to find out if it is
 		// a net.errClosing or not.
 		errString := err.Error()
-		if strings.Contains(errString, "timeout") {
+		if strings.Contains(errString, "timeout") || strings.Contains(errString, "Client.Timeout") {
 			http.Error(w, "Error Fetching Resource", http.StatusGatewayTimeout)
 		} else if strings.Contains(errString, "use of closed") {
 			http.Error(w, "Error Fetching Resource", http.StatusBadGateway)

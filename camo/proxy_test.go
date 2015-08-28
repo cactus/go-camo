@@ -243,7 +243,7 @@ func TestTimeout(t *testing.T) {
 
 	errc := make(chan error, 1)
 	go func() {
-		_, err := processRequest(req, 502, c)
+		_, err := processRequest(req, 504, c)
 		errc <- err
 	}()
 

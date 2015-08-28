@@ -17,7 +17,7 @@ VERSION_VAR       := main.ServerVersion
 GOTEST_FLAGS      := -cpu=1,2
 GOBUILD_DEPFLAGS  := -tags netgo
 GOBUILD_LDFLAGS   ?=
-GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR} ${GOCAMO_VER}"
+GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${GOCAMO_VER}"
 GO                := env GOPATH="${GOPATH}" go
 XCOMPILE_ARCHES   := darwin.amd64 freebsd.amd64 linux.amd64
 
