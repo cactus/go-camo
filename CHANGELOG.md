@@ -3,6 +3,9 @@ Changelog
 
 ## HEAD
 
+## 1.0.4 2015-08-28
+*   Minor change for go1.5 with proxy timeout 504
+
 ## 1.0.3 2015-04-25
 *   revert to stdlib http client
 
