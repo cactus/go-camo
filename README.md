@@ -72,6 +72,9 @@ build man pages), and fpm (to build rpms).  A functional [Go][3] installation
       cover               run tests with cover output
       man                 build all man pages
 
+    # install gb (build tool) if not already installed
+    $ go get github.com/constabulary/gb/...
+
     # fetch vendor dependencies
     $ make build-setup
 
