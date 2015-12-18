@@ -4,7 +4,7 @@ import (
 	"log"
 	"sync"
 
-	"github.com/cactus/go-camo/camo"
+	"go-camo/camo"
 )
 
 type ProxyStats struct {

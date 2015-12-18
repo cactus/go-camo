@@ -13,9 +13,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/cactus/go-camo/camo"
-	"github.com/cactus/go-camo/router"
-	"github.com/cactus/go-camo/stats"
+	"go-camo/camo"
+	"go-camo/router"
+	"go-camo/stats"
+
 	"github.com/cactus/gologit"
 	flags "github.com/jessevdk/go-flags"
 )

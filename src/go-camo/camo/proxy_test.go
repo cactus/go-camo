@@ -9,8 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cactus/go-camo/camo/encoding"
-	"github.com/cactus/go-camo/router"
+	"go-camo/camo/encoding"
+	"go-camo/router"
+
 	"github.com/stretchr/testify/assert"
 )
 

@@ -13,7 +13,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/cactus/go-camo/camo/encoding"
+	"go-camo/camo/encoding"
+
 	"github.com/cactus/gologit"
 )
 

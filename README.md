@@ -66,31 +66,29 @@ build man pages), and fpm (to build rpms).  A functional [Go][3] installation
       help                this help
       clean               clean up
       all                 build binaries and man pages
+      build-setup         fetch dependencies
       build               build all
-      build-go-camo       build go-camo
-      build-url-tool      build url tool
-      build-simple-server build simple server
       test                run tests
       cover               run tests with cover output
       man                 build all man pages
-      man-go-camo         build go-camo man pages
-      man-url-tool        build url-tool man pages
-      man-simple-server   build simple-server man pages
-      rpm                 build rpm
 
-    # build all binaries and man pages. results will be in build/ dir
+    # fetch vendor dependencies
+    $ make build-setup
+
+    # build all binaries and man pages
     $ make all
 
     # as an alternative to the previous command, build and strip debug symbols.
     # this is useful for production, and reduces the resulting file size.
     $ make all GOBUILD_LDFLAGS="-s"
 
-By default, Go-Camo builds with `-tags netgo`. However, this will not
-actually result in Go-Camo using the netgo resolver unless your Go stdlib is
-similarly compiled. There are [known][11] issues with using the libc resolver
-with significant traffic amounts over time. The use of netgo is recommended. To
-recompile your Go net libraries to use netgo, do the following as root (or the
-owner of your GOROOT install) before building Go-Camo:
+By default, Go-Camo builds with `-tags netgo`. However, depending on your
+Go version, this will not actually result in Go-Camo using the netgo resolver
+unless your Go stdlib is similarly compiled. There are [known][11] issues with
+using the libc resolver with significant traffic amounts over time. The use of
+netgo is recommended. Prior to Go 1.5, to recompile your Go net libraries to
+use netgo, do the following as root (or the owner of your GOROOT install)
+before building Go-Camo:
 
     $ go clean -i net
     $ go install -a -tags netgo std
@@ -98,13 +96,13 @@ owner of your GOROOT install) before building Go-Camo:
 To confirm that you are using the netgo resolver:
 
     $ make build
-    $ ldd build/bin/go-camo
+    $ ldd bin/go-camo
 	not a dynamic executable
 
 If you are using the libc resolver, you will see something like this instead:
 
     $ make build
-    $ ldd build/bin/go-camo
+    $ ldd bin/go-camo
     linux-vdso.so.1 =>  (0x00007fff98fff000)
     libpthread.so.0 => /lib64/libpthread.so.0 (0x0000003fb2a00000)
     libc.so.6 => /lib64/libc.so.6 (0x0000003fb2600000)
