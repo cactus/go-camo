@@ -38,6 +38,7 @@ clean:
 	@rm -rf "${BUILDDIR}/man/"*.[1-9]
 
 build-setup:
+	@go get github.com/constabulary/gb/...
 	@${GB} vendor restore
 
 build:
