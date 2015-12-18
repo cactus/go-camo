@@ -1,6 +1,6 @@
 language: go
 script: 
-    - gb restore
+    - gb vendor restore
     - make test
 sudo: false
 install:
