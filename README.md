@@ -33,7 +33,7 @@ For examples of url generation, see the [examples](examples/) directory.
 
 While Go-Camo will support proxying HTTPS images as well, for performance
 reasons you may choose to filter HTTPS requests out from proxying, and let the
-client simply fetch those as they are. The code example above does this.
+client simply fetch those as they are. The linked code examples do this.
 
 Note that it is recommended to front Go-Camo with a CDN when possible.
 
@@ -57,8 +57,8 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
 ## Building
 
 Building requires `git` and `make`. Optional requirements are `pod2man` (to
-build man pages), and fpm (to build rpms).  A functional [Go][3] installation
-(version >= 1.4) is also required.
+build man pages).  A functional [Go][3] installation (version >= 1.4) is also
+required.
 
     # show make targets
     $ make
@@ -66,11 +66,13 @@ build man pages), and fpm (to build rpms).  A functional [Go][3] installation
       help                this help
       clean               clean up
       all                 build binaries and man pages
-      build-setup         fetch dependencies
-      build               build all
       test                run tests
       cover               run tests with cover output
+      build-setup         fetch dependencies
+      build               build all
       man                 build all man pages
+      tar                 build release tarball
+      cross-tar           cross compile and build release tarballs
 
     # fetch vendor dependencies
     $ make build-setup
