@@ -107,12 +107,10 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// if allowList is set, require match
-	if len(p.allowList) > 0 {
-		for _, rgx := range p.allowList {
-			if rgx.MatchString(u.Host) {
-				http.Error(w, "Allowlist host failure", http.StatusNotFound)
-				return
-			}
+	for _, rgx := range p.allowList {
+		if rgx.MatchString(u.Host) {
+			http.Error(w, "Allowlist host failure", http.StatusNotFound)
+			return
 		}
 	}
 
