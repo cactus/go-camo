@@ -22,7 +22,7 @@ image URL.
 The client requests the generated URL from Go-Camo. Go-Camo validates the HMAC,
 decodes the URL, then requests the content and streams it to the client.
 
-    +----------+          request             +-------------+
+    +----------+           request            +-------------+
     |          |----------------------------->|             |
     |          |                              |             |
     |          |                              |   web-app   |
@@ -34,7 +34,7 @@ decodes the URL, then requests the content and streams it to the client.
     |          |----------------------------->|             |--------------->
     |          |                              |             |
     |          |                              |   go-camo   |
-    |          |           img data           |             |  img data
+    |          |           img data           |             |    img data
     |          |<-----------------------------|             |<---------------
     |          |                              +-------------+
     +----------+
