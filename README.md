@@ -22,6 +22,23 @@ image URL.
 The client requests the URL to Go-Camo. Go-Camo validates the HMAC, decodes the
 URL, requests the content and streams it to the client.
 
+    +----------+          request             +-------------+
+    |          |----------------------------->|             |
+    |          |                              |             |
+    |          |                              |   web-app   |
+    |          | img src=https://go-camo/url  |             |
+    |          |<-----------------------------|             |
+    |          |                              +-------------+
+    |  client  |
+    |          |     https://go-camo/url      +-------------+ http://some/img
+    |          |----------------------------->|             |--------------->
+    |          |                              |             |
+    |          |                              |   go-camo   |
+    |          |           img data           |             |  img data
+    |          |<-----------------------------|             |<---------------
+    |          |                              +-------------+
+    +----------+
+
 Go-Camo supports both hex and base64 encoded urls at the same time.
 
 | encoding | tradeoffs                                               |
