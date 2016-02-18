@@ -62,9 +62,8 @@ Extract, and copy files to desired locations.
 
 ## Building
 
-Building requires `git` and `make`. Optional requirements are `pod2man` (to
-build man pages).  A functional [Go][3] installation (version >= 1.4) is also
-required.
+Building requires `git`, `make`, and `pod2man` (optional/required to build man
+pages). A functional [Go][3] installation (version >= 1.4) is also required.
 
     # show make targets
     $ make
