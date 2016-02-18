@@ -8,4 +8,5 @@
 /server.pem
 /server.key
 /server.crt
+/server.csr
 *.py[co]

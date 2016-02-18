@@ -44,6 +44,7 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
 *   Go-Camo supports "allow regex host filters".
 *   Go-Camo supports client http keep-alives.
 *   Go-Camo provides native SSL support.
+*   Go-Camo provides native HTTP/2 support (if build using >=go1.6).
 *   Go-Camo supports using more than one os thread (via GOMAXPROCS) without the
     need of multiple instances or additional proxying.
 *   Go-Camo builds to a static binary. This makes deploying to large numbers
