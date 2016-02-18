@@ -73,10 +73,6 @@ cross-tar: man
 	@env GOOS=darwin  GOARCH=amd64 ${GB} build ${GOBUILD_FLAGS} ...
 	@env GOOS=freebsd GOARCH=amd64 ${GB} build ${GOBUILD_FLAGS} ...
 	@env GOOS=linux   GOARCH=amd64 ${GB} build ${GOBUILD_FLAGS} ...
-	@## work around for https://github.com/constabulary/gb/issues/346
-	@(for x in go-camo url-tool simple-server; do \
-		mv bin/$${x}-netgo bin/$${x}-${OS}-${ARCH}-netgo; \
-	done)
 
 	@(for x in darwin-amd64 freebsd-amd64 linux-amd64; do \
 		echo "Making tar for go-camo.$${x}"; \
