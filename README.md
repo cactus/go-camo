@@ -55,6 +55,11 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
 *   Go-Camo allows custom default headers to be added -- useful for things
     like adding [HSTS][10] headers.
 
+## Installing pre-build binaries
+
+Download the tarball appropriate for your OS/ARCH from [releases][13].
+Extract, and copy files to desired locations.
+
 ## Building
 
 Building requires `git` and `make`. Optional requirements are `pod2man` (to
@@ -265,3 +270,4 @@ file for details.
 [10]: https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
 [11]: https://github.com/cactus/go-camo/issues/6
 [12]: https://codereview.appspot.com/151730045#msg10
+[13]: https://github.com/cactus/go-camo/releases
