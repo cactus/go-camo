@@ -19,8 +19,8 @@ First you parse the original URL, generate an HMAC signature of it, then encode
 it, and then place the pieces into the expected format replacing the original
 image URL.
 
-The client requests the URL to Go-Camo. Go-Camo validates the HMAC, decodes the
-URL, requests the content and streams it to the client.
+The client requests the generated URL from Go-Camo. Go-Camo validates the HMAC,
+decodes the URL, then requests the content and streams it to the client.
 
     +----------+          request             +-------------+
     |          |----------------------------->|             |
