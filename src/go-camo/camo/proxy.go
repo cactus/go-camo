@@ -1,3 +1,7 @@
+// Copyright (c) 2012-2016 Eli Janssen
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file.
+
 // Package camo provides an HTTP proxy server with content type
 // restrictions as well as regex host allow list support.
 package camo
