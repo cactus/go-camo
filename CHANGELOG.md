@@ -3,6 +3,10 @@ Changelog
 
 ## HEAD
 
+## 1.0.5 2016-02-18
+*   Build release with go1.6
+*   Switch to building with gb
+
 ## 1.0.4 2015-08-28
 *   Minor change for go1.5 with proxy timeout 504
 
