@@ -247,7 +247,7 @@ func TestTimeout(t *testing.T) {
 	errc := make(chan error, 1)
 	go func() {
 		code := 502
-		if strings.Contains(runtime.Version(), "go1.5") {
+		if strings.Contains(runtime.Version(), "go1.5") || strings.Contains(runtime.Version(), "go1.6") {
 			code = 504
 		}
 		_, err := processRequest(req, code, c)
@@ -261,7 +261,7 @@ func TestTimeout(t *testing.T) {
 		cc <- true
 	case <-time.After(1 * time.Second):
 		cc <- true
-		fmt.Errorf("timeout didn't fire in time")
+		t.Errorf("timeout didn't fire in time")
 	}
 	close(cc)
 }
