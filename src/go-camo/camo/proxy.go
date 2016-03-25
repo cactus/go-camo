@@ -31,14 +31,14 @@ type Config struct {
 	// then anything not matching is dropped. If no AllowList is present,
 	// no Allow filtering is done.
 	AllowList []string
+	// Server name used in Headers and Via checks
+	ServerName string
 	// MaxSize is the maximum valid image size response (in bytes).
 	MaxSize int64
 	// MaxRedirects is the maximum number of redirects to follow.
 	MaxRedirects int
 	// Request timeout is a timeout for fetching upstream data.
 	RequestTimeout time.Duration
-	// Server name used in Headers and Via checks
-	ServerName string
 	// Keepalive enable/disable
 	DisableKeepAlivesFE bool
 	DisableKeepAlivesBE bool
@@ -55,11 +55,11 @@ type ProxyMetrics interface {
 // A Proxy is a Camo like HTTP proxy, that provides content type
 // restrictions as well as regex host allow list support.
 type Proxy struct {
-	client *http.Client
-	config *Config
 	// compiled allow list regex
 	allowList []*regexp.Regexp
 	metrics   ProxyMetrics
+	client    *http.Client
+	config    *Config
 }
 
 // ServerHTTP handles the client request, validates the request is validly

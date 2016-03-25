@@ -13,8 +13,8 @@ const timeFormat = "Mon, 02 Jan 2006 15:04:05 GMT"
 
 // HTTPDate holds current date stamp formatting for HTTP date header
 type HTTPDate struct {
-	dateStamp   string
 	mu          sync.RWMutex
+	dateStamp   string
 	onceUpdater sync.Once
 }
 

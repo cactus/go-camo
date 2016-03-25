@@ -12,9 +12,9 @@ import (
 
 type DumbRouter struct {
 	ServerName   string
-	AddHeaders   map[string]string
-	StatsHandler http.HandlerFunc
 	CamoHandler  http.Handler
+	StatsHandler http.HandlerFunc
+	AddHeaders   map[string]string
 }
 
 func (dr *DumbRouter) SetHeaders(w http.ResponseWriter) {
