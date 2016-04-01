@@ -3,6 +3,7 @@ BUILDDIR          := ${CURDIR}
 TARBUILDDIR       := ${BUILDDIR}/tar
 ARCH              := $(shell go env GOHOSTARCH)
 OS                := $(shell go env GOHOSTOS)
+GOVER             := $(shell go version | awk '{print $$3}' | tr -d '.')
 GOCAMO_VER        := $(shell git describe --always --dirty --tags|sed 's/^v//')
 VERSION_VAR       := main.ServerVersion
 GOTEST_FLAGS      := -cpu=1,2
@@ -76,13 +77,14 @@ cross-tar: man
 
 	@(for x in darwin-amd64 freebsd-amd64 linux-amd64; do \
 		echo "Making tar for go-camo.$${x}"; \
-		mkdir -p ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/bin/; \
-		mkdir -p ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/man/; \
-		cp bin/go-camo-$${x}-netgo ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/bin/go-camo; \
-		cp bin/simple-server-$${x}-netgo ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/bin/simple-server; \
-		cp bin/url-tool-$${x}-netgo ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/bin/url-tool; \
-		cp ${BUILDDIR}/man/* ${TARBUILDDIR}/$${x}/go-camo-${GOCAMO_VER}/man/; \
-		tar -C ${TARBUILDDIR}/$${x} -czf ${TARBUILDDIR}/go-camo-${GOCAMO_VER}.$${x}.tar.gz go-camo-${GOCAMO_VER}; \
+		XDIR="${GOVER}.$${x}"; \
+		mkdir -p ${TARBUILDDIR}/$${XDIR}/go-camo-${GOCAMO_VER}/bin/; \
+		mkdir -p ${TARBUILDDIR}/$${XDIR}/go-camo-${GOCAMO_VER}/man/; \
+		cp bin/go-camo-$${x}-netgo ${TARBUILDDIR}/$${XDIR}/go-camo-${GOCAMO_VER}/bin/go-camo; \
+		cp bin/simple-server-$${x}-netgo ${TARBUILDDIR}/$${XDIR}/go-camo-${GOCAMO_VER}/bin/simple-server; \
+		cp bin/url-tool-$${x}-netgo ${TARBUILDDIR}/$${XDIR}/go-camo-${GOCAMO_VER}/bin/url-tool; \
+		cp ${BUILDDIR}/man/* ${TARBUILDDIR}/$${XDIR}/go-camo-${GOCAMO_VER}/man/; \
+		tar -C ${TARBUILDDIR}/$${XDIR} -czf ${TARBUILDDIR}/go-camo-${GOCAMO_VER}.$${XDIR}.tar.gz go-camo-${GOCAMO_VER}; \
 	done)
 
 all: build man
