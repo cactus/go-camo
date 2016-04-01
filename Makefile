@@ -67,7 +67,7 @@ tar: all
 	@cp ${BUILDDIR}/bin/simple-server-netgo ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin/simple-server
 	@cp ${BUILDDIR}/bin/url-tool-netgo ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin/url-tool
 	@cp ${BUILDDIR}/man/*.[1-9] ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/man/
-	@tar -C ${TARBUILDDIR} -czf ${TARBUILDDIR}/go-camo-${GOCAMO_VER}.${OS}.${ARCH}.tar.gz go-camo-${GOCAMO_VER}
+	@tar -C ${TARBUILDDIR} -czf ${TARBUILDDIR}/go-camo-${GOCAMO_VER}.${GOVER}.${OS}-${ARCH}.tar.gz go-camo-${GOCAMO_VER}
 
 cross-tar: man
 	@echo "Making tar for go-camo:darwin.amd64"
