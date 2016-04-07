@@ -6,6 +6,8 @@ Changelog
 *   reorganize some struct memory layout a little
 *   add -VV license info output
 *   move simple-server to its own repo
+*   more performant stats (replaced mutex with sync/atomic)
+*   fewer spawned goroutines when using stats
 
 ## 1.0.5 2016-02-18
 *   Build release with go1.6
