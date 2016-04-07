@@ -5,6 +5,8 @@
 // go-camo daemon (go-camod)
 package main
 
+//go:generate go run ../../tools/genversion.go -pkg $GOPACKAGE -input ../../DEPS.md -output version_info_generated.go
+
 import (
 	"fmt"
 	"io/ioutil"

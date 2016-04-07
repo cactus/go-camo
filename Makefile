@@ -50,6 +50,10 @@ test:
 	@echo "Running tests..."
 	@${GB} test ${GOTEST_FLAGS} ...
 
+generate:
+	@echo "Running generate..."
+	@${GB} generate
+
 cover:
 	@echo "Running tests with coverage..."
 	@${GB} test -cover ${GOTEST_FLAGS} ...
