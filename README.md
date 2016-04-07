@@ -92,9 +92,9 @@ Building requires:
 
     * git
     * make
-    * pod2man # optional/required to build man pages
+    * go (version >= 1.4 required, 1.6 recommended)
 
-A functional [Go][3] installation (version >= 1.4) is also required.
+Building:
 
     # show make targets
     $ make
