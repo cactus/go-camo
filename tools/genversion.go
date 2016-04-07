@@ -21,7 +21,7 @@ type VersionLicenseText struct {
 	Pkg  string
 }
 
-const fileTemplate = `
+const tplText = `
 // Copyright (c) 2012-2016 Eli Janssen
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
@@ -30,7 +30,7 @@ const fileTemplate = `
 
 package {{.Pkg}}
 
-const licenseText = ` + "`{{.Text}}`\n"
+const licenseText = ` + "`{{.Text}}`"
 
 func main() {
 	var output, input, pkg string
@@ -53,7 +53,7 @@ func main() {
 
 	fmt.Printf("Generating %s based on %s\n", path.Base(output), path.Base(input))
 
-	t, err := template.New("fileTemplate").Parse(strings.TrimSpace(fileTemplate))
+	t, err := template.New("fileTemplate").Parse(strings.TrimSpace(tplText))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -62,6 +62,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	inputText := string(b)
+	inputText = strings.Replace(inputText, "~~~\n", "", -1)
+	inputText = strings.Replace(inputText, "~~~", "", -1)
 
 	f, err := os.Create(output)
 	if err != nil {
@@ -73,7 +77,7 @@ func main() {
 	defer writer.Flush()
 
 	data := &VersionLicenseText{
-		Text: string(b),
+		Text: inputText,
 		Pkg:  pkg,
 	}
 
