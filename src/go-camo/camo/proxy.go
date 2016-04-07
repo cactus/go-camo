@@ -69,7 +69,7 @@ type Proxy struct {
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	gologit.Debugln("Request:", req.URL)
 	if p.metrics != nil {
-		go p.metrics.AddServed()
+		p.metrics.AddServed()
 	}
 
 	if p.config.DisableKeepAlivesFE {
@@ -246,7 +246,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if p.metrics != nil {
-		go p.metrics.AddBytes(bW)
+		p.metrics.AddBytes(bW)
 	}
 	gologit.Debugln("Response to client:", w)
 }
