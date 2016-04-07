@@ -6,7 +6,8 @@
 
 package main
 
-const licenseText = `This software is available under the MIT License at:
+const licenseText = `
+This software is available under the MIT License at:
 └── https://github.com/cactus/go-camo
 
 Portions of this software utilize third party libraries:

@@ -12,6 +12,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"regexp"
 	"strings"
 	"text/template"
 )
@@ -63,9 +64,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	reTildes := regexp.MustCompile("(?m:^~~~.*\n?$)")
+	reComment := regexp.MustCompile("(?m:^//.*\n?$)")
 	inputText := string(b)
-	inputText = strings.Replace(inputText, "~~~\n", "", -1)
-	inputText = strings.Replace(inputText, "~~~", "", -1)
+	inputText = reTildes.ReplaceAllLiteralString(inputText, "")
+	inputText = reComment.ReplaceAllLiteralString(inputText, "")
 
 	f, err := os.Create(output)
 	if err != nil {
