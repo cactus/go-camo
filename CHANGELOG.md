@@ -2,6 +2,9 @@ Changelog
 =========
 
 ## HEAD
+*   use sync/atomic for internal stats counters
+*   reorganize some struct memory layout a little
+*   add -VV license info output
 
 ## 1.0.5 2016-02-18
 *   Build release with go1.6
