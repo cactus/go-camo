@@ -257,18 +257,7 @@ Example usage:
 
 ### simple-server
 
-The `simple-server` utility is useful for testing. It serves the contents of a
-given directory over http. Nothing more.
-
-    $ simple-server -h
-    Usage:
-      simple-server [OPTIONS] DIR
-
-    Application Options:
-      -l, --listen= Address:Port to bind to for HTTP (0.0.0.0:8000)
-
-    Help Options:
-      -h, --help    Show this help message
+The `simple-server` utility has moved to its [own repo][14].
 
 ## Changelog
 
@@ -292,3 +281,4 @@ file for details.
 [11]: https://github.com/cactus/go-camo/issues/6
 [12]: https://codereview.appspot.com/151730045#msg10
 [13]: https://github.com/cactus/go-camo/releases
+[14]: https://github.com/cactus/static-server
