@@ -114,7 +114,8 @@ func B64EncodeURL(hmacKey []byte, oURL string) string {
 
 // DecodeURL ensures the url is properly verified via HMAC, and then
 // unencodes the url, returning the url (if valid) and whether the
-// HMAC was verified. Tries to HexDecode the url, then B64Decode if that fails.
+// HMAC was verified. Tries either HexDecode or B64Decode, depending on the
+// length of the encoded hmac.
 func DecodeURL(hmackey []byte, encdig string, encURL string) (string, bool) {
 	var decoder func([]byte, string, string) (string, bool)
 	if len(encdig) == 40 {

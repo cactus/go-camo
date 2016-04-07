@@ -71,6 +71,18 @@ func TestDecoder(t *testing.T) {
 	}
 }
 
+func BenchmarkHexEncoder(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		HexEncodeURL([]byte("test"), "http://golang.org/doc/gopher/frontpage.png")
+	}
+}
+
+func BenchmarkB64Encoder(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		B64EncodeURL([]byte("test"), "http://golang.org/doc/gopher/frontpage.png")
+	}
+}
+
 func BenchmarkHexDecoder(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		HexDecodeURL([]byte("test"), "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3", "687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67")
