@@ -2,6 +2,8 @@ Changelog
 =========
 
 ## HEAD
+
+## 1.0.6 2016-04-07
 *   use sync/atomic for internal stats counters
 *   reorganize some struct memory layout a little
 *   add -VV license info output
