@@ -4,12 +4,13 @@ TARBUILDDIR       := ${BUILDDIR}/tar
 ARCH              := $(shell go env GOHOSTARCH)
 OS                := $(shell go env GOHOSTOS)
 GOVER             := $(shell go version | awk '{print $$3}' | tr -d '.')
-GOCAMO_VER        := $(shell git describe --always --dirty --tags|sed 's/^v//')
+APP_NAME          := go-camo
+APP_VER           := $(shell git describe --always --dirty --tags|sed 's/^v//')
 VERSION_VAR       := main.ServerVersion
 GOTEST_FLAGS      := -cpu=1,2
 GOBUILD_DEPFLAGS  := -tags netgo
 GOBUILD_LDFLAGS   ?=
-GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${GOCAMO_VER}"
+GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${APP_VER}"
 GB                := gb
 
 define HELP_OUTPUT
@@ -43,7 +44,7 @@ build-setup:
 	@${GB} vendor restore
 
 build:
-	@echo "Building go-camo..."
+	@echo "Building..."
 	@${GB} build ${GOBUILD_FLAGS} ...
 
 test:
@@ -59,36 +60,34 @@ cover:
 	@${GB} test -cover ${GOTEST_FLAGS} ...
 
 ${BUILDDIR}/man/%: man/%.mdoc
-	@cat $< | sed "s#.Os GO-CAMO VERSION#.Os GO-CAMO ${GOCAMO_VER}#" > $@
+	@cat $< | sed -E "s#.Os (.*) VERSION#.Os \1 ${APP_VER}#" > $@
 
 man: $(patsubst man/%.mdoc,${BUILDDIR}/man/%,$(wildcard man/*.1.mdoc))
 
 tar: all
 	@echo "Building tar..."
-	@mkdir -p ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin
-	@mkdir -p ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/man
-	@cp ${BUILDDIR}/bin/go-camo-netgo ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin/go-camo
-	@cp ${BUILDDIR}/bin/simple-server-netgo ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin/simple-server
-	@cp ${BUILDDIR}/bin/url-tool-netgo ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/bin/url-tool
-	@cp ${BUILDDIR}/man/*.[1-9] ${TARBUILDDIR}/go-camo-${GOCAMO_VER}/man/
-	@tar -C ${TARBUILDDIR} -czf ${TARBUILDDIR}/go-camo-${GOCAMO_VER}.${GOVER}.${OS}-${ARCH}.tar.gz go-camo-${GOCAMO_VER}
+	@mkdir -p ${TARBUILDDIR}/${APP_NAME}-${APP_VER}/bin
+	@mkdir -p ${TARBUILDDIR}/${APP_NAME}-${APP_VER}/man
+	@cp ${BUILDDIR}/bin/${APP_NAME}-netgo ${TARBUILDDIR}/${APP_NAME}-${APP_VER}/bin/${APP_NAME}
+	@cp ${BUILDDIR}/bin/url-tool-netgo ${TARBUILDDIR}/${APP_NAME}-${APP_VER}/bin/url-tool
+	@cp ${BUILDDIR}/man/*.[1-9] ${TARBUILDDIR}/${APP_NAME}-${APP_VER}/man/
+	@tar -C ${TARBUILDDIR} -czf ${TARBUILDDIR}/${APP_NAME}-${APP_VER}.${GOVER}.${OS}-${ARCH}.tar.gz ${APP_NAME}-${APP_VER}
 
 cross-tar: man
-	@echo "Making tar for go-camo:darwin.amd64"
+	@echo "Making tar for ${APP_NAME}:darwin.amd64"
 	@env GOOS=darwin  GOARCH=amd64 ${GB} build ${GOBUILD_FLAGS} ...
 	@env GOOS=freebsd GOARCH=amd64 ${GB} build ${GOBUILD_FLAGS} ...
 	@env GOOS=linux   GOARCH=amd64 ${GB} build ${GOBUILD_FLAGS} ...
 
 	@(for x in darwin-amd64 freebsd-amd64 linux-amd64; do \
-		echo "Making tar for go-camo.$${x}"; \
+		echo "Making tar for ${APP_NAME}.$${x}"; \
 		XDIR="${GOVER}.$${x}"; \
-		mkdir -p ${TARBUILDDIR}/$${XDIR}/go-camo-${GOCAMO_VER}/bin/; \
-		mkdir -p ${TARBUILDDIR}/$${XDIR}/go-camo-${GOCAMO_VER}/man/; \
-		cp bin/go-camo-$${x}-netgo ${TARBUILDDIR}/$${XDIR}/go-camo-${GOCAMO_VER}/bin/go-camo; \
-		cp bin/simple-server-$${x}-netgo ${TARBUILDDIR}/$${XDIR}/go-camo-${GOCAMO_VER}/bin/simple-server; \
-		cp bin/url-tool-$${x}-netgo ${TARBUILDDIR}/$${XDIR}/go-camo-${GOCAMO_VER}/bin/url-tool; \
-		cp ${BUILDDIR}/man/* ${TARBUILDDIR}/$${XDIR}/go-camo-${GOCAMO_VER}/man/; \
-		tar -C ${TARBUILDDIR}/$${XDIR} -czf ${TARBUILDDIR}/go-camo-${GOCAMO_VER}.$${XDIR}.tar.gz go-camo-${GOCAMO_VER}; \
+		mkdir -p ${TARBUILDDIR}/$${XDIR}/${APP_NAME}-${APP_VER}/bin/; \
+		mkdir -p ${TARBUILDDIR}/$${XDIR}/${APP_NAME}-${APP_VER}/man/; \
+		cp bin/${APP_NAME}-$${x}-netgo ${TARBUILDDIR}/$${XDIR}/${APP_NAME}-${APP_VER}/bin/${APP_NAME}; \
+		cp bin/url-tool-$${x}-netgo ${TARBUILDDIR}/$${XDIR}/${APP_NAME}-${APP_VER}/bin/url-tool; \
+		cp ${BUILDDIR}/man/*.[1-9] ${TARBUILDDIR}/$${XDIR}/${APP_NAME}-${APP_VER}/man/; \
+		tar -C ${TARBUILDDIR}/$${XDIR} -czf ${TARBUILDDIR}/${APP_NAME}-${APP_VER}.$${XDIR}.tar.gz ${APP_NAME}-${APP_VER}; \
 	done)
 
 all: build man
