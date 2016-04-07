@@ -30,7 +30,7 @@ const fileTemplate = `
 
 package {{.Pkg}}
 
-const licenseText = ` + "`{{.Text}}`"
+const licenseText = ` + "`{{.Text}}`\n"
 
 func main() {
 	var output, input, pkg string
@@ -38,10 +38,6 @@ func main() {
 	flag.StringVar(&input, "input", "", "input file")
 	flag.StringVar(&pkg, "pkg", "", "package name")
 	flag.Parse()
-
-	//cwd, _ := os.Getwd()
-	//fmt.Println(cwd)
-	fmt.Printf("Generating %s based on %s\n", path.Base(output), path.Base(input))
 
 	if input == "" {
 		log.Fatal("Input option is required")
@@ -55,8 +51,9 @@ func main() {
 		log.Fatal("Package option is required")
 	}
 
-	t, err := template.New("fileTemplate").Parse(
-		strings.TrimSpace(fileTemplate))
+	fmt.Printf("Generating %s based on %s\n", path.Base(output), path.Base(input))
+
+	t, err := template.New("fileTemplate").Parse(strings.TrimSpace(fileTemplate))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -79,5 +76,9 @@ func main() {
 		Text: string(b),
 		Pkg:  pkg,
 	}
+
 	err = t.Execute(writer, data)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
