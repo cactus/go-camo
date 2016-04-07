@@ -55,7 +55,7 @@ func main() {
 		SSLKey              string        `long:"ssl-key" description:"ssl private key (key.pem) path"`
 		SSLCert             string        `long:"ssl-cert" description:"ssl cert (cert.pem) path"`
 		Verbose             bool          `short:"v" long:"verbose" description:"Show verbose (debug) log level output"`
-		Version             bool          `short:"V" long:"version" description:"print version and exit"`
+		Version             []bool        `short:"V" long:"version" description:"Print version and exit; specify twice to show license information"`
 	}
 
 	// parse said flags
@@ -69,8 +69,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	if opts.Version {
+	if len(opts.Version) > 0 {
 		fmt.Printf("%s %s (%s,%s-%s)\n", ServerName, ServerVersion, runtime.Version(), runtime.Compiler, runtime.GOARCH)
+		if len(opts.Version) > 1 {
+			fmt.Printf("\n%s\n", strings.TrimSpace(licenseText))
+		}
 		os.Exit(0)
 	}
 
