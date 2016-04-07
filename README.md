@@ -43,10 +43,10 @@ Go-Camo supports both hex and base64 encoded urls at the same time.
 
 | encoding | tradeoffs                                               |
 | -------- | ------------------------------------------------------- |
-| hex      | longer, case insensitive, slightly faster (pre go1.6) |
-| base64   | shorter, case sensitive, slightly slower (pre go1.6)  |
+| hex      | longer, case insensitive, slightly faster (*pre go1.6*) |
+| base64   | shorter, case sensitive, slightly slower (*pre go1.6*)  |
 
-*NOTE*: As of go1.6 base64 is very close to hex in terms of performance.
+**NOTE**: As of go1.6 base64 is very close to hex in terms of performance.
 
 ~~~
 BenchmarkHexEncoder-2             500000          3027 ns/op
