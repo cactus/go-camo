@@ -7,34 +7,29 @@ package stats
 import (
 	"fmt"
 	"net/http"
-	"sync"
+	"sync/atomic"
 )
 
 type ProxyStats struct {
-	sync.RWMutex
 	clients uint64
 	bytes   uint64
 }
 
 func (ps *ProxyStats) AddServed() {
-	ps.Lock()
-	ps.clients++
-	ps.Unlock()
+	atomic.AddUint64(&ps.clients, 1)
 }
 
 func (ps *ProxyStats) AddBytes(bc int64) {
 	if bc <= 0 {
 		return
 	}
-	ps.Lock()
-	ps.bytes += uint64(bc)
-	ps.Unlock()
+	atomic.AddUint64(&ps.bytes, uint64(bc))
 }
 
 func (ps *ProxyStats) GetStats() (uint64, uint64) {
-	ps.RLock()
-	defer ps.RUnlock()
-	return ps.clients, ps.bytes
+	psClients := atomic.LoadUint64(&ps.clients)
+	psBytes := atomic.LoadUint64(&ps.bytes)
+	return psClients, psBytes
 }
 
 // StatsHandler returns an http.HandlerFunc that returns running totals and
