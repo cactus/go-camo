@@ -94,14 +94,14 @@ func main() {
 	}
 
 	if opts.BindAddress == "" && opts.BindAddressSSL == "" {
-		log.Fatal("One of bind-address or bind-ssl-address required")
+		log.Fatal("One of listen or ssl-listen required")
 	}
 
 	if opts.BindAddressSSL != "" && opts.SSLKey == "" {
-		log.Fatal("ssl-key is required when specifying bind-ssl-address")
+		log.Fatal("ssl-key is required when specifying ssl-listen")
 	}
 	if opts.BindAddressSSL != "" && opts.SSLCert == "" {
-		log.Fatal("ssl-cert is required when specifying bind-ssl-address")
+		log.Fatal("ssl-cert is required when specifying ssl-listen")
 	}
 
 	// set keepalive options
