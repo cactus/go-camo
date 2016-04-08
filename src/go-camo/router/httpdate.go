@@ -6,32 +6,37 @@ package router
 
 import (
 	"sync"
+	"sync/atomic"
 	"time"
+
+	"github.com/cactus/gologit"
 )
 
 const timeFormat = "Mon, 02 Jan 2006 15:04:05 GMT"
 
 // HTTPDate holds current date stamp formatting for HTTP date header
-type HTTPDate struct {
-	mu          sync.RWMutex
-	dateStamp   string
+type iHTTPDate struct {
+	dateValue   atomic.Value
 	onceUpdater sync.Once
 }
 
-func (h *HTTPDate) String() string {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-	return h.dateStamp
+func (h *iHTTPDate) String() string {
+	stamp := h.dateValue.Load()
+	if stamp == nil {
+		gologit.Println("Got a nil datesamp! Trying to recover...")
+		h.Update()
+		return time.Now().UTC().Format(timeFormat)
+	}
+	return stamp.(string)
 }
 
-func (h *HTTPDate) Update() {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	h.dateStamp = time.Now().UTC().Format(timeFormat)
+func (h *iHTTPDate) Update() {
+	h.dateValue.Store(time.Now().UTC().Format(timeFormat))
 }
 
-func newHTTPDate() *HTTPDate {
-	d := &HTTPDate{dateStamp: time.Now().UTC().Format(timeFormat)}
+func newiHTTPDate() *iHTTPDate {
+	d := &iHTTPDate{}
+	d.Update()
 	// spawn a single formattedDate updater
 	d.onceUpdater.Do(func() {
 		go func() {
@@ -43,4 +48,4 @@ func newHTTPDate() *HTTPDate {
 	return d
 }
 
-var formattedDate = newHTTPDate()
+var formattedDate = newiHTTPDate()
