@@ -29,39 +29,33 @@ func (dr *DumbRouter) SetHeaders(w http.ResponseWriter) {
 // RootHandler is a simple http hander for / that returns "Go-Camo"
 func (dr *DumbRouter) RootHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(200)
+	// Status 200 is the default. No need to set explicitly here.
 	io.WriteString(w, dr.ServerName)
-}
-
-func (dr *DumbRouter) HeadGet(w http.ResponseWriter, r *http.Request, handler http.HandlerFunc) {
-	if r.Method == "HEAD" || r.Method == "GET" {
-		handler(w, r)
-	} else {
-		http.Error(w, "Method Not Allowed", 405)
-	}
-	return
 }
 
 func (dr *DumbRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// set some default headers
 	dr.SetHeaders(w)
 
+	if r.Method != "HEAD" && r.Method != "GET" {
+		http.Error(w, "Method Not Allowed", 405)
+	}
+
 	components := strings.Split(r.URL.Path, "/")
 	if len(components) == 3 {
-		dr.HeadGet(w, r, dr.CamoHandler.ServeHTTP)
+		dr.CamoHandler.ServeHTTP(w, r)
 		return
 	}
 
-	if r.URL.Path == "/status" && dr.StatsHandler != nil {
-		dr.HeadGet(w, r, dr.StatsHandler)
+	if dr.StatsHandler != nil && r.URL.Path == "/status" {
+		dr.StatsHandler(w, r)
 		return
 	}
 
 	if r.URL.Path == "/" {
-		dr.HeadGet(w, r, dr.RootHandler)
+		dr.RootHandler(w, r)
 		return
 	}
 
 	http.Error(w, "404 Not Found", 404)
-	return
 }
