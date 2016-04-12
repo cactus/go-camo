@@ -5,7 +5,8 @@
 package camo_test
 
 import (
-	"log"
+	"fmt"
+	"os"
 
 	"go-camo/camo"
 	"go-camo/stats"
@@ -15,7 +16,8 @@ func ExampleProxyMetrics() {
 	config := camo.Config{}
 	proxy, err := camo.New(config)
 	if err != nil {
-		log.Fatal("Error: ", err)
+		fmt.Println("Error: ", err)
+		os.Exit(1)
 	}
 
 	ps := &stats.ProxyStats{}

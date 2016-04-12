@@ -12,8 +12,11 @@ import (
 )
 
 type enctesto struct {
-	encoder                func(hmacKey []byte, oURL string) string
-	hmac, edig, eURL, sURL string
+	encoder EncoderFunc
+	hmac    string
+	edig    string
+	eURL    string
+	sURL    string
 }
 
 var enctests = []enctesto{
@@ -39,8 +42,11 @@ func TestEncoder(t *testing.T) {
 }
 
 type dectesto struct {
-	decoder                func(hmackey []byte, encdig string, encURL string) (string, bool)
-	hmac, edig, eURL, sURL string
+	decoder DecoderFunc
+	hmac    string
+	edig    string
+	eURL    string
+	sURL    string
 }
 
 var dectests = []dectesto{
@@ -60,12 +66,12 @@ func TestDecoder(t *testing.T) {
 	for _, p := range dectests {
 		hmacKey := []byte(p.hmac)
 		// test specific decoder
-		encodedURL, ok := p.decoder(hmacKey, p.edig, p.eURL)
-		assert.True(t, ok, "decoded url failed to verify")
+		encodedURL, err := p.decoder(hmacKey, p.edig, p.eURL)
+		assert.Nil(t, err, "decoded url failed to verify")
 		assert.Equal(t, encodedURL, p.sURL, "decoded url does not match")
 
 		// also test generic "guessing" decoder
-		encodedURL, ok = DecodeURL(hmacKey, p.edig, p.eURL)
+		encodedURL, ok := DecodeURL(hmacKey, p.edig, p.eURL)
 		assert.True(t, ok, "decoded url failed to verify")
 		assert.Equal(t, encodedURL, p.sURL, "decoded url does not match")
 	}
@@ -137,12 +143,12 @@ func TestBadDecodes(t *testing.T) {
 	for _, p := range baddectests {
 		hmacKey := []byte(p.hmac)
 		// test specific decoder
-		encodedURL, ok := p.decoder(hmacKey, p.edig, p.eURL)
-		assert.False(t, ok, "decoded url verfied when it shouldn't have")
+		encodedURL, err := p.decoder(hmacKey, p.edig, p.eURL)
+		assert.NotNil(t, err, "decoded url verfied when it shouldn't have")
 		assert.Equal(t, encodedURL, "", "decoded url result not empty")
 
 		// also test generic "guessing" decoder
-		encodedURL, ok = DecodeURL(hmacKey, p.edig, p.eURL)
+		encodedURL, ok := DecodeURL(hmacKey, p.edig, p.eURL)
 		assert.False(t, ok, "decoded url verfied when it shouldn't have")
 		assert.Equal(t, encodedURL, "", "decoded url result not empty")
 	}

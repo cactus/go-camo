@@ -2,9 +2,9 @@
 	"version": 0,
 	"dependencies": [
 		{
-			"importpath": "github.com/cactus/gologit",
-			"repository": "https://github.com/cactus/gologit",
-			"revision": "785a05a76617462c7233761f2ac1a79375f51472",
+			"importpath": "github.com/cactus/mlog",
+			"repository": "https://github.com/cactus/mlog",
+			"revision": "0179f47c10442902658f100787013d95f4df8da9",
 			"branch": "master"
 		},
 		{

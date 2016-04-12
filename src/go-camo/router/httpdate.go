@@ -9,7 +9,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/cactus/gologit"
+	"github.com/cactus/mlog"
 )
 
 const timeFormat = "Mon, 02 Jan 2006 15:04:05 GMT"
@@ -23,7 +23,7 @@ type iHTTPDate struct {
 func (h *iHTTPDate) String() string {
 	stamp := h.dateValue.Load()
 	if stamp == nil {
-		gologit.Println("Got a nil datesamp! Trying to recover...")
+		mlog.Print("got a nil datesamp. Trying to recover...")
 		h.Update()
 		return time.Now().UTC().Format(timeFormat)
 	}

@@ -14,12 +14,11 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
-	"syscall"
 	"time"
 
 	"go-camo/camo/encoding"
 
-	"github.com/cactus/gologit"
+	"github.com/cactus/mlog"
 )
 
 // Config holds configuration data used when creating a Proxy with New.
@@ -67,7 +66,6 @@ type Proxy struct {
 // valid requests to the desired endpoint. Responses are filtered for
 // proper image content types.
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	gologit.Debugln("Request:", req.URL)
 	if p.metrics != nil {
 		p.metrics.AddServed()
 	}
@@ -89,17 +87,19 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 	sigHash, encodedURL := components[1], components[2]
 
+	mlog.Debugm("client request", mlog.Map{"req": req})
+
 	sURL, ok := encoding.DecodeURL(p.config.HMACKey, sigHash, encodedURL)
 	if !ok {
 		http.Error(w, "Bad Signature", http.StatusForbidden)
 		return
 	}
-	gologit.Debugln("URL:", sURL)
-	gologit.Debugln("Client request:", req)
+
+	mlog.Debugm("signed client url", mlog.Map{"url": sURL})
 
 	u, err := url.Parse(sURL)
 	if err != nil {
-		gologit.Debugln("url parse error:", err)
+		mlog.Debugm("url parse error", mlog.Map{"err": err})
 		http.Error(w, "Bad url", http.StatusBadRequest)
 		return
 	}
@@ -128,7 +128,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	nreq, err := http.NewRequest(req.Method, sURL, nil)
 	if err != nil {
-		gologit.Debugln("Could not create NewRequest", err)
+		mlog.Debugm("could not create NewRequest", mlog.Map{"err": err})
 		http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
 		return
 	}
@@ -150,11 +150,11 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	nreq.Header.Add("User-Agent", p.config.ServerName)
 	nreq.Header.Add("Via", p.config.ServerName)
 
-	gologit.Debugln("Built outgoing request:", nreq)
+	mlog.Debugm("built outgoing request", mlog.Map{"req": nreq})
 
 	resp, err := p.client.Do(nreq)
 	if err != nil {
-		gologit.Debugln("Could not connect to endpoint", err)
+		mlog.Debugm("could not connect to endpoint", mlog.Map{"err": err})
 		// this is a bit janky, but better than peeling off the
 		// 3 layers of wrapped errors and trying to get to net.OpErr and
 		// still having to rely on string comparison to find out if it is
@@ -174,11 +174,12 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	defer resp.Body.Close()
-	gologit.Debugln("Response from upstream:", resp)
+
+	mlog.Debugm("response from upstream", mlog.Map{"resp": resp})
 
 	// check for too large a response
 	if resp.ContentLength > p.config.MaxSize {
-		gologit.Debugln("Content length exceeded", sURL)
+		mlog.Debugm("content length exceeded", mlog.Map{"url": sURL})
 		http.Error(w, "Content length exceeded", http.StatusNotFound)
 		return
 	}
@@ -187,13 +188,12 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	case 200:
 		// check content type
 		if !strings.HasPrefix(resp.Header.Get("Content-Type"), "image/") {
-			gologit.Debugln("Non-Image content-type returned", u)
+			mlog.Debugm("Non-Image content-type returned", mlog.Map{"type": u})
 			http.Error(w, "Non-Image content-type returned",
 				http.StatusBadRequest)
 			return
 		}
 	case 300:
-		gologit.Debugln("Multiple choices not supported")
 		http.Error(w, "Multiple choices not supported", http.StatusNotFound)
 		return
 	case 301, 302, 303, 307:
@@ -227,20 +227,17 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// always end up with a chunked response.
 	bW, err := io.Copy(w, resp.Body)
 	if err != nil {
-		if opErr, ok := err.(*net.OpError); ok {
-			switch opErr.Err {
-			case syscall.EPIPE, syscall.ECONNRESET:
-				// broken pipe - endpoint terminated the conn
-				// connection reset by peer - endpoint terminated the conn
-				// log as debug only.
-				gologit.Debugln("OpError writing response:", err)
-			default:
-				// log anything else normally
-				gologit.Println("OpError writing response:", err)
-			}
+		// only log broken pipe errors at debug level
+		if isBrokenPipe(err) {
+			mlog.Debugm("error writing response", mlog.Map{"err": err})
 		} else {
-			// unknown error and not an OpError.
-			gologit.Println("Error writing response:", err)
+			// unknown error and not a broken pipe
+			mlog.Printm("error writing response", mlog.Map{"err": err})
+		}
+
+		// we may have written some bytes before the error
+		if p.metrics != nil && bW != 0 {
+			p.metrics.AddBytes(bW)
 		}
 		return
 	}
@@ -248,7 +245,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if p.metrics != nil {
 		p.metrics.AddBytes(bW)
 	}
-	gologit.Debugln("Response to client:", w)
+	mlog.Debugm("response to client", mlog.Map{"resp": w})
 }
 
 // copy headers from src into dst

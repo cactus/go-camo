@@ -8,7 +8,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/url"
 	"os"
 	"strings"
@@ -78,7 +77,7 @@ func (c *DecodeCommand) Execute(args []string) error {
 	if !valid {
 		return errors.New("hmac is invalid")
 	}
-	log.Println(decURL)
+	fmt.Println(decURL)
 	return nil
 }
 
@@ -87,9 +86,6 @@ var opts struct {
 }
 
 func main() {
-	// clear log prefix -- not needed for tool
-	log.SetFlags(0)
-
 	parser := flags.NewParser(&opts, flags.Default)
 	parser.AddCommand("encode", "Encode a url and print result",
 		"Encode a url and print result", &EncodeCommand{})

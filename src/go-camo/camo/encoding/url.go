@@ -10,27 +10,29 @@ import (
 	"crypto/subtle"
 	"encoding/base64"
 	"encoding/hex"
+	"fmt"
 	"strings"
 
-	"github.com/cactus/gologit"
+	"github.com/cactus/mlog"
 )
 
-func validateURL(hmackey *[]byte, macbytes *[]byte, urlbytes *[]byte) bool {
+type DecoderFunc func([]byte, string, string) (string, error)
+type EncoderFunc func([]byte, string) string
+
+func validateURL(hmackey *[]byte, macbytes *[]byte, urlbytes *[]byte) error {
 	mac := hmac.New(sha1.New, *hmackey)
 	mac.Write(*urlbytes)
 	macSum := mac.Sum(nil)
 
 	// ensure lengths are equal. if not, return false
 	if len(macSum) != len(*macbytes) {
-		gologit.Debugf("Bad signature: %x != %x\n", macSum, macbytes)
-		return false
+		return fmt.Errorf("mismatched length")
 	}
 
 	if subtle.ConstantTimeCompare(macSum, *macbytes) != 1 {
-		gologit.Debugf("Bad signature: %x != %x\n", macSum, macbytes)
-		return false
+		return fmt.Errorf("invalid mac")
 	}
-	return true
+	return nil
 }
 
 func b64encode(data []byte) string {
@@ -49,22 +51,20 @@ func b64decode(str string) ([]byte, error) {
 // HexDecodeURL ensures the url is properly verified via HMAC, and then
 // unencodes the url, returning the url (if valid) and whether the
 // HMAC was verified.
-func HexDecodeURL(hmackey []byte, hexdig string, hexURL string) (string, bool) {
+func HexDecodeURL(hmackey []byte, hexdig string, hexURL string) (string, error) {
 	urlBytes, err := hex.DecodeString(hexURL)
 	if err != nil {
-		gologit.Debugln("Bad Hex Decode of URL", hexURL)
-		return "", false
+		return "", fmt.Errorf("bad url decode")
 	}
 	macBytes, err := hex.DecodeString(hexdig)
 	if err != nil {
-		gologit.Debugln("Bad Hex Decode of MAC", hexURL)
-		return "", false
+		return "", fmt.Errorf("bad mac decode")
 	}
 
-	if ok := validateURL(&hmackey, &macBytes, &urlBytes); !ok {
-		return "", false
+	if err = validateURL(&hmackey, &macBytes, &urlBytes); err != nil {
+		return "", fmt.Errorf("invalid signature: %s", err)
 	}
-	return string(urlBytes), true
+	return string(urlBytes), nil
 }
 
 // HexEncodeURL takes an HMAC key and a url, and returns url
@@ -82,22 +82,20 @@ func HexEncodeURL(hmacKey []byte, oURL string) string {
 // B64DecodeURL ensures the url is properly verified via HMAC, and then
 // unencodes the url, returning the url (if valid) and whether the
 // HMAC was verified.
-func B64DecodeURL(hmackey []byte, encdig string, encURL string) (string, bool) {
+func B64DecodeURL(hmackey []byte, encdig string, encURL string) (string, error) {
 	urlBytes, err := b64decode(encURL)
 	if err != nil {
-		gologit.Debugln("Bad B64 Decode of URL", encURL)
-		return "", false
+		return "", fmt.Errorf("bad url decode")
 	}
 	macBytes, err := b64decode(encdig)
 	if err != nil {
-		gologit.Debugln("Bad B64 Decode of MAC", encURL)
-		return "", false
+		return "", fmt.Errorf("bad mac decode")
 	}
 
-	if ok := validateURL(&hmackey, &macBytes, &urlBytes); !ok {
-		return "", false
+	if err := validateURL(&hmackey, &macBytes, &urlBytes); err != nil {
+		return "", fmt.Errorf("invalid signature: %s", err)
 	}
-	return string(urlBytes), true
+	return string(urlBytes), nil
 }
 
 // B64EncodeURL takes an HMAC key and a url, and returns url
@@ -117,16 +115,16 @@ func B64EncodeURL(hmacKey []byte, oURL string) string {
 // HMAC was verified. Tries either HexDecode or B64Decode, depending on the
 // length of the encoded hmac.
 func DecodeURL(hmackey []byte, encdig string, encURL string) (string, bool) {
-	var decoder func([]byte, string, string) (string, bool)
+	var decoder DecoderFunc
 	if len(encdig) == 40 {
 		decoder = HexDecodeURL
 	} else {
 		decoder = B64DecodeURL
 	}
 
-	urlBytes, ok := decoder(hmackey, encdig, encURL)
-	if !ok {
-		gologit.Debugln("Bad Decode of URL", encURL)
+	urlBytes, err := decoder(hmackey, encdig, encURL)
+	if err != nil {
+		mlog.Debugf("Bad Decode of URL: %s", err)
 		return "", false
 	}
 	return string(urlBytes), true

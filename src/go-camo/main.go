@@ -10,20 +10,18 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"runtime"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
 	"go-camo/camo"
 	"go-camo/router"
 	"go-camo/stats"
 
-	"github.com/cactus/gologit"
+	"github.com/cactus/mlog"
 	flags "github.com/jessevdk/go-flags"
 )
 
@@ -46,6 +44,7 @@ func main() {
 		HMACKey             string        `short:"k" long:"key" description:"HMAC key"`
 		AddHeaders          []string      `short:"H" long:"header" description:"Extra header to return for each response. This option can be used multiple times to add multiple headers"`
 		Stats               bool          `long:"stats" description:"Enable Stats"`
+		NoLogTS             bool          `long:"no-log-ts" description:"Do not add a timestamp to logging"`
 		AllowList           string        `long:"allow-list" description:"Text file of hostname allow regexes (one per line)"`
 		MaxSize             int64         `long:"max-size" default:"5120" description:"Max response image size (KB)"`
 		ReqTimeout          time.Duration `long:"timeout" default:"4s" description:"Upstream request timeout"`
@@ -79,6 +78,10 @@ func main() {
 		os.Exit(0)
 	}
 
+	// start out with a very bare logger that only prints
+	// the message (no special format or log elements)
+	mlog.SetFlags(0)
+
 	config := camo.Config{}
 	if hmacKey := os.Getenv("GOCAMO_HMAC"); hmacKey != "" {
 		config.HMACKey = []byte(hmacKey)
@@ -90,18 +93,18 @@ func main() {
 	}
 
 	if len(config.HMACKey) == 0 {
-		log.Fatal("HMAC key required")
+		mlog.Fatal("HMAC key required")
 	}
 
 	if opts.BindAddress == "" && opts.BindAddressSSL == "" {
-		log.Fatal("One of listen or ssl-listen required")
+		mlog.Fatal("One of listen or ssl-listen required")
 	}
 
 	if opts.BindAddressSSL != "" && opts.SSLKey == "" {
-		log.Fatal("ssl-key is required when specifying ssl-listen")
+		mlog.Fatal("ssl-key is required when specifying ssl-listen")
 	}
 	if opts.BindAddressSSL != "" && opts.SSLCert == "" {
-		log.Fatal("ssl-cert is required when specifying ssl-listen")
+		mlog.Fatal("ssl-cert is required when specifying ssl-listen")
 	}
 
 	// set keepalive options
@@ -111,7 +114,7 @@ func main() {
 	if opts.AllowList != "" {
 		b, err := ioutil.ReadFile(opts.AllowList)
 		if err != nil {
-			log.Fatal("Could not read allow-list", err)
+			mlog.Fatal("Could not read allow-list", err)
 		}
 		config.AllowList = strings.Split(string(b), "\n")
 	}
@@ -125,7 +128,7 @@ func main() {
 	for _, v := range opts.AddHeaders {
 		s := strings.SplitN(v, ":", 2)
 		if len(s) != 2 {
-			log.Printf("ignoring bad header: '%s'\n", v)
+			mlog.Printf("ignoring bad header: '%s'", v)
 			continue
 		}
 
@@ -133,10 +136,21 @@ func main() {
 		s1 := strings.TrimSpace(s[1])
 
 		if len(s0) == 0 || len(s1) == 0 {
-			log.Printf("ignoring bad header: '%s'\n", v)
+			mlog.Printf("ignoring bad header: '%s'", v)
 			continue
 		}
 		AddHeaders[s[0]] = s[1]
+	}
+
+	// now configure a standard logger
+	mlog.SetFlags(mlog.Lstd)
+	if opts.NoLogTS {
+		mlog.SetFlags(mlog.Flags() ^ mlog.Ltimestamp)
+	}
+
+	if opts.Verbose {
+		mlog.SetFlags(mlog.Flags() | mlog.Ldebug)
+		mlog.Debug("debug logging enabled")
 	}
 
 	// convert from KB to Bytes
@@ -145,15 +159,9 @@ func main() {
 	config.MaxRedirects = opts.MaxRedirects
 	config.ServerName = ServerName
 
-	// set logger debug level and start toggle on signal handler
-	logger := gologit.Logger
-	logger.Set(opts.Verbose)
-	logger.Debugln("Debug logging enabled")
-	logger.ToggleOnSignal(syscall.SIGUSR1)
-
 	proxy, err := camo.New(config)
 	if err != nil {
-		log.Fatal(err)
+		mlog.Fatal("Error creating camo", err)
 	}
 
 	dumbrouter := &router.DumbRouter{
@@ -165,28 +173,28 @@ func main() {
 	if opts.Stats {
 		ps := &stats.ProxyStats{}
 		proxy.SetMetricsCollector(ps)
-		log.Println("Enabling stats at /status")
+		mlog.Printf("Enabling stats at /status")
 		dumbrouter.StatsHandler = stats.StatsHandler(ps)
 	}
 
 	http.Handle("/", dumbrouter)
 
 	if opts.BindAddress != "" {
-		log.Println("Starting server on", opts.BindAddress)
+		mlog.Printf("Starting server on: %s", opts.BindAddress)
 		go func() {
 			srv := &http.Server{
 				Addr:        opts.BindAddress,
 				ReadTimeout: 30 * time.Second}
-			log.Fatal(srv.ListenAndServe())
+			mlog.Fatal(srv.ListenAndServe())
 		}()
 	}
 	if opts.BindAddressSSL != "" {
-		log.Println("Starting TLS server on", opts.BindAddressSSL)
+		mlog.Printf("Starting TLS server on: %s", opts.BindAddressSSL)
 		go func() {
 			srv := &http.Server{
 				Addr:        opts.BindAddressSSL,
 				ReadTimeout: 30 * time.Second}
-			log.Fatal(srv.ListenAndServeTLS(opts.SSLCert, opts.SSLKey))
+			mlog.Fatal(srv.ListenAndServeTLS(opts.SSLCert, opts.SSLKey))
 		}()
 	}
 

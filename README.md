@@ -184,6 +184,7 @@ In order to use this on Heroku with the provided Procfile, you need to:
       -H, --header=        Extra header to return for each response. This option
                            can be used multiple times to add multiple headers
           --stats          Enable Stats
+          --no-log-ts      Do not add a timestamp to logging
           --allow-list=    Text file of hostname allow regexes (one per line)
           --max-size=      Max response image size (KB) (5120)
           --timeout=       Upstream request timeout (4s)
