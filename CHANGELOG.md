@@ -2,6 +2,9 @@ Changelog
 =========
 
 ## HEAD
+*   conver to different logging mechanism (mlog)
+*   fix a go16 logging issue
+*   add --no-log-ts command line option
 
 ## 1.0.6 2016-04-07
 *   use sync/atomic for internal stats counters
