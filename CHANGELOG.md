@@ -2,6 +2,8 @@ Changelog
 =========
 
 ## HEAD
+
+## 1.0.7 2016-04-18
 *   conver to different logging mechanism (mlog)
 *   fix a go16 logging issue
 *   add --no-log-ts command line option
