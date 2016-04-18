@@ -118,7 +118,7 @@ Building:
 
     # as an alternative to the previous command, build and strip debug symbols.
     # this is useful for production, and reduces the resulting file size.
-    $ make all GOBUILD_LDFLAGS="-s"
+    $ make all GOBUILD_LDFLAGS="-s -w"
 
 By default, Go-Camo builds with `-tags netgo`. However, depending on your
 Go version, this will not actually result in Go-Camo using the netgo resolver
