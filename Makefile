@@ -90,4 +90,11 @@ cross-tar: man
 		tar -C ${TARBUILDDIR}/$${XDIR} -czf ${TARBUILDDIR}/${APP_NAME}-${APP_VER}.$${XDIR}.tar.gz ${APP_NAME}-${APP_VER}; \
 	done)
 
+release-sign:
+	@echo "signing release tarballs"
+	@(cd tar; shasum -a 256 go-camo-*.tar.gz > SHA256; \
+	  signify -S -s $${SECKEY} -m SHA256; \
+	  sed -i '' -E 's#^(.*:).*#\1 go-camo-${APP_VER} SHA256#' SHA256.sig \
+	 )
+
 all: build man
