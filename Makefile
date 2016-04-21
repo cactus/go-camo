@@ -39,6 +39,9 @@ clean:
 	@rm -rf "${BUILDDIR}/tar"
 	@rm -rf "${BUILDDIR}/man/"*.[1-9]
 
+clean-vendor:
+	@rm -rf "${BUILDDIR}/vendor/src"
+
 build-setup:
 	@go get github.com/constabulary/gb/...
 	@${GB} vendor restore
