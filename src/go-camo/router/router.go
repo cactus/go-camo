@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+// DumbRouter is a basic, special purpose, http router
 type DumbRouter struct {
 	ServerName   string
 	CamoHandler  http.Handler
@@ -17,6 +18,7 @@ type DumbRouter struct {
 	AddHeaders   map[string]string
 }
 
+// SetHeaders sets the headers on the response
 func (dr *DumbRouter) SetHeaders(w http.ResponseWriter) {
 	h := w.Header()
 	for k, v := range dr.AddHeaders {
@@ -33,6 +35,7 @@ func (dr *DumbRouter) RootHandler(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, dr.ServerName)
 }
 
+// ServeHTTP fulfills the http server interface
 func (dr *DumbRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// set some default headers
 	dr.SetHeaders(w)

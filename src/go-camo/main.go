@@ -26,7 +26,9 @@ import (
 )
 
 var (
-	ServerName    = "go-camo"
+	// ServerName holds the server name string
+	ServerName = "go-camo"
+	// ServerVersion holds the server version string
 	ServerVersion = "no-version"
 )
 
@@ -174,7 +176,7 @@ func main() {
 		ps := &stats.ProxyStats{}
 		proxy.SetMetricsCollector(ps)
 		mlog.Printf("Enabling stats at /status")
-		dumbrouter.StatsHandler = stats.StatsHandler(ps)
+		dumbrouter.StatsHandler = stats.Handler(ps)
 	}
 
 	http.Handle("/", dumbrouter)

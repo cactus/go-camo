@@ -17,11 +17,13 @@ import (
 	flags "github.com/jessevdk/go-flags"
 )
 
+// EncodeCommand holds command options for the encode command
 type EncodeCommand struct {
 	Base   string `short:"b" long:"base" default:"hex" description:"Encode/Decode base. Either hex or base64"`
 	Prefix string `short:"p" long:"prefix" default:"" description:"Optional url prefix used by encode output"`
 }
 
+// Execute runs the encode command
 func (c *EncodeCommand) Execute(args []string) error {
 	if opts.HmacKey == "" {
 		return errors.New("Empty HMAC")
@@ -50,8 +52,10 @@ func (c *EncodeCommand) Execute(args []string) error {
 	return nil
 }
 
+// DecodeCommand holds command options for the decode command
 type DecodeCommand struct{}
 
+// Execute runs the decode command
 func (c *DecodeCommand) Execute(args []string) error {
 	if opts.HmacKey == "" {
 		return errors.New("Empty HMAC")

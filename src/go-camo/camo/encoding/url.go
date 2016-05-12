@@ -16,7 +16,10 @@ import (
 	"github.com/cactus/mlog"
 )
 
+// DecoderFunc is a function type that defines a url decoder.
 type DecoderFunc func([]byte, string, string) (string, error)
+
+// EncoderFunc is a function type that defines a url encoder.
 type EncoderFunc func([]byte, string) string
 
 func validateURL(hmackey *[]byte, macbytes *[]byte, urlbytes *[]byte) error {

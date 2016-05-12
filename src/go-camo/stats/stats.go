@@ -10,15 +10,18 @@ import (
 	"sync/atomic"
 )
 
+// ProxyStats is the counter container
 type ProxyStats struct {
 	clients uint64
 	bytes   uint64
 }
 
+// AddServed increments the number of clients served counter
 func (ps *ProxyStats) AddServed() {
 	atomic.AddUint64(&ps.clients, 1)
 }
 
+// AddBytes increments the number of bytes served counter
 func (ps *ProxyStats) AddBytes(bc int64) {
 	if bc <= 0 {
 		return
@@ -26,15 +29,16 @@ func (ps *ProxyStats) AddBytes(bc int64) {
 	atomic.AddUint64(&ps.bytes, uint64(bc))
 }
 
+// GetStats returns the stats: clients, bytes
 func (ps *ProxyStats) GetStats() (uint64, uint64) {
 	psClients := atomic.LoadUint64(&ps.clients)
 	psBytes := atomic.LoadUint64(&ps.bytes)
 	return psClients, psBytes
 }
 
-// StatsHandler returns an http.HandlerFunc that returns running totals and
+// Handler returns an http.HandlerFunc that returns running totals and
 // stats about the server.
-func StatsHandler(ps *ProxyStats) http.HandlerFunc {
+func Handler(ps *ProxyStats) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.WriteHeader(200)

@@ -8,9 +8,9 @@ import (
 	"regexp"
 )
 
-// Headers that are acceptable to pass from the client to the remote
-// server. Only those present and true, are forwarded. Empty implies
-// no filtering.
+// ValidReqHeaders are http request headers that are acceptable to pass from
+// the client to the remote server. Only those present and true, are forwarded.
+// Empty implies no filtering.
 var ValidReqHeaders = map[string]bool{
 	"Accept":         true,
 	"Accept-Charset": true,
@@ -24,9 +24,9 @@ var ValidReqHeaders = map[string]bool{
 	"X-Forwarded-For":   true,
 }
 
-// Headers that are acceptable to pass from the remote server to the
-// client. Only those present and true, are forwarded. Empty implies
-// no filtering.
+// ValidRespHeaders are http response headers that are acceptable to pass from
+// the remote server to the client. Only those present and true, are forwarded.
+// Empty implies no filtering.
 var ValidRespHeaders = map[string]bool{
 	// Do not offer to accept range requests
 	"Accept-Ranges":     false,
