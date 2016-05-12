@@ -17,6 +17,7 @@ import (
 	"text/template"
 )
 
+// VersionLicenseText is a text formatter container
 type VersionLicenseText struct {
 	Text string
 	Pkg  string

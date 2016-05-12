@@ -8,7 +8,7 @@ import (
 	"regexp"
 )
 
-// Headers that are acceptible to pass from the client to the remote
+// Headers that are acceptable to pass from the client to the remote
 // server. Only those present and true, are forwarded. Empty implies
 // no filtering.
 var ValidReqHeaders = map[string]bool{
@@ -24,7 +24,7 @@ var ValidReqHeaders = map[string]bool{
 	"X-Forwarded-For":   true,
 }
 
-// Headers that are acceptible to pass from the remote server to the
+// Headers that are acceptable to pass from the remote server to the
 // client. Only those present and true, are forwarded. Empty implies
 // no filtering.
 var ValidRespHeaders = map[string]bool{
