@@ -3,6 +3,10 @@ Changelog
 
 ## HEAD
 
+## 1.0.8 2016-08-20
+*   update go version support
+*   build release with go1.7
+
 ## 1.0.7 2016-04-18
 *   conver to different logging mechanism (mlog)
 *   fix a go16 logging issue
