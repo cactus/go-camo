@@ -92,7 +92,7 @@ Building requires:
 
     * git
     * make
-    * go (version >= 1.4 required, 1.6 recommended)
+    * go (version >= 1.5 required, 1.7 recommended)
 
 Building:
 
