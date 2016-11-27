@@ -3,6 +3,9 @@ Changelog
 
 ## HEAD
 
+## 1.0.9 2016-11-27
+*   just a rebuild of 1.0.8 with go 1.7.3
+
 ## 1.0.8 2016-08-20
 *   update go version support
 *   build release with go1.7
