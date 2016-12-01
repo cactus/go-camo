@@ -8,10 +8,12 @@ package camo
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -41,6 +43,8 @@ type Config struct {
 	// Keepalive enable/disable
 	DisableKeepAlivesFE bool
 	DisableKeepAlivesBE bool
+	// Attempt to Set a "Content-Disposition: filename=..." header
+	TrySetFilename bool
 }
 
 // ProxyMetrics interface for Proxy to use for stats/metrics.
@@ -236,6 +240,14 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	h := w.Header()
+
+	if p.config.TrySetFilename {
+		filename := p.getFilename(u)
+		if filename != "" {
+			h.Add("Content-Disposition", fmt.Sprintf("filename=%s", filename))
+		}
+	}
+
 	p.copyHeader(&h, &resp.Header, &ValidRespHeaders)
 	w.WriteHeader(resp.StatusCode)
 
@@ -263,6 +275,13 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		p.metrics.AddBytes(bW)
 	}
 	mlog.Debugm("response to client", mlog.Map{"resp": w})
+}
+
+// get filename from request
+func (p *Proxy) getFilename(u *url.URL) string {
+	pth := u.Path
+	_, file := filepath.Split(pth)
+	return file
 }
 
 // copy headers from src into dst
