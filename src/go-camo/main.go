@@ -124,7 +124,7 @@ func main() {
 	AddHeaders := map[string]string{
 		"X-Content-Type-Options":  "nosniff",
 		"X-XSS-Protection":        "1; mode=block",
-		"Content-Security-Policy": "default-src 'none'",
+		"Content-Security-Policy": "default-src 'none'; img-src data:; style-src 'unsafe-inline'",
 	}
 
 	for _, v := range opts.AddHeaders {
