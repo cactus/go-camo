@@ -279,8 +279,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 // get filename from request
 func (p *Proxy) getFilename(u *url.URL) string {
-	pth := u.Path
-	_, file := filepath.Split(pth)
+	_, file := filepath.Split(u.EscapedPath())
 	return file
 }
 
