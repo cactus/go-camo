@@ -219,7 +219,7 @@ The list of default headers sent are:
 
     X-Content-Type-Options: nosniff
     X-XSS-Protection: 1; mode=block
-    Content-Security-Policy: default-src 'none'`
+    Content-Security-Policy: default-src 'none'; img-src data:; style-src 'unsafe-inline'
 
 As an example, if you wanted to return a `Strict-Transport-Security` header
 by default, you could add this to the command line:
