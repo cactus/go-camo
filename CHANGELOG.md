@@ -3,6 +3,10 @@ Changelog
 
 ## HEAD
 
+## 1.0.11 2017-01-16
+*   resolve hostname and check against rfc1918 (best effort blocking of dns rebind attacks)
+*   fix regex match bug with 172.16.0.0/12 addresses (over eager match)
+
 ## 1.0.10 2017-01-03
 *   apply a more friendly default content-security-policy
 
