@@ -75,11 +75,11 @@ func TestNotFound(t *testing.T) {
 
 	record, err := processRequest(req, 404, camoConfig)
 	if assert.Nil(t, err) {
-		assert.Equal(t, record.Code, 404, "Expected 404 but got '%d' instead", record.Code)
-		assert.Equal(t, record.Body.String(), "404 Not Found\n", "Expected 404 response body but got '%s' instead", record.Body.String())
+		assert.Equal(t, 404, record.Code, "Expected 404 but got '%d' instead", record.Code)
+		assert.Equal(t, "404 Not Found\n", record.Body.String(), "Expected 404 response body but got '%s' instead", record.Body.String())
 		// validate headers
-		assert.Equal(t, record.HeaderMap.Get("X-Go-Camo"), "test", "Expected custom response header not found")
-		assert.Equal(t, record.HeaderMap.Get("Server"), "go-camo", "Expected 'Server' response header not found")
+		assert.Equal(t, "test", record.HeaderMap.Get("X-Go-Camo"), "Expected custom response header not found")
+		assert.Equal(t, "go-camo", record.HeaderMap.Get("Server"), "Expected 'Server' response header not found")
 	}
 }
 
@@ -89,8 +89,8 @@ func TestSimpleValidImageURL(t *testing.T) {
 	record, err := makeTestReq(testURL, 200)
 	if assert.Nil(t, err) {
 		// validate headers
-		assert.Equal(t, record.HeaderMap.Get("X-Go-Camo"), "test", "Expected custom response header not found")
-		assert.Equal(t, record.HeaderMap.Get("Server"), "go-camo", "Expected 'Server' response header not found")
+		assert.Equal(t, "test", record.HeaderMap.Get("X-Go-Camo"), "Expected custom response header not found")
+		assert.Equal(t, "go-camo", record.HeaderMap.Get("Server"), "Expected 'Server' response header not found")
 	}
 }
 
@@ -220,7 +220,7 @@ func Test404OnLocalhost(t *testing.T) {
 	testURL := "http://localhost/foo.cgi"
 	record, err := makeTestReq(testURL, 404)
 	if assert.Nil(t, err) {
-		assert.Equal(t, record.Body.String(), "Bad url host\n", "Expected 404 response body but got '%s' instead", record.Body.String())
+		assert.Equal(t, "Bad url host\n", record.Body.String(), "Expected 404 response body but got '%s' instead", record.Body.String())
 	}
 }
 
@@ -229,7 +229,7 @@ func Test404OnLoopback(t *testing.T) {
 	testURL := "http://i.i.com.com/foo.cgi"
 	record, err := makeTestReq(testURL, 404)
 	if assert.Nil(t, err) {
-		assert.Equal(t, record.Body.String(), "Denylist host failure\n", "Expected 404 response body but got '%s' instead", record.Body.String())
+		assert.Equal(t, "Denylist host failure\n", record.Body.String(), "Expected 404 response body but got '%s' instead", record.Body.String())
 	}
 }
 

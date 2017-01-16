@@ -167,6 +167,39 @@ In order to use this on Heroku with the provided Procfile, you need to:
     buildpack
 2.  Set `HMAC_KEY` to the key you are using
 
+## Securing an installation
+
+go-camo will generally do what you tell it to with regard to fetching signed
+urls. There is some limited support for trying to preventing [dns
+rebinding][15] attacks.
+
+go-camo will attempt to reject any address matching an rfc1918 network block,
+or a private scope ipv6 address, be it in the url or via resulting hostname
+resolution. Do note, however, that this does not provide protecton for a
+network that uses public address space (ipv4 or ipv6), or some of the
+[more exotic][16] ipv6 addresses.
+
+The list of networks currently rejected include:
+
+*   127.0.0.0/8 (loopback)
+*   169.254.0.0/16 (ipv4 link local)
+*   10.0.0.0/8 (rfc1918)
+*   172.16.0.0/12 (rfc1918)
+*   192.168.0.0/16 (rfc1918)
+*   ::1/128 (ipv6 loopback)
+*   fe80::/10 (ipv6 link local)
+*   fec0::/10 (deprecated ipv6 site-local)
+*   fc00::/7 (ipv6 ULA)
+*   ::ffff:0:0/96 (IPv4-mapped IPv6 address)
+
+More generally, it is recommended to either:
+
+1.  Run go-camo on an isolated instance (physical, vlans, firewall rules, etc).
+2.  Run a local resolver for go-camo that returns NXDOMAIN responses for
+    addresses in blacklisted ranges (for example unbound's `private-address`
+    functionality). This is also useful to help prevent dns rebinding in
+    general.
+
 ## Configuring
 
 ### Environment Vars
@@ -292,3 +325,5 @@ file for details.
 [12]: https://codereview.appspot.com/151730045#msg10
 [13]: https://github.com/cactus/go-camo/releases
 [14]: https://github.com/cactus/static-server
+[15]: https://en.wikipedia.org/wiki/DNS_rebinding
+[16]: https://en.wikipedia.org/wiki/IPv6_address#Special_addresses

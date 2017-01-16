@@ -40,9 +40,34 @@ var ValidRespHeaders = map[string]bool{
 	"Server": false,
 }
 
-// addr1918PrefixMatch is a regex for matching the prefix of hosts in
-// x-forward-for header filtering for rfc1918 addresses
-var addr1918PrefixRegex = regexp.MustCompile(`^(127\.|10\.|169\.254|192\.168|172\.(?:(?:1[6-9])|(?:2[0-9])|(?:3[0-1]))\.)`)
+// networks to reject
+var rejectIPv4Networks = mustParseNetmasks(
+	[]string{
+		// ipv4 loopback
+		"127.0.0.0/8",
+		// ipv4 link local
+		"169.254.0.0/16",
+		// ipv4 rfc1918
+		"10.0.0.0/8",
+		"172.16.0.0/12",
+		"192.168.0.0/16",
+	},
+)
+
+var rejectIPv6Networks = mustParseNetmasks(
+	[]string{
+		// ipv6 loopback
+		"::1/128",
+		// ipv6 link local
+		"fe80::/10",
+		// old ipv6 site local
+		"fec0::/10",
+		// ipv6 ULA
+		"fc00::/7",
+		// ipv4 mapped onto ipv6
+		"::ffff:0:0/96",
+	},
+)
 
 // match for localhost
 var localhostRegex = regexp.MustCompile(`^localhost\.?(localdomain)?\.?$`)
