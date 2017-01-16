@@ -2,6 +2,8 @@ Changelog
 =========
 
 ## HEAD
+
+## 1.0.12 2017-01-16
 *   better address rejection logic
 
 ## 1.0.11 2017-01-16
