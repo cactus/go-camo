@@ -124,6 +124,15 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			http.Error(w, "Denylist host failure", http.StatusNotFound)
 			return
 		}
+	} else {
+		if ips, err := net.LookupIP(u.Host); err == nil {
+			for _, ip := range ips {
+				if addr1918PrefixRegex.MatchString(ip.String()) {
+					http.Error(w, "Denylist host failure", http.StatusNotFound)
+					return
+				}
+			}
+		}
 	}
 
 	nreq, err := http.NewRequest(req.Method, sURL, nil)
