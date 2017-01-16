@@ -2,6 +2,7 @@ Changelog
 =========
 
 ## HEAD
+*   better address rejection logic
 
 ## 1.0.11 2017-01-16
 *   resolve hostname and check against rfc1918 (best effort blocking of dns rebind attacks)
