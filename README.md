@@ -3,6 +3,21 @@ go-camo
 
 [![Build Status](https://travis-ci.org/cactus/go-camo.png?branch=master)](https://travis-ci.org/cactus/go-camo)
 
+## Contents
+
+*   [About](#about)
+*   [How it works](#how-it-works)
+*   [Differences from Camo](#differences-from-camo)
+*   [Installing pre-built binaries](#installing-pre-built-binaries)
+*   [Building](#building)
+*   [Running](#running)
+*   [Running on Heroku](#running-on-heroku)
+*   [Securing an installation](#securing-an-installation)
+*   [Configuring](#configuring)
+*   [Additional tools](#additional-tools)
+*   [Changelog](#changelog)
+*   [License](#license)
+
 ## About
 
 Go version of [Camo][1] server.
@@ -81,7 +96,7 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
 *   Go-Camo allows custom default headers to be added -- useful for things
     like adding [HSTS][10] headers.
 
-## Installing pre-build binaries
+## Installing pre-built binaries
 
 Download the tarball appropriate for your OS/ARCH from [releases][13].
 Extract, and copy files to desired locations.
