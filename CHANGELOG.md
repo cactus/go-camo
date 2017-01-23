@@ -3,6 +3,10 @@ Changelog
 
 ## HEAD
 
+## 1.0.13 2017-01-22
+*   resolve potential resource leak with redirection failures and http response
+    body closing
+
 ## 1.0.12 2017-01-16
 *   better address rejection logic
 
