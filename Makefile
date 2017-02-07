@@ -97,7 +97,8 @@ release-sign:
 	@echo "signing release tarballs"
 	@(cd tar; shasum -a 256 go-camo-*.tar.gz > SHA256; \
 	  signify -S -s $${SECKEY} -m SHA256; \
-	  sed -i '' -E 's#^(.*:).*#\1 go-camo-${APP_VER} SHA256#' SHA256.sig \
+	  sed -i.bak -E 's#^(.*:).*#\1 go-camo-${APP_VER} SHA256#' SHA256.sig; \
+	  rm -f SHA256.sig.bak; \
 	 )
 
 all: build man
