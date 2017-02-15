@@ -2,6 +2,8 @@ Changelog
 =========
 
 ## HEAD
+*   Pass through ETag header from server. The previous omission was
+    inconsistent with passing the if-none-match client request header.
 
 ## 1.0.13 2017-01-22
 *   resolve potential resource leak with redirection failures and http response
