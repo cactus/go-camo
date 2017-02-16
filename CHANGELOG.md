@@ -2,6 +2,8 @@ Changelog
 =========
 
 ## HEAD
+
+## 1.0.14 2017-02-15
 *   Pass through ETag header from server. The previous omission was
     inconsistent with passing the if-none-match client request header.
 
