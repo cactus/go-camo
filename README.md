@@ -107,7 +107,7 @@ Building requires:
 
     * git
     * make
-    * go (version >= 1.5 required, 1.7 recommended)
+    * go (version 1.8 recommended)
 
 Building:
 
@@ -129,11 +129,11 @@ Building:
     $ make build-setup
 
     # build all binaries and man pages
+    # strips debug symbols by default
     $ make all
 
-    # as an alternative to the previous command, build and strip debug symbols.
-    # this is useful for production, and reduces the resulting file size.
-    $ make all GOBUILD_LDFLAGS="-s -w"
+    # do not strip debug symbols
+    $ make all GOBUILD_LDFLAGS=""
 
 By default, Go-Camo builds with `-tags netgo`. However, depending on your
 Go version, this will not actually result in Go-Camo using the netgo resolver
