@@ -3,6 +3,10 @@ Changelog
 
 ## HEAD
 
+## 1.0.15 2017-02-18
+*   rebuild with go-1.8
+*   strip binaries as part of default build
+
 ## 1.0.14 2017-02-15
 *   Pass through ETag header from server. The previous omission was
     inconsistent with passing the if-none-match client request header.
