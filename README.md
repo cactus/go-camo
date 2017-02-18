@@ -25,50 +25,59 @@ Go version of [Camo][1] server.
 [Camo][1] is a special type of image proxy that proxies non-secure images over
 SSL/TLS. This prevents mixed content warnings on secure pages.
 
-It works in conjunction with back-end code to rewrite image URLs and sign them
-with an [HMAC][4].
+It works in conjunction with back-end code that rewrites image URLs and signs
+them with an [HMAC][4].
 
 ## How it works
 
-First you parse the original URL, generate an HMAC signature of it, then encode
-it, and then place the pieces into the expected format replacing the original
-image URL.
+The general steps are as follows:
 
-The client requests the generated URL from Go-Camo. Go-Camo validates the HMAC,
-decodes the URL, then requests the content and streams it to the client.
+*   A client requests a page from the web app.
+*   The original URL in the content is parsed.
+*   An HMAC signature of the url is generated.
+*   The url and hmac are encoded.
+*   The encoded url and hmac are placed into the expected format, creating
+    the signed url.
+*   The signed url replaces the original image URL.
+*   The web app returns the content to the client.
+*   The client requets the signed url from Go-Camo.
+*   Go-Camo validates the HMAC, decodes the URL, then requests the content 
+    from the origin server and streams it to the client.
 
-    +----------+           request            +-------------+
-    |          |----------------------------->|             |
-    |          |                              |             |
-    |          |                              |   web-app   |
-    |          | img src=https://go-camo/url  |             |
-    |          |<-----------------------------|             |
-    |          |                              +-------------+
-    |  client  |
-    |          |     https://go-camo/url      +-------------+ http://some/img
-    |          |----------------------------->|             |--------------->
-    |          |                              |             |
-    |          |                              |   go-camo   |
-    |          |           img data           |             |    img data
-    |          |<-----------------------------|             |<---------------
-    |          |                              +-------------+
-    +----------+
+```text
+   +----------+           request            +-------------+
+   |          |----------------------------->|             |
+   |          |                              |             |
+   |          |                              |   web-app   |
+   |          | img src=https://go-camo/url  |             |
+   |          |<-----------------------------|             |
+   |          |                              +-------------+
+   |  client  |
+   |          |     https://go-camo/url      +-------------+ http://some/img
+   |          |----------------------------->|             |--------------->
+   |          |                              |             |
+   |          |                              |   go-camo   |
+   |          |           img data           |             |    img data
+   |          |<-----------------------------|             |<---------------
+   |          |                              +-------------+
+   +----------+
+```
 
 Go-Camo supports both hex and base64 encoded urls at the same time.
 
-| encoding | tradeoffs                                               |
-| -------- | ------------------------------------------------------- |
-| hex      | longer, case insensitive, slightly faster (*pre go1.6*) |
-| base64   | shorter, case sensitive, slightly slower (*pre go1.6*)  |
+| encoding | tradeoffs                                 |
+| -------- | ----------------------------------------- |
+| hex      | longer, case insensitive, slightly faster |
+| base64   | shorter, case sensitive, slightly slower  |
 
-**NOTE**: As of go1.6 base64 is very close to hex in terms of performance.
+Benchmark results with go1.8:
 
-~~~
-BenchmarkHexEncoder-2             500000          3027 ns/op
-BenchmarkB64Encoder-2             500000          3234 ns/op
-BenchmarkHexDecoder-2             500000          3609 ns/op
-BenchmarkB64Decoder-2             500000          3495 ns/op
-~~~
+```text
+BenchmarkHexEncoder-2                 500000          2505 ns/op
+BenchmarkB64Encoder-2                 500000          2576 ns/op
+BenchmarkHexDecoder-2                 500000          2542 ns/op
+BenchmarkB64Decoder-2                 500000          2687 ns/op
+```
 
 For examples of url generation, see the [examples](examples/) directory.
 
@@ -105,35 +114,37 @@ Extract, and copy files to desired locations.
 
 Building requires:
 
-    * git
-    * make
-    * go (version 1.8 recommended)
+*   git
+*   make
+*   go (version 1.8 recommended)
 
 Building:
 
-    # show make targets
-    $ make
-    Available targets:
-      help                this help
-      clean               clean up
-      all                 build binaries and man pages
-      test                run tests
-      cover               run tests with cover output
-      build-setup         fetch dependencies
-      build               build all
-      man                 build all man pages
-      tar                 build release tarball
-      cross-tar           cross compile and build release tarballs
+```text
+# show make targets
+$ make
+Available targets:
+  help                this help
+  clean               clean up
+  all                 build binaries and man pages
+  test                run tests
+  cover               run tests with cover output
+  build-setup         fetch dependencies
+  build               build all
+  man                 build all man pages
+  tar                 build release tarball
+  cross-tar           cross compile and build release tarballs
 
-    # fetch vendor dependencies
-    $ make build-setup
+# fetch vendor dependencies
+$ make build-setup
 
-    # build all binaries and man pages
-    # strips debug symbols by default
-    $ make all
+# build all binaries and man pages
+# strips debug symbols by default
+$ make all
 
-    # do not strip debug symbols
-    $ make all GOBUILD_LDFLAGS=""
+# do not strip debug symbols
+$ make all GOBUILD_LDFLAGS=""
+```
 
 By default, Go-Camo builds with `-tags netgo`. However, depending on your
 Go version, this will not actually result in Go-Camo using the netgo resolver
@@ -143,27 +154,35 @@ netgo is recommended. Prior to Go 1.5, to recompile your Go net libraries to
 use netgo, do the following as root (or the owner of your GOROOT install)
 before building Go-Camo:
 
-    $ go clean -i net
-    $ go install -a -tags netgo std
+```text
+$ go clean -i net
+$ go install -a -tags netgo std
+```
 
 To confirm that you are using the netgo resolver:
 
-    $ make build
-    $ ldd bin/go-camo
-	not a dynamic executable
+```text
+$ make build
+$ ldd bin/go-camo
+not a dynamic executable
+```
 
 If you are using the libc resolver, you will see something like this instead:
 
-    $ make build
-    $ ldd bin/go-camo
-    linux-vdso.so.1 =>  (0x00007fff98fff000)
-    libpthread.so.0 => /lib64/libpthread.so.0 (0x0000003fb2a00000)
-    libc.so.6 => /lib64/libc.so.6 (0x0000003fb2600000)
-    /lib64/ld-linux-x86-64.so.2 (0x0000003fb2200000)
+```text
+$ make build
+$ ldd bin/go-camo
+linux-vdso.so.1 =>  (0x00007fff98fff000)
+libpthread.so.0 => /lib64/libpthread.so.0 (0x0000003fb2a00000)
+libc.so.6 => /lib64/libc.so.6 (0x0000003fb2600000)
+/lib64/ld-linux-x86-64.so.2 (0x0000003fb2200000)
+```
 
 ## Running
 
-    $ go-camo -k "somekey"
+```text
+$ go-camo -k "somekey"
+```
 
 Go-Camo does not daemonize on its own. For production usage, it is recommended
 to launch in a process supervisor, and drop privileges as appropriate.
@@ -196,18 +215,18 @@ network that uses public address space (ipv4 or ipv6), or some of the
 
 The list of networks currently rejected include...
 
-| Network           | Description |
-| ----------------- | ----------- |
-| `127.0.0.0/8`     | loopback |
-| `169.254.0.0/16`  | ipv4 link local |
-| `10.0.0.0/8`      | rfc1918 |
-| `172.16.0.0/12`   | rfc1918 |
-| `192.168.0.0/16`  | rfc1918 |
-| `::1/128`         | ipv6 loopback |
-| `fe80::/10`       | ipv6 link local |
-| `fec0::/10`       | deprecated ipv6 site-local |
-| `fc00::/7`        | ipv6 ULA |
-| `::ffff:0:0/96`   | IPv4-mapped IPv6 address |
+| Network           | Description                   |
+| ----------------- | ----------------------------- |
+| `127.0.0.0/8`     | loopback                      |
+| `169.254.0.0/16`  | ipv4 link local               |
+| `10.0.0.0/8`      | rfc1918                       |
+| `172.16.0.0/12`   | rfc1918                       |
+| `192.168.0.0/16`  | rfc1918                       |
+| `::1/128`         | ipv6 loopback                 |
+| `fe80::/10`       | ipv6 link local               |
+| `fec0::/10`       | deprecated ipv6 site-local    |
+| `fc00::/7`        | ipv6 ULA                      |
+| `::ffff:0:0/96`   | IPv4-mapped IPv6 address      |
 
 More generally, it is recommended to either:
 
@@ -225,31 +244,33 @@ More generally, it is recommended to either:
 
 ### Command line flags
 
-    $ go-camo -h
-    Usage:
-      go-camo [OPTIONS]
+```text
+$ go-camo -h
+Usage:
+  go-camo [OPTIONS]
 
-    Application Options:
-      -k, --key=           HMAC key
-      -H, --header=        Extra header to return for each response. This option
-                           can be used multiple times to add multiple headers
-          --stats          Enable Stats
-          --no-log-ts      Do not add a timestamp to logging
-          --allow-list=    Text file of hostname allow regexes (one per line)
-          --max-size=      Max response image size (KB) (5120)
-          --timeout=       Upstream request timeout (4s)
-          --max-redirects= Maximum number of redirects to follow (3)
-          --no-fk          Disable frontend http keep-alive support
-          --no-bk          Disable backend http keep-alive support
-          --listen=        Address:Port to bind to for HTTP (0.0.0.0:8080)
-          --ssl-listen=    Address:Port to bind to for HTTPS/SSL/TLS
-          --ssl-key=       ssl private key (key.pem) path
-          --ssl-cert=      ssl cert (cert.pem) path
-      -v, --verbose        Show verbose (debug) log level output
-      -V, --version        print version and exit
+Application Options:
+  -k, --key=           HMAC key
+  -H, --header=        Extra header to return for each response. This option
+                       can be used multiple times to add multiple headers
+      --stats          Enable Stats
+      --no-log-ts      Do not add a timestamp to logging
+      --allow-list=    Text file of hostname allow regexes (one per line)
+      --max-size=      Max response image size (KB) (5120)
+      --timeout=       Upstream request timeout (4s)
+      --max-redirects= Maximum number of redirects to follow (3)
+      --no-fk          Disable frontend http keep-alive support
+      --no-bk          Disable backend http keep-alive support
+      --listen=        Address:Port to bind to for HTTP (0.0.0.0:8080)
+      --ssl-listen=    Address:Port to bind to for HTTPS/SSL/TLS
+      --ssl-key=       ssl private key (key.pem) path
+      --ssl-cert=      ssl cert (cert.pem) path
+  -v, --verbose        Show verbose (debug) log level output
+  -V, --version        print version and exit
 
-    Help Options:
-      -h, --help          Show this help message
+Help Options:
+  -h, --help          Show this help message
+```
 
 
 If an allow-list file is defined, that file is read and each line converted
@@ -267,14 +288,18 @@ Additional default headers (headers sent on every reply) can also be set. The
 
 The list of default headers sent are:
 
-    X-Content-Type-Options: nosniff
-    X-XSS-Protection: 1; mode=block
-    Content-Security-Policy: default-src 'none'; img-src data:; style-src 'unsafe-inline'
+```text
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Content-Security-Policy: default-src 'none'; img-src data:; style-src 'unsafe-inline'
+```
 
 As an example, if you wanted to return a `Strict-Transport-Security` header
 by default, you could add this to the command line:
 
-    -H "Strict-Transport-Security:  max-age=16070400"
+```text
+-H "Strict-Transport-Security:  max-age=16070400"
+```
 
 ## Additional tools
 
@@ -284,36 +309,40 @@ Go-Camo includes a couple of additional tools.
 
 The `url-tool` utility provides a simple way to generate signed URLs from the command line.
 
-    $ url-tool -h
-    Usage:
-      url-tool [OPTIONS] <decode | encode>
+```text
+$ url-tool -h
+Usage:
+  url-tool [OPTIONS] <decode | encode>
 
-    Application Options:
-      -k, --key=    HMAC key
-      -p, --prefix= Optional url prefix used by encode output
+Application Options:
+  -k, --key=    HMAC key
+  -p, --prefix= Optional url prefix used by encode output
 
-    Help Options:
-      -h, --help    Show this help message
+Help Options:
+  -h, --help    Show this help message
 
-    Available commands:
-      decode  Decode a url and print result
-      encode  Encode a url and print result
+Available commands:
+  decode  Decode a url and print result
+  encode  Encode a url and print result
+```
 
 Example usage:
 
-    # hex
-    $ url-tool -k "test" encode -p "https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
-    https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67
+```text
+# hex
+$ url-tool -k "test" encode -p "https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
+https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67
 
-    $ url-tool -k "test" decode "https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67"
-    http://golang.org/doc/gopher/frontpage.png
+$ url-tool -k "test" decode "https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67"
+http://golang.org/doc/gopher/frontpage.png
 
-    # base64
-    $ url-tool -k "test" encode -b base64 -p "https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
-    https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n
+# base64
+$ url-tool -k "test" encode -b base64 -p "https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
+https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n
 
-    $ url-tool -k "test" decode "https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n"
-    http://golang.org/doc/gopher/frontpage.png
+$ url-tool -k "test" decode "https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n"
+http://golang.org/doc/gopher/frontpage.png
+```
 
 ### simple-server
 
