@@ -32,16 +32,16 @@ them with an [HMAC][4].
 
 The general steps are as follows:
 
-*   A client requests a page from the web app.
-*   The original URL in the content is parsed.
-*   An HMAC signature of the url is generated.
-*   The url and hmac are encoded.
-*   The encoded url and hmac are placed into the expected format, creating
+1.  A client requests a page from the web app.
+2.  The original URL in the content is parsed.
+3.  An HMAC signature of the url is generated.
+4.  The url and hmac are encoded.
+5.  The encoded url and hmac are placed into the expected format, creating
     the signed url.
-*   The signed url replaces the original image URL.
-*   The web app returns the content to the client.
-*   The client requets the signed url from Go-Camo.
-*   Go-Camo validates the HMAC, decodes the URL, then requests the content 
+6.  The signed url replaces the original image URL.
+7.  The web app returns the content to the client.
+8.  The client requets the signed url from Go-Camo.
+9.  Go-Camo validates the HMAC, decodes the URL, then requests the content
     from the origin server and streams it to the client.
 
 ```text
@@ -146,37 +146,11 @@ $ make all
 $ make all GOBUILD_LDFLAGS=""
 ```
 
-By default, Go-Camo builds with `-tags netgo`. However, depending on your
-Go version, this will not actually result in Go-Camo using the netgo resolver
-unless your Go stdlib is similarly compiled. There are [known][11] issues with
-using the libc resolver with significant traffic amounts over time. The use of
-netgo is recommended. Prior to Go 1.5, to recompile your Go net libraries to
-use netgo, do the following as root (or the owner of your GOROOT install)
-before building Go-Camo:
-
-```text
-$ go clean -i net
-$ go install -a -tags netgo std
-```
-
-To confirm that you are using the netgo resolver:
-
-```text
-$ make build
-$ ldd bin/go-camo
-not a dynamic executable
-```
-
-If you are using the libc resolver, you will see something like this instead:
-
-```text
-$ make build
-$ ldd bin/go-camo
-linux-vdso.so.1 =>  (0x00007fff98fff000)
-libpthread.so.0 => /lib64/libpthread.so.0 (0x0000003fb2a00000)
-libc.so.6 => /lib64/libc.so.6 (0x0000003fb2600000)
-/lib64/ld-linux-x86-64.so.2 (0x0000003fb2200000)
-```
+By default, Go-Camo builds with `-tags netgo`. However, for Go versions
+older than 1.5, this may not actually result in Go-Camo using the netgo
+resolver unless your Go stdlib is also compiled with `-tags netgo`. For this
+reason, it is required to build with at least go-1.5. Building with the current
+Go version is recommended.
 
 ## Running
 
@@ -230,8 +204,8 @@ The list of networks currently rejected include...
 
 More generally, it is recommended to either:
 
-1.  Run go-camo on an isolated instance (physical, vlans, firewall rules, etc).
-2.  Run a local resolver for go-camo that returns NXDOMAIN responses for
+*   Run go-camo on an isolated instance (physical, vlans, firewall rules, etc).
+*   Run a local resolver for go-camo that returns NXDOMAIN responses for
     addresses in blacklisted ranges (for example unbound's `private-address`
     functionality). This is also useful to help prevent dns rebinding in
     general.
@@ -271,7 +245,6 @@ Application Options:
 Help Options:
   -h, --help          Show this help message
 ```
-
 
 If an allow-list file is defined, that file is read and each line converted
 into a hostname regex. If a request does not match one of the listed host
