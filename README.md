@@ -147,10 +147,10 @@ $ make all GOBUILD_LDFLAGS=""
 ```
 
 By default, Go-Camo builds with `-tags netgo`. However, for Go versions
-older than 1.5, this may not actually result in Go-Camo using the netgo
-resolver unless your Go stdlib is also compiled with `-tags netgo`. For this
-reason, it is required to build with at least go-1.5. Building with the current
-Go version is recommended.
+older than 1.5, this may not result in Go-Camo using the netgo resolver unless
+your Go stdlib is also compiled with `-tags netgo`. For this reason, it is
+required to build with at least go-1.5. Building with the latest Go version is
+recommended.
 
 ## Running
 
@@ -187,7 +187,7 @@ resolution. Do note, however, that this does not provide protecton for a
 network that uses public address space (ipv4 or ipv6), or some of the
 [more exotic][16] ipv6 addresses.
 
-The list of networks currently rejected include...
+The list of networks rejected include...
 
 | Network           | Description                   |
 | ----------------- | ----------------------------- |
@@ -256,7 +256,7 @@ served, and offer them up at an http endpoint `/status` via HTTP GET request.
 If the HMAC key is provided on the command line, it will override (if present),
 an HMAC key set in the environment var.
 
-Additional default headers (headers sent on every reply) can also be set. The
+Additional default headers (sent on every response) can also be set. The
 `-H, --header` argument may be specified many times.
 
 The list of default headers sent are:
