@@ -8,7 +8,7 @@ import (
 
 func isBrokenPipe(err error) bool {
 	if opErr, ok := err.(*net.OpError); ok {
-		// > go1.6
+		// >= go1.6
 		if syscallErr, ok := opErr.Err.(*os.SyscallError); ok {
 			switch syscallErr.Err {
 			case syscall.EPIPE, syscall.ECONNRESET:
