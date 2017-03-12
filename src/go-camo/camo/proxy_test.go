@@ -224,6 +224,7 @@ func Test404OnLocalhost(t *testing.T) {
 	}
 }
 
+// Test will fail if dns relay implements dns rebind prevention
 func Test404OnLoopback(t *testing.T) {
 	t.Parallel()
 	testURL := "http://i.i.com.com/foo.cgi"
