@@ -3,6 +3,9 @@ Changelog
 
 ## HEAD
 
+## 1.0.16 2017-08-29
+*   rebuild with go-1.9
+
 ## 1.0.15 2017-02-18
 *   rebuild with go-1.8
 *   strip binaries as part of default build
