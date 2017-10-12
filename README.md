@@ -20,6 +20,12 @@ go-camo
 
 ## About
 
+This is [Arachnys'][17] version of [`go-camo`][18].
+
+In addition to proxying non-secure images over SSL/TLS, it also proxies stylesheets, and their imports.
+
+---
+
 Go version of [Camo][1] server.
 
 [Camo][1] is a special type of image proxy that proxies non-secure images over
@@ -346,3 +352,5 @@ file for details.
 [14]: https://github.com/cactus/static-server
 [15]: https://en.wikipedia.org/wiki/DNS_rebinding
 [16]: https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
+[17]: https://www.arachnys.com/
+[18]: https://github.com/cactus/go-camo/
