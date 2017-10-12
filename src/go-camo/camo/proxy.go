@@ -98,6 +98,12 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	mlog.Debugm("signed client url", mlog.Map{"url": sURL})
 
 	u, err := url.Parse(sURL)
+
+	if u.Scheme == "" {
+		// Handle protocol-relative URLs
+		u.Scheme = "https"
+	}
+
 	if err != nil {
 		mlog.Debugm("url parse error", mlog.Map{"err": err})
 		http.Error(w, "Bad url", http.StatusBadRequest)
@@ -135,7 +141,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	nreq, err := http.NewRequest(req.Method, sURL, nil)
+	nreq, err := http.NewRequest(req.Method, u.String(), nil)
 	if err != nil {
 		mlog.Debugm("could not create NewRequest", mlog.Map{"err": err})
 		http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
