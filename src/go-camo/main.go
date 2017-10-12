@@ -49,7 +49,7 @@ func main() {
 		NoLogTS             bool          `long:"no-log-ts" description:"Do not add a timestamp to logging"`
 		AllowList           string        `long:"allow-list" description:"Text file of hostname allow regexes (one per line)"`
 		MaxSize             int64         `long:"max-size" default:"5120" description:"Max response image size (KB)"`
-		ReqTimeout          time.Duration `long:"timeout" default:"4s" description:"Upstream request timeout"`
+		ReqTimeout          time.Duration `long:"timeout" default:"5s" description:"Upstream request timeout"`
 		MaxRedirects        int           `long:"max-redirects" default:"3" description:"Maximum number of redirects to follow"`
 		DisableKeepAlivesFE bool          `long:"no-fk" description:"Disable frontend http keep-alive support"`
 		DisableKeepAlivesBE bool          `long:"no-bk" description:"Disable backend http keep-alive support"`
