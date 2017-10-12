@@ -94,6 +94,17 @@ func TestSimpleValidImageURL(t *testing.T) {
 	}
 }
 
+func TestSimpleValidCSSURL(t *testing.T) {
+	t.Parallel()
+	testURL := "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+	record, err := makeTestReq(testURL, 200)
+	if assert.Nil(t, err) {
+		// validate headers
+		assert.Equal(t, "test", record.HeaderMap.Get("X-Go-Camo"), "Expected custom response header not found")
+		assert.Equal(t, "go-camo", record.HeaderMap.Get("Server"), "Expected 'Server' response header not found")
+	}
+}
+
 func TestGoogleChartURL(t *testing.T) {
 	t.Parallel()
 	testURL := "http://chart.apis.google.com/chart?chs=920x200&chxl=0:%7C2010-08-13%7C2010-09-12%7C2010-10-12%7C2010-11-11%7C1:%7C0%7C0%7C0%7C0%7C0%7C0&chm=B,EBF5FB,0,0,0&chco=008Cd6&chls=3,1,0&chg=8.3,20,1,4&chd=s:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&chxt=x,y&cht=lc"

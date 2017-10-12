@@ -157,7 +157,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// add an accept header if the client didn't send one
 	if nreq.Header.Get("Accept") == "" {
-		nreq.Header.Add("Accept", "image/*")
+		nreq.Header.Add("Accept", "image/*, text/css")
 	}
 
 	nreq.Header.Add("User-Agent", p.config.ServerName)
@@ -203,10 +203,12 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	switch resp.StatusCode {
 	case 200:
+		contentType := resp.Header.Get("Content-Type")
 		// check content type
-		if !strings.HasPrefix(resp.Header.Get("Content-Type"), "image/") {
-			mlog.Debugm("Non-Image content-type returned", mlog.Map{"type": u})
-			http.Error(w, "Non-Image content-type returned",
+		if !strings.HasPrefix(contentType, "image/") &&
+			!strings.HasPrefix(contentType, "text/css") {
+			mlog.Debugm("Non-Image or non-CSS content-type returned", mlog.Map{"type": u})
+			http.Error(w, "Non-Image or non-CSS content-type returned",
 				http.StatusBadRequest)
 			return
 		}
