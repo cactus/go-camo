@@ -22,7 +22,7 @@ go-camo
 
 This is [Arachnys'][17] version of [`go-camo`][18].
 
-In addition to proxying non-secure images over SSL/TLS, it also proxies stylesheets, and their imports.
+In addition to proxying non-secure images over SSL/TLS, it also proxies stylesheets, and URLs in stylesheets.
 
 ---
 
