@@ -15,6 +15,7 @@ go-camo
 *   [Securing an installation](#securing-an-installation)
 *   [Configuring](#configuring)
 *   [Additional tools](#additional-tools)
+*   [Alternative Implementations](#alternative-implementations)
 *   [Changelog](#changelog)
 *   [License](#license)
 
@@ -321,6 +322,11 @@ http://golang.org/doc/gopher/frontpage.png
 
 The `simple-server` utility has moved to its [own repo][14].
 
+## Alternative Implementations
+
+*   [MrSaint][17]'s go-camo [fork][18] - supports proxying additional content
+    types (fonts/css).
+
 ## Changelog
 
 See `CHANGELOG.md`
@@ -346,3 +352,5 @@ file for details.
 [14]: https://github.com/cactus/static-server
 [15]: https://en.wikipedia.org/wiki/DNS_rebinding
 [16]: https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
+[17]: https://github.com/MrSaints
+[18]: https://github.com/arachnys/go-camo
