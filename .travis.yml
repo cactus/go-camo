@@ -2,7 +2,5 @@ language: go
 script: make build-setup test
 sudo: false
 go:
-    - 1.6
-    - 1.7
     - 1.8
     - 1.9
