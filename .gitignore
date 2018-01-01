@@ -3,7 +3,6 @@
 /pkg
 /tar
 /man/*.[1-9]
-/vendor/src
 /prox.exe
 /server.pem
 /server.key
