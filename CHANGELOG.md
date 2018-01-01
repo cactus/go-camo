@@ -2,6 +2,9 @@ Changelog
 =========
 
 ## HEAD
+*   update dependency versions to current
+*   include deps in tree (ease build for heroku)
+*   minor makefile cleanup
 
 ## 1.0.16 2017-08-29
 *   rebuild with go-1.9
