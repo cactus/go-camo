@@ -4,33 +4,39 @@
 		{
 			"importpath": "github.com/cactus/mlog",
 			"repository": "https://github.com/cactus/mlog",
-			"revision": "fc2dce550187f3b7c4b871a2528b6e2aebe2580b",
+			"revision": "aa86a0f73a6e8d6736f68093bef0996b7d2c58b4",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/cactus/tai64",
+			"repository": "https://github.com/cactus/tai64",
+			"revision": "3445910b21a47018240be2c4333bcf982d786310",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/davecgh/go-spew/spew",
 			"repository": "https://github.com/davecgh/go-spew",
-			"revision": "5215b55f46b2b919f50a1df0eaa5886afe4e3b3d",
+			"revision": "ecdeabc65495df2dec95d7c4a4c3e021903035e5",
 			"branch": "master",
 			"path": "/spew"
 		},
 		{
 			"importpath": "github.com/jessevdk/go-flags",
 			"repository": "https://github.com/jessevdk/go-flags",
-			"revision": "aa34304f81c710f34c76e964a3d996ec1330711d",
+			"revision": "f88afde2fa19a30cf50ba4b05b3d13bc6bae3079",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/pmezard/go-difflib/difflib",
 			"repository": "https://github.com/pmezard/go-difflib",
-			"revision": "e8554b8641db39598be7f6342874b958f12ae1d4",
+			"revision": "792786c7400a136282c1664665ae0a8db921c6c2",
 			"branch": "master",
 			"path": "/difflib"
 		},
 		{
 			"importpath": "github.com/stretchr/testify/assert",
 			"repository": "https://github.com/stretchr/testify",
-			"revision": "e3a8ff8ce36581f87a15341206f205b1da467059",
+			"revision": "87b1dfb5b2fa649f52695dd9eae19abe404a4308",
 			"branch": "master",
 			"path": "/assert"
 		}
