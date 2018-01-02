@@ -3,7 +3,7 @@ go-camo
 
 [![Current Release](https://img.shields.io/github/release/cactus/go-camo.svg)](http://github.com/cactus/go-camo/releases)
 [![Build Status](https://travis-ci.org/cactus/go-camo.png?branch=master)](https://travis-ci.org/cactus/go-camo)
-[![license](https://img.shields.io/github/license/cactus/go-camo.svg)](https://github.com/cactus/go-camo/blob/master/LICENSE.md)
+[![License](https://img.shields.io/github/license/cactus/go-camo.svg)](https://github.com/cactus/go-camo/blob/master/LICENSE.md)
 
 ## Contents
 
