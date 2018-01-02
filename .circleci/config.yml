@@ -1,0 +1,7 @@
+version: 2
+jobs:
+    build:
+        image: circleci/golang:1
+    steps:
+        - checkout
+        - run: make build-setup test
