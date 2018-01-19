@@ -260,7 +260,6 @@ func TestTimeout(t *testing.T) {
 		<-cc
 		r.Close = true
 		w.Write([]byte("ok"))
-		return
 	}))
 	defer ts.Close()
 
