@@ -43,22 +43,22 @@ func main() {
 
 	// command line flags
 	var opts struct {
-		HMACKey             string        `short:"k" long:"key" description:"HMAC key"`
+		Version             []bool        `short:"V" long:"version" description:"Print version and exit; specify twice to show license information"`
 		AddHeaders          []string      `short:"H" long:"header" description:"Extra header to return for each response. This option can be used multiple times to add multiple headers"`
-		Stats               bool          `long:"stats" description:"Enable Stats"`
-		NoLogTS             bool          `long:"no-log-ts" description:"Do not add a timestamp to logging"`
+		HMACKey             string        `short:"k" long:"key" description:"HMAC key"`
+		SSLKey              string        `long:"ssl-key" description:"ssl private key (key.pem) path"`
+		SSLCert             string        `long:"ssl-cert" description:"ssl cert (cert.pem) path"`
 		AllowList           string        `long:"allow-list" description:"Text file of hostname allow regexes (one per line)"`
+		BindAddress         string        `long:"listen" default:"0.0.0.0:8080" description:"Address:Port to bind to for HTTP"`
+		BindAddressSSL      string        `long:"ssl-listen" description:"Address:Port to bind to for HTTPS/SSL/TLS"`
 		MaxSize             int64         `long:"max-size" default:"5120" description:"Max response image size (KB)"`
 		ReqTimeout          time.Duration `long:"timeout" default:"4s" description:"Upstream request timeout"`
 		MaxRedirects        int           `long:"max-redirects" default:"3" description:"Maximum number of redirects to follow"`
+		Stats               bool          `long:"stats" description:"Enable Stats"`
+		NoLogTS             bool          `long:"no-log-ts" description:"Do not add a timestamp to logging"`
 		DisableKeepAlivesFE bool          `long:"no-fk" description:"Disable frontend http keep-alive support"`
 		DisableKeepAlivesBE bool          `long:"no-bk" description:"Disable backend http keep-alive support"`
-		BindAddress         string        `long:"listen" default:"0.0.0.0:8080" description:"Address:Port to bind to for HTTP"`
-		BindAddressSSL      string        `long:"ssl-listen" description:"Address:Port to bind to for HTTPS/SSL/TLS"`
-		SSLKey              string        `long:"ssl-key" description:"ssl private key (key.pem) path"`
-		SSLCert             string        `long:"ssl-cert" description:"ssl cert (cert.pem) path"`
 		Verbose             bool          `short:"v" long:"verbose" description:"Show verbose (debug) log level output"`
-		Version             []bool        `short:"V" long:"version" description:"Print version and exit; specify twice to show license information"`
 	}
 
 	// parse said flags

@@ -130,5 +130,5 @@ func DecodeURL(hmackey []byte, encdig string, encURL string) (string, bool) {
 		mlog.Debugf("Bad Decode of URL: %s", err)
 		return "", false
 	}
-	return string(urlBytes), true
+	return urlBytes, true
 }

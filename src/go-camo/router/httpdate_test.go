@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestiHTTPDateGoroutineUpdate(t *testing.T) {
+func TestHTTPDateGoroutineUpdate(t *testing.T) {
 	t.Parallel()
 	d := newiHTTPDate()
 	n := d.String()
@@ -20,7 +20,7 @@ func TestiHTTPDateGoroutineUpdate(t *testing.T) {
 	assert.NotEqual(t, n, l, "Date did not update as expected: %s == %s", n, l)
 }
 
-func TestiHTTPDateManualUpdate(t *testing.T) {
+func TestHTTPDateManualUpdate(t *testing.T) {
 	t.Parallel()
 	d := &iHTTPDate{}
 	d.Update()
@@ -31,7 +31,7 @@ func TestiHTTPDateManualUpdate(t *testing.T) {
 	assert.NotEqual(t, n, l, "Date did not update as expected: %s == %s", n, l)
 }
 
-func TestiHTTPDateManualUpdateUninitialized(t *testing.T) {
+func TestHTTPDateManualUpdateUninitialized(t *testing.T) {
 	t.Parallel()
 	d := &iHTTPDate{}
 
@@ -47,7 +47,7 @@ func BenchmarkDataString(b *testing.B) {
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			d.String()
+			_ = d.String()
 		}
 	})
 }
