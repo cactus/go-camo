@@ -1,17 +1,28 @@
-
-BUILDDIR          := ${CURDIR}
+# environment
+BUILDDIR          := ${CURDIR}/build
 TARBUILDDIR       := ${BUILDDIR}/tar
 ARCH              := $(shell go env GOHOSTARCH)
 OS                := $(shell go env GOHOSTOS)
 GOVER             := $(shell go version | awk '{print $$3}' | tr -d '.')
+
+# app specific info
 APP_NAME          := go-camo
 APP_VER           := $(shell git describe --always --dirty --tags|sed 's/^v//')
 VERSION_VAR       := main.ServerVersion
+
+# flags and build configuration
 GOTEST_FLAGS      := -cpu=1,2
 GOBUILD_DEPFLAGS  := -tags netgo
 GOBUILD_LDFLAGS   ?= -s -w
 GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${APP_VER}"
-GB                := gb
+
+# cross compile defs
+CC_BUILD_ARCHES    = darwin/amd64 freebsd/amd64 linux/amd64
+CC_OUTPUT_TPL     := ${BUILDDIR}/bin/{{.Dir}}.{{.OS}}-{{.Arch}}
+
+# error messages
+GOX_ERR_MSG        = 'gox' command not found.
+GOX_INSTALL_MSG    = try 'go get github.com/mitchellh/gox'
 
 define HELP_OUTPUT
 Available targets:
@@ -20,7 +31,6 @@ Available targets:
   all                 build binaries and man pages
   test                run tests
   cover               run tests with cover output
-  build-setup         fetch dependencies
   build               build all binaries
   man                 build all man pages
   tar                 build release tarball
@@ -34,31 +44,31 @@ help:
 	@echo "$$HELP_OUTPUT"
 
 clean:
-	@rm -rf "${BUILDDIR}/bin"
-	@rm -rf "${BUILDDIR}/pkg"
-	@rm -rf "${BUILDDIR}/tar"
-	@rm -rf "${BUILDDIR}/man/"*.[1-9]
-
-build-setup:
-	@go get github.com/constabulary/gb/...
+	@rm -rf "${BUILDDIR}"
 
 build:
+	@[ -d "${BUILDDIR}/bin" ] || mkdir -p "${BUILDDIR}/bin"
 	@echo "Building..."
-	@${GB} build ${GOBUILD_FLAGS} ...
+	@echo "...go-camo..."
+	@env CGO_ENABLED=0 go build ${GOBUILD_FLAGS} -o "${BUILDDIR}/bin/go-camo" .
+	@echo "...url-tool..."
+	@env CGO_ENABLED=0 go build ${GOBUILD_FLAGS} -o "${BUILDDIR}/bin/url-tool" ./url-tool
+	@echo "done!"
 
 test:
 	@echo "Running tests..."
-	@${GB} test ${GOTEST_FLAGS} ...
+	@go test ${GOTEST_FLAGS} ./...
 
 generate:
 	@echo "Running generate..."
-	@${GB} generate
+	@go generate
 
 cover:
 	@echo "Running tests with coverage..."
-	@${GB} test -cover ${GOTEST_FLAGS} ...
+	@go test -cover ${GOTEST_FLAGS} ./...
 
 ${BUILDDIR}/man/%: man/%.mdoc
+	@[ -d "${BUILDDIR}/man" ] || mkdir -p "${BUILDDIR}/man"
 	@cat $< | sed -E "s#.Os (.*) VERSION#.Os \1 ${APP_VER}#" > $@
 
 man: $(patsubst man/%.mdoc,${BUILDDIR}/man/%,$(wildcard man/*.1.mdoc))
@@ -67,27 +77,40 @@ tar: all
 	@echo "Building tar..."
 	@mkdir -p ${TARBUILDDIR}/${APP_NAME}-${APP_VER}/bin
 	@mkdir -p ${TARBUILDDIR}/${APP_NAME}-${APP_VER}/man
-	@cp ${BUILDDIR}/bin/${APP_NAME}-netgo ${TARBUILDDIR}/${APP_NAME}-${APP_VER}/bin/${APP_NAME}
-	@cp ${BUILDDIR}/bin/url-tool-netgo ${TARBUILDDIR}/${APP_NAME}-${APP_VER}/bin/url-tool
+	@cp ${BUILDDIR}/bin/${APP_NAME} ${TARBUILDDIR}/${APP_NAME}-${APP_VER}/bin/${APP_NAME}
+	@cp ${BUILDDIR}/bin/url-tool ${TARBUILDDIR}/${APP_NAME}-${APP_VER}/bin/url-tool
 	@cp ${BUILDDIR}/man/*.[1-9] ${TARBUILDDIR}/${APP_NAME}-${APP_VER}/man/
 	@tar -C ${TARBUILDDIR} -czf ${TARBUILDDIR}/${APP_NAME}-${APP_VER}.${GOVER}.${OS}-${ARCH}.tar.gz ${APP_NAME}-${APP_VER}
+	@rm -rf "${TARBUILDDIR}/${APP_NAME}-${APP_VER}"
 
 cross-tar: man
-	@echo "Making tar for ${APP_NAME}:darwin.amd64"
-	@env GOOS=darwin  GOARCH=amd64 ${GB} build ${GOBUILD_FLAGS} ...
-	@env GOOS=freebsd GOARCH=amd64 ${GB} build ${GOBUILD_FLAGS} ...
-	@env GOOS=linux   GOARCH=amd64 ${GB} build ${GOBUILD_FLAGS} ...
+	$(if $(shell type -p gox),,$(error ${GOX_ERR_MSG} ${GOX_INSTALL_MSG}))
 
-	@(for x in darwin-amd64 freebsd-amd64 linux-amd64; do \
-		echo "Making tar for ${APP_NAME}.$${x}"; \
+	@echo "Building (cross-compile: ${CC_BUILD_ARCHES})..."
+	@echo "...go-camo..."
+	@env gox -output="${CC_OUTPUT_TPL}" -osarch="${CC_BUILD_ARCHES}" \
+		${GOBUILD_FLAGS} .
+	@echo
+
+	@echo "...url-tool..."
+	@env gox -output="${CC_OUTPUT_TPL}" -osarch="${CC_BUILD_ARCHES}" \
+		${GOBUILD_FLAGS} ./url-tool
+	@echo
+
+	@echo "...creating tar files..."
+	@(for x in $(subst /,-,${CC_BUILD_ARCHES}); do \
+		echo "making tar for ${APP_NAME}.$${x}"; \
 		XDIR="${GOVER}.$${x}"; \
-		mkdir -p ${TARBUILDDIR}/$${XDIR}/${APP_NAME}-${APP_VER}/bin/; \
-		mkdir -p ${TARBUILDDIR}/$${XDIR}/${APP_NAME}-${APP_VER}/man/; \
-		cp bin/${APP_NAME}-$${x}-netgo ${TARBUILDDIR}/$${XDIR}/${APP_NAME}-${APP_VER}/bin/${APP_NAME}; \
-		cp bin/url-tool-$${x}-netgo ${TARBUILDDIR}/$${XDIR}/${APP_NAME}-${APP_VER}/bin/url-tool; \
-		cp ${BUILDDIR}/man/*.[1-9] ${TARBUILDDIR}/$${XDIR}/${APP_NAME}-${APP_VER}/man/; \
+		ODIR="${TARBUILDDIR}/$${XDIR}/${APP_NAME}-${APP_VER}"; \
+		mkdir -p $${ODIR}/{bin,man}/; \
+		cp ${BUILDDIR}/bin/${APP_NAME}.$${x} $${ODIR}/bin/${APP_NAME}; \
+		cp ${BUILDDIR}/bin/url-tool.$${x} $${ODIR}/bin/url-tool; \
+		cp ${BUILDDIR}/man/*.[1-9] $${ODIR}/man/; \
 		tar -C ${TARBUILDDIR}/$${XDIR} -czf ${TARBUILDDIR}/${APP_NAME}-${APP_VER}.$${XDIR}.tar.gz ${APP_NAME}-${APP_VER}; \
+		rm -rf "${TARBUILDDIR}/$${XDIR}/"; \
 	done)
+
+	@echo "done!"
 
 release-sign:
 	@echo "signing release tarballs"

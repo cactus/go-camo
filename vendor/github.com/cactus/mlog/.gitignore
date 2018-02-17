@@ -1,0 +1,4 @@
+/bin
+/pkg
+/vendor/src
+*.py[co]

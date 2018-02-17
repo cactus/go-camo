@@ -118,11 +118,26 @@ Extract, and copy files to desired locations.
 
 Building requires:
 
-*   git
 *   make
-*   go (version 1.8 recommended)
+*   git
+*   go (latest version recommended. At least version >= 1.9)
+
+Additionally required, if cross compiling:
+
+*   [gox](https://github.com/mitchellh/gox)
 
 Building:
+
+First, make sure you check out the repository into the proper location
+in your GOPATH. This can be done manually, or with `go get`.
+
+```
+$ export GOPATH=/tmp/go
+$ go get -d github.com/cactus/go-camo
+$ cd $GOPATH/src/github.com/cactus/go-camo
+```
+
+Once that is done, you are ready to build! 
 
 ```text
 # show make targets
@@ -133,14 +148,10 @@ Available targets:
   all                 build binaries and man pages
   test                run tests
   cover               run tests with cover output
-  build-setup         fetch dependencies
   build               build all
   man                 build all man pages
   tar                 build release tarball
   cross-tar           cross compile and build release tarballs
-
-# fetch vendor dependencies
-$ make build-setup
 
 # build all binaries and man pages
 # strips debug symbols by default
@@ -149,12 +160,6 @@ $ make all
 # do not strip debug symbols
 $ make all GOBUILD_LDFLAGS=""
 ```
-
-By default, Go-Camo builds with `-tags netgo`. However, for Go versions
-older than 1.5, this may not result in Go-Camo using the netgo resolver unless
-your Go stdlib is also compiled with `-tags netgo`. For this reason, it is
-required to build with at least go-1.5. Building with the latest Go version is
-recommended.
 
 ## Running
 

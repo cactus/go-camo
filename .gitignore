@@ -1,8 +1,6 @@
+/build
 /config.json
-/bin
-/pkg
-/tar
-/man/*.[1-9]
+/diagrams
 /prox.exe
 /server.pem
 /server.key

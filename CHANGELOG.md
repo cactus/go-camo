@@ -2,6 +2,7 @@ Changelog
 =========
 
 ## HEAD
+*   change repo layout and build pipeline to dep/gox/GOPATH style
 
 ## 1.0.17 2018-01-25
 *   update dependency versions to current
