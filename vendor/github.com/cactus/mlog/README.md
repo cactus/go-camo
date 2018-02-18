@@ -3,6 +3,8 @@ mlog
 
 [![Build Status](https://travis-ci.org/cactus/mlog.png?branch=master)](https://travis-ci.org/cactus/mlog)
 [![GoDoc](https://godoc.org/github.com/cactus/mlog?status.png)](https://godoc.org/github.com/cactus/mlog)
+[![Go Report Card](https://goreportcard.com/badge/cactus/mlog)](https://goreportcard.com/report/cactus/mlog)
+[![License](https://img.shields.io/github/license/cactus/mlog.svg)](https://github.com/cactus/mlog/blob/master/LICENSE.md)
 
 ## About
 
@@ -12,8 +14,8 @@ mlog only has 3 logging levels: Debug, Info, and Fatal.
 
 ### Why only 3 levels?
 
-Dave Cheney [wrote a great post][1], that made me think more about logging, and
-prompted me to start writing mlog.
+Dave Cheney [wrote a great post][1], that made me rethink my own approach to
+logging, and prompted me to start writing mlog.
 
 ### How does it work?
 
@@ -60,7 +62,7 @@ func main() {
         },
     )
 
-    mlog.Info("this is a log with more data", thing)
+    mlog.Infom("this is also a log with more data", thing)
 
     mlog.Debug("this won't print")
 
@@ -94,15 +96,15 @@ func main() {
 Output:
 
 ```
-time="2016-04-29T19:59:11-07:00" level="I" msg="this is a log"
-time="2016-04-29T19:59:11-07:00" level="I" msg="this is a log with more data" interesting="data" something="42"
-time="2016-04-29T19:59:11-07:00" level="I" msg="this is a log with more datawhat‽="yup" this-works?="as long as it is a mlog.Map""
-time="2016-04-29T19:59:11-07:00" msg="now this will print!"
-time="2016-04-29T19:59:11-07:00" msg="can it print?" this_too="if fmt.Print can print it!" how_fancy="[118 101 114 121 33]"
-time="2016-04-29T19:59:11-07:00" msg="a printf style debug log: here!"
-time="2016-04-29T19:59:11-07:00" msg="a printf style info log: here!"
-{"time": "2016-04-29T19:59:11-07:00", "msg": "something" "extra": {"one": "two", "three": "3"}}
-{"time": "2016-04-29T19:59:11-07:00", "msg": "time for a nap" "extra": {"cleanup": "false"}}
+time="2016-04-29T19:59:11.474362716-07:00" level="I" msg="this is a log"
+time="2016-04-29T19:59:11.474506079-07:00" level="I" msg="this is a log with more data" interesting="data" something="42"
+time="2016-04-29T19:59:11.474523514-07:00" level="I" msg="this is also a log with more data" this-works?="as long as it is a mlog.Map" what‽="yup"
+time="2016-04-29T19:59:11.474535676-07:00" msg="now this will print!"
+time="2016-04-29T19:59:11.474542467-07:00" msg="can it print?" how_fancy="[118 101 114 121 33]" this_too="if fmt.Print can print it!"
+time="2016-04-29T19:59:11.474551625-07:00" msg="a printf style debug log: here!"
+time="2016-04-29T19:59:11.474578991-07:00" msg="a printf style info log: here!"
+{"time": "2016-04-29T19:59:11.474583762-07:00", "msg": "something" "extra": {"one": "two", "three": "3"}}
+{"time": "2016-04-29T19:59:11.474604928-07:00", "msg": "time for a nap" "extra": {"cleanup": "false"}}
 exit status 1
 ```
 

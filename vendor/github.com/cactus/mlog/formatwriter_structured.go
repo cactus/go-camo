@@ -3,6 +3,7 @@ package mlog
 import (
 	"runtime"
 	"time"
+	"unicode/utf8"
 )
 
 // FormatWriterStructured writes a plain text structured log line.
@@ -18,10 +19,14 @@ func (l *FormatWriterStructured) Emit(logger *Logger, level int, message string,
 	flags := logger.Flags()
 
 	// if time is being logged, handle time as soon as possible
-	if flags&Ltimestamp != 0 {
+	if flags&(Ltimestamp|Ltai64n) != 0 {
 		t := time.Now()
 		sb.WriteString(`time="`)
-		writeTime(sb, &t, flags)
+		if flags&Ltai64n != 0 {
+			writeTimeTAI64N(sb, &t, flags)
+		} else {
+			writeTime(sb, &t, flags)
+		}
 		sb.WriteString(`" `)
 	}
 
@@ -64,15 +69,7 @@ func (l *FormatWriterStructured) Emit(logger *Logger, level int, message string,
 	}
 
 	sb.WriteString(`msg="`)
-	// as a kindness, strip any newlines off the end of the string
-	for i := len(message) - 1; i > 0; i-- {
-		if message[i] == '\n' {
-			message = message[:i]
-		} else {
-			break
-		}
-	}
-	sb.WriteString(message)
+	encodeStringStructured(sb, message)
 	sb.WriteByte('"')
 
 	if extra != nil && len(extra) > 0 {
@@ -86,4 +83,45 @@ func (l *FormatWriterStructured) Emit(logger *Logger, level int, message string,
 
 	sb.WriteByte('\n')
 	sb.WriteTo(logger)
+}
+
+// modified from Go stdlib: encoding/json/encode.go:787-862 (approx)
+func encodeStringStructured(e byteSliceWriter, s string) {
+	for i := 0; i < len(s); {
+		if b := s[i]; b < utf8.RuneSelf {
+			i++
+			if 0x20 <= b && b != '"' {
+				e.WriteByte(b)
+				continue
+			}
+
+			switch b {
+			case '"':
+				e.WriteByte('\\')
+				e.WriteByte(b)
+			case '\n':
+				e.WriteByte('\\')
+				e.WriteByte('n')
+			case '\r':
+				e.WriteByte('\\')
+				e.WriteByte('r')
+			case '\t':
+				e.WriteByte('\\')
+				e.WriteByte('t')
+			default:
+				e.WriteByte(b)
+			}
+			continue
+		}
+
+		c, size := utf8.DecodeRuneInString(s[i:])
+		if c == utf8.RuneError && size == 1 {
+			e.WriteString(`\ufffd`)
+			i++
+			continue
+		}
+
+		e.WriteString(s[i : i+size])
+		i += size
+	}
 }

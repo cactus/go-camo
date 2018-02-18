@@ -47,6 +47,11 @@ func Fatalm(message string, v Map) {
 	os.Exit(1)
 }
 
+// Panicm logs to the default Logger. See Logger.Panicm
+func Panicm(message string, v Map) {
+	DefaultLogger.Panicm(message, v)
+}
+
 // Debugf logs to the default Logger. See Logger.Debugf
 func Debugf(format string, v ...interface{}) {
 	if DefaultLogger.HasDebug() {
@@ -70,6 +75,12 @@ func Fatalf(format string, v ...interface{}) {
 	os.Exit(1)
 }
 
+// Panicf is equivalent to Printf() followed by a call to panic().
+// See Logger.Panicf
+func Panicf(format string, v ...interface{}) {
+	DefaultLogger.Panicf(format, v...)
+}
+
 // Debug logs to the default Logger. See Logger.Debug
 func Debug(v ...interface{}) {
 	if DefaultLogger.HasDebug() {
@@ -91,4 +102,10 @@ func Print(v ...interface{}) {
 func Fatal(v ...interface{}) {
 	DefaultLogger.Emit(1, fmt.Sprint(v...), nil)
 	os.Exit(1)
+}
+
+// Panic is equivalent to Print() followed by a call to panic().
+// See Logger.Panic
+func Panic(v ...interface{}) {
+	DefaultLogger.Panic(v...)
 }

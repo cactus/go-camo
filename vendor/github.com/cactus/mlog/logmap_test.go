@@ -12,7 +12,6 @@ func (d *discardSliceWriter) WriteString(s string) (int, error) { return len(s),
 func (d *discardSliceWriter) Write(b []byte) (int, error)       { return len(b), nil }
 func (d *discardSliceWriter) WriteByte(c byte) error            { return nil }
 func (d *discardSliceWriter) Truncate(i int)                    {}
-func (d *discardSliceWriter) AppendIntWidth(i, j int)           {}
 
 func BenchmarkLogMapUnsortedWriteBuf(b *testing.B) {
 	buf := &discardSliceWriter{}

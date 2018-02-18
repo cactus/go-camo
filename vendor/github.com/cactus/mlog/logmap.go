@@ -24,7 +24,7 @@ func (m Map) Keys() []string {
 
 // unsortedWriteBuf writes an unsorted string representation of
 // the Map's key value pairs to w.
-func (m Map) unsortedWriteBuf(w sliceWriter) {
+func (m Map) unsortedWriteBuf(w byteSliceWriter) {
 	// scratch buffer for intermediate writes
 	buf := bufPool.Get()
 	defer bufPool.Put(buf)
@@ -77,7 +77,7 @@ func (m Map) unsortedWriteBuf(w sliceWriter) {
 
 // sortedWriteBuf writes a sorted string representation of
 // the Map's key value pairs to w.
-func (m Map) sortedWriteBuf(w sliceWriter) {
+func (m Map) sortedWriteBuf(w byteSliceWriter) {
 	// scratch buffer for intermediate writes
 	buf := bufPool.Get()
 	defer bufPool.Put(buf)

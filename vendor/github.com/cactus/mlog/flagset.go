@@ -14,12 +14,9 @@ const (
 
 	// Ltimestamp specifies to log the date+time stamp
 	Ltimestamp FlagSet = 1 << iota
-	// Lmicroseconds specifies to use microsecond timestamp granularity in
-	// Ltimestamp.
-	Lmicroseconds
-	// Lnanoseconds specifies to use nanosecond timestamp granularity in
-	// Ltimestamp. overrides Lmicroseconds.
-	Lnanoseconds
+	// Ltai64n specifies to use tia64n timestamps
+	// overrides Ltimestamp.
+	Ltai64n
 	// Llevel specifies to log message level.
 	Llevel
 	// Llongfile specifies to log file path and line number: /a/b/c/d.go:23
@@ -36,14 +33,13 @@ const (
 )
 
 var flagNames = map[FlagSet]string{
-	Ltimestamp:    "Ltimestamp",
-	Lmicroseconds: "Lmicroseconds",
-	Lnanoseconds:  "Lnanoseconds",
-	Llevel:        "Llevel",
-	Llongfile:     "Llongfile",
-	Lshortfile:    "Lshortfile",
-	Lsort:         "Lsort",
-	Ldebug:        "Ldebug",
+	Ltimestamp: "Ltimestamp",
+	Ltai64n:    "Ltai64n",
+	Llevel:     "Llevel",
+	Llongfile:  "Llongfile",
+	Lshortfile: "Lshortfile",
+	Lsort:      "Lsort",
+	Ldebug:     "Ldebug",
 }
 
 // FlagSet defines the output formatting flags (bitfield) type, which define

@@ -1,11 +1,13 @@
 package mlog
 
 import (
-	"encoding/json"
 	"fmt"
 	"runtime"
 	"time"
+	"unicode/utf8"
 )
+
+const hex = "0123456789abcdef"
 
 // FormatWriterJSON writes a json structured log line.
 // Example:
@@ -21,10 +23,14 @@ func (j *FormatWriterJSON) Emit(logger *Logger, level int, message string, extra
 
 	sb.WriteByte('{')
 	// if time is being logged, handle time as soon as possible
-	if flags&Ltimestamp != 0 {
+	if flags&(Ltimestamp|Ltai64n) != 0 {
 		t := time.Now()
 		sb.WriteString(`"time": "`)
-		writeTime(sb, &t, flags)
+		if flags&Ltai64n != 0 {
+			writeTimeTAI64N(sb, &t, flags)
+		} else {
+			writeTime(sb, &t, flags)
+		}
 		sb.WriteString(`", `)
 	}
 
@@ -66,20 +72,13 @@ func (j *FormatWriterJSON) Emit(logger *Logger, level int, message string, extra
 		sb.WriteString(`", `)
 	}
 
-	sb.WriteString(`"msg": `)
-	// as a kindness, strip any newlines off the end of the string
-	for i := len(message) - 1; i > 0; i-- {
-		if message[i] == '\n' {
-			message = message[:i]
-		} else {
-			break
-		}
-	}
-	encodeString(sb, message)
+	sb.WriteString(`"msg": "`)
+	encodeStringJSON(sb, message)
+	sb.WriteByte('"')
 
 	if extra != nil && len(extra) > 0 {
-		sb.WriteString(` "extra": {`)
-		jsonEncodeLogMap(sb, extra)
+		sb.WriteString(`, "extra": {`)
+		encodeLogMapJSON(sb, extra)
 		sb.WriteByte('}')
 	}
 
@@ -88,7 +87,7 @@ func (j *FormatWriterJSON) Emit(logger *Logger, level int, message string, extra
 	sb.WriteTo(logger)
 }
 
-func jsonEncodeLogMap(w sliceWriter, m Map) {
+func encodeLogMapJSON(w byteSliceWriter, m Map) {
 	first := true
 	for k, v := range m {
 		if first {
@@ -97,45 +96,24 @@ func jsonEncodeLogMap(w sliceWriter, m Map) {
 			w.WriteString(`, `)
 		}
 
-		encodeString(w, k)
-		w.WriteString(`: `)
-		encodeString(w, fmt.Sprint(v))
+		w.WriteByte('"')
+		encodeStringJSON(w, k)
+		w.WriteString(`": "`)
+		encodeStringJSON(w, fmt.Sprint(v))
+		w.WriteByte('"')
 	}
 }
 
-var hex = "0123456789abcdef"
-
-func encodeString(e sliceWriter, s string) {
-	sb := bufPool.Get()
-	defer bufPool.Put(sb)
-	encoder := json.NewEncoder(sb)
-	encoder.Encode(s)
-	b := sb.Bytes()
-	for i := len(b) - 1; i > 0; i-- {
-		if b[i] == '\n' {
-			b = b[:i]
-		} else {
-			break
-		}
-	}
-
-	e.Write(b)
-}
-
-/*
 // modified from Go stdlib: encoding/json/encode.go:787-862 (approx)
-func encodeString(e sliceWriter, s string) {
-	e.WriteByte('"')
-	start := 0
+func encodeStringJSON(e byteSliceWriter, s string) {
 	for i := 0; i < len(s); {
 		if b := s[i]; b < utf8.RuneSelf {
-			if 0x20 <= b && b != '\\' && b != '"' && b != '<' && b != '>' && b != '&' {
-				i++
+			i++
+			if 0x20 <= b && b != '\\' && b != '"' {
+				e.WriteByte(b)
 				continue
 			}
-			if start < i {
-				e.WriteString(s[start:i])
-			}
+
 			switch b {
 			case '\\', '"':
 				e.WriteByte('\\')
@@ -150,50 +128,35 @@ func encodeString(e sliceWriter, s string) {
 				e.WriteByte('\\')
 				e.WriteByte('t')
 			default:
-				// This encodes bytes < 0x20 except for \n and \r,
-				// as well as <, > and &. The latter are escaped because they
-				// can lead to security holes when user-controlled strings
-				// are rendered into JSON and served to some browsers.
+				// This encodes bytes < 0x20 except for escapes above
 				e.WriteString(`\u00`)
 				e.WriteByte(hex[b>>4])
 				e.WriteByte(hex[b&0xF])
 			}
-			i++
-			start = i
 			continue
 		}
+
 		c, size := utf8.DecodeRuneInString(s[i:])
 		if c == utf8.RuneError && size == 1 {
-			if start < i {
-				e.WriteString(s[start:i])
-			}
 			e.WriteString(`\ufffd`)
-			i += size
-			start = i
+			i++
 			continue
 		}
+
 		// U+2028 is LINE SEPARATOR.
 		// U+2029 is PARAGRAPH SEPARATOR.
 		// They are both technically valid characters in JSON strings,
 		// but don't work in JSONP, which has to be evaluated as JavaScript,
 		// and can lead to security holes there. It is valid JSON to
-		// escape them, so we do so unconditionally.
-		// See http://timelessrepo.com/json-isnt-a-javascript-subset for discussion.
+		// escape them, so do so unconditionally.
+		// See http://timelessrepo.com/json-isnt-a-javascript-subset
 		if c == '\u2028' || c == '\u2029' {
-			if start < i {
-				e.WriteString(s[start:i])
-			}
 			e.WriteString(`\u202`)
 			e.WriteByte(hex[c&0xF])
 			i += size
-			start = i
 			continue
 		}
+		e.WriteString(s[i : i+size])
 		i += size
 	}
-	if start < len(s) {
-		e.WriteString(s[start:])
-	}
-	e.WriteByte('"')
 }
-*/

@@ -4,8 +4,14 @@
 [[projects]]
   name = "github.com/cactus/mlog"
   packages = ["."]
-  revision = "fc2dce550187f3b7c4b871a2528b6e2aebe2580b"
-  version = "v1.0.0"
+  revision = "b0f3ca06304d8079f8111461ffdac48dfb7802f4"
+  version = "v1.0.1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/cactus/tai64"
+  packages = ["."]
+  revision = "9fff3ffed63c4047456ef9d5c5708f260584e9ee"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -34,6 +40,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c4bbd1c91c001d7740ac8c43bdf3cd4a920b5bdec6e00070034889fae4385085"
+  inputs-digest = "fea963fbab41527af41cc820c7198a675992e8c4d4c744b678a072b6c8291abf"
   solver-name = "gps-cdcl"
   solver-version = 1

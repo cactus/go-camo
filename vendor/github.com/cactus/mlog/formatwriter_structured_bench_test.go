@@ -36,6 +36,15 @@ func BenchmarkFormatWriterStructuredTime(b *testing.B) {
 	}
 }
 
+func BenchmarkFormatWriterStructuredTimeTAI64N(b *testing.B) {
+	logger := New(ioutil.Discard, Ltai64n)
+	logWriter := &FormatWriterStructured{}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		logWriter.Emit(logger, 0, "this is a test", nil)
+	}
+}
+
 func BenchmarkFormatWriterStructuredShortfile(b *testing.B) {
 	logger := New(ioutil.Discard, Lshortfile)
 	logWriter := &FormatWriterStructured{}

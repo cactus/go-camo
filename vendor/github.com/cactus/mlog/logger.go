@@ -45,7 +45,7 @@ func (l *Logger) SetEmitter(e Emitter) {
 	l.e = e
 }
 
-// Flags retuns the current FlagSet
+// Flags returns the current FlagSet
 func (l *Logger) Flags() FlagSet {
 	return FlagSet(atomic.LoadUint64(&l.flags))
 }
@@ -87,6 +87,13 @@ func (l *Logger) Fatalm(message string, v Map) {
 	os.Exit(1)
 }
 
+// Panicm logs message and any Map elements at level="fatal", then calls
+// panic().
+func (l *Logger) Panicm(message string, v Map) {
+	l.Emit(1, message, v)
+	panic(message)
+}
+
 // Debugf formats and conditionally logs message at level="debug".
 // If the Logger does not have the Ldebug flag, nothing is logged.
 func (l *Logger) Debugf(format string, v ...interface{}) {
@@ -110,6 +117,14 @@ func (l *Logger) Printf(format string, v ...interface{}) {
 func (l *Logger) Fatalf(format string, v ...interface{}) {
 	l.Emit(1, fmt.Sprintf(format, v...), nil)
 	os.Exit(1)
+}
+
+// Panicf formats and logs message at level="fatal", then calls
+// panic().
+func (l *Logger) Panicf(format string, v ...interface{}) {
+	s := fmt.Sprintf(format, v...)
+	l.Emit(1, s, nil)
+	panic(s)
 }
 
 // Debug conditionally logs message at level="debug".
@@ -137,12 +152,20 @@ func (l *Logger) Fatal(v ...interface{}) {
 	os.Exit(1)
 }
 
+// Panic logs message at level="fatal", then calls
+// panic().
+func (l *Logger) Panic(v ...interface{}) {
+	s := fmt.Sprint(v...)
+	l.Emit(1, s, nil)
+	panic(s)
+}
+
 // New creates a new Logger.
 func New(out io.Writer, flags FlagSet) *Logger {
 	return NewFormatLogger(out, flags, &FormatWriterStructured{})
 }
 
-// New creates a new Logger, using the specified Emitter.
+// NewFormatLogger creates a new Logger, using the specified Emitter.
 func NewFormatLogger(out io.Writer, flags FlagSet, e Emitter) *Logger {
 	return &Logger{
 		out:   out,

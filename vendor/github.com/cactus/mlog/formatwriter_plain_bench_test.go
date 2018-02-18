@@ -36,6 +36,15 @@ func BenchmarkFormatWriterPlainTime(b *testing.B) {
 	}
 }
 
+func BenchmarkFormatWriterPlainTimeTAI64N(b *testing.B) {
+	logger := New(ioutil.Discard, Ltai64n)
+	logWriter := &FormatWriterPlain{}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		logWriter.Emit(logger, 0, "this is a test", nil)
+	}
+}
+
 func BenchmarkFormatWriterPlainShortfile(b *testing.B) {
 	logger := New(ioutil.Discard, Lshortfile)
 	logWriter := &FormatWriterPlain{}

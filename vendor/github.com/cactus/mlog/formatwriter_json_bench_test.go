@@ -36,6 +36,15 @@ func BenchmarkFormatWriterJSONTime(b *testing.B) {
 	}
 }
 
+func BenchmarkFormatWriterJSONTimeTAI64N(b *testing.B) {
+	logger := New(ioutil.Discard, Ltai64n)
+	logWriter := &FormatWriterJSON{}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		logWriter.Emit(logger, 0, "this is a test", nil)
+	}
+}
+
 func BenchmarkFormatWriterJSONShortfile(b *testing.B) {
 	logger := New(ioutil.Discard, Lshortfile)
 	logWriter := &FormatWriterJSON{}

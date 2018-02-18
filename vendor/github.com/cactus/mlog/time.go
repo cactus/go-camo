@@ -1,8 +1,12 @@
 package mlog
 
-import "time"
+import (
+	"time"
 
-func writeTime(sb sliceWriter, t *time.Time, flags FlagSet) {
+	"github.com/cactus/tai64"
+)
+
+func writeTime(sb intSliceWriter, t *time.Time, flags FlagSet) {
 	year, month, day := t.Date()
 	sb.AppendIntWidth(year, 4)
 	sb.WriteByte('-')
@@ -19,14 +23,8 @@ func writeTime(sb sliceWriter, t *time.Time, flags FlagSet) {
 	sb.WriteByte(':')
 	sb.AppendIntWidth(sec, 2)
 
-	switch {
-	case flags&Lnanoseconds != 0:
-		sb.WriteByte('.')
-		sb.AppendIntWidth(t.Nanosecond(), 9)
-	case flags&Lmicroseconds != 0:
-		sb.WriteByte('.')
-		sb.AppendIntWidth(t.Nanosecond()/1e3, 6)
-	}
+	sb.WriteByte('.')
+	sb.AppendIntWidth(t.Nanosecond(), 9)
 
 	_, offset := t.Zone()
 	if offset == 0 {
@@ -42,4 +40,13 @@ func writeTime(sb sliceWriter, t *time.Time, flags FlagSet) {
 		sb.WriteByte(':')
 		sb.AppendIntWidth(offset%3600, 2)
 	}
+}
+
+func writeTimeTAI64N(sb intSliceWriter, t *time.Time, flags FlagSet) {
+	tu := t.UTC()
+	tux := tu.Unix()
+	offset := tai64.GetOffsetUnix(tux)
+	sb.WriteString("@4")
+	sb.AppendIntWidthHex(tux+offset, 15)
+	sb.AppendIntWidthHex(int64(tu.Nanosecond()), 8)
 }

@@ -18,6 +18,15 @@ import (
 
 var update = flag.Bool("update", false, "update golden files")
 
+func assertPanic(t *testing.T, f func()) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("The code did not panic")
+		}
+	}()
+	f()
+}
+
 func TestLoggerMsgs(t *testing.T) {
 	var infoTests = map[string]struct {
 		flags   FlagSet
@@ -94,7 +103,7 @@ func TestLoggerTimestamp(t *testing.T) {
 	buf := &bytes.Buffer{}
 
 	// test nanoseconds
-	logger := New(buf, Lstd|Lnanoseconds)
+	logger := New(buf, Lstd)
 	tnow := time.Now()
 	logger.Info("test this")
 	ts := bytes.Split(buf.Bytes()[6:], []byte{'"'})[0]
@@ -105,7 +114,7 @@ func TestLoggerTimestamp(t *testing.T) {
 	buf.Truncate(0)
 
 	// test microeconds
-	logger.SetFlags(Lstd | Lmicroseconds)
+	logger.SetFlags(Lstd)
 	tnow = time.Now()
 	logger.Info("test this")
 	ts = bytes.Split(buf.Bytes()[6:], []byte{'"'})[0]
@@ -123,4 +132,57 @@ func TestLoggerTimestamp(t *testing.T) {
 	tlog, err = time.Parse(time.RFC3339Nano, string(ts))
 	assert.Nil(t, err, "Failed to parse time from log")
 	assert.WithinDuration(t, tnow, tlog, 2*time.Second, "Time not even close")
+}
+
+func TestPanics(t *testing.T) {
+	var infoTests = map[string]struct {
+		flags   FlagSet
+		method  string
+		message string
+		extra   interface{}
+	}{
+		"panic":  {Llevel | Lsort, "panic", "test", nil},
+		"panicf": {Llevel | Lsort, "panicf", "test: %d", 5},
+		"panicm": {Llevel | Lsort, "panicm", "test", Map{"x": "y"}},
+	}
+
+	buf := &bytes.Buffer{}
+	logger := New(ioutil.Discard, Llevel|Lsort)
+	logger.out = buf
+
+	for name, tt := range infoTests {
+		buf.Truncate(0)
+		logger.flags = uint64(tt.flags)
+
+		switch tt.method {
+		case "panicm":
+			m, ok := tt.extra.(Map)
+			if !ok && tt.extra != nil {
+				t.Errorf("%s: failed type assertion", name)
+				continue
+			}
+			assertPanic(t, func() {
+				logger.Panicm(tt.message, m)
+			})
+		case "panicf":
+			assertPanic(t, func() {
+				logger.Panicf(tt.message, tt.extra)
+			})
+		case "panic":
+			assertPanic(t, func() {
+				logger.Panic(tt.message)
+			})
+		default:
+			t.Errorf("%s: not sure what to do", name)
+			continue
+		}
+
+		actual := buf.Bytes()
+		golden := filepath.Join("test-fixtures", fmt.Sprintf("test_logger_msgs.%s.golden", name))
+		if *update {
+			ioutil.WriteFile(golden, actual, 0644)
+		}
+		expected, _ := ioutil.ReadFile(golden)
+		assert.Equal(t, string(expected), string(actual), "%s: did not match expectation", name)
+	}
 }

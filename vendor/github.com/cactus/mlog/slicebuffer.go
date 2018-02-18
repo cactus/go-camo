@@ -28,12 +28,17 @@ func (sp *sliceBufferPool) Put(c *sliceBuffer) {
 	sp.Pool.Put(c)
 }
 
-type sliceWriter interface {
+type byteSliceWriter interface {
 	Write([]byte) (int, error)
 	WriteByte(byte) error
 	WriteString(string) (int, error)
-	AppendIntWidth(int, int)
 	Truncate(int)
+}
+
+type intSliceWriter interface {
+	byteSliceWriter
+	AppendIntWidth(int, int)
+	AppendIntWidthHex(int64, int)
 }
 
 type sliceBuffer struct {
@@ -64,6 +69,34 @@ func (sb *sliceBuffer) AppendIntWidth(i int, wid int) {
 	}
 }
 
+const hexdigits = "0123456789abcdefghijklmnopqrstuvwxyz"
+
+func (sb *sliceBuffer) AppendIntWidthHex(i int64, wid int) {
+	u := uint64(i)
+
+	digits := 0
+	b := uint64(16)
+	m := uintptr(b) - 1
+	for u >= b {
+		sb.data = append(sb.data, hexdigits[uintptr(u)&m])
+		u >>= 4
+		digits++
+	}
+	sb.data = append(sb.data, hexdigits[uintptr(u)])
+	digits++
+
+	for j := wid - digits; j > 0; j-- {
+		sb.data = append(sb.data, '0')
+		digits++
+	}
+
+	// reverse to proper order
+	sblen := len(sb.data)
+	for i, j := sblen-digits, sblen-1; i < j; i, j = i+1, j-1 {
+		sb.data[i], sb.data[j] = sb.data[j], sb.data[i]
+	}
+}
+
 func (sb *sliceBuffer) Write(b []byte) (int, error) {
 	sb.data = append(sb.data, b...)
 	return len(b), nil
@@ -79,8 +112,9 @@ func (sb *sliceBuffer) WriteString(s string) (int, error) {
 	return len(s), nil
 }
 
-func (sb *sliceBuffer) WriteTo(w io.Writer) (int, error) {
-	return w.Write(sb.data)
+func (sb *sliceBuffer) WriteTo(w io.Writer) (int64, error) {
+	n, err := w.Write(sb.data)
+	return int64(n), err
 }
 
 func (sb *sliceBuffer) Bytes() []byte {
