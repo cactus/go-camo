@@ -26,6 +26,15 @@
   version = "v1.3.0"
 
 [[projects]]
+  name = "github.com/pelletier/go-toml"
+  packages = [
+    ".",
+    "query"
+  ]
+  revision = "acdc4509485b587f5e675510c4f2c63e90ff68a8"
+  version = "v1.1.0"
+
+[[projects]]
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
@@ -40,6 +49,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fea963fbab41527af41cc820c7198a675992e8c4d4c744b678a072b6c8291abf"
+  inputs-digest = "912a8efe8ba9f3ecca88b5ddc2879fe9ffb78c550d22f3192aebb8a94e0f3e84"
   solver-name = "gps-cdcl"
   solver-version = 1

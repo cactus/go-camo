@@ -8,14 +8,15 @@ package main
 
 const licenseText = `
 This software is available under the MIT License at:
-└── https://github.com/cactus/go-camo
+https://github.com/cactus/go-camo
 
 Portions of this software utilize third party libraries:
-
 *   Runtime dependencies:
-    ├── https://github.com/cactus/mlog              (MIT License)
-    └── https://github.com/jessevdk/go-flags        (BSD License)
+    ├── github.com/cactus/mlog (MIT license)
+    └── github.com/jessevdk/go-flags (BSD license)
 
-*   Test only dependencies:
-    └── https://github.com/stretchr/testify/assert  (MIT License)
+*   Test/Build only dependencies:
+    ├── github.com/stretchr/testify (MIT license)
+    └── github.com/pelletier/go-toml (MIT license)
+
 `

@@ -8,19 +8,21 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path"
-	"regexp"
 	"strings"
 	"text/template"
+
+	"github.com/pelletier/go-toml"
+	"github.com/pelletier/go-toml/query"
 )
 
 // VersionLicenseText is a text formatter container
 type VersionLicenseText struct {
-	Text string
-	Pkg  string
+	Dependencies      []map[string]string
+	BTestDependencies []map[string]string
+	Pkg               string
 }
 
 const tplText = `
@@ -32,7 +34,18 @@ const tplText = `
 
 package {{.Pkg}}
 
-const licenseText = ` + "`{{.Text}}`"
+const licenseText = ` + "`" + `
+This software is available under the MIT License at:
+https://github.com/cactus/go-camo
+
+Portions of this software utilize third party libraries:
+*   Runtime dependencies:
+{{range .Dependencies}}    {{if eq .last "true"}}└──{{else}}├──{{end}} {{.name}} ({{.license}} license)
+{{end}}
+*   Test/Build only dependencies:
+{{range .BTestDependencies}}    {{if eq .last "true"}}└──{{else}}├──{{end}} {{.name}} ({{.license}} license)
+{{end}}
+` + "`"
 
 func main() {
 	var output, input, pkg string
@@ -60,16 +73,49 @@ func main() {
 		log.Fatal(err)
 	}
 
-	b, err := ioutil.ReadFile(input)
+	config, err := toml.LoadFile(input)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	reTildes := regexp.MustCompile("(?m:^~~~.*\n?$)")
-	reComment := regexp.MustCompile("(?m:^//.*\n?$)")
-	inputText := string(b)
-	inputText = reTildes.ReplaceAllLiteralString(inputText, "")
-	inputText = reComment.ReplaceAllLiteralString(inputText, "")
+	dependencies := make([]map[string]string, 0)
+	qc, _ := query.Compile("$.constraint[?(btestOnly)]")
+	qc.SetFilter("btestOnly", func(node interface{}) bool {
+		if tree, ok := node.(*toml.Tree); ok {
+			return tree.Get("metadata.btest-only") != true
+		}
+		return false
+	})
+	for _, dep := range qc.Execute(config).Values() {
+		if d, ok := dep.(*toml.Tree); ok {
+			dependencies = append(dependencies, map[string]string{
+				"name":    d.Get("name").(string),
+				"license": d.GetDefault("metadata.license", "Not Specified").(string),
+				"last":    "false",
+			})
+		}
+	}
+	dependencies[len(dependencies)-1]["last"] = "true"
+
+	btestDependencies := make([]map[string]string, 0)
+	qc.SetFilter("btestOnly", func(node interface{}) bool {
+		if tree, ok := node.(*toml.Tree); ok {
+			return tree.Get("metadata.btest-only") == true
+		}
+		return false
+	})
+	for _, dep := range qc.Execute(config).Values() {
+		if d, ok := dep.(*toml.Tree); ok {
+			btestDependencies = append(btestDependencies, map[string]string{
+				"name":    d.Get("name").(string),
+				"license": d.GetDefault("metadata.license", "Not Specified").(string),
+				"last":    "false",
+			})
+		} else {
+			fmt.Println("not a tree")
+		}
+	}
+	btestDependencies[len(btestDependencies)-1]["last"] = "true"
 
 	f, err := os.Create(output)
 	if err != nil {
@@ -81,8 +127,9 @@ func main() {
 	defer writer.Flush()
 
 	data := &VersionLicenseText{
-		Text: inputText,
-		Pkg:  pkg,
+		Dependencies:      dependencies,
+		BTestDependencies: btestDependencies,
+		Pkg:               pkg,
 	}
 
 	err = t.Execute(writer, data)
