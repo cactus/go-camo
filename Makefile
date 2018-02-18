@@ -88,13 +88,11 @@ cross-tar: man
 
 	@echo "Building (cross-compile: ${CC_BUILD_ARCHES})..."
 	@echo "...go-camo..."
-	@env gox -output="${CC_OUTPUT_TPL}" -osarch="${CC_BUILD_ARCHES}" \
-		${GOBUILD_FLAGS} .
+	@env gox -output="${CC_OUTPUT_TPL}" -osarch="${CC_BUILD_ARCHES}" ${GOBUILD_FLAGS} .
 	@echo
 
 	@echo "...url-tool..."
-	@env gox -output="${CC_OUTPUT_TPL}" -osarch="${CC_BUILD_ARCHES}" \
-		${GOBUILD_FLAGS} ./url-tool
+	@env gox -output="${CC_OUTPUT_TPL}" -osarch="${CC_BUILD_ARCHES}" ${GOBUILD_FLAGS} ./url-tool
 	@echo
 
 	@echo "...creating tar files..."
