@@ -25,6 +25,10 @@ root-package = "github.com/cactus/go-camo"
 install = ["./cmd/..."]
 ensure = "false"
 
+[prune]
+go-tests = true
+unused-packages = true
+
 [[constraint]]
   name = "github.com/cactus/mlog"
   version = "1.0.1"
