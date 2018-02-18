@@ -8,10 +8,10 @@
   version = "v1.0.1"
 
 [[projects]]
-  branch = "master"
   name = "github.com/cactus/tai64"
   packages = ["."]
   revision = "9fff3ffed63c4047456ef9d5c5708f260584e9ee"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
