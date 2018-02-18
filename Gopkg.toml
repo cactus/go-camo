@@ -20,6 +20,11 @@
 #  version = "2.4.0"
 
 
+[metadata.heroku]
+root-package = "github.com/cactus/go-camo"
+install = ["./cmd/..."]
+ensure = "false"
+
 [[constraint]]
   name = "github.com/cactus/mlog"
   version = "1.0.1"
