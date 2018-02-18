@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2016 Eli Janssen
+// Copyright (c) 2012-2018 Eli Janssen
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
@@ -24,7 +24,7 @@ type VersionLicenseText struct {
 }
 
 const tplText = `
-// Copyright (c) 2012-2016 Eli Janssen
+// Copyright (c) 2012-2018 Eli Janssen
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 

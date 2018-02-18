@@ -61,7 +61,7 @@ test:
 
 generate:
 	@echo "Running generate..."
-	@go generate
+	@go generate ./cmd/go-camo
 
 cover:
 	@echo "Running tests with coverage..."
