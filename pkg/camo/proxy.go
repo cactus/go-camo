@@ -16,7 +16,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cactus/go-camo/camo/encoding"
+	"github.com/cactus/go-camo/pkg/camo/encoding"
 
 	"github.com/cactus/mlog"
 )

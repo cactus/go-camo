@@ -50,9 +50,9 @@ build:
 	@[ -d "${BUILDDIR}/bin" ] || mkdir -p "${BUILDDIR}/bin"
 	@echo "Building..."
 	@echo "...go-camo..."
-	@env CGO_ENABLED=0 go build ${GOBUILD_FLAGS} -o "${BUILDDIR}/bin/go-camo" .
+	@env CGO_ENABLED=0 go build ${GOBUILD_FLAGS} -o "${BUILDDIR}/bin/go-camo" ./cmd/go-camo
 	@echo "...url-tool..."
-	@env CGO_ENABLED=0 go build ${GOBUILD_FLAGS} -o "${BUILDDIR}/bin/url-tool" ./url-tool
+	@env CGO_ENABLED=0 go build ${GOBUILD_FLAGS} -o "${BUILDDIR}/bin/url-tool" ./cmd/url-tool
 	@echo "done!"
 
 test:
@@ -88,11 +88,11 @@ cross-tar: man
 
 	@echo "Building (cross-compile: ${CC_BUILD_ARCHES})..."
 	@echo "...go-camo..."
-	@env gox -output="${CC_OUTPUT_TPL}" -osarch="${CC_BUILD_ARCHES}" ${GOBUILD_FLAGS} .
+	@env gox -output="${CC_OUTPUT_TPL}" -osarch="${CC_BUILD_ARCHES}" ${GOBUILD_FLAGS} ./cmd/go-camo
 	@echo
 
 	@echo "...url-tool..."
-	@env gox -output="${CC_OUTPUT_TPL}" -osarch="${CC_BUILD_ARCHES}" ${GOBUILD_FLAGS} ./url-tool
+	@env gox -output="${CC_OUTPUT_TPL}" -osarch="${CC_BUILD_ARCHES}" ${GOBUILD_FLAGS} ./cmd/url-tool
 	@echo
 
 	@echo "...creating tar files..."

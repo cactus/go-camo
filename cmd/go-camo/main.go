@@ -5,7 +5,7 @@
 // go-camo daemon (go-camod)
 package main
 
-//go:generate go run tools/genversion.go -pkg $GOPACKAGE -input DEPS.md -output main_vers_gen.go
+//go:generate go run ../../tools/genversion.go -pkg $GOPACKAGE -input ../../DEPS.md -output main_vers_gen.go
 
 import (
 	"fmt"
@@ -17,9 +17,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cactus/go-camo/camo"
-	"github.com/cactus/go-camo/router"
-	"github.com/cactus/go-camo/stats"
+	"github.com/cactus/go-camo/pkg/camo"
+	"github.com/cactus/go-camo/pkg/router"
+	"github.com/cactus/go-camo/pkg/stats"
 
 	"github.com/cactus/mlog"
 	flags "github.com/jessevdk/go-flags"
