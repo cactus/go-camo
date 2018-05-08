@@ -332,7 +332,7 @@ The `simple-server` utility has moved to its [own repo][14].
 
 ## Alternative Implementations
 
-*   [MrSaint][17]'s go-camo [fork][18] - supports proxying additional content
+*   [MrSaints][17]' go-camo [fork][18] - supports proxying additional content
     types (fonts/css).
 
 ## Changelog
