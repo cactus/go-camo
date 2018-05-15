@@ -134,6 +134,9 @@ in your GOPATH. This can be done manually, or with `go get`.
 ```
 $ export GOPATH=/tmp/go
 $ go get -d github.com/cactus/go-camo
+package github.com/cactus/go-camo: no Go files in /tmp/go/src/github.com/cactus/go-camo
+# Note: The above error is just a warning. `go get` will still check out the
+# code into the right place.
 $ cd $GOPATH/src/github.com/cactus/go-camo
 ```
 
