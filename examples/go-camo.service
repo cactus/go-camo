@@ -1,0 +1,18 @@
+# go-camo systemd unit file
+
+[Unit]
+Description=Go-Camo
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Environment="GOCAMO_HMAC=replace-me!!"
+ExecStart=/usr/local/bin/go-camo
+Restart=on-failure
+RestartSec=10
+User=nobody
+Group=nobody
+WorkingDirectory=/var/empty/
+
+[Install]
+WantedBy=multi-user.target
