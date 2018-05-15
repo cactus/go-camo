@@ -174,7 +174,7 @@ Go-Camo does not daemonize on its own. For production usage, it is recommended
 to launch in a process supervisor, and drop privileges as appropriate.
 
 Examples of supervisors include: [daemontools][5], [runit][6], [upstart][7],
-[launchd][8], and many more.
+[launchd][8], [systemd][19], and many more.
 
 For the reasoning behind lack of daemonization, see [daemontools/why][9]. In
 addition, the code is much simpler because of it.
@@ -365,3 +365,4 @@ file for details.
 [16]: https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
 [17]: https://github.com/MrSaints
 [18]: https://github.com/arachnys/go-camo
+[19]: https://www.freedesktop.org/wiki/Software/systemd/
