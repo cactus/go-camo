@@ -2,7 +2,12 @@ Changelog
 =========
 
 ## HEAD
+
+## 1.0.18 2018-05-15
 *   change repo layout and build pipeline to dep/gox/GOPATH style
+*   lint fixes and minor struct alignment changes (minor optimization)
+*   update mlog dependency
+*   build with go-1.10.2
 
 ## 1.0.17 2018-01-25
 *   update dependency versions to current
