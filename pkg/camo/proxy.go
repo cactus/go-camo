@@ -41,6 +41,8 @@ type Config struct {
 	// Keepalive enable/disable
 	DisableKeepAlivesFE bool
 	DisableKeepAlivesBE bool
+	// additional content types to allow
+	AllowContentVideo bool
 }
 
 // ProxyMetrics interface for Proxy to use for stats/metrics.
@@ -55,10 +57,12 @@ type ProxyMetrics interface {
 // restrictions as well as regex host allow list support.
 type Proxy struct {
 	// compiled allow list regex
-	allowList []*regexp.Regexp
-	metrics   ProxyMetrics
-	client    *http.Client
-	config    *Config
+	allowList         []*regexp.Regexp
+	acceptTypesRe     []*regexp.Regexp
+	metrics           ProxyMetrics
+	client            *http.Client
+	config            *Config
+	acceptTypesString string
 }
 
 // ServerHTTP handles the client request, validates the request is validly
@@ -155,10 +159,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	// add an accept header if the client didn't send one
-	if nreq.Header.Get("Accept") == "" {
-		nreq.Header.Add("Accept", "image/*")
-	}
+	// add/squash an accept header if the client didn't send one
+	nreq.Header.Set("Accept", p.acceptTypesString)
 
 	nreq.Header.Add("User-Agent", p.config.ServerName)
 	nreq.Header.Add("Via", p.config.ServerName)
@@ -204,10 +206,16 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	switch resp.StatusCode {
 	case 200:
 		// check content type
-		if !strings.HasPrefix(resp.Header.Get("Content-Type"), "image/") {
-			mlog.Debugm("Non-Image content-type returned", mlog.Map{"type": u})
-			http.Error(w, "Non-Image content-type returned",
-				http.StatusBadRequest)
+		match := false
+		for _, re := range p.acceptTypesRe {
+			if re.MatchString(resp.Header.Get("Content-Type")) {
+				match = true
+				break
+			}
+		}
+		if !match {
+			mlog.Debugm("Unsupported content-type returned", mlog.Map{"type": u})
+			http.Error(w, "Unsupported content-type returned", http.StatusBadRequest)
 			return
 		}
 	case 300:
@@ -341,8 +349,26 @@ func New(pc Config) (*Proxy, error) {
 		allow = append(allow, c)
 	}
 
+	acceptTypes := []string{"image/*"}
+	// add additional accept types
+	if pc.AllowContentVideo {
+		acceptTypes = append(acceptTypes, "video/*")
+	}
+
+	var acceptTypesRe []*regexp.Regexp
+	for _, v := range acceptTypes {
+		c, err = globToRegexp(v)
+		if err != nil {
+			return nil, err
+		}
+		acceptTypesRe = append(acceptTypesRe, c)
+	}
+
 	return &Proxy{
-		client:    client,
-		config:    &pc,
-		allowList: allow}, nil
+		client:            client,
+		config:            &pc,
+		allowList:         allow,
+		acceptTypesString: strings.Join(acceptTypes, ", "),
+		acceptTypesRe:     acceptTypesRe}, nil
+
 }
