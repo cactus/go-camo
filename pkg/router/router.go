@@ -5,7 +5,6 @@
 package router
 
 import (
-	"io"
 	"net/http"
 	"strings"
 )
@@ -28,11 +27,10 @@ func (dr *DumbRouter) SetHeaders(w http.ResponseWriter) {
 	h.Set("Server", dr.ServerName)
 }
 
-// RootHandler is a simple http hander for / that returns "Go-Camo"
-func (dr *DumbRouter) RootHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	// Status 200 is the default. No need to set explicitly here.
-	io.WriteString(w, dr.ServerName)
+// HealthCheckHandler is HTTP handler for confirming the backend service
+// is available from an external client, such as a load balancer.
+func (dr *DumbRouter) HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // ServeHTTP fulfills the http server interface
@@ -50,13 +48,13 @@ func (dr *DumbRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if dr.StatsHandler != nil && r.URL.Path == "/status" {
-		dr.StatsHandler(w, r)
+	if r.URL.Path == "/healthcheck" {
+		dr.HealthCheckHandler(w, r)
 		return
 	}
 
-	if r.URL.Path == "/" {
-		dr.RootHandler(w, r)
+	if dr.StatsHandler != nil && r.URL.Path == "/status" {
+		dr.StatsHandler(w, r)
 		return
 	}
 

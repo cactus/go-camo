@@ -7,6 +7,8 @@ package camo
 import (
 	"net"
 	"os"
+	"regexp"
+	"strings"
 	"syscall"
 )
 
@@ -67,4 +69,10 @@ func isRejectedIP(ip net.IP) bool {
 	}
 
 	return false
+}
+
+func globToRegexp(globString string) (*regexp.Regexp, error) {
+	gs := "^" + strings.Replace(globString, "*", ".*", 1) + "$"
+	c, err := regexp.Compile(strings.TrimSpace(gs))
+	return c, err
 }
