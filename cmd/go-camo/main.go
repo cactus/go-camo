@@ -26,10 +26,12 @@ import (
 )
 
 var (
-	// ServerName holds the server name string
-	ServerName = "go-camo"
 	// ServerVersion holds the server version string
 	ServerVersion = "no-version"
+
+	// ServerCommitSha holds the git commit SHA of the repository
+	// when the binary was built.
+	ServerCommitSha = ""
 )
 
 func main() {
@@ -60,6 +62,8 @@ func main() {
 		DisableKeepAlivesBE bool          `long:"no-bk" description:"Disable backend http keep-alive support"`
 		AllowContentVideo   bool          `long:"allow-content-video" description:"Additionally allow 'video/*' content"`
 		Verbose             bool          `short:"v" long:"verbose" description:"Show verbose (debug) log level output"`
+		ServerName          string        `long:"server-name" default:"go-camo" description:"Value to use for the HTTP server field"`
+		ExposeServerVersion bool          `long:"expose-server-version" description:"Include the server version in the HTTP server response header"`
 	}
 
 	// parse said flags
@@ -72,6 +76,12 @@ func main() {
 		}
 		os.Exit(1)
 	}
+
+	// set the server name
+	ServerName := opts.ServerName
+
+	// setup the server response field
+	ServerResponse := opts.ServerName
 
 	if len(opts.Version) > 0 {
 		fmt.Printf("%s %s (%s,%s-%s)\n", ServerName, ServerVersion, runtime.Version(), runtime.Compiler, runtime.GOARCH)
@@ -170,8 +180,12 @@ func main() {
 		mlog.Fatal("Error creating camo", err)
 	}
 
+	if ServerCommitSha != "" && opts.ExposeServerVersion {
+		ServerResponse = fmt.Sprintf("%s (%s)", opts.ServerName, ServerCommitSha)
+	}
+
 	dumbrouter := &router.DumbRouter{
-		ServerName:  config.ServerName,
+		ServerName:  ServerResponse,
 		AddHeaders:  AddHeaders,
 		CamoHandler: proxy,
 	}
