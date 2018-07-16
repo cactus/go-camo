@@ -28,10 +28,6 @@ import (
 var (
 	// ServerVersion holds the server version string
 	ServerVersion = "no-version"
-
-	// ServerCommitSha holds the git commit SHA of the repository
-	// when the binary was built.
-	ServerCommitSha = ""
 )
 
 func main() {
@@ -83,6 +79,11 @@ func main() {
 	// setup the server response field
 	ServerResponse := opts.ServerName
 
+	if opts.ExposeServerVersion {
+		ServerResponse = fmt.Sprintf("%s %s", opts.ServerName, ServerVersion)
+	}
+
+	// setup -V version output
 	if len(opts.Version) > 0 {
 		fmt.Printf("%s %s (%s,%s-%s)\n", ServerName, ServerVersion, runtime.Version(), runtime.Compiler, runtime.GOARCH)
 		if len(opts.Version) > 1 {
@@ -178,10 +179,6 @@ func main() {
 	proxy, err := camo.New(config)
 	if err != nil {
 		mlog.Fatal("Error creating camo", err)
-	}
-
-	if ServerCommitSha != "" && opts.ExposeServerVersion {
-		ServerResponse = fmt.Sprintf("%s (%s)", opts.ServerName, ServerCommitSha)
 	}
 
 	dumbrouter := &router.DumbRouter{

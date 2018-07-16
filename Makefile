@@ -7,16 +7,14 @@ GOVER             := $(shell go version | awk '{print $$3}' | tr -d '.')
 
 # app specific info
 APP_NAME          := go-camo
-APP_VER           := $(shell git describe --always --dirty --tags|sed 's/^v//')
-GIT_SHA           := $(shell git log --pretty=format:'%h' -n 1)
-SERVER_COMMIT_SHA := main.ServerCommitSha
+APP_VER           := $(shell git describe --always --tags|sed 's/^v//')
 VERSION_VAR       := main.ServerVersion
 
 # flags and build configuration
 GOTEST_FLAGS      := -cpu=1,2
 GOBUILD_DEPFLAGS  := -tags netgo
 GOBUILD_LDFLAGS   ?= -s -w
-GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${APP_VER} -X ${SERVER_COMMIT_SHA}=${GIT_SHA}"
+GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${APP_VER}"
 
 # cross compile defs
 CC_BUILD_ARCHES    = darwin/amd64 freebsd/amd64 linux/amd64
