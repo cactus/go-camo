@@ -190,7 +190,7 @@ In order to use this on Heroku with the provided Procfile, you need to:
 ## Securing an installation
 
 go-camo will generally do what you tell it to with regard to fetching signed
-urls. There is some limited support for trying to preventing [dns
+urls. There is some limited support for trying to prevent [dns
 rebinding][15] attacks.
 
 go-camo will attempt to reject any address matching an rfc1918 network block,
