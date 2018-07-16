@@ -236,26 +236,32 @@ Usage:
   go-camo [OPTIONS]
 
 Application Options:
-  -k, --key=           HMAC key
-  -H, --header=        Extra header to return for each response. This option
-                       can be used multiple times to add multiple headers
-      --stats          Enable Stats
-      --no-log-ts      Do not add a timestamp to logging
-      --allow-list=    Text file of hostname allow regexes (one per line)
-      --max-size=      Max response image size (KB) (5120)
-      --timeout=       Upstream request timeout (4s)
-      --max-redirects= Maximum number of redirects to follow (3)
-      --no-fk          Disable frontend http keep-alive support
-      --no-bk          Disable backend http keep-alive support
-      --listen=        Address:Port to bind to for HTTP (0.0.0.0:8080)
-      --ssl-listen=    Address:Port to bind to for HTTPS/SSL/TLS
-      --ssl-key=       ssl private key (key.pem) path
-      --ssl-cert=      ssl cert (cert.pem) path
-  -v, --verbose        Show verbose (debug) log level output
-  -V, --version        print version and exit
+  -V, --version                Print version and exit; specify twice to show license
+                               information
+  -H, --header=                Extra header to return for each response. This option can
+                               be used multiple times to add multiple headers
+  -k, --key=                   HMAC key
+      --ssl-key=               ssl private key (key.pem) path
+      --ssl-cert=              ssl cert (cert.pem) path
+      --allow-list=            Text file of hostname allow regexes (one per line)
+      --listen=                Address:Port to bind to for HTTP (default: 0.0.0.0:8080)
+      --ssl-listen=            Address:Port to bind to for HTTPS/SSL/TLS
+      --max-size=              Max allowed response size (KB) (default: 5120)
+      --timeout=               Upstream request timeout (default: 4s)
+      --max-redirects=         Maximum number of redirects to follow (default: 3)
+      --stats                  Enable Stats
+      --no-log-ts              Do not add a timestamp to logging
+      --no-fk                  Disable frontend http keep-alive support
+      --no-bk                  Disable backend http keep-alive support
+      --allow-content-video    Additionally allow 'video/*' content
+  -v, --verbose                Show verbose (debug) log level output
+      --server-name=           Value to use for the HTTP server field (default: go-camo)
+      --expose-server-version  Include the server version in the HTTP server response
+                               header
 
 Help Options:
-  -h, --help          Show this help message
+  -h, --help                   Show this help message
+
 ```
 
 If an allow-list file is defined, that file is read and each line converted
