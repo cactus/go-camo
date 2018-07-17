@@ -2,10 +2,15 @@ Changelog
 =========
 
 ## HEAD
+
+## v1.1.0 2018-07-16
 *   add flag to allow `video/*` as content type (disabled by default)
 *   allow setting custom server name
 *   add flag to expose the current version version in http response header
     (similar to how it is done for `-V` cli output)
+*   change root route to return 404
+*   add `/healthcheck` route that returns 204 status (no body content)
+    useful for load balancers to check that service is running
 
 ## 1.0.18 2018-05-15
 *   change repo layout and build pipeline to dep/gox/GOPATH style
