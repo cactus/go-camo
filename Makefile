@@ -4,6 +4,7 @@ TARBUILDDIR       := ${BUILDDIR}/tar
 ARCH              := $(shell go env GOHOSTARCH)
 OS                := $(shell go env GOHOSTOS)
 GOVER             := $(shell go version | awk '{print $$3}' | tr -d '.')
+SIGN_KEY          ?= ${HOME}/.signify/go-camo.sec
 
 # app specific info
 APP_NAME          := go-camo
@@ -112,8 +113,8 @@ cross-tar: man
 
 release-sign:
 	@echo "signing release tarballs"
-	@(cd tar; shasum -a 256 go-camo-*.tar.gz > SHA256; \
-	  signify -S -s $${SECKEY} -m SHA256; \
+	@(cd build/tar; shasum -a 256 go-camo-*.tar.gz > SHA256; \
+	  signify -S -s ${SIGN_KEY} -m SHA256; \
 	  sed -i.bak -E 's#^(.*:).*#\1 go-camo-${APP_VER} SHA256#' SHA256.sig; \
 	  rm -f SHA256.sig.bak; \
 	 )
