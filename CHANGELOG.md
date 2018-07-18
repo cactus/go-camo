@@ -3,6 +3,10 @@ Changelog
 
 ## HEAD
 
+## v1.1.1 2018-07-18
+*   change `/healthcheck` response to 200 instead of 204.  
+    solves configuration issue with some loadbalancers.
+
 ## v1.1.0 2018-07-16
 *   add flag to allow `video/*` as content type (disabled by default)
 *   allow setting custom server name
