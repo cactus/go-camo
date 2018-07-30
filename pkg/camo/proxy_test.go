@@ -242,6 +242,15 @@ func Test404OnLocalhost(t *testing.T) {
 	}
 }
 
+func Test404OnLocalhostWithPort(t *testing.T) {
+	t.Parallel()
+	testURL := "http://localhost:80/foo.cgi"
+	record, err := makeTestReq(testURL, 404, camoConfig)
+	if assert.Nil(t, err) {
+		assert.Equal(t, "Bad url host\n", record.Body.String(), "Expected 404 response body but got '%s' instead", record.Body.String())
+	}
+}
+
 // Test will fail if dns relay implements dns rebind prevention
 func Test404OnLoopback(t *testing.T) {
 	t.Parallel()

@@ -108,28 +108,28 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	u.Host = strings.ToLower(u.Host)
-	if u.Host == "" || localhostRegex.MatchString(u.Host) {
+	uHostname := strings.ToLower(u.Hostname())
+	if uHostname == "" || localhostRegex.MatchString(uHostname) {
 		http.Error(w, "Bad url host", http.StatusNotFound)
 		return
 	}
 
 	// if allowList is set, require match
 	for _, rgx := range p.allowList {
-		if rgx.MatchString(u.Host) {
+		if rgx.MatchString(uHostname) {
 			http.Error(w, "Allowlist host failure", http.StatusNotFound)
 			return
 		}
 	}
 
 	// filter out rejected networks
-	if ip := net.ParseIP(u.Host); ip != nil {
+	if ip := net.ParseIP(uHostname); ip != nil {
 		if isRejectedIP(ip) {
 			http.Error(w, "Denylist host failure", http.StatusNotFound)
 			return
 		}
 	} else {
-		if ips, err := net.LookupIP(u.Host); err == nil {
+		if ips, err := net.LookupIP(uHostname); err == nil {
 			for _, ip := range ips {
 				if isRejectedIP(ip) {
 					http.Error(w, "Denylist host failure", http.StatusNotFound)
@@ -151,7 +151,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if req.Header.Get("X-Forwarded-For") == "" {
 		host, _, err := net.SplitHostPort(req.RemoteAddr)
 		if err == nil {
-			if ip := net.ParseIP(u.Host); ip != nil {
+			if ip := net.ParseIP(u.Hostname()); ip != nil {
 				if !isRejectedIP(ip) {
 					nreq.Header.Add("X-Forwarded-For", host)
 				}
