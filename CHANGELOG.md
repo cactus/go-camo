@@ -2,6 +2,9 @@ Changelog
 =========
 
 ## HEAD
+## v1.1.2 2018-07-30
+*   fix SSRF leak, where certain requests would not match defined and custom ip
+    blacklists as expected
 
 ## v1.1.1 2018-07-18
 *   change `/healthcheck` response to 200 instead of 204.  
