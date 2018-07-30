@@ -279,6 +279,7 @@ func TestTimeout(t *testing.T) {
 		RequestTimeout: time.Duration(500) * time.Millisecond,
 		MaxRedirects:   3,
 		ServerName:     "go-camo",
+		noIPFiltering:  true,
 	}
 	cc := make(chan bool, 1)
 	received := make(chan bool)
@@ -287,6 +288,7 @@ func TestTimeout(t *testing.T) {
 		<-cc
 		r.Close = true
 		w.Write([]byte("ok"))
+
 	}))
 	defer ts.Close()
 
@@ -300,14 +302,28 @@ func TestTimeout(t *testing.T) {
 		errc <- err
 	}()
 
-	<-received
 	select {
-	case e := <-errc:
-		assert.Nil(t, e)
-		cc <- true
+	case <-received:
+		select {
+		case e := <-errc:
+			assert.Nil(t, e)
+			cc <- true
+		case <-time.After(1 * time.Second):
+			cc <- true
+			t.Errorf("timeout didn't fire in time")
+		}
 	case <-time.After(1 * time.Second):
-		cc <- true
-		t.Errorf("timeout didn't fire in time")
+		var err error
+		select {
+		case e := <-errc:
+			err = e
+		default:
+		}
+		if err != nil {
+			assert.Nil(t, err, "test didn't hit backend as expected")
+		}
+		t.Errorf("test didn't hit backend as expected")
 	}
+
 	close(cc)
 }

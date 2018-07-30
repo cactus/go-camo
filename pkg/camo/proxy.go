@@ -43,6 +43,8 @@ type Config struct {
 	DisableKeepAlivesBE bool
 	// additional content types to allow
 	AllowContentVideo bool
+	// no ip filtering (test mode)
+	noIPFiltering bool
 }
 
 // ProxyMetrics interface for Proxy to use for stats/metrics.
@@ -114,26 +116,29 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// if allowList is set, require match
-	for _, rgx := range p.allowList {
-		if rgx.MatchString(uHostname) {
-			http.Error(w, "Allowlist host failure", http.StatusNotFound)
-			return
+	// filtering
+	if !p.config.noIPFiltering {
+		// if allowList is set, require match
+		for _, rgx := range p.allowList {
+			if rgx.MatchString(uHostname) {
+				http.Error(w, "Allowlist host failure", http.StatusNotFound)
+				return
+			}
 		}
-	}
 
-	// filter out rejected networks
-	if ip := net.ParseIP(uHostname); ip != nil {
-		if isRejectedIP(ip) {
-			http.Error(w, "Denylist host failure", http.StatusNotFound)
-			return
-		}
-	} else {
-		if ips, err := net.LookupIP(uHostname); err == nil {
-			for _, ip := range ips {
-				if isRejectedIP(ip) {
-					http.Error(w, "Denylist host failure", http.StatusNotFound)
-					return
+		// filter out rejected networks
+		if ip := net.ParseIP(uHostname); ip != nil {
+			if isRejectedIP(ip) {
+				http.Error(w, "Denylist host failure", http.StatusNotFound)
+				return
+			}
+		} else {
+			if ips, err := net.LookupIP(uHostname); err == nil {
+				for _, ip := range ips {
+					if isRejectedIP(ip) {
+						http.Error(w, "Denylist host failure", http.StatusNotFound)
+						return
+					}
 				}
 			}
 		}
@@ -149,11 +154,13 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// filter headers
 	p.copyHeader(&nreq.Header, &req.Header, &ValidReqHeaders)
 	if req.Header.Get("X-Forwarded-For") == "" {
-		host, _, err := net.SplitHostPort(req.RemoteAddr)
+		hostIp, _, err := net.SplitHostPort(req.RemoteAddr)
 		if err == nil {
-			if ip := net.ParseIP(u.Hostname()); ip != nil {
+			// add forwarded for header, as long as it isn't a private
+			// ip address (use isRejectedIP to get private filtering for free)
+			if ip := net.ParseIP(hostIp); ip != nil {
 				if !isRejectedIP(ip) {
-					nreq.Header.Add("X-Forwarded-For", host)
+					nreq.Header.Add("X-Forwarded-For", hostIp)
 				}
 			}
 		}
