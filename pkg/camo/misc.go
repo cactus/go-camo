@@ -58,7 +58,7 @@ func isRejectedIP(ip net.IP) bool {
 	}
 
 	checker := rejectIPv4Networks
-	if len(ip) < net.IPv6len {
+	if len(ip) == net.IPv6len {
 		checker = rejectIPv6Networks
 	}
 
