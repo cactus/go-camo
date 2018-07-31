@@ -57,8 +57,12 @@ func isRejectedIP(ip net.IP) bool {
 		return true
 	}
 
+	// test whether address is ipv4 or ipv6, to pick the proper filter list
+	// (otherwise address may be 16 byte representation in go but not an actual
+	// ipv6 address. this also helps avoid accidentally matching the
+	// "::ffff:0:0/96" netblock
 	checker := rejectIPv4Networks
-	if len(ip) == net.IPv6len {
+	if ip.To4() == nil {
 		checker = rejectIPv6Networks
 	}
 
