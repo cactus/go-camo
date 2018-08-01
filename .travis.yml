@@ -1,4 +1,6 @@
 language: go
+before_script:
+    - go get golang.org/x/vgo
 script: make test
 sudo: false
 go:

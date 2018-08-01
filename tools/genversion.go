@@ -14,7 +14,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/pelletier/go-toml"
+	toml "github.com/pelletier/go-toml"
 	"github.com/pelletier/go-toml/query"
 )
 

@@ -1,9 +1,10 @@
 version: 2
 jobs:
     build:
-        working_directory: /go/src/github.com/cactus/go-camo
+        #working_directory: /go/src/github.com/cactus/go-camo
         docker:
             - image: circleci/golang:1
         steps:
           - checkout
+          - run: go get golang.org/x/vgo
           - run: make test

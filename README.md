@@ -3,7 +3,7 @@ go-camo
 
 [![Current Release](https://img.shields.io/github/release/cactus/go-camo.svg)](http://github.com/cactus/go-camo/releases)
 [![TravisCI](https://img.shields.io/travis/cactus/go-camo.svg)](https://travis-ci.org/cactus/go-camo)
-[![CircleCI](https://img.shields.io/circleci/project/github/cactus/go-camo.svg)](https://circleci.com/gh/cactus/go-camo)
+<!-- [![CircleCI](https://img.shields.io/circleci/project/github/cactus/go-camo.svg)](https://circleci.com/gh/cactus/go-camo) -->
 [![License](https://img.shields.io/github/license/cactus/go-camo.svg)](https://github.com/cactus/go-camo/blob/master/LICENSE.md)
 
 ## Contents
@@ -128,21 +128,11 @@ Additionally required, if cross compiling:
 
 Building:
 
-First, make sure you check out the repository into the proper location
-in your GOPATH. This can be done manually, or with `go get`.
-
-```
-$ export GOPATH=/tmp/go
-$ go get -d github.com/cactus/go-camo
-package github.com/cactus/go-camo: no Go files in /tmp/go/src/github.com/cactus/go-camo
-# Note: The above error is just a warning. `go get` will still check out the
-# code into the right place.
-$ cd $GOPATH/src/github.com/cactus/go-camo
-```
-
-Once that is done, you are ready to build! 
-
 ```text
+# first clone the repo
+$ git clone git@github.com:cactus/go-camo
+$ cd go-camo
+
 # show make targets
 $ make
 Available targets:
@@ -156,7 +146,7 @@ Available targets:
   tar                 build release tarball
   cross-tar           cross compile and build release tarballs
 
-# build all binaries and man pages
+# build all binaries (into ./bin/) and man pages (into ./man/)
 # strips debug symbols by default
 $ make all
 

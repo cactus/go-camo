@@ -3,9 +3,9 @@
 // license that can be found in the LICENSE file.
 
 // go-camo daemon (go-camod)
-package main
+package main // import "github.com/cactus/go-camo"
 
-//go:generate go run ../../tools/genversion.go -pkg $GOPACKAGE -input ../../Gopkg.toml -output main_vers_gen.go
+//go:generate vgo run ../../tools/genversion.go -pkg $GOPACKAGE -input ../../Gopkg.toml -output main_vers_gen.go
 
 import (
 	"fmt"
