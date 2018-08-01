@@ -2,6 +2,9 @@ Changelog
 =========
 
 ## HEAD
+*   switch to vgo. makes building outside GOPATH easy.
+    probably breaks heroku builds, as godep is assumed?
+
 ## v1.1.2 2018-07-30
 *   fix SSRF leak, where certain requests would not match defined and custom ip
     blacklists as expected
