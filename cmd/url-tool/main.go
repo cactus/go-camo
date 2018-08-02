@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // url-tool
-package main // import "github.com/cactus/go-camo"
+package main
 
 import (
 	"errors"
