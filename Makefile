@@ -5,7 +5,6 @@ ARCH              := $(shell go env GOHOSTARCH)
 OS                := $(shell go env GOHOSTOS)
 GOVER             := $(shell go version | awk '{print $$3}' | tr -d '.')
 SIGN_KEY          ?= ${HOME}/.signify/go-camo.sec
-GO                := vgo
 
 # app specific info
 APP_NAME          := go-camo
@@ -21,6 +20,10 @@ GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSI
 # cross compile defs
 CC_BUILD_ARCHES    = darwin/amd64 freebsd/amd64 linux/amd64
 CC_OUTPUT_TPL     := ${BUILDDIR}/bin/{{.Dir}}.{{.OS}}-{{.Arch}}
+
+# some exported vars (pre-configure go build behavior)
+export GO111MODULE=on
+export CGO_ENABLED=0
 
 define HELP_OUTPUT
 Available targets:
@@ -45,12 +48,6 @@ clean:
 	@rm -rf "${BUILDDIR}"
 
 setup:
-	@if [ -z "$(shell which vgo)" ]; then \
-		echo "* 'vgo' command not found."; \
-		echo "  install (or otherwise ensure presence in PATH)"; \
-		echo "  go get golang.org/x/vgo"; \
-		exit 1;\
-	fi
 
 setup-gox:
 	@if [ -z "$(shell which gox)" ]; then \
@@ -64,22 +61,22 @@ build: setup
 	@[ -d "${BUILDDIR}/bin" ] || mkdir -p "${BUILDDIR}/bin"
 	@echo "Building..."
 	@echo "...go-camo..."
-	@env CGO_ENABLED=0 ${GO} build ${GOBUILD_FLAGS} -o "${BUILDDIR}/bin/go-camo" ./cmd/go-camo
+	@go build ${GOBUILD_FLAGS} -o "${BUILDDIR}/bin/go-camo" ./cmd/go-camo
 	@echo "...url-tool..."
-	@env CGO_ENABLED=0 ${GO} build ${GOBUILD_FLAGS} -o "${BUILDDIR}/bin/url-tool" ./cmd/url-tool
+	@go build ${GOBUILD_FLAGS} -o "${BUILDDIR}/bin/url-tool" ./cmd/url-tool
 	@echo "done!"
 
 test: setup
 	@echo "Running tests..."
-	@${GO} test ${GOTEST_FLAGS} ./...
+	@env go test ${GOTEST_FLAGS} ./...
 
 generate: setup
 	@echo "Running generate..."
-	@${GO} generate ./cmd/go-camo
+	@env go generate ./cmd/go-camo
 
 cover: setup
 	@echo "Running tests with coverage..."
-	@${GO} test -cover ${GOTEST_FLAGS} ./...
+	@env go test -cover ${GOTEST_FLAGS} ./...
 
 ${BUILDDIR}/man/%: man/%.mdoc
 	@[ -d "${BUILDDIR}/man" ] || mkdir -p "${BUILDDIR}/man"
@@ -100,11 +97,11 @@ tar: all
 cross-tar: man setup setup-gox
 	@echo "Building (cross-compile: ${CC_BUILD_ARCHES})..."
 	@echo "...go-camo..."
-	@env gox -gocmd="${GO}" -output="${CC_OUTPUT_TPL}" -osarch="${CC_BUILD_ARCHES}" ${GOBUILD_FLAGS} ./cmd/go-camo
+	@gox -gocmd="go" -output="${CC_OUTPUT_TPL}" -osarch="${CC_BUILD_ARCHES}" ${GOBUILD_FLAGS} ./cmd/go-camo
 	@echo
 
 	@echo "...url-tool..."
-	@env gox -gocmd="${GO}" -output="${CC_OUTPUT_TPL}" -osarch="${CC_BUILD_ARCHES}" ${GOBUILD_FLAGS} ./cmd/url-tool
+	@gox -gocmd="go" -output="${CC_OUTPUT_TPL}" -osarch="${CC_BUILD_ARCHES}" ${GOBUILD_FLAGS} ./cmd/url-tool
 	@echo
 
 	@echo "...creating tar files..."

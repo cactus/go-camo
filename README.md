@@ -120,7 +120,7 @@ Building requires:
 
 *   make
 *   git
-*   go (latest version recommended. At least version >= 1.9)
+*   go (latest version recommended. At least version >= 1.11 for go mod support)
 
 Additionally required, if cross compiling:
 

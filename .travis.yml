@@ -1,7 +1,5 @@
 language: go
-before_script:
-    - go get golang.org/x/vgo
-script: make test
+script: env GO111MODULE=on make test
 sudo: false
 go:
-    - "1.10.x"
+    - "1.11.x"
