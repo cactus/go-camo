@@ -253,8 +253,9 @@ func Test404OnLocalhostWithPort(t *testing.T) {
 
 // Test will fail if dns relay implements dns rebind prevention
 func Test404OnLoopback(t *testing.T) {
+	t.Skip("Skipping test. CI environments generally enable something similar to unbound's private-address functionality, making this test fail.")
 	t.Parallel()
-	testURL := "http://i.i.com.com/foo.cgi"
+	testURL := "http://httpbin.org/redirect-to?url=localhost.me&status_code=302"
 	record, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Nil(t, err) {
 		assert.Equal(t, "Denylist host failure\n", record.Body.String(), "Expected 404 response body but got '%s' instead", record.Body.String())
