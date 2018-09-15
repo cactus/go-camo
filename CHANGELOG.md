@@ -2,8 +2,13 @@ Changelog
 =========
 
 ## HEAD
-*   switch to vgo. makes building outside GOPATH easy.
-    probably breaks heroku builds, as godep is assumed?
+
+## v1.1.3 2018-09-15
+*   switch to go-1.11 w/GO111MODULE support
+    this makes building outside GOPATH easy.
+    Looks like heroku supports it now too? (heroku-buildpack-go issue #249)
+*   build release with go-1.11
+*   fix ipv6 length comparison
 
 ## v1.1.2 2018-07-30
 *   fix SSRF leak, where certain requests would not match defined and custom ip
