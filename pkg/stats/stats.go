@@ -40,9 +40,13 @@ func (ps *ProxyStats) GetStats() (uint64, uint64) {
 // stats about the server.
 func Handler(ps *ProxyStats) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(200)
 		c, b := ps.GetStats()
-		fmt.Fprintf(w, "ClientsServed, BytesServed\n%d, %d\n", c, b)
+		if r.URL.Query().Get("format") == "json" {
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			fmt.Fprintf(w, "{\"ClientsServed\": %d, \"BytesServed\": %d}\n", c, b)
+		} else {
+			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			fmt.Fprintf(w, "ClientsServed, BytesServed\n%d, %d\n", c, b)
+		}
 	}
 }
