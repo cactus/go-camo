@@ -13,7 +13,6 @@ import (
 	"net/http"
 	"os"
 	"runtime"
-	"strconv"
 	"strings"
 	"time"
 
@@ -31,14 +30,6 @@ var (
 )
 
 func main() {
-	var gmx int
-	if gmxEnv := os.Getenv("GOMAXPROCS"); gmxEnv != "" {
-		gmx, _ = strconv.Atoi(gmxEnv)
-	} else {
-		gmx = runtime.NumCPU()
-	}
-	runtime.GOMAXPROCS(gmx)
-
 	// command line flags
 	var opts struct {
 		Version             []bool        `short:"V" long:"version" description:"Print version and exit; specify twice to show license information"`
