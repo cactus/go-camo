@@ -21,7 +21,9 @@ var ValidReqHeaders = map[string]bool{
 	"Cache-Control":     true,
 	"If-None-Match":     true,
 	"If-Modified-Since": true,
-	"X-Forwarded-For":   true,
+	// x-forwarded-for header is not blindly passed without additional custom
+	// processing
+	"X-Forwarded-For": false,
 }
 
 // ValidRespHeaders are http response headers that are acceptable to pass from

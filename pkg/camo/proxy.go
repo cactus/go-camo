@@ -41,6 +41,8 @@ type Config struct {
 	// Keepalive enable/disable
 	DisableKeepAlivesFE bool
 	DisableKeepAlivesBE bool
+	// x-forwarded-for enable/disable
+	EnableXFwdFor bool
 	// additional content types to allow
 	AllowContentVideo bool
 	// no ip filtering (test mode)
@@ -152,17 +154,24 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// filter headers
-	p.copyHeader(&nreq.Header, &req.Header, &ValidReqHeaders)
-	if req.Header.Get("X-Forwarded-For") == "" {
-		hostIp, _, err := net.SplitHostPort(req.RemoteAddr)
-		if err == nil {
-			// add forwarded for header, as long as it isn't a private
-			// ip address (use isRejectedIP to get private filtering for free)
-			if ip := net.ParseIP(hostIp); ip != nil {
-				if !isRejectedIP(ip) {
-					nreq.Header.Add("X-Forwarded-For", hostIp)
+	p.copyHeaders(&nreq.Header, &req.Header, &ValidReqHeaders)
+
+	// x-forwarded-for (if appropriate)
+	if p.config.EnableXFwdFor {
+		xfwd4 := req.Header.Get("X-Forwarded-For")
+		if xfwd4 == "" {
+			hostIp, _, err := net.SplitHostPort(req.RemoteAddr)
+			if err == nil {
+				// add forwarded for header, as long as it isn't a private
+				// ip address (use isRejectedIP to get private filtering for free)
+				if ip := net.ParseIP(hostIp); ip != nil {
+					if !isRejectedIP(ip) {
+						nreq.Header.Add("X-Forwarded-For", hostIp)
+					}
 				}
 			}
+		} else {
+			nreq.Header.Add("X-Forwarded-For", xfwd4)
 		}
 	}
 
@@ -235,7 +244,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	case 304:
 		h := w.Header()
-		p.copyHeader(&h, &resp.Header, &ValidRespHeaders)
+		p.copyHeaders(&h, &resp.Header, &ValidRespHeaders)
 		w.WriteHeader(304)
 		return
 	case 404:
@@ -251,7 +260,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	h := w.Header()
-	p.copyHeader(&h, &resp.Header, &ValidRespHeaders)
+	p.copyHeaders(&h, &resp.Header, &ValidRespHeaders)
 	w.WriteHeader(resp.StatusCode)
 
 	// since this uses io.Copy from the respBody, it is streaming
@@ -282,7 +291,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 // copy headers from src into dst
 // empty filter map will result in no filtering being done
-func (p *Proxy) copyHeader(dst, src *http.Header, filter *map[string]bool) {
+func (p *Proxy) copyHeaders(dst, src *http.Header, filter *map[string]bool) {
 	f := *filter
 	filtering := false
 	if len(f) > 0 {

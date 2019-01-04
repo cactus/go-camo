@@ -2,6 +2,8 @@ Changelog
 =========
 
 ## HEAD
+*   disable passing/generating x-forwarded-for header by default
+*   add new `--enable-xfwd4` flag to enable x-forwarded-for header passing/generation
 
 ## v1.1.3 2018-09-15
 *   switch to go-1.11 w/GO111MODULE support

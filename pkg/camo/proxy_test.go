@@ -144,6 +144,42 @@ func TestBadContentType(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestXForwardedFor(t *testing.T) {
+	t.Parallel()
+
+	camoConfigWithoutFwd4 := Config{
+		HMACKey:        []byte("0x24FEEDFACEDEADBEEFCAFE"),
+		MaxSize:        180 * 1024,
+		RequestTimeout: time.Duration(10) * time.Second,
+		MaxRedirects:   3,
+		ServerName:     "go-camo",
+		EnableXFwdFor:  true,
+		noIPFiltering:  true,
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.Close = true
+		fmt.Println(w.Header())
+		w.Header().Set("Content-Type", "image/png")
+		w.Write([]byte(r.Header.Get("X-Forwarded-For")))
+	}))
+	defer ts.Close()
+
+	req, err := makeReq(ts.URL)
+	assert.Nil(t, err)
+
+	req.Header.Set("X-Forwarded-For", "2.2.2.2, 1.1.1.1")
+
+	record, err := processRequest(req, 200, camoConfigWithoutFwd4)
+	assert.Nil(t, err)
+	assert.EqualValues(t, record.Body.String(), "2.2.2.2, 1.1.1.1")
+
+	camoConfigWithoutFwd4.EnableXFwdFor = false
+	record, err = processRequest(req, 200, camoConfigWithoutFwd4)
+	assert.Nil(t, err)
+	assert.Empty(t, record.Body.String())
+}
+
 func TestVideoContentTypeAllowed(t *testing.T) {
 	t.Parallel()
 
