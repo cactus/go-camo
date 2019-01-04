@@ -75,6 +75,14 @@ Maximum number of redirects to follow. Default: 3
 Disable frontend http keep-alive support.
 .It Fl -no-bk
 Disable backend http keep-alive support.
+.It Fl -allow-content-video
+Additionally allow "video/*" content type.
+.It Fl -expose-server-version
+Include the server version in the HTTP server response header.
+.It Fl -enable-xfwd4
+Enable x-forwarded-for passthrough/generation.
+.It Fl -server-name Ns = Ns Aq Ar server-name
+Value to use for the HTTP server field. Default: go-camo
 .It Fl -listen Ns = Ns Aq Ar address:port
 Address and port to listen to, as a string of "address:port".
 Default: "0.0.0.0:8080"
