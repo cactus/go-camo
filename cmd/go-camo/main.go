@@ -51,7 +51,7 @@ func main() {
 		Verbose             bool          `short:"v" long:"verbose" description:"Show verbose (debug) log level output"`
 		ServerName          string        `long:"server-name" default:"go-camo" description:"Value to use for the HTTP server field"`
 		ExposeServerVersion bool          `long:"expose-server-version" description:"Include the server version in the HTTP server response header"`
-		EnableXFwdFor       bool          `long:"enable-xfwd4" description:"Enable x-forward-for passthrough/generation"`
+		EnableXFwdFor       bool          `long:"enable-xfwd4" description:"Enable x-forwarded-for passthrough/generation"`
 	}
 
 	// parse said flags
