@@ -248,6 +248,7 @@ Application Options:
       --server-name=           Value to use for the HTTP server field (default: go-camo)
       --expose-server-version  Include the server version in the HTTP server response
                                header
+      --enable-xfwd4           Enable x-forward-for passthrough/generation
 
 Help Options:
   -h, --help                   Show this help message
