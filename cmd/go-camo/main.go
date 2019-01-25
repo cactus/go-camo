@@ -5,7 +5,7 @@
 // go-camo daemon (go-camod)
 package main
 
-//go:generate vgo run ../../tools/genversion.go -pkg $GOPACKAGE -input ../../Gopkg.toml -output main_vers_gen.go
+// //go:generate go run ../../tools/genversion.go -pkg $GOPACKAGE -input ../../go.mod -output main_vers_gen.go
 
 import (
 	"fmt"
