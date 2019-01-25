@@ -120,7 +120,7 @@ func main() {
 	// other options
 	config.EnableXFwdFor = opts.EnableXFwdFor
 
-	// additonal content types to allow
+	// additional content types to allow
 	config.AllowContentVideo = opts.AllowContentVideo
 
 	if opts.AllowList != "" {
