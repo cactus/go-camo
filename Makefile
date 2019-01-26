@@ -70,10 +70,6 @@ test: setup
 	@echo "Running tests..."
 	@env go test ${GOTEST_FLAGS} ./...
 
-generate: setup
-	@echo "Running generate..."
-	@env go generate ./cmd/go-camo
-
 cover: setup
 	@echo "Running tests with coverage..."
 	@env go test -cover ${GOTEST_FLAGS} ./...
