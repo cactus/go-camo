@@ -3,7 +3,7 @@ jobs:
     build:
         #working_directory: /go/src/github.com/cactus/go-camo
         docker:
-            - image: circleci/golang:1.11
+            - image: circleci/golang:1.12
         steps:
           - checkout
           - run: env GO111MODULE=on make test
