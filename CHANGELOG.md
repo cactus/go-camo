@@ -2,8 +2,15 @@ Changelog
 =========
 
 ## HEAD
+
+## v1.1.4 2019-02-26 
+
 *   disable passing/generating x-forwarded-for header by default
 *   add new `--enable-xfwd4` flag to enable x-forwarded-for header passing/generation
+*   add optional json output for stats
+*   remove gomaxprocs code, as it is no longer necessary
+*   documentation fixes (man page update, spelling, etc)
+*   build release with go-1.12
 
 ## v1.1.3 2018-09-15
 *   switch to go-1.11 w/GO111MODULE support
