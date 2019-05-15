@@ -215,7 +215,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// check for too large a response
 	if resp.ContentLength > p.config.MaxSize {
 		mlog.Debugm("content length exceeded", mlog.Map{"url": sURL})
-		http.Error(w, "Content length exceeded", http.StatusNotFound)
+		http.Error(w, "Content length exceeded", http.StatusRequestEntityTooLarge)
 		return
 	}
 
