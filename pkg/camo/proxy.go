@@ -221,10 +221,17 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	switch resp.StatusCode {
 	case 200:
-		// check content type
+		contentType := resp.Header.Get("Content-Type")
+
+		if contentType == "" {
+			mlog.Debug("Empty content-type returned")
+			http.Error(w, "Empty content-type returned", http.StatusBadRequest)
+			return
+		}
+
 		match := false
 		for _, re := range p.acceptTypesRe {
-			if re.MatchString(resp.Header.Get("Content-Type")) {
+			if re.MatchString(contentType) {
 				match = true
 				break
 			}
