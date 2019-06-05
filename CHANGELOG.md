@@ -2,6 +2,7 @@ Changelog
 =========
 
 ## HEAD
+*   Split out exception for missing content types (#32)
 
 ## v1.1.4 2019-02-26 
 
