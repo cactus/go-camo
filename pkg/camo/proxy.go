@@ -224,8 +224,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		contentType := resp.Header.Get("Content-Type")
 
 		if contentType == "" {
-			mlog.Debug("Missing content-type")
-			http.Error(w, "Missing content-type", http.StatusBadRequest)
+			mlog.Debug("Empty content-type returned")
+			http.Error(w, "Empty content-type returned", http.StatusBadRequest)
 			return
 		}
 
