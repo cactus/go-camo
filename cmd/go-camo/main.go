@@ -20,11 +20,34 @@ import (
 
 	"github.com/cactus/mlog"
 	flags "github.com/jessevdk/go-flags"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
+
+const metricNamespace = "camo"
 
 var (
 	// ServerVersion holds the server version string
 	ServerVersion = "no-version"
+	responseSize  = promauto.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Namespace: metricNamespace,
+			Name:      "response_size_bytes",
+			Help:      "A histogram of response sizes for requests.",
+			Buckets:   prometheus.ExponentialBuckets(1024, 2, 10),
+		},
+		[]string{},
+	)
+	responseDuration = promauto.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Namespace: metricNamespace,
+			Name:      "response_duration_seconds",
+			Help:      "A histogram of latencies for requests.",
+			Buckets:   prometheus.DefBuckets,
+		},
+		[]string{},
+	)
 )
 
 func main() {
@@ -41,6 +64,7 @@ func main() {
 		MaxSize             int64         `long:"max-size" default:"5120" description:"Max allowed response size (KB)"`
 		ReqTimeout          time.Duration `long:"timeout" default:"4s" description:"Upstream request timeout"`
 		MaxRedirects        int           `long:"max-redirects" default:"3" description:"Maximum number of redirects to follow"`
+		Metrics             bool          `long:"metrics" description:"Enable metrics endpoint"`
 		Stats               bool          `long:"stats" description:"Enable Stats"`
 		NoLogTS             bool          `long:"no-log-ts" description:"Do not add a timestamp to logging"`
 		DisableKeepAlivesFE bool          `long:"no-fk" description:"Disable frontend http keep-alive support"`
@@ -180,6 +204,11 @@ func main() {
 		CamoHandler: proxy,
 	}
 
+	if opts.Metrics {
+		mlog.Printf("Enabling metrics at /metrics")
+		http.Handle("/metrics", promhttp.Handler())
+	}
+
 	if opts.Stats {
 		ps := &stats.ProxyStats{}
 		proxy.SetMetricsCollector(ps)
@@ -187,7 +216,12 @@ func main() {
 		dumbrouter.StatsHandler = stats.Handler(ps)
 	}
 
-	http.Handle("/", dumbrouter)
+	// Wrap the dumb router in instrumentation.
+	instrumentedRouter := promhttp.InstrumentHandlerDuration(responseDuration,
+		promhttp.InstrumentHandlerResponseSize(responseSize, dumbrouter),
+	)
+
+	http.Handle("/", instrumentedRouter)
 
 	if opts.BindAddress != "" {
 		mlog.Printf("Starting server on: %s", opts.BindAddress)

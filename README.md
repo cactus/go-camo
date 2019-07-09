@@ -239,6 +239,7 @@ Application Options:
       --max-size=              Max allowed response size (KB) (default: 5120)
       --timeout=               Upstream request timeout (default: 4s)
       --max-redirects=         Maximum number of redirects to follow (default: 3)
+      --metrics                Enable metrics endpoint
       --stats                  Enable Stats
       --no-log-ts              Do not add a timestamp to logging
       --no-fk                  Disable frontend http keep-alive support
@@ -258,6 +259,8 @@ Help Options:
 If an allow-list file is defined, that file is read and each line converted
 into a hostname regex. If a request does not match one of the listed host
 regex, then the request is denied.
+
+If metrics flag is provided, then the service will expose a Prometheus `/metrics` endpoint.
 
 If stats flag is provided, then the service will track bytes and clients
 served, and offer them up at an http endpoint `/status` via HTTP GET request.
