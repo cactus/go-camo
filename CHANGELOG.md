@@ -3,6 +3,7 @@ Changelog
 
 ## HEAD
 *   Split out exception for missing content types (#32)
+*   Prometheus compatible metrics endpoint added (#34)
 
 ## v1.1.4 2019-02-26 
 
