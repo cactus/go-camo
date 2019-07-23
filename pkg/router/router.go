@@ -43,12 +43,6 @@ func (dr *DumbRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	components := strings.Split(r.URL.Path, "/")
-	if len(components) == 3 {
-		dr.CamoHandler.ServeHTTP(w, r)
-		return
-	}
-
 	if r.URL.Path == "/healthcheck" {
 		dr.HealthCheckHandler(w, r)
 		return
@@ -56,6 +50,12 @@ func (dr *DumbRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if dr.StatsHandler != nil && r.URL.Path == "/status" {
 		dr.StatsHandler(w, r)
+		return
+	}
+
+	components := strings.Split(r.URL.Path, "/")
+	if len(components) == 3 {
+		dr.CamoHandler.ServeHTTP(w, r)
 		return
 	}
 
