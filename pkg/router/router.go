@@ -40,6 +40,7 @@ func (dr *DumbRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != "HEAD" && r.Method != "GET" {
 		http.Error(w, "Method Not Allowed", 405)
+		return
 	}
 
 	components := strings.Split(r.URL.Path, "/")
