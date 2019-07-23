@@ -5,14 +5,17 @@
 package camo
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/cactus/go-camo/pkg/camo/encoding"
 	"github.com/cactus/go-camo/pkg/router"
+	"github.com/cactus/mlog"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -286,6 +289,33 @@ func Test404OnLocalhostWithPort(t *testing.T) {
 	}
 }
 
+func Test404OnRedirectWithLocalhostTarget(t *testing.T) {
+	t.Parallel()
+	testURL := "http://httpbin.org/redirect-to?url=http://localhost/some.png"
+	record, err := makeTestReq(testURL, 404, camoConfig)
+	if assert.Nil(t, err) {
+		assert.Equal(t, "Error Fetching Resource\n", record.Body.String(), "Expected 404 response body but got '%s' instead", record.Body.String())
+	}
+}
+
+func Test404OnRedirectWithLoopbackIP(t *testing.T) {
+	t.Parallel()
+	testURL := "http://httpbin.org/redirect-to?url=http://127.0.0.100/some.png"
+	record, err := makeTestReq(testURL, 404, camoConfig)
+	if assert.Nil(t, err) {
+		assert.Equal(t, "Error Fetching Resource\n", record.Body.String(), "Expected 404 response body but got '%s' instead", record.Body.String())
+	}
+}
+
+func Test404OnRedirectWithLoopbackIPwCreds(t *testing.T) {
+	t.Parallel()
+	testURL := "http://httpbin.org/redirect-to?url=http://user:pass@127.0.0.100/some.png"
+	record, err := makeTestReq(testURL, 404, camoConfig)
+	if assert.Nil(t, err) {
+		assert.Equal(t, "Error Fetching Resource\n", record.Body.String(), "Expected 404 response body but got '%s' instead", record.Body.String())
+	}
+}
+
 // Test will fail if dns relay implements dns rebind prevention
 func Test404OnLoopback(t *testing.T) {
 	t.Skip("Skipping test. CI environments generally enable something similar to unbound's private-address functionality, making this test fail.")
@@ -362,4 +392,19 @@ func TestTimeout(t *testing.T) {
 	}
 
 	close(cc)
+}
+
+func TestMain(m *testing.M) {
+	flag.Parse()
+
+	debug := os.Getenv("TEST_DEBUG")
+	// now configure a standard logger
+	mlog.SetFlags(mlog.Lstd)
+
+	if debug != "" {
+		mlog.SetFlags(mlog.Flags() | mlog.Ldebug)
+		mlog.Debug("debug logging enabled")
+	}
+
+	os.Exit(m.Run())
 }

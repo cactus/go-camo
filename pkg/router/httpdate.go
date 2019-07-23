@@ -23,7 +23,7 @@ type iHTTPDate struct {
 func (h *iHTTPDate) String() string {
 	stamp := h.dateValue.Load()
 	if stamp == nil {
-		mlog.Print("got a nil datesamp. Trying to recover...")
+		mlog.Print("Got a nil datestamp. Trying to recover...")
 		h.Update()
 		return time.Now().UTC().Format(timeFormat)
 	}
