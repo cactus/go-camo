@@ -204,11 +204,6 @@ func main() {
 		CamoHandler: proxy,
 	}
 
-	if opts.Metrics {
-		mlog.Printf("Enabling metrics at /metrics")
-		http.Handle("/metrics", promhttp.Handler())
-	}
-
 	if opts.Stats {
 		ps := &stats.ProxyStats{}
 		proxy.SetMetricsCollector(ps)
@@ -216,12 +211,18 @@ func main() {
 		dumbrouter.StatsHandler = stats.Handler(ps)
 	}
 
-	// Wrap the dumb router in instrumentation.
-	instrumentedRouter := promhttp.InstrumentHandlerDuration(responseDuration,
-		promhttp.InstrumentHandlerResponseSize(responseSize, dumbrouter),
-	)
+	var router http.Handler = dumbrouter
 
-	http.Handle("/", instrumentedRouter)
+	if opts.Metrics {
+		mlog.Printf("Enabling metrics at /metrics")
+		http.Handle("/metrics", promhttp.Handler())
+		// Wrap the dumb router in instrumentation.
+		router = promhttp.InstrumentHandlerDuration(responseDuration,
+			promhttp.InstrumentHandlerResponseSize(responseSize, dumbrouter),
+		)
+	}
+
+	http.Handle("/", router)
 
 	if opts.BindAddress != "" {
 		mlog.Printf("Starting server on: %s", opts.BindAddress)
