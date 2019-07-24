@@ -46,6 +46,8 @@ type Config struct {
 	EnableXFwdFor bool
 	// additional content types to allow
 	AllowContentVideo bool
+	// allow URLs to contain user/pass credentials
+	AllowCredetialURLs bool
 	// no ip filtering (test mode)
 	noIPFiltering bool
 }
@@ -274,12 +276,18 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 func (p *Proxy) checkURL(reqURL *url.URL) error {
+	// reject localhost urls
 	uHostname := strings.ToLower(reqURL.Hostname())
 	if uHostname == "" || localhostRegex.MatchString(uHostname) {
 		return errors.New("Bad url host")
 	}
 
-	// filtering
+	// if not allowed, reject credentialed/userinfo urls
+	if !p.config.AllowCredetialURLs && reqURL.User != nil {
+		return errors.New("Userinfo URL rejected")
+	}
+
+	// ip/whitelist/blacklist filtering
 	if !p.config.noIPFiltering {
 		// if allowList is set, require match
 		for _, rgx := range p.allowList {

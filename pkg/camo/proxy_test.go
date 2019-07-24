@@ -21,12 +21,13 @@ import (
 )
 
 var camoConfig = Config{
-	HMACKey:           []byte("0x24FEEDFACEDEADBEEFCAFE"),
-	MaxSize:           5120 * 1024,
-	RequestTimeout:    time.Duration(10) * time.Second,
-	MaxRedirects:      3,
-	ServerName:        "go-camo",
-	AllowContentVideo: false,
+	HMACKey:            []byte("0x24FEEDFACEDEADBEEFCAFE"),
+	MaxSize:            5120 * 1024,
+	RequestTimeout:     time.Duration(10) * time.Second,
+	MaxRedirects:       3,
+	ServerName:         "go-camo",
+	AllowContentVideo:  false,
+	AllowCredetialURLs: false,
 }
 
 func makeReq(testURL string) (*http.Request, error) {
@@ -196,6 +197,37 @@ func TestVideoContentTypeAllowed(t *testing.T) {
 
 	testURL := "http://mirrors.standaloneinstaller.com/video-sample/small.mp4"
 	_, err := makeTestReq(testURL, 200, camoConfigWithVideo)
+	assert.Nil(t, err)
+}
+
+func TestCredetialURLsAllowed(t *testing.T) {
+	t.Parallel()
+
+	camoConfigWithCredentials := Config{
+		HMACKey:            []byte("0x24FEEDFACEDEADBEEFCAFE"),
+		MaxSize:            180 * 1024,
+		RequestTimeout:     time.Duration(10) * time.Second,
+		MaxRedirects:       3,
+		ServerName:         "go-camo",
+		AllowCredetialURLs: true,
+	}
+
+	testURL := "http://user:pass@www.google.com/images/srpr/logo11w.png"
+	_, err := makeTestReq(testURL, 200, camoConfigWithCredentials)
+	assert.Nil(t, err)
+}
+
+func Test404OnVideo(t *testing.T) {
+	t.Parallel()
+	testURL := "http://mirrors.standaloneinstaller.com/video-sample/small.mp4"
+	_, err := makeTestReq(testURL, 400, camoConfig)
+	assert.Nil(t, err)
+}
+
+func Test404OnCredentialURL(t *testing.T) {
+	t.Parallel()
+	testURL := "http://user:pass@www.google.com/images/srpr/logo11w.png"
+	_, err := makeTestReq(testURL, 404, camoConfig)
 	assert.Nil(t, err)
 }
 
@@ -397,7 +429,7 @@ func TestTimeout(t *testing.T) {
 func TestMain(m *testing.M) {
 	flag.Parse()
 
-	debug := os.Getenv("TEST_DEBUG")
+	debug := os.Getenv("DEBUG")
 	// now configure a standard logger
 	mlog.SetFlags(mlog.Lstd)
 
