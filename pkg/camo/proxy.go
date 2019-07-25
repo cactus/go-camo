@@ -220,7 +220,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	switch resp.StatusCode {
-	case 200:
+	case 200, 206:
 		contentType := resp.Header.Get("Content-Type")
 
 		if contentType == "" {
