@@ -24,14 +24,19 @@ var ValidReqHeaders = map[string]bool{
 	// x-forwarded-for header is not blindly passed without additional custom
 	// processing
 	"X-Forwarded-For": false,
+	// required to support Safari byte range requests for video
+	"Range": true,
 }
 
 // ValidRespHeaders are http response headers that are acceptable to pass from
 // the remote server to the client. Only those present and true, are forwarded.
 // Empty implies no filtering.
 var ValidRespHeaders = map[string]bool{
-	// Do not offer to accept range requests
-	"Accept-Ranges":    false,
+	// required to support Safari byte range requests for video
+	"Accept-Ranges":  true,
+	"Content-Length": true,
+	"Content-Range":  true,
+
 	"Cache-Control":    true,
 	"Content-Encoding": true,
 	"Content-Type":     true,
