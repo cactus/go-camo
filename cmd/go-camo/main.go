@@ -93,13 +93,14 @@ func main() {
 	// setup the server response field
 	ServerResponse := opts.ServerName
 
+	// expand/override server response value if showing version is desired
 	if opts.ExposeServerVersion {
-		ServerResponse = fmt.Sprintf("%s %s", opts.ServerName, ServerVersion)
+		ServerResponse = fmt.Sprintf("%s %s", ServerName, ServerVersion)
 	}
 
 	// setup -V version output
 	if len(opts.Version) > 0 {
-		fmt.Printf("%s %s (%s,%s-%s)\n", ServerName, ServerVersion, runtime.Version(), runtime.Compiler, runtime.GOARCH)
+		fmt.Printf("%s %s (%s,%s-%s)\n", "go-camo", ServerVersion, runtime.Version(), runtime.Compiler, runtime.GOARCH)
 		if len(opts.Version) > 1 {
 			fmt.Printf("\n%s\n", strings.TrimSpace(licenseText))
 		}
