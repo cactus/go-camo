@@ -40,11 +40,6 @@ func (dr *DumbRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != "HEAD" && r.Method != "GET" {
 		http.Error(w, "Method Not Allowed", 405)
-	}
-
-	components := strings.Split(r.URL.Path, "/")
-	if len(components) == 3 {
-		dr.CamoHandler.ServeHTTP(w, r)
 		return
 	}
 
@@ -55,6 +50,12 @@ func (dr *DumbRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if dr.StatsHandler != nil && r.URL.Path == "/status" {
 		dr.StatsHandler(w, r)
+		return
+	}
+
+	components := strings.Split(r.URL.Path, "/")
+	if len(components) == 3 {
+		dr.CamoHandler.ServeHTTP(w, r)
 		return
 	}
 

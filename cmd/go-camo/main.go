@@ -70,6 +70,7 @@ func main() {
 		DisableKeepAlivesFE bool          `long:"no-fk" description:"Disable frontend http keep-alive support"`
 		DisableKeepAlivesBE bool          `long:"no-bk" description:"Disable backend http keep-alive support"`
 		AllowContentVideo   bool          `long:"allow-content-video" description:"Additionally allow 'video/*' content"`
+		AllowCredetialURLs  bool          `long:"allow-credential-urls" description:"Allow urls to contain user/pass credentials"`
 		Verbose             bool          `short:"v" long:"verbose" description:"Show verbose (debug) log level output"`
 		ServerName          string        `long:"server-name" default:"go-camo" description:"Value to use for the HTTP server field"`
 		ExposeServerVersion bool          `long:"expose-server-version" description:"Include the server version in the HTTP server response header"`
@@ -142,6 +143,7 @@ func main() {
 
 	// other options
 	config.EnableXFwdFor = opts.EnableXFwdFor
+	config.AllowCredetialURLs = opts.AllowCredetialURLs
 
 	// additional content types to allow
 	config.AllowContentVideo = opts.AllowContentVideo
@@ -205,11 +207,6 @@ func main() {
 		CamoHandler: proxy,
 	}
 
-	if opts.Metrics {
-		mlog.Printf("Enabling metrics at /metrics")
-		http.Handle("/metrics", promhttp.Handler())
-	}
-
 	if opts.Stats {
 		ps := &stats.ProxyStats{}
 		proxy.SetMetricsCollector(ps)
@@ -217,12 +214,18 @@ func main() {
 		dumbrouter.StatsHandler = stats.Handler(ps)
 	}
 
-	// Wrap the dumb router in instrumentation.
-	instrumentedRouter := promhttp.InstrumentHandlerDuration(responseDuration,
-		promhttp.InstrumentHandlerResponseSize(responseSize, dumbrouter),
-	)
+	var router http.Handler = dumbrouter
 
-	http.Handle("/", instrumentedRouter)
+	if opts.Metrics {
+		mlog.Printf("Enabling metrics at /metrics")
+		http.Handle("/metrics", promhttp.Handler())
+		// Wrap the dumb router in instrumentation.
+		router = promhttp.InstrumentHandlerDuration(responseDuration,
+			promhttp.InstrumentHandlerResponseSize(responseSize, dumbrouter),
+		)
+	}
+
+	http.Handle("/", router)
 
 	if opts.BindAddress != "" {
 		mlog.Printf("Starting server on: %s", opts.BindAddress)

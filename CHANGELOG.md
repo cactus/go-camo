@@ -2,8 +2,16 @@ Changelog
 =========
 
 ## HEAD
+
+## v1.1.5 2019-07-23
+*   Security fixes / SSRF
+    *   Fix: Ensure non-GET/HEAD request does not send outbound request (#35)
+    *   Fix: Validate redirect urls the same as initial urls (#35)
 *   Split out exception for missing content types (#32)
 *   Prometheus compatible metrics endpoint added (#34)
+*   Disabled credential/userinfo (`user:pass@` style) type urls by default.
+    Added cli flag (`--allow-credential-urls`) to retain prior behavior (which
+    allows them).
 
 ## v1.1.4 2019-02-26 
 

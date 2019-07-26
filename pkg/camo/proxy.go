@@ -8,6 +8,7 @@ package camo
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -45,6 +46,8 @@ type Config struct {
 	EnableXFwdFor bool
 	// additional content types to allow
 	AllowContentVideo bool
+	// allow URLs to contain user/pass credentials
+	AllowCredetialURLs bool
 	// no ip filtering (test mode)
 	noIPFiltering bool
 }
@@ -112,38 +115,10 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	uHostname := strings.ToLower(u.Hostname())
-	if uHostname == "" || localhostRegex.MatchString(uHostname) {
-		http.Error(w, "Bad url host", http.StatusNotFound)
+	err = p.checkURL(u)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
-	}
-
-	// filtering
-	if !p.config.noIPFiltering {
-		// if allowList is set, require match
-		for _, rgx := range p.allowList {
-			if rgx.MatchString(uHostname) {
-				http.Error(w, "Allowlist host failure", http.StatusNotFound)
-				return
-			}
-		}
-
-		// filter out rejected networks
-		if ip := net.ParseIP(uHostname); ip != nil {
-			if isRejectedIP(ip) {
-				http.Error(w, "Denylist host failure", http.StatusNotFound)
-				return
-			}
-		} else {
-			if ips, err := net.LookupIP(uHostname); err == nil {
-				for _, ip := range ips {
-					if isRejectedIP(ip) {
-						http.Error(w, "Denylist host failure", http.StatusNotFound)
-						return
-					}
-				}
-			}
-		}
 	}
 
 	nreq, err := http.NewRequest(req.Method, sURL, nil)
@@ -203,6 +178,10 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			http.Error(w, "Error Fetching Resource", http.StatusGatewayTimeout)
 		} else if strings.Contains(errString, "use of closed") {
 			http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
+		} else if strings.Contains(errString, "BadRedirect:") {
+			// Got a bad redirect
+			mlog.Debugm("response from upstream", mlog.Map{"err": err})
+			http.Error(w, "Error Fetching Resource", http.StatusNotFound)
 		} else {
 			// some other error. call it a not found (camo compliant)
 			http.Error(w, "Error Fetching Resource", http.StatusNotFound)
@@ -296,6 +275,46 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	mlog.Debugm("response to client", mlog.Map{"resp": w})
 }
 
+func (p *Proxy) checkURL(reqURL *url.URL) error {
+	// reject localhost urls
+	uHostname := strings.ToLower(reqURL.Hostname())
+	if uHostname == "" || localhostRegex.MatchString(uHostname) {
+		return errors.New("Bad url host")
+	}
+
+	// if not allowed, reject credentialed/userinfo urls
+	if !p.config.AllowCredetialURLs && reqURL.User != nil {
+		return errors.New("Userinfo URL rejected")
+	}
+
+	// ip/whitelist/blacklist filtering
+	if !p.config.noIPFiltering {
+		// if allowList is set, require match
+		for _, rgx := range p.allowList {
+			if rgx.MatchString(uHostname) {
+				return errors.New("Allowlist host failure")
+			}
+		}
+
+		// filter out rejected networks
+		if ip := net.ParseIP(uHostname); ip != nil {
+			if isRejectedIP(ip) {
+				return errors.New("Denylist host failure")
+			}
+		} else {
+			if ips, err := net.LookupIP(uHostname); err == nil {
+				for _, ip := range ips {
+					if isRejectedIP(ip) {
+						return errors.New("Denylist host failure")
+					}
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
 // copy headers from src into dst
 // empty filter map will result in no filtering being done
 func (p *Proxy) copyHeaders(dst, src *http.Header, filter *map[string]bool) {
@@ -353,12 +372,6 @@ func New(pc Config) (*Proxy, error) {
 		// timeout
 		Timeout: pc.RequestTimeout,
 	}
-	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-		if len(via) >= pc.MaxRedirects {
-			return errors.New("Too many redirects")
-		}
-		return nil
-	}
 
 	var allow []*regexp.Regexp
 	var c *regexp.Regexp
@@ -387,11 +400,28 @@ func New(pc Config) (*Proxy, error) {
 		acceptTypesRe = append(acceptTypesRe, c)
 	}
 
-	return &Proxy{
+	p := &Proxy{
 		client:            client,
 		config:            &pc,
 		allowList:         allow,
 		acceptTypesString: strings.Join(acceptTypes, ", "),
-		acceptTypesRe:     acceptTypesRe}, nil
+		acceptTypesRe:     acceptTypesRe,
+	}
+
+	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		if len(via) >= pc.MaxRedirects {
+			mlog.Debug("Got bad redirect: Too many redirects")
+			return errors.New("BadRedirect: Too many redirects")
+		}
+		err := p.checkURL(req.URL)
+		if err != nil {
+			mlog.Debugm("Got bad redirect", mlog.Map{"url": req})
+			return fmt.Errorf("BadRedirect: %s", err)
+		}
+
+		return nil
+	}
+
+	return p, nil
 
 }
