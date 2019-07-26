@@ -198,6 +198,15 @@ func TestVideoContentTypeAllowed(t *testing.T) {
 	testURL := "http://mirrors.standaloneinstaller.com/video-sample/small.mp4"
 	_, err := makeTestReq(testURL, 200, camoConfigWithVideo)
 	assert.Nil(t, err)
+
+	// try a range request
+	req, err := makeReq(testURL)
+	assert.Nil(t, err)
+	req.Header.Add("Range", "bytes=0-10")
+	record, err := processRequest(req, 206, camoConfigWithVideo)
+	resp := record.Result()
+	assert.Equal(t, resp.Header.Get("Content-Range"), "bytes 0-10/179698")
+	assert.Nil(t, err)
 }
 
 func TestCredetialURLsAllowed(t *testing.T) {
