@@ -2,6 +2,7 @@ Changelog
 =========
 
 ## HEAD
+*   Support range requests to get safari video support working (#36)
 
 ## v1.1.5 2019-07-23
 *   Security fixes / SSRF
@@ -14,7 +15,6 @@ Changelog
     allows them).
 
 ## v1.1.4 2019-02-26 
-
 *   disable passing/generating x-forwarded-for header by default
 *   add new `--enable-xfwd4` flag to enable x-forwarded-for header passing/generation
 *   add optional json output for stats
