@@ -2,6 +2,8 @@ Changelog
 =========
 
 ## HEAD
+
+## v1.1.6 2019-07-26
 *   Support range requests to get safari video support working (#36)
 
 ## v1.1.5 2019-07-23
