@@ -16,7 +16,6 @@ import (
 
 	"github.com/cactus/go-camo/pkg/camo"
 	"github.com/cactus/go-camo/pkg/router"
-	"github.com/cactus/go-camo/pkg/stats"
 
 	"github.com/cactus/mlog"
 	flags "github.com/jessevdk/go-flags"
@@ -65,7 +64,6 @@ func main() {
 		ReqTimeout          time.Duration `long:"timeout" default:"4s" description:"Upstream request timeout"`
 		MaxRedirects        int           `long:"max-redirects" default:"3" description:"Maximum number of redirects to follow"`
 		Metrics             bool          `long:"metrics" description:"Enable prometheus compatible metrics endpoint"`
-		Stats               bool          `long:"stats" description:"Enable simple Stats"`
 		NoLogTS             bool          `long:"no-log-ts" description:"Do not add a timestamp to logging"`
 		DisableKeepAlivesFE bool          `long:"no-fk" description:"Disable frontend http keep-alive support"`
 		DisableKeepAlivesBE bool          `long:"no-bk" description:"Disable backend http keep-alive support"`
@@ -201,27 +199,18 @@ func main() {
 		mlog.Fatal("Error creating camo", err)
 	}
 
-	dumbrouter := &router.DumbRouter{
+	var router http.Handler = &router.DumbRouter{
 		ServerName:  ServerResponse,
 		AddHeaders:  AddHeaders,
 		CamoHandler: proxy,
 	}
-
-	if opts.Stats {
-		ps := &stats.ProxyStats{}
-		proxy.SetMetricsCollector(ps)
-		mlog.Printf("Enabling stats at /status")
-		dumbrouter.StatsHandler = stats.Handler(ps)
-	}
-
-	var router http.Handler = dumbrouter
 
 	if opts.Metrics {
 		mlog.Printf("Enabling metrics at /metrics")
 		http.Handle("/metrics", promhttp.Handler())
 		// Wrap the dumb router in instrumentation.
 		router = promhttp.InstrumentHandlerDuration(responseDuration,
-			promhttp.InstrumentHandlerResponseSize(responseSize, dumbrouter),
+			promhttp.InstrumentHandlerResponseSize(responseSize, router),
 		)
 	}
 

@@ -52,21 +52,12 @@ type Config struct {
 	noIPFiltering bool
 }
 
-// ProxyMetrics interface for Proxy to use for stats/metrics.
-// This must be goroutine safe, as AddBytes and AddServed will be called from
-// many goroutines.
-type ProxyMetrics interface {
-	AddBytes(bc int64)
-	AddServed()
-}
-
 // A Proxy is a Camo like HTTP proxy, that provides content type
 // restrictions as well as regex host allow list support.
 type Proxy struct {
 	// compiled allow list regex
 	allowList         []*regexp.Regexp
 	acceptTypesRe     []*regexp.Regexp
-	metrics           ProxyMetrics
 	client            *http.Client
 	config            *Config
 	acceptTypesString string
@@ -77,10 +68,6 @@ type Proxy struct {
 // valid requests to the desired endpoint. Responses are filtered for
 // proper image content types.
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	if p.metrics != nil {
-		p.metrics.AddServed()
-	}
-
 	if p.config.DisableKeepAlivesFE {
 		w.Header().Set("Connection", "close")
 	}
@@ -256,7 +243,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// since this uses io.Copy/CopyBuffer from the respBody, it is streaming
 	// from the request to the response. This means it will nearly
 	// always end up with a chunked response.
-	bW, err := io.CopyBuffer(w, resp.Body, buf)
+	_, err = io.CopyBuffer(w, resp.Body, buf)
 	if err != nil {
 		// only log broken pipe errors at debug level
 		if isBrokenPipe(err) {
@@ -266,16 +253,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			mlog.Printm("error writing response", mlog.Map{"err": err})
 		}
 
-		// we may have written some bytes before the error
-		if p.metrics != nil && bW != 0 {
-			p.metrics.AddBytes(bW)
-		}
 		return
 	}
 
-	if p.metrics != nil {
-		p.metrics.AddBytes(bW)
-	}
 	mlog.Debugm("response to client", mlog.Map{"resp": w})
 }
 
@@ -336,12 +316,6 @@ func (p *Proxy) copyHeaders(dst, src *http.Header, filter *map[string]bool) {
 			dst.Add(k, v)
 		}
 	}
-}
-
-// SetMetricsCollector sets a proxy metrics (ProxyMetrics interface) for
-// the proxy
-func (p *Proxy) SetMetricsCollector(pm ProxyMetrics) {
-	p.metrics = pm
 }
 
 // New returns a new Proxy. An error is returned if there was a failure
