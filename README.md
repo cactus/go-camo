@@ -239,12 +239,13 @@ Application Options:
       --max-size=              Max allowed response size (KB) (default: 5120)
       --timeout=               Upstream request timeout (default: 4s)
       --max-redirects=         Maximum number of redirects to follow (default: 3)
-      --metrics                Enable metrics endpoint
-      --stats                  Enable Stats
+      --metrics                Enable prometheus compatible metrics endpoint
+      --stats                  Enable simple Stats
       --no-log-ts              Do not add a timestamp to logging
       --no-fk                  Disable frontend http keep-alive support
       --no-bk                  Disable backend http keep-alive support
       --allow-content-video    Additionally allow 'video/*' content
+      --allow-credential-urls  Allow urls to contain user/pass credentials
   -v, --verbose                Show verbose (debug) log level output
       --server-name=           Value to use for the HTTP server field (default: go-camo)
       --expose-server-version  Include the server version in the HTTP server response
@@ -253,7 +254,6 @@ Application Options:
 
 Help Options:
   -h, --help                   Show this help message
-
 ```
 
 If an allow-list file is defined, that file is read and each line converted

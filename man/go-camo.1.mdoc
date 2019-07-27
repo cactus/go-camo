@@ -49,11 +49,16 @@ for more info.
 Enable stats collection and reporting functionality.
 .Pp
 If stats flag is provided, then the service will track bytes and clients
-served, and offer them up at an http endpoint /status via HTPT GET request.
+served, and offer them up at an http endpoint /status via HTTP GET request.
 .Pp
 See 
 .Sx "STATS"
 for more info.
+.It Fl -metrics
+Enable prometheus compatible metrics endpoint.
+.Pp
+If metrics flag is provided, then the service will make a prometheus compatible
+endpoint available at /metrics via HTTP GET.
 .It Fl -no-log-ts
 Do not add a timestamp to logging output.
 .It Fl -allow-list Ns = Ns Aq Ar file
@@ -77,6 +82,8 @@ Disable frontend http keep-alive support.
 Disable backend http keep-alive support.
 .It Fl -allow-content-video
 Additionally allow "video/*" content type.
+.It Fl -allow-credential-urls
+Allow urls to contain user/pass credentials.
 .It Fl -expose-server-version
 Include the server version in the HTTP server response header.
 .It Fl -enable-xfwd4
