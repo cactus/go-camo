@@ -9,6 +9,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"sync"
 	"syscall"
 )
 
@@ -79,4 +80,14 @@ func globToRegexp(globString string) (*regexp.Regexp, error) {
 	gs := "^" + strings.Replace(globString, "*", ".*", 1) + "$"
 	c, err := regexp.Compile(strings.TrimSpace(gs))
 	return c, err
+}
+
+var bufPool = sync.Pool{
+	New: func() interface{} {
+		// note: 32 * 1024 is the size used by io.Copy by default.
+		// Seems like a good starting point, just with a bit less garbage
+		// (using a sync pool) to reduce some GC work.
+		// ref: https://golang.org/src/io/io.go?s=13136:13214#L391
+		return make([]byte, 32*1024)
+	},
 }

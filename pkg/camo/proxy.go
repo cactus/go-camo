@@ -249,10 +249,14 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	p.copyHeaders(&h, &resp.Header, &ValidRespHeaders)
 	w.WriteHeader(resp.StatusCode)
 
-	// since this uses io.Copy from the respBody, it is streaming
+	// get a []byte from bufpool, and put it back on defer
+	buf := bufPool.Get().([]byte)
+	defer bufPool.Put(buf)
+
+	// since this uses io.Copy/CopyBuffer from the respBody, it is streaming
 	// from the request to the response. This means it will nearly
 	// always end up with a chunked response.
-	bW, err := io.Copy(w, resp.Body)
+	bW, err = io.CopyBuffer(w, resp.Body, buf)
 	if err != nil {
 		// only log broken pipe errors at debug level
 		if isBrokenPipe(err) {

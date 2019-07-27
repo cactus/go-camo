@@ -2,6 +2,8 @@ Changelog
 =========
 
 ## HEAD
+*   Use a sync.Pool []byte buffer for io.CopyBuffer (instead of io.Copy). It
+    should reduce some small amount of GC pressure (a bit less garbage).
 
 ## v1.1.6 2019-07-26
 *   Support range requests to get safari video support working (#36)
