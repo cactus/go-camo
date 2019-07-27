@@ -250,8 +250,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(resp.StatusCode)
 
 	// get a []byte from bufpool, and put it back on defer
-	buf := bufPool.Get().([]byte)
-	defer bufPool.Put(buf)
+	buf := *bufPool.Get().(*[]byte)
+	defer bufPool.Put(&buf)
 
 	// since this uses io.Copy/CopyBuffer from the respBody, it is streaming
 	// from the request to the response. This means it will nearly
