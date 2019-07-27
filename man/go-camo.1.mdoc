@@ -45,15 +45,6 @@ times to add multiple headers.
 See 
 .Sx "ADD_HEADERS"
 for more info.
-.It Fl -stats
-Enable stats collection and reporting functionality.
-.Pp
-If stats flag is provided, then the service will track bytes and clients
-served, and offer them up at an http endpoint /status via HTTP GET request.
-.Pp
-See 
-.Sx "STATS"
-for more info.
 .It Fl -metrics
 Enable prometheus compatible metrics endpoint.
 .Pp
@@ -128,20 +119,6 @@ header by default, you could add this to the command line:
 .Bd -literal
  -H "Strict-Transport-Security: max-age=16070400" \\
  -H "X-Frame-Options: deny"
-.Ed
-.Sh STATS
-If the 
-.Fl -stats
-flag is provided, then the service will track bytes and
-clients served, and offer them up at an http endpoint 
-.Qo Li /status Qc 
-via HTTP GET
-request.
-.Pp
-The output format is show as an example:
-.Bd -literal
- ClientsServed, BytesServed
- 4, 27300
 .Ed
 .Sh EXAMPLES
 Listen on loopback port 8080 with a upstream timeout of 6 seconds:

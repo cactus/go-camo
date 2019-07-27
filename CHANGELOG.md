@@ -2,6 +2,8 @@ Changelog
 =========
 
 ## HEAD
+*   Remove old stats flag, endpoint, and feature, in favor of the new
+    premetheus endpoint. Good amount of code removal as well.
 *   Use a sync.Pool []byte buffer for io.CopyBuffer (instead of io.Copy). It
     should reduce some small amount of GC pressure (a bit less garbage).
 

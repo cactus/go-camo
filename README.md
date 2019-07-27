@@ -240,7 +240,6 @@ Application Options:
       --timeout=               Upstream request timeout (default: 4s)
       --max-redirects=         Maximum number of redirects to follow (default: 3)
       --metrics                Enable prometheus compatible metrics endpoint
-      --stats                  Enable simple Stats
       --no-log-ts              Do not add a timestamp to logging
       --no-fk                  Disable frontend http keep-alive support
       --no-bk                  Disable backend http keep-alive support
@@ -261,9 +260,6 @@ into a hostname regex. If a request does not match one of the listed host
 regex, then the request is denied.
 
 If metrics flag is provided, then the service will expose a Prometheus `/metrics` endpoint.
-
-If stats flag is provided, then the service will track bytes and clients
-served, and offer them up at an http endpoint `/status` via HTTP GET request.
 
 If the HMAC key is provided on the command line, it will override (if present),
 an HMAC key set in the environment var.
