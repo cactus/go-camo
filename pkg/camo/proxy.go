@@ -135,13 +135,13 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if p.config.EnableXFwdFor {
 		xfwd4 := req.Header.Get("X-Forwarded-For")
 		if xfwd4 == "" {
-			hostIp, _, err := net.SplitHostPort(req.RemoteAddr)
+			hostIP, _, err := net.SplitHostPort(req.RemoteAddr)
 			if err == nil {
 				// add forwarded for header, as long as it isn't a private
 				// ip address (use isRejectedIP to get private filtering for free)
-				if ip := net.ParseIP(hostIp); ip != nil {
+				if ip := net.ParseIP(hostIP); ip != nil {
 					if !isRejectedIP(ip) {
-						nreq.Header.Add("X-Forwarded-For", hostIp)
+						nreq.Header.Add("X-Forwarded-For", hostIP)
 					}
 				}
 			}
