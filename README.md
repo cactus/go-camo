@@ -74,13 +74,13 @@ Go-Camo supports both hex and base64 encoded urls at the same time.
 | hex      | longer, case insensitive, slightly faster |
 | base64   | shorter, case sensitive, slightly slower  |
 
-Benchmark results with go1.11:
+Benchmark results with go1.12.7:
 
 ```text
-BenchmarkHexEncoder-2           	 1000000	      1375 ns/op
-BenchmarkB64Encoder-2           	 1000000	      1460 ns/op
-BenchmarkHexDecoder-2           	 1000000	      1306 ns/op
-BenchmarkB64Decoder-2           	 1000000	      1430 ns/op
+BenchmarkHexEncoder-4           	 1000000	      1364 ns/op
+BenchmarkB64Encoder-4           	 1000000	      1447 ns/op
+BenchmarkHexDecoder-4           	 1000000	      1312 ns/op
+BenchmarkB64Decoder-4           	 1000000	      1379 ns/op
 ```
 
 For examples of url generation, see the [examples](examples/) directory.
