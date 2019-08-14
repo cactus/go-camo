@@ -2,6 +2,8 @@ Changelog
 =========
 
 ## HEAD
+
+## v1.1.7 2019-08-14
 *   Remove old stats flag, endpoint, and feature, in favor of the new
     premetheus endpoint. Good amount of code removal as well.
 *   Use a sync.Pool []byte buffer for io.CopyBuffer (instead of io.Copy). It
