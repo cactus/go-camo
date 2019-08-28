@@ -234,6 +234,7 @@ Application Options:
       --ssl-key=               ssl private key (key.pem) path
       --ssl-cert=              ssl cert (cert.pem) path
       --allow-list=            Text file of hostname allow regexes (one per line)
+      --deny-list=             Text file of URLs to explicitly deny access to (one per line)
       --listen=                Address:Port to bind to for HTTP (default: 0.0.0.0:8080)
       --ssl-listen=            Address:Port to bind to for HTTPS/SSL/TLS
       --max-size=              Max allowed response size (KB) (default: 5120)
@@ -258,6 +259,10 @@ Help Options:
 If an allow-list file is defined, that file is read and each line converted
 into a hostname regex. If a request does not match one of the listed host
 regex, then the request is denied.
+
+If a deny-list file is defined, that file is read and each line compared
+to the outgoing request. If any part of the URL matches, the request is
+denied.
 
 If metrics flag is provided, then the service will expose a Prometheus `/metrics` endpoint.
 

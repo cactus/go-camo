@@ -31,6 +31,10 @@ type Config struct {
 	// then anything not matching is dropped. If no AllowList is present,
 	// no Allow filtering is done.
 	AllowList []string
+	// DenyList is a list of strings of URLs that should not be routed to.
+	// This is the inverse of AllowList however it loosely checks the outgoing
+	// URL instead of just the hostname.
+	DenyList []string
 	// Server name used in Headers and Via checks
 	ServerName string
 	// MaxSize is the maximum valid image size response (in bytes).
@@ -57,6 +61,7 @@ type Config struct {
 type Proxy struct {
 	// compiled allow list regex
 	allowList         []*regexp.Regexp
+	denyList          []string
 	acceptTypesRe     []*regexp.Regexp
 	client            *http.Client
 	config            *Config
@@ -280,6 +285,13 @@ func (p *Proxy) checkURL(reqURL *url.URL) error {
 			}
 		}
 
+		// reject any requests that are loosely matched to the `denyList`
+		for _, url := range p.denyList {
+			if strings.Contains(reqURL.String(), url) {
+				return errors.New("Denylist failure")
+			}
+		}
+
 		// filter out rejected networks
 		if ip := net.ParseIP(uHostname); ip != nil {
 			if isRejectedIP(ip) {
@@ -352,6 +364,7 @@ func New(pc Config) (*Proxy, error) {
 	}
 
 	var allow []*regexp.Regexp
+	var deny []string
 	var c *regexp.Regexp
 	var err error
 	// compile allow list
@@ -361,6 +374,10 @@ func New(pc Config) (*Proxy, error) {
 			return nil, err
 		}
 		allow = append(allow, c)
+	}
+
+	for _, v := range pc.DenyList {
+		deny = append(deny, strings.TrimSpace(v))
 	}
 
 	acceptTypes := []string{"image/*"}
@@ -382,6 +399,7 @@ func New(pc Config) (*Proxy, error) {
 		client:            client,
 		config:            &pc,
 		allowList:         allow,
+		denyList:          deny,
 		acceptTypesString: strings.Join(acceptTypes, ", "),
 		acceptTypesRe:     acceptTypesRe,
 	}

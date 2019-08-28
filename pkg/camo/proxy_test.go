@@ -30,6 +30,24 @@ var camoConfig = Config{
 	AllowCredetialURLs: false,
 }
 
+var camoConfigWithExplicitHostnameDeny = Config{
+	HMACKey:        []byte("0x24FEEDFACEDEADBEEFCAFE"),
+	MaxSize:        5120 * 1024,
+	RequestTimeout: time.Duration(10) * time.Second,
+	MaxRedirects:   3,
+	ServerName:     "go-camo",
+	DenyList:       []string{"images.anandtech.com"},
+}
+
+var camoConfigWithExplicitURLDeny = Config{
+	HMACKey:        []byte("0x24FEEDFACEDEADBEEFCAFE"),
+	MaxSize:        5120 * 1024,
+	RequestTimeout: time.Duration(10) * time.Second,
+	MaxRedirects:   3,
+	ServerName:     "go-camo",
+	DenyList:       []string{"https://images.anandtech.com/doci/6673/OpenMoboAMD30_575px.png"},
+}
+
 func makeReq(testURL string) (*http.Request, error) {
 	k := []byte(camoConfig.HMACKey)
 	hexURL := encoding.B64EncodeURL(k, testURL)
@@ -375,6 +393,24 @@ func TestSupplyAcceptIfNoneGiven(t *testing.T) {
 	req.Header.Del("Accept")
 	assert.Nil(t, err)
 	_, err = processRequest(req, 200, camoConfig)
+	assert.Nil(t, err)
+}
+
+func TestExplicitDenyWithHostname(t *testing.T) {
+	t.Parallel()
+	testURL := "https://images.anandtech.com/doci/6673/OpenMoboAMD30_575px.png"
+	req, err := makeReq(testURL)
+	assert.Nil(t, err)
+	_, err = processRequest(req, 404, camoConfigWithExplicitHostnameDeny)
+	assert.Nil(t, err)
+}
+
+func TestExplicitDenyWithFullURL(t *testing.T) {
+	t.Parallel()
+	testURL := "https://images.anandtech.com/doci/6673/OpenMoboAMD30_575px.png"
+	req, err := makeReq(testURL)
+	assert.Nil(t, err)
+	_, err = processRequest(req, 404, camoConfigWithExplicitURLDeny)
 	assert.Nil(t, err)
 }
 

@@ -58,6 +58,7 @@ func main() {
 		SSLKey              string        `long:"ssl-key" description:"ssl private key (key.pem) path"`
 		SSLCert             string        `long:"ssl-cert" description:"ssl cert (cert.pem) path"`
 		AllowList           string        `long:"allow-list" description:"Text file of hostname allow regexes (one per line)"`
+		DenyList            string        `long:"deny-list" description:"Text file of URLs to explicitly deny access to (one per line)"`
 		BindAddress         string        `long:"listen" default:"0.0.0.0:8080" description:"Address:Port to bind to for HTTP"`
 		BindAddressSSL      string        `long:"ssl-listen" description:"Address:Port to bind to for HTTPS/SSL/TLS"`
 		MaxSize             int64         `long:"max-size" default:"5120" description:"Max allowed response size (KB)"`
@@ -152,6 +153,14 @@ func main() {
 			mlog.Fatal("Could not read allow-list", err)
 		}
 		config.AllowList = strings.Split(string(b), "\n")
+	}
+
+	if opts.DenyList != "" {
+		b, err := ioutil.ReadFile(opts.DenyList)
+		if err != nil {
+			mlog.Fatal("Could not read deny-list", err)
+		}
+		config.DenyList = strings.Split(string(b), "\n")
 	}
 
 	AddHeaders := map[string]string{
