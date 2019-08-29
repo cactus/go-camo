@@ -6,8 +6,8 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"runtime"
@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/cactus/go-camo/pkg/camo"
+	"github.com/cactus/go-camo/pkg/htrie"
 	"github.com/cactus/go-camo/pkg/router"
 
 	"github.com/cactus/mlog"
@@ -49,6 +50,59 @@ var (
 	)
 )
 
+func loadFilterList(fname string) (*htrie.DTree, *htrie.DTree, error) {
+	file, err := os.Open(fname)
+	if err != nil {
+		return nil, nil, fmt.Errorf("Could not open filter-ruleset file: %s", err)
+	}
+	defer file.Close()
+
+	acceptProxyFilter := htrie.NewDTree()
+	rejectProxyFilter := htrie.NewDTree()
+	hasAccept := false
+	hasReject := false
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if strings.HasPrefix(line, "allow|") {
+			line = strings.TrimPrefix(line, "allow")
+			err = acceptProxyFilter.AddRule(line)
+			if err != nil {
+				break
+			}
+			hasAccept = true
+		}
+		if strings.HasPrefix(line, "reject|") {
+			line = strings.TrimPrefix(line, "reject")
+			err = rejectProxyFilter.AddRule(line)
+			if err != nil {
+				break
+			}
+			hasReject = true
+		}
+
+		err = scanner.Err()
+		if err != nil {
+			break
+		}
+	}
+	if err != nil {
+		return nil, nil, fmt.Errorf("Error building filter ruleset: %s", err)
+	}
+
+	if !hasAccept {
+		acceptProxyFilter = nil
+	}
+	if !hasReject {
+		rejectProxyFilter = nil
+
+	}
+
+	return acceptProxyFilter, rejectProxyFilter, nil
+}
+
 func main() {
 	// command line flags
 	var opts struct {
@@ -57,7 +111,7 @@ func main() {
 		HMACKey             string        `short:"k" long:"key" description:"HMAC key"`
 		SSLKey              string        `long:"ssl-key" description:"ssl private key (key.pem) path"`
 		SSLCert             string        `long:"ssl-cert" description:"ssl cert (cert.pem) path"`
-		AllowList           string        `long:"allow-list" description:"Text file of hostname allow regexes (one per line)"`
+		FilterRuleset       string        `long:"filter-ruleset" description:"Text file containing filtering rules (one per line)"`
 		BindAddress         string        `long:"listen" default:"0.0.0.0:8080" description:"Address:Port to bind to for HTTP"`
 		BindAddressSSL      string        `long:"ssl-listen" description:"Address:Port to bind to for HTTPS/SSL/TLS"`
 		MaxSize             int64         `long:"max-size" default:"5120" description:"Max allowed response size (KB)"`
@@ -146,12 +200,21 @@ func main() {
 	// additional content types to allow
 	config.AllowContentVideo = opts.AllowContentVideo
 
-	if opts.AllowList != "" {
-		b, err := ioutil.ReadFile(opts.AllowList)
+	if opts.FilterRuleset != "" {
+		acceptProxyFilter, rejectProxyFilter, err := loadFilterList(opts.FilterRuleset)
 		if err != nil {
-			mlog.Fatal("Could not read allow-list", err)
+			mlog.Fatal("Could not read filter-ruleset", err)
 		}
-		config.AllowList = strings.Split(string(b), "\n")
+
+		if acceptProxyFilter != nil {
+			config.AcceptanceFilter = acceptProxyFilter
+		}
+		if rejectProxyFilter != nil {
+			config.RejectionFilter = rejectProxyFilter
+		}
+		if acceptProxyFilter != nil && rejectProxyFilter != nil {
+			mlog.Printf("Warning! Accept and Reject both supplied.\nAccept filter takes precedence, and everything else is rejected!\nBe sure this is what you want!")
+		}
 	}
 
 	AddHeaders := map[string]string{

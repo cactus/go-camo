@@ -13,24 +13,33 @@ import (
 	"net"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/cactus/go-camo/pkg/camo/encoding"
+	"github.com/cactus/go-camo/pkg/htrie"
 
 	"github.com/cactus/mlog"
 )
+
+// ProxyFilter is an interface that specifes as CheckURL, which returns true when
+// a url is a "hit", and false for a "miss".
+type ProxyFilter interface {
+	CheckURL(*url.URL) bool
+}
 
 // Config holds configuration data used when creating a Proxy with New.
 type Config struct {
 	// HMACKey is a byte slice to be used as the hmac key
 	HMACKey []byte
-	// AllowList is a list of string represenstations of regex (not compiled
-	// regex) that are used as a whitelist filter. If an AllowList is present,
-	// then anything not matching is dropped. If no AllowList is present,
-	// no Allow filtering is done.
-	AllowList []string
+	// AcceptanceFilter is a ProxyFilter interface, used as an acceptance filter.
+	// Match condition means acceptance, and anything else is rejected.
+	// If no AcceptanceFilter is supplied, no additional acceptance filtering
+	// is performed.
+	AcceptanceFilter ProxyFilter
+	// RejectionFilter is a ProxyFilter interface, used as a rejection filter.
+	// Match condition means rejection.
+	RejectionFilter ProxyFilter
 	// Server name used in Headers and Via checks
 	ServerName string
 	// MaxSize is the maximum valid image size response (in bytes).
@@ -56,8 +65,7 @@ type Config struct {
 // restrictions as well as regex host allow list support.
 type Proxy struct {
 	// compiled allow list regex
-	allowList         []*regexp.Regexp
-	acceptTypesRe     []*regexp.Regexp
+	acceptTypesFilter *htrie.GlobPathChecker
 	client            *http.Client
 	config            *Config
 	acceptTypesString string
@@ -195,14 +203,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		match := false
-		for _, re := range p.acceptTypesRe {
-			if re.MatchString(contentType) {
-				match = true
-				break
-			}
-		}
-		if !match {
+		if !p.acceptTypesFilter.CheckPathString(contentType) {
 			mlog.Debugm("Unsupported content-type returned", mlog.Map{"type": u})
 			http.Error(w, "Unsupported content-type returned", http.StatusBadRequest)
 			return
@@ -262,7 +263,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 func (p *Proxy) checkURL(reqURL *url.URL) error {
 	// reject localhost urls
 	uHostname := strings.ToLower(reqURL.Hostname())
-	if uHostname == "" || localhostRegex.MatchString(uHostname) {
+	if uHostname == "" || localhostDomainProxyFilter.CheckHostnameString(uHostname) {
 		return errors.New("Bad url host")
 	}
 
@@ -273,13 +274,6 @@ func (p *Proxy) checkURL(reqURL *url.URL) error {
 
 	// ip/whitelist/blacklist filtering
 	if !p.config.noIPFiltering {
-		// if allowList is set, require match
-		for _, rgx := range p.allowList {
-			if rgx.MatchString(uHostname) {
-				return errors.New("Allowlist host failure")
-			}
-		}
-
 		// filter out rejected networks
 		if ip := net.ParseIP(uHostname); ip != nil {
 			if isRejectedIP(ip) {
@@ -294,6 +288,16 @@ func (p *Proxy) checkURL(reqURL *url.URL) error {
 				}
 			}
 		}
+	}
+
+	// if AcceptanceFilter is set, require match "hit"
+	if p.config.AcceptanceFilter != nil && !p.config.AcceptanceFilter.CheckURL(reqURL) {
+		return errors.New("Allowlist host failure")
+	}
+
+	// if RejectionFilter is set, require a match "miss"
+	if p.config.RejectionFilter != nil && p.config.RejectionFilter.CheckURL(reqURL) {
+		return errors.New("Denylist host failure")
 	}
 
 	return nil
@@ -318,32 +322,31 @@ func (p *Proxy) copyHeaders(dst, src *http.Header, filter *map[string]bool) {
 	}
 }
 
-// New returns a new Proxy. An error is returned if there was a failure
-// to parse the regex from the passed Config.
+// New returns a new Proxy. Returns an error if Proxy could not be constructed.
 func New(pc Config) (*Proxy, error) {
 	tr := &http.Transport{
-		Dial: (&net.Dialer{
+		DialContext: (&net.Dialer{
 			Timeout:   3 * time.Second,
 			KeepAlive: 30 * time.Second,
-		}).Dial,
+		}).DialContext,
 		TLSHandshakeTimeout: 3 * time.Second,
+
+		// max idle conns. Go DetaultTransport uses 100, which seems like a
+		// fairly reasonable number. Very busy servers may wish to raise
+		// or lower this value.
+		MaxIdleConns:        100,
 		MaxIdleConnsPerHost: 8,
-		DisableKeepAlives:   pc.DisableKeepAlivesBE,
+
+		// more defaults from DefaultTransport, with a few tweaks
+		IdleConnTimeout:       30 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+
+		DisableKeepAlives: pc.DisableKeepAlivesBE,
 		// no need for compression with images
 		// some xml/svg can be compressed, but apparently some clients can
 		// exhibit weird behavior when those are compressed
 		DisableCompression: true,
 	}
-
-	// spawn an idle conn trimmer
-	go func() {
-		// prunes every 5 minutes. this is just a guess at an
-		// initial value. very busy severs may want to lower this...
-		for {
-			time.Sleep(5 * time.Minute)
-			tr.CloseIdleConnections()
-		}
-	}()
 
 	client := &http.Client{
 		Transport: tr,
@@ -351,39 +354,26 @@ func New(pc Config) (*Proxy, error) {
 		Timeout: pc.RequestTimeout,
 	}
 
-	var allow []*regexp.Regexp
-	var c *regexp.Regexp
-	var err error
-	// compile allow list
-	for _, v := range pc.AllowList {
-		c, err = regexp.Compile(strings.TrimSpace(v))
-		if err != nil {
-			return nil, err
-		}
-		allow = append(allow, c)
-	}
-
 	acceptTypes := []string{"image/*"}
-	// add additional accept types
+	// add additional accept types, if appropriate
 	if pc.AllowContentVideo {
 		acceptTypes = append(acceptTypes, "video/*")
 	}
 
-	var acceptTypesRe []*regexp.Regexp
+	// re-use the htrie glob path checker for accept types validation
+	acceptTypesFilter := htrie.NewGlobPathChecker()
 	for _, v := range acceptTypes {
-		c, err = globToRegexp(v)
+		err := acceptTypesFilter.AddRule("|i|" + v)
 		if err != nil {
 			return nil, err
 		}
-		acceptTypesRe = append(acceptTypesRe, c)
 	}
 
 	p := &Proxy{
 		client:            client,
 		config:            &pc,
-		allowList:         allow,
 		acceptTypesString: strings.Join(acceptTypes, ", "),
-		acceptTypesRe:     acceptTypesRe,
+		acceptTypesFilter: acceptTypesFilter,
 	}
 
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {

@@ -95,7 +95,7 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
 
 *   Go-Camo supports 'Path Format' url format only. Camo's "Query
     String Format" is not supported.
-*   Go-Camo supports "allow regex host filters".
+*   Go-Camo supports "allow/deny host filters".
 *   Go-Camo supports client http keep-alives.
 *   Go-Camo provides native SSL support.
 *   Go-Camo provides native HTTP/2 support (if built using >=go1.6).
@@ -233,7 +233,7 @@ Application Options:
   -k, --key=                   HMAC key
       --ssl-key=               ssl private key (key.pem) path
       --ssl-cert=              ssl cert (cert.pem) path
-      --allow-list=            Text file of hostname allow regexes (one per line)
+      --filter-ruleset=        Text file containing filtering rules (one per line)
       --listen=                Address:Port to bind to for HTTP (default: 0.0.0.0:8080)
       --ssl-listen=            Address:Port to bind to for HTTPS/SSL/TLS
       --max-size=              Max allowed response size (KB) (default: 5120)
@@ -255,9 +255,9 @@ Help Options:
   -h, --help                   Show this help message
 ```
 
-If an allow-list file is defined, that file is read and each line converted
-into a hostname regex. If a request does not match one of the listed host
-regex, then the request is denied.
+If an filter-ruleset file is defined, that file is read and each line converted
+into a filter rule. If the request fails the ruleset, the request is denied.
+See [`FILTER_FORMAT.md`][20] for more information.
 
 If metrics flag is provided, then the service will expose a Prometheus `/metrics` endpoint.
 
@@ -362,3 +362,4 @@ file for details.
 [17]: https://github.com/MrSaints
 [18]: https://github.com/arachnys/go-camo
 [19]: https://www.freedesktop.org/wiki/Software/systemd/
+[20]: FILTER_FORMAT.md

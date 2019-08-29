@@ -7,3 +7,4 @@
 /server.crt
 /server.csr
 *.py[co]
+/test-ruleset.conf

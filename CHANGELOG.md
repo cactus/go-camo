@@ -2,6 +2,9 @@ Changelog
 =========
 
 ## HEAD
+*   Remove `--allow-list` flag, and replace with a unified filtering flag
+    `filter-ruleset`. See [FILTER_FORMAT.md](FILTER_FORMAT.md) for more
+    information on the accepted syntax.
 
 ## v1.1.7 2019-08-14
 *   Remove old stats flag, endpoint, and feature, in favor of the new

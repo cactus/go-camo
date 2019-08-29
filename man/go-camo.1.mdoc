@@ -52,12 +52,14 @@ If metrics flag is provided, then the service will make a prometheus compatible
 endpoint available at /metrics via HTTP GET.
 .It Fl -no-log-ts
 Do not add a timestamp to logging output.
-.It Fl -allow-list Ns = Ns Aq Ar file
-Path to a text file that contains a list (one per line) of regex host matches
-to allow.
+.It Fl -filter-ruleset Ns = Ns Aq Ar file
+Path to a text file that contains a list (one per line) filter rules.
 .Pp
-If an allow list is defined, and a request does not match one of the listed
-host regex, then the request is denied.
+If an filter-ruleset file is defined, that file is read and each line converted
+into a filter rule. If the request fails the ruleset, the request is denied.
+See
+.Sx "FILTER_FORMAT"
+for more information.
 .It Fl -max-size Ns = Ns Aq Ar size
 Max response image size in KB. Default: 5120
 .It Fl -timeout Ns = Ns Aq Ar time

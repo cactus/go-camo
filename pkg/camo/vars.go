@@ -5,7 +5,7 @@
 package camo
 
 import (
-	"regexp"
+	"github.com/cactus/go-camo/pkg/htrie"
 )
 
 // ValidReqHeaders are http request headers that are acceptable to pass from
@@ -78,4 +78,9 @@ var rejectIPv6Networks = mustParseNetmasks(
 )
 
 // match for localhost
-var localhostRegex = regexp.MustCompile(`^localhost\.?(localdomain)?\.?$`)
+var localhostDomainProxyFilter = htrie.MustNewDTreeWithRules(
+	[]string{
+		"|s|localhost||",
+		"|s|localdomain||",
+	},
+)
