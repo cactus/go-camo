@@ -49,22 +49,22 @@ The general steps are as follows:
     from the origin server and streams it to the client.
 
 ```text
-   +----------+           request            +-------------+
-   |          |----------------------------->|             |
-   |          |                              |             |
-   |          |                              |   web-app   |
-   |          | img src=https://go-camo/url  |             |
-   |          |<-----------------------------|             |
-   |          |                              +-------------+
-   |  client  |
-   |          |     https://go-camo/url      +-------------+ http://some/img
-   |          |----------------------------->|             |--------------->
-   |          |                              |             |
-   |          |                              |   go-camo   |
-   |          |           img data           |             |    img data
-   |          |<-----------------------------|             |<---------------
-   |          |                              +-------------+
-   +----------+
+  +----------+           request            +-------------+
+  |          |----------------------------->|             |
+  |          |                              |             |
+  |          |                              |   web-app   |
+  |          | img src=https://go-camo/url  |             |
+  |          |<-----------------------------|             |
+  |          |                              +-------------+
+  |  client  |
+  |          |     https://go-camo/url      +-------------+ http://some/img
+  |          |----------------------------->|             |--------------->
+  |          |                              |             |
+  |          |                              |   go-camo   |
+  |          |           img data           |             |    img data
+  |          |<-----------------------------|             |<---------------
+  |          |                              +-------------+
+  +----------+
 ```
 
 Go-Camo supports both hex and base64 encoded urls at the same time.
@@ -262,8 +262,8 @@ A few notes about specific flags:
 
     If an _filter-ruleset_ file is defined, that file is read and each line
     converted into a filter rule. If the request fails the ruleset, the request
-    is denied.  See [`FILTER_FORMAT.md`][20] for more information. 
-    
+    is denied.  See [`FILTER_FORMAT.md`][20] for more information.
+
     It is always preferable to do filtering at the point of url generation and
     signing.  The _filter-ruleset_ functionality (both allow and deny) is
     supplied predominantly as a fallback safety measure for cases where you
