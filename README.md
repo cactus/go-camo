@@ -265,17 +265,17 @@ A few notes about specific flags:
     Regarding evaluatation: The ruleset is NOT evaluated in-order. The rules
     process in two phases: "allow rule phase" where the allow rules are
     evaluated, and the "deny rule phase" where the deny rules are evaluated.
-    First match in any each phase "wins".
+    First match in each phase "wins" that phase.
 
     In the "allow phase", an origin request must match at least one allow rule.
     The first rule to match "wins" and the request moves on to the next phase.
     If there are no allow rules supplied, this phase is skipped.
 
     In the deny rule phase, any rule that matches results in a rejection. The first
-    match "wins" and the request is failed. If there are no rules in this phases,
-    it is skipped.
+    match "wins" and the request is failed. If there are no deny rules supplied,
+    this phase is skipped.
 
-    Do note that it is always preferable to do filtering at the point of url
+    **Do note** that it is always preferable to do filtering at the point of url
     generation and signing. The `filter-ruleset` functionality (both allow and
     deny) is supplied predominantly as a fallback safety measure for cases
     where you have previously generated a url and you need a quick temporary
