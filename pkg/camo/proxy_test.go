@@ -9,13 +9,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"os"
 	"testing"
 	"time"
 
-	"github.com/cactus/go-camo/pkg/camo/encoding"
-	"github.com/cactus/go-camo/pkg/router"
 	"github.com/cactus/mlog"
 
 	"github.com/stretchr/testify/assert"
@@ -31,85 +28,27 @@ var camoConfig = Config{
 	AllowCredetialURLs: false,
 }
 
-func makeReq(testURL string) (*http.Request, error) {
-	k := []byte(camoConfig.HMACKey)
-	hexURL := encoding.B64EncodeURL(k, testURL)
-	out := "http://example.com" + hexURL
-	req, err := http.NewRequest("GET", out, nil)
-	if err != nil {
-		return nil, fmt.Errorf("Error building req url '%s': %s", testURL, err.Error())
-	}
-	return req, nil
-}
-
-func processRequest(req *http.Request, status int, camoConfig Config, filters []FilterFunc) (*httptest.ResponseRecorder, error) {
-
-	var (
-		camoServer *Proxy
-		err        error
-	)
-
-	if filters == nil || len(filters) == 0 {
-		camoServer, err = New(camoConfig)
-		if err != nil {
-			return nil, fmt.Errorf("Error building Camo: %s", err.Error())
-		}
-	} else {
-		camoServer, err = NewWithFilters(camoConfig, filters)
-		if err != nil {
-			return nil, fmt.Errorf("Error building Camo: %s", err.Error())
-		}
-	}
-
-	router := &router.DumbRouter{
-		AddHeaders:  map[string]string{"X-Go-Camo": "test"},
-		ServerName:  camoConfig.ServerName,
-		CamoHandler: camoServer,
-	}
-
-	record := httptest.NewRecorder()
-	router.ServeHTTP(record, req)
-	if got, want := record.Code, status; got != want {
-		return record, fmt.Errorf("response code = %d, wanted %d", got, want)
-	}
-	return record, nil
-}
-
-func makeTestReq(testURL string, status int, config Config) (*httptest.ResponseRecorder, error) {
-	req, err := makeReq(testURL)
-	if err != nil {
-		return nil, err
-	}
-	record, err := processRequest(req, status, config, nil)
-	if err != nil {
-		return record, err
-	}
-	return record, nil
-}
-
 func TestNotFound(t *testing.T) {
 	t.Parallel()
 	req, err := http.NewRequest("GET", "http://example.com/favicon.ico", nil)
 	assert.Nil(t, err)
 
-	record, err := processRequest(req, 404, camoConfig, nil)
+	resp, err := processRequest(req, 404, camoConfig, nil)
 	if assert.Nil(t, err) {
-		assert.Equal(t, 404, record.Code, "Expected 404 but got '%d' instead", record.Code)
-		assert.Equal(t, "404 Not Found\n", record.Body.String(), "Expected 404 response body but got '%s' instead", record.Body.String())
-		// validate headers
-		assert.Equal(t, "test", record.HeaderMap.Get("X-Go-Camo"), "Expected custom response header not found")
-		assert.Equal(t, "go-camo", record.HeaderMap.Get("Server"), "Expected 'Server' response header not found")
+		statusCodeAssert(t, 404, resp)
+		bodyAssert(t, "404 Not Found\n", resp)
+		headerAssert(t, "test", "X-Go-Camo", resp)
+		headerAssert(t, "go-camo", "Server", resp)
 	}
 }
 
 func TestSimpleValidImageURL(t *testing.T) {
 	t.Parallel()
 	testURL := "http://www.google.com/images/srpr/logo11w.png"
-	record, err := makeTestReq(testURL, 200, camoConfig)
+	resp, err := makeTestReq(testURL, 200, camoConfig)
 	if assert.Nil(t, err) {
-		// validate headers
-		assert.Equal(t, "test", record.HeaderMap.Get("X-Go-Camo"), "Expected custom response header not found")
-		assert.Equal(t, "go-camo", record.HeaderMap.Get("Server"), "Expected 'Server' response header not found")
+		headerAssert(t, "test", "X-Go-Camo", resp)
+		headerAssert(t, "go-camo", "Server", resp)
 	}
 }
 
@@ -182,19 +121,19 @@ func TestXForwardedFor(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	req, err := makeReq(ts.URL)
+	req, err := makeReq(camoConfig, ts.URL)
 	assert.Nil(t, err)
 
 	req.Header.Set("X-Forwarded-For", "2.2.2.2, 1.1.1.1")
 
-	record, err := processRequest(req, 200, camoConfigWithoutFwd4, nil)
+	resp, err := processRequest(req, 200, camoConfigWithoutFwd4, nil)
 	assert.Nil(t, err)
-	assert.EqualValues(t, record.Body.String(), "2.2.2.2, 1.1.1.1")
+	bodyAssert(t, "2.2.2.2, 1.1.1.1", resp)
 
 	camoConfigWithoutFwd4.EnableXFwdFor = false
-	record, err = processRequest(req, 200, camoConfigWithoutFwd4, nil)
+	resp, err = processRequest(req, 200, camoConfigWithoutFwd4, nil)
 	assert.Nil(t, err)
-	assert.Empty(t, record.Body.String())
+	bodyAssert(t, "", resp)
 }
 
 func TestVideoContentTypeAllowed(t *testing.T) {
@@ -214,11 +153,10 @@ func TestVideoContentTypeAllowed(t *testing.T) {
 	assert.Nil(t, err)
 
 	// try a range request
-	req, err := makeReq(testURL)
+	req, err := makeReq(camoConfigWithVideo, testURL)
 	assert.Nil(t, err)
 	req.Header.Add("Range", "bytes=0-10")
-	record, err := processRequest(req, 206, camoConfigWithVideo, nil)
-	resp := record.Result()
+	resp, err := processRequest(req, 206, camoConfigWithVideo, nil)
 	assert.Equal(t, resp.Header.Get("Content-Range"), "bytes 0-10/179698")
 	assert.Nil(t, err)
 }
@@ -237,6 +175,16 @@ func TestCredetialURLsAllowed(t *testing.T) {
 
 	testURL := "http://user:pass@www.google.com/images/srpr/logo11w.png"
 	_, err := makeTestReq(testURL, 200, camoConfigWithCredentials)
+	assert.Nil(t, err)
+}
+
+func TestSupplyAcceptIfNoneGiven(t *testing.T) {
+	t.Parallel()
+	testURL := "http://images.anandtech.com/doci/6673/OpenMoboAMD30_575px.png"
+	req, err := makeReq(camoConfig, testURL)
+	req.Header.Del("Accept")
+	assert.Nil(t, err)
+	_, err = processRequest(req, 200, camoConfig, nil)
 	assert.Nil(t, err)
 }
 
@@ -329,45 +277,45 @@ func Test404On192Dot168Net(t *testing.T) {
 func Test404OnLocalhost(t *testing.T) {
 	t.Parallel()
 	testURL := "http://localhost/foo.cgi"
-	record, err := makeTestReq(testURL, 404, camoConfig)
+	resp, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Nil(t, err) {
-		assert.Equal(t, "Bad url host\n", record.Body.String(), "Expected 404 response body but got '%s' instead", record.Body.String())
+		bodyAssert(t, "Bad url host\n", resp)
 	}
 }
 
 func Test404OnLocalhostWithPort(t *testing.T) {
 	t.Parallel()
 	testURL := "http://localhost:80/foo.cgi"
-	record, err := makeTestReq(testURL, 404, camoConfig)
+	resp, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Nil(t, err) {
-		assert.Equal(t, "Bad url host\n", record.Body.String(), "Expected 404 response body but got '%s' instead", record.Body.String())
+		bodyAssert(t, "Bad url host\n", resp)
 	}
 }
 
 func Test404OnRedirectWithLocalhostTarget(t *testing.T) {
 	t.Parallel()
 	testURL := "http://httpbin.org/redirect-to?url=http://localhost/some.png"
-	record, err := makeTestReq(testURL, 404, camoConfig)
+	resp, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Nil(t, err) {
-		assert.Equal(t, "Error Fetching Resource\n", record.Body.String(), "Expected 404 response body but got '%s' instead", record.Body.String())
+		bodyAssert(t, "Error Fetching Resource\n", resp)
 	}
 }
 
 func Test404OnRedirectWithLoopbackIP(t *testing.T) {
 	t.Parallel()
 	testURL := "http://httpbin.org/redirect-to?url=http://127.0.0.100/some.png"
-	record, err := makeTestReq(testURL, 404, camoConfig)
+	resp, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Nil(t, err) {
-		assert.Equal(t, "Error Fetching Resource\n", record.Body.String(), "Expected 404 response body but got '%s' instead", record.Body.String())
+		bodyAssert(t, "Error Fetching Resource\n", resp)
 	}
 }
 
 func Test404OnRedirectWithLoopbackIPwCreds(t *testing.T) {
 	t.Parallel()
 	testURL := "http://httpbin.org/redirect-to?url=http://user:pass@127.0.0.100/some.png"
-	record, err := makeTestReq(testURL, 404, camoConfig)
+	resp, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Nil(t, err) {
-		assert.Equal(t, "Error Fetching Resource\n", record.Body.String(), "Expected 404 response body but got '%s' instead", record.Body.String())
+		bodyAssert(t, "Error Fetching Resource\n", resp)
 	}
 }
 
@@ -376,165 +324,10 @@ func Test404OnLoopback(t *testing.T) {
 	t.Skip("Skipping test. CI environments generally enable something similar to unbound's private-address functionality, making this test fail.")
 	t.Parallel()
 	testURL := "http://httpbin.org/redirect-to?url=localhost.me&status_code=302"
-	record, err := makeTestReq(testURL, 404, camoConfig)
+	resp, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Nil(t, err) {
-		assert.Equal(t, "Denylist host failure\n", record.Body.String(), "Expected 404 response body but got '%s' instead", record.Body.String())
+		bodyAssert(t, "Denylist host failure\n", resp)
 	}
-}
-
-func TestSupplyAcceptIfNoneGiven(t *testing.T) {
-	t.Parallel()
-	testURL := "http://images.anandtech.com/doci/6673/OpenMoboAMD30_575px.png"
-	req, err := makeReq(testURL)
-	req.Header.Del("Accept")
-	assert.Nil(t, err)
-	_, err = processRequest(req, 200, camoConfig, nil)
-	assert.Nil(t, err)
-}
-
-func TestFilterListAcceptSimple(t *testing.T) {
-	t.Parallel()
-
-	called := false
-	filters := []FilterFunc{
-		func(*url.URL) bool {
-			called = true
-			return true
-		},
-	}
-	testURL := "http://www.google.com/images/srpr/logo11w.png"
-	req, err := makeReq(testURL)
-	_, err = processRequest(req, 200, camoConfig, filters)
-	assert.Nil(t, err)
-	assert.True(t, called, "filter func wasn't called")
-}
-
-func TestFilterListMatrixMultiples(t *testing.T) {
-	t.Parallel()
-
-	testURL := "http://www.google.com/images/srpr/logo11w.png"
-	req, err := makeReq(testURL)
-	assert.Nil(t, err)
-
-	var mixtests = []struct {
-		filterRuleAnswers  []bool
-		expectedCallMatrix []bool
-		respcode           int
-	}{
-		// all rules return true, so all rules should have been called
-		// so pass: http200
-		{
-			[]bool{true, true, true},
-			[]bool{true, true, true},
-			200,
-		},
-		// 3rd rule should not be called, because 2nd returned false
-		// so no pass: http404
-		{
-			[]bool{true, false, true},
-			[]bool{true, true, false},
-			404,
-		},
-		// 2nd, 3rd rules should not be called, because 1st returned false
-		// so no pass: http404
-		{
-			[]bool{false, false, true},
-			[]bool{true, false, false},
-			404,
-		},
-		// last rule returns false, but all rules should be called.
-		// so no pass: http404
-		{
-			[]bool{true, true, false},
-			[]bool{true, true, true},
-			404,
-		},
-	}
-
-	for _, tt := range mixtests {
-		callMatrix := []bool{false, false, false}
-		filters := make([]FilterFunc, 0)
-		for i := 0; i < 3; i++ {
-			filters = append(
-				filters, func(x int) func(*url.URL) bool {
-					return func(*url.URL) bool {
-						callMatrix[x] = true
-						return tt.filterRuleAnswers[x]
-					}
-				}(i),
-			)
-		}
-
-		_, err = processRequest(req, tt.respcode, camoConfig, filters)
-		assert.Nil(t, err)
-		for i := range callMatrix {
-			assert.Equal(t,
-				callMatrix[i],
-				tt.expectedCallMatrix[i],
-				fmt.Sprintf(
-					"filter func called='%t' wanted '%t'",
-					callMatrix[i], tt.expectedCallMatrix[i],
-				),
-			)
-		}
-	}
-}
-
-func TestTimeout(t *testing.T) {
-	t.Parallel()
-	c := Config{
-		HMACKey:        []byte("0x24FEEDFACEDEADBEEFCAFE"),
-		MaxSize:        5120 * 1024,
-		RequestTimeout: time.Duration(500) * time.Millisecond,
-		MaxRedirects:   3,
-		ServerName:     "go-camo",
-		noIPFiltering:  true,
-	}
-	cc := make(chan bool, 1)
-	received := make(chan bool)
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		received <- true
-		<-cc
-		r.Close = true
-		w.Write([]byte("ok"))
-
-	}))
-	defer ts.Close()
-
-	req, err := makeReq(ts.URL)
-	assert.Nil(t, err)
-
-	errc := make(chan error, 1)
-	go func() {
-		code := 504
-		_, err := processRequest(req, code, c, nil)
-		errc <- err
-	}()
-
-	select {
-	case <-received:
-		select {
-		case e := <-errc:
-			assert.Nil(t, e)
-			cc <- true
-		case <-time.After(1 * time.Second):
-			cc <- true
-			t.Errorf("timeout didn't fire in time")
-		}
-	case <-time.After(1 * time.Second):
-		var err error
-		select {
-		case e := <-errc:
-			err = e
-		default:
-		}
-		if err != nil {
-			assert.Nil(t, err, "test didn't hit backend as expected")
-		}
-		t.Errorf("test didn't hit backend as expected")
-	}
-
-	close(cc)
 }
 
 func TestMain(m *testing.M) {
