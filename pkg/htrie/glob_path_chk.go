@@ -113,7 +113,10 @@ func (gpc *GlobPathChecker) AddRule(rule string) error {
 		}
 	}
 
-	gpc.addPath(escapedURL, icase)
+	err = gpc.addPath(escapedURL, icase)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
