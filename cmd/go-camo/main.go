@@ -9,6 +9,7 @@ import (
 	"bufio"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"runtime"
 	"strings"
@@ -50,17 +51,17 @@ var (
 	)
 )
 
-func loadFilterList(fname string) (*htrie.DTree, *htrie.DTree, error) {
+func loadFilterList(fname string) ([]camo.FilterFunc, error) {
 	file, err := os.Open(fname)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Could not open filter-ruleset file: %s", err)
+		return nil, fmt.Errorf("Could not open filter-ruleset file: %s", err)
 	}
 	defer file.Close()
 
-	acceptProxyFilter := htrie.NewDTree()
-	rejectProxyFilter := htrie.NewDTree()
-	hasAccept := false
-	hasReject := false
+	allowFilter := htrie.NewDTree()
+	denyFilter := htrie.NewDTree()
+	hasAllow := false
+	hasDeny := false
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -68,19 +69,20 @@ func loadFilterList(fname string) (*htrie.DTree, *htrie.DTree, error) {
 
 		if strings.HasPrefix(line, "allow|") {
 			line = strings.TrimPrefix(line, "allow")
-			err = acceptProxyFilter.AddRule(line)
+			err = allowFilter.AddRule(line)
 			if err != nil {
 				break
 			}
-			hasAccept = true
-		}
-		if strings.HasPrefix(line, "reject|") {
-			line = strings.TrimPrefix(line, "reject")
-			err = rejectProxyFilter.AddRule(line)
+			hasAllow = true
+		} else if strings.HasPrefix(line, "deny|") {
+			line = strings.TrimPrefix(line, "deny")
+			err = denyFilter.AddRule(line)
 			if err != nil {
 				break
 			}
-			hasReject = true
+			hasDeny = true
+		} else {
+			fmt.Println("ignoring line: ", line)
 		}
 
 		err = scanner.Err()
@@ -89,18 +91,31 @@ func loadFilterList(fname string) (*htrie.DTree, *htrie.DTree, error) {
 		}
 	}
 	if err != nil {
-		return nil, nil, fmt.Errorf("Error building filter ruleset: %s", err)
+		return nil, fmt.Errorf("Error building filter ruleset: %s", err)
 	}
 
-	if !hasAccept {
-		acceptProxyFilter = nil
-	}
-	if !hasReject {
-		rejectProxyFilter = nil
+	// append in order. allow first, then deny filters.
+	// first false value aborts the request.
+	filterFuncs := make([]camo.FilterFunc, 0)
 
+	if hasAllow {
+		filterFuncs = append(filterFuncs, allowFilter.CheckURL)
 	}
 
-	return acceptProxyFilter, rejectProxyFilter, nil
+	// denyFilter returns true on a match. we want a "false" value to abort processing.
+	// so just wrap and invert the bool.
+	if hasDeny {
+		denyF := func(u *url.URL) bool {
+			return !denyFilter.CheckURL(u)
+		}
+		filterFuncs = append(filterFuncs, denyF)
+	}
+
+	if hasAllow && hasDeny {
+		mlog.Printf("Warning! Allow and Deny rules both supplied. Having Allow rules means anything not matching an allow rule is denied. THEN deny rules are evaluated. Be sure this is what you want!")
+	}
+
+	return filterFuncs, nil
 }
 
 func main() {
@@ -200,21 +215,13 @@ func main() {
 	// additional content types to allow
 	config.AllowContentVideo = opts.AllowContentVideo
 
+	var filters []camo.FilterFunc
 	if opts.FilterRuleset != "" {
-		acceptProxyFilter, rejectProxyFilter, err := loadFilterList(opts.FilterRuleset)
+		filters, err = loadFilterList(opts.FilterRuleset)
 		if err != nil {
 			mlog.Fatal("Could not read filter-ruleset", err)
 		}
 
-		if acceptProxyFilter != nil {
-			config.AcceptanceFilter = acceptProxyFilter
-		}
-		if rejectProxyFilter != nil {
-			config.RejectionFilter = rejectProxyFilter
-		}
-		if acceptProxyFilter != nil && rejectProxyFilter != nil {
-			mlog.Printf("Warning! Accept and Reject both supplied.\nAccept filter takes precedence, and everything else is rejected!\nBe sure this is what you want!")
-		}
 	}
 
 	AddHeaders := map[string]string{
@@ -257,7 +264,7 @@ func main() {
 	config.MaxRedirects = opts.MaxRedirects
 	config.ServerName = ServerName
 
-	proxy, err := camo.New(config)
+	proxy, err := camo.NewWithFilters(config, filters)
 	if err != nil {
 		mlog.Fatal("Error creating camo", err)
 	}

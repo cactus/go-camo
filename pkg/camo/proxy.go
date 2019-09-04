@@ -22,24 +22,10 @@ import (
 	"github.com/cactus/mlog"
 )
 
-// ProxyFilter is an interface that specifes as CheckURL, which returns true when
-// a url is a "hit", and false for a "miss".
-type ProxyFilter interface {
-	CheckURL(*url.URL) bool
-}
-
 // Config holds configuration data used when creating a Proxy with New.
 type Config struct {
 	// HMACKey is a byte slice to be used as the hmac key
 	HMACKey []byte
-	// AcceptanceFilter is a ProxyFilter interface, used as an acceptance filter.
-	// Match condition means acceptance, and anything else is rejected.
-	// If no AcceptanceFilter is supplied, no additional acceptance filtering
-	// is performed.
-	AcceptanceFilter ProxyFilter
-	// RejectionFilter is a ProxyFilter interface, used as a rejection filter.
-	// Match condition means rejection.
-	RejectionFilter ProxyFilter
 	// Server name used in Headers and Via checks
 	ServerName string
 	// MaxSize is the maximum valid image size response (in bytes).
@@ -61,14 +47,17 @@ type Config struct {
 	noIPFiltering bool
 }
 
+type FilterFunc = func(*url.URL) bool
+
 // A Proxy is a Camo like HTTP proxy, that provides content type
 // restrictions as well as regex host allow list support.
 type Proxy struct {
-	// compiled allow list regex
-	acceptTypesFilter *htrie.GlobPathChecker
 	client            *http.Client
 	config            *Config
+	allowTypesFilter  *htrie.GlobPathChecker
 	acceptTypesString string
+	filters           []FilterFunc
+	filtersLen        int
 }
 
 // ServerHTTP handles the client request, validates the request is validly
@@ -203,7 +192,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		if !p.acceptTypesFilter.CheckPathString(contentType) {
+		if !p.allowTypesFilter.CheckPathString(contentType) {
 			mlog.Debugm("Unsupported content-type returned", mlog.Map{"type": u})
 			http.Error(w, "Unsupported content-type returned", http.StatusBadRequest)
 			return
@@ -290,14 +279,11 @@ func (p *Proxy) checkURL(reqURL *url.URL) error {
 		}
 	}
 
-	// if AcceptanceFilter is set, require match "hit"
-	if p.config.AcceptanceFilter != nil && !p.config.AcceptanceFilter.CheckURL(reqURL) {
-		return errors.New("Allowlist host failure")
-	}
-
-	// if RejectionFilter is set, require a match "miss"
-	if p.config.RejectionFilter != nil && p.config.RejectionFilter.CheckURL(reqURL) {
-		return errors.New("Denylist host failure")
+	// evaluate filters. first false value "fails"
+	for i := 0; i < p.filtersLen; i++ {
+		if !p.filters[0](reqURL) {
+			return errors.New("Rejected due to filter-ruleset")
+		}
 	}
 
 	return nil
@@ -320,6 +306,20 @@ func (p *Proxy) copyHeaders(dst, src *http.Header, filter *map[string]bool) {
 			dst.Add(k, v)
 		}
 	}
+}
+
+// NewWithFilters returns a new Proxy that utilises the passed in proxy filters.
+// filters are evaluated in order, and the first false response from a filter
+// function halts further evaluation and fails the request.
+func NewWithFilters(pc Config, filters []FilterFunc) (*Proxy, error) {
+	proxy, err := New(pc)
+	if err != nil {
+		return nil, err
+	}
+
+	proxy.filters = filters
+	proxy.filtersLen = len(filters)
+	return proxy, nil
 }
 
 // New returns a new Proxy. Returns an error if Proxy could not be constructed.
@@ -361,9 +361,9 @@ func New(pc Config) (*Proxy, error) {
 	}
 
 	// re-use the htrie glob path checker for accept types validation
-	acceptTypesFilter := htrie.NewGlobPathChecker()
+	allowTypesFilter := htrie.NewGlobPathChecker()
 	for _, v := range acceptTypes {
-		err := acceptTypesFilter.AddRule("|i|" + v)
+		err := allowTypesFilter.AddRule("|i|" + v)
 		if err != nil {
 			return nil, err
 		}
@@ -373,7 +373,7 @@ func New(pc Config) (*Proxy, error) {
 		client:            client,
 		config:            &pc,
 		acceptTypesString: strings.Join(acceptTypes, ", "),
-		acceptTypesFilter: acceptTypesFilter,
+		allowTypesFilter:  allowTypesFilter,
 	}
 
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
