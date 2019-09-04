@@ -95,7 +95,7 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
 
 *   Go-Camo supports 'Path Format' url format only. Camo's "Query
     String Format" is not supported.
-*   Go-Camo supports "allow/deny host filters".
+*   Go-Camo supports some optional "allow/deny" origin filters.
 *   Go-Camo supports client http keep-alives.
 *   Go-Camo provides native SSL support.
 *   Go-Camo provides native HTTP/2 support (if built using >=go1.6).
