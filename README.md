@@ -255,32 +255,51 @@ Help Options:
   -h, --help                   Show this help message
 ```
 
-If an filter-ruleset file is defined, that file is read and each line converted
-into a filter rule. If the request fails the ruleset, the request is denied.
-See [`FILTER_FORMAT.md`][20] for more information.
 
-If metrics flag is provided, then the service will expose a Prometheus `/metrics` endpoint.
+A few notes about specific flags:
 
-If the HMAC key is provided on the command line, it will override (if present),
-an HMAC key set in the environment var.
+*   `--filter-ruleset`
 
-Additional default headers (sent on every response) can also be set. The
-`-H, --header` argument may be specified many times.
+    If an _filter-ruleset_ file is defined, that file is read and each line
+    converted into a filter rule. If the request fails the ruleset, the request
+    is denied.  See [`FILTER_FORMAT.md`][20] for more information. 
+    
+    It is always preferable to do filtering at the point of url generation and
+    signing.  The _filter-ruleset_ functionality (both allow and deny) is
+    supplied predominantly as a fallback safety measure for cases where you
+    have previously generated a url and you need a quick temporary fix, or for
+    cases where rolling keys takes a while and/or is difficult.
 
-The list of default headers sent are:
 
-```text
-X-Content-Type-Options: nosniff
-X-XSS-Protection: 1; mode=block
-Content-Security-Policy: default-src 'none'; img-src data:; style-src 'unsafe-inline'
-```
+*   `--metrics`
 
-As an example, if you wanted to return a `Strict-Transport-Security` header
-by default, you could add this to the command line:
+    If the metrics flag is provided, then the service will expose a Prometheus
+    `/metrics` endpoint.
 
-```text
--H "Strict-Transport-Security:  max-age=16070400"
-```
+*   `-k`, `--key`
+
+    If the HMAC key is provided on the command line, it will override (if
+    present), an HMAC key set in the environment var.
+
+*   `-H, --header`
+
+    Additional default headers (sent on every response) can also be set. This
+    argument may be specified many times.
+
+    The list of default headers sent are:
+
+    ```text
+    X-Content-Type-Options: nosniff
+    X-XSS-Protection: 1; mode=block
+    Content-Security-Policy: default-src 'none'; img-src data:; style-src 'unsafe-inline'
+    ```
+
+    As an example, if you wanted to return a `Strict-Transport-Security` header
+    by default, you could add this to the command line:
+
+    ```text
+    -H "Strict-Transport-Security:  max-age=16070400"
+    ```
 
 ## Additional tools
 
