@@ -281,7 +281,7 @@ func (p *Proxy) checkURL(reqURL *url.URL) error {
 
 	// evaluate filters. first false value "fails"
 	for i := 0; i < p.filtersLen; i++ {
-		if !p.filters[0](reqURL) {
+		if !p.filters[i](reqURL) {
 			return errors.New("Rejected due to filter-ruleset")
 		}
 	}
