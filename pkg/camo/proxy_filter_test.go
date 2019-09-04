@@ -24,6 +24,7 @@ func TestFilterListAcceptSimple(t *testing.T) {
 	}
 	testURL := "http://www.google.com/images/srpr/logo11w.png"
 	req, err := makeReq(camoConfig, testURL)
+	assert.Nil(t, err)
 	_, err = processRequest(req, 200, camoConfig, filters)
 	assert.Nil(t, err)
 	assert.True(t, called, "filter func wasn't called")

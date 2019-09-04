@@ -117,7 +117,8 @@ func TestXForwardedFor(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r.Close = true
 		w.Header().Set("Content-Type", "image/png")
-		w.Write([]byte(r.Header.Get("X-Forwarded-For")))
+		_, err := w.Write([]byte(r.Header.Get("X-Forwarded-For")))
+		assert.Nil(t, err)
 	}))
 	defer ts.Close()
 

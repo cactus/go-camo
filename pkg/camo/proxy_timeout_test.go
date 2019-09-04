@@ -29,7 +29,8 @@ func TestTimeout(t *testing.T) {
 		received <- true
 		<-cc
 		r.Close = true
-		w.Write([]byte("ok"))
+		_, err := w.Write([]byte("ok"))
+		assert.Nil(t, err)
 
 	}))
 	defer ts.Close()

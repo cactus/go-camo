@@ -133,12 +133,12 @@ func (dt *DTree) AddRule(rule string) error {
 	}
 
 	var (
-		hasRules      bool   = true
 		hostRuleFlags string = ruleParts[0]
 		hostRuleMatch string = ruleParts[1]
 		urlRuleFlags  string = ruleParts[2]
 		urlRuleMatch  string = ruleParts[3]
 		pathRule      string
+		hasRules      bool
 	)
 
 	// check for a bare domain match rule. if the rule is a bare domain match rule,
