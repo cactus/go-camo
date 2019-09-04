@@ -10,10 +10,7 @@ import (
 	"strings"
 )
 
-const (
-	charOffset int = 31
-	slashChar  int = int('/') - charOffset
-)
+const charOffset int = 31
 
 type GlobPathChecker struct {
 	//subtree []*GlobPathChecker
