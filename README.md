@@ -344,10 +344,6 @@ $ url-tool -k "test" decode "https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM
 http://golang.org/doc/gopher/frontpage.png
 ```
 
-### simple-server
-
-The `simple-server` utility has moved to its [own repo][14].
-
 ## Alternative Implementations
 
 *   [MrSaints][17]' go-camo [fork][18] - supports proxying additional content
@@ -375,7 +371,6 @@ file for details.
 [11]: https://github.com/cactus/go-camo/issues/6
 [12]: https://codereview.appspot.com/151730045#msg10
 [13]: https://github.com/cactus/go-camo/releases
-[14]: https://github.com/cactus/static-server
 [15]: https://en.wikipedia.org/wiki/DNS_rebinding
 [16]: https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
 [17]: https://github.com/MrSaints
