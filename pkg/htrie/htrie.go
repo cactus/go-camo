@@ -50,7 +50,8 @@ func putDTreeSlice(s *[]*DTree) {
 }
 
 func reverse(s []string) []string {
-	for i := 0; i < len(s)/2; i++ {
+	c := len(s) / 2
+	for i := 0; i < c; i++ {
 		j := len(s) - i - 1
 		s[i], s[j] = s[j], s[i]
 	}
