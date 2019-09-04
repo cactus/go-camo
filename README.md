@@ -226,16 +226,13 @@ Usage:
   go-camo [OPTIONS]
 
 Application Options:
-  -V, --version                Print version and exit; specify twice to show license
-                               information
-  -H, --header=                Extra header to return for each response. This option can
-                               be used multiple times to add multiple headers
   -k, --key=                   HMAC key
-      --ssl-key=               ssl private key (key.pem) path
-      --ssl-cert=              ssl cert (cert.pem) path
-      --filter-ruleset=        Text file containing filtering rules (one per line)
+  -H, --header=                Add additional header to each response. This option can be used multiple times to add
+                               multiple headers
       --listen=                Address:Port to bind to for HTTP (default: 0.0.0.0:8080)
       --ssl-listen=            Address:Port to bind to for HTTPS/SSL/TLS
+      --ssl-key=               ssl private key (key.pem) path
+      --ssl-cert=              ssl cert (cert.pem) path
       --max-size=              Max allowed response size (KB) (default: 5120)
       --timeout=               Upstream request timeout (default: 4s)
       --max-redirects=         Maximum number of redirects to follow (default: 3)
@@ -245,11 +242,12 @@ Application Options:
       --no-bk                  Disable backend http keep-alive support
       --allow-content-video    Additionally allow 'video/*' content
       --allow-credential-urls  Allow urls to contain user/pass credentials
-  -v, --verbose                Show verbose (debug) log level output
+      --filter-ruleset=        Text file containing filtering rules (one per line)
       --server-name=           Value to use for the HTTP server field (default: go-camo)
-      --expose-server-version  Include the server version in the HTTP server response
-                               header
+      --expose-server-version  Include the server version in the HTTP server response header
       --enable-xfwd4           Enable x-forwarded-for passthrough/generation
+  -v, --verbose                Show verbose (debug) log level output
+  -V, --version                Print version and exit; specify twice to show license information
 
 Help Options:
   -h, --help                   Show this help message

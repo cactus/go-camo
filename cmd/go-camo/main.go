@@ -106,14 +106,12 @@ func loadFilterList(fname string) (*htrie.DTree, *htrie.DTree, error) {
 func main() {
 	// command line flags
 	var opts struct {
-		Version             []bool        `short:"V" long:"version" description:"Print version and exit; specify twice to show license information"`
-		AddHeaders          []string      `short:"H" long:"header" description:"Extra header to return for each response. This option can be used multiple times to add multiple headers"`
 		HMACKey             string        `short:"k" long:"key" description:"HMAC key"`
-		SSLKey              string        `long:"ssl-key" description:"ssl private key (key.pem) path"`
-		SSLCert             string        `long:"ssl-cert" description:"ssl cert (cert.pem) path"`
-		FilterRuleset       string        `long:"filter-ruleset" description:"Text file containing filtering rules (one per line)"`
+		AddHeaders          []string      `short:"H" long:"header" description:"Add additional header to each response. This option can be used multiple times to add multiple headers"`
 		BindAddress         string        `long:"listen" default:"0.0.0.0:8080" description:"Address:Port to bind to for HTTP"`
 		BindAddressSSL      string        `long:"ssl-listen" description:"Address:Port to bind to for HTTPS/SSL/TLS"`
+		SSLKey              string        `long:"ssl-key" description:"ssl private key (key.pem) path"`
+		SSLCert             string        `long:"ssl-cert" description:"ssl cert (cert.pem) path"`
 		MaxSize             int64         `long:"max-size" default:"5120" description:"Max allowed response size (KB)"`
 		ReqTimeout          time.Duration `long:"timeout" default:"4s" description:"Upstream request timeout"`
 		MaxRedirects        int           `long:"max-redirects" default:"3" description:"Maximum number of redirects to follow"`
@@ -123,10 +121,12 @@ func main() {
 		DisableKeepAlivesBE bool          `long:"no-bk" description:"Disable backend http keep-alive support"`
 		AllowContentVideo   bool          `long:"allow-content-video" description:"Additionally allow 'video/*' content"`
 		AllowCredetialURLs  bool          `long:"allow-credential-urls" description:"Allow urls to contain user/pass credentials"`
-		Verbose             bool          `short:"v" long:"verbose" description:"Show verbose (debug) log level output"`
+		FilterRuleset       string        `long:"filter-ruleset" description:"Text file containing filtering rules (one per line)"`
 		ServerName          string        `long:"server-name" default:"go-camo" description:"Value to use for the HTTP server field"`
 		ExposeServerVersion bool          `long:"expose-server-version" description:"Include the server version in the HTTP server response header"`
 		EnableXFwdFor       bool          `long:"enable-xfwd4" description:"Enable x-forwarded-for passthrough/generation"`
+		Verbose             bool          `short:"v" long:"verbose" description:"Show verbose (debug) log level output"`
+		Version             []bool        `short:"V" long:"version" description:"Print version and exit; specify twice to show license information"`
 	}
 
 	// parse said flags
