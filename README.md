@@ -185,7 +185,7 @@ rebinding][15] attacks.
 
 go-camo will attempt to reject any address matching an rfc1918 network block,
 or a private scope ipv6 address, be it in the url or via resulting hostname
-resolution. Do note, however, that this does not provide protecton for a
+resolution. Please note, however, that this does not provide protecton for a
 network that uses public address space (ipv4 or ipv6), or some of the
 [more exotic][16] ipv6 addresses.
 
@@ -258,15 +258,28 @@ A few notes about specific flags:
 
 *   `--filter-ruleset`
 
-    If an _filter-ruleset_ file is defined, that file is read and each line
-    converted into a filter rule. If the request fails the ruleset, the request
-    is denied.  See [`FILTER_FORMAT.md`][20] for more information.
+    If a `filter-ruleset` file is defined, that file is read and each line
+    converted into a filter rule. See [`FILTER_FORMAT.md`][20] for more
+    information regarding the format for the filter file itself.
 
-    It is always preferable to do filtering at the point of url generation and
-    signing.  The _filter-ruleset_ functionality (both allow and deny) is
-    supplied predominantly as a fallback safety measure for cases where you
-    have previously generated a url and you need a quick temporary fix, or for
-    cases where rolling keys takes a while and/or is difficult.
+    Regarding evaluatation: The ruleset is NOT evaluated in-order. The rules
+    process in two phases: "allow rule phase" where the allow rules are
+    evaluated, and the "deny rule phase" where the deny rules are evaluated.
+    First match in any each phase "wins".
+
+    In the "allow phase", an origin request must match at least one allow rule.
+    The first rule to match "wins" and the request moves on to the next phase.
+    If there are no allow rules supplied, this phase is skipped.
+
+    In the deny rule phase, any rule that matches results in a rejection. The first
+    match "wins" and the request is failed. If there are no rules in this phases,
+    it is skipped.
+
+    Do note that it is always preferable to do filtering at the point of url
+    generation and signing. The `filter-ruleset` functionality (both allow and
+    deny) is supplied predominantly as a fallback safety measure for cases
+    where you have previously generated a url and you need a quick temporary
+    fix, or for cases where rolling keys takes a while and/or is difficult.
 
 
 *   `--metrics`
