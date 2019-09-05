@@ -47,7 +47,9 @@ type Config struct {
 	noIPFiltering bool
 }
 
-type FilterFunc = func(*url.URL) bool
+// The FilterFunc type is a function that validates a *url.URL
+// A true value approves the url. A false value rejects the url.
+type FilterFunc func(*url.URL) bool
 
 // A Proxy is a Camo like HTTP proxy, that provides content type
 // restrictions as well as regex host allow list support.

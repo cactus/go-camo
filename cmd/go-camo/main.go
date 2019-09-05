@@ -58,8 +58,8 @@ func loadFilterList(fname string) ([]camo.FilterFunc, error) {
 	}
 	defer file.Close()
 
-	allowFilter := htrie.NewDTree()
-	denyFilter := htrie.NewDTree()
+	allowFilter := htrie.NewURLMatcher()
+	denyFilter := htrie.NewURLMatcher()
 	hasAllow := false
 	hasDeny := false
 

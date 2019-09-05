@@ -20,8 +20,9 @@ type PathChecker interface {
 	AddRule(s string) error
 }
 
-type DTree struct {
-	subtrees     map[string]*DTree
+// URLMatcher is a
+type URLMatcher struct {
+	subtrees     map[string]*URLMatcher
 	pathChecker  PathChecker
 	isWild       bool
 	hasWildChild bool
@@ -35,16 +36,16 @@ var matchesPool = sync.Pool{
 		// starting backing array size of 8
 		// that /seems/ like a pretty good initial value, without
 		// being too crazy, and has the nice property of being a powler of 2. ;)
-		matches := make([]*DTree, 0, 8)
+		matches := make([]*URLMatcher, 0, 8)
 		return &matches
 	},
 }
 
-func getDTreeSlice() *[]*DTree {
-	return matchesPool.Get().(*[]*DTree)
+func getURLMatcherSlice() *[]*URLMatcher {
+	return matchesPool.Get().(*[]*URLMatcher)
 }
 
-func putDTreeSlice(s *[]*DTree) {
+func putURLMatcherSlice(s *[]*URLMatcher) {
 	*s = (*s)[0:0]
 	matchesPool.Put(s)
 }
@@ -72,11 +73,11 @@ func uniformify(s string, cutsetLeft string, cutsetRight string, lower bool) str
 	return s
 }
 
-func (dt *DTree) getOrNewSubTree(s string) *DTree {
+func (dt *URLMatcher) getOrNewSubTree(s string) *URLMatcher {
 	subdt, ok := dt.subtrees[s]
 	if !ok {
-		subdt = &DTree{
-			subtrees: make(map[string]*DTree),
+		subdt = &URLMatcher{
+			subtrees: make(map[string]*URLMatcher),
 			pathPart: s,
 		}
 		dt.subtrees[s] = subdt
@@ -85,14 +86,15 @@ func (dt *DTree) getOrNewSubTree(s string) *DTree {
 	return subdt
 }
 
-func (dt *DTree) AddPathRule(urlparts string) error {
+// addRulePath adds a url path rule to the matcher node
+func (dt *URLMatcher) addPathRule(urlparts string) error {
 	if dt.pathChecker == nil {
 		dt.pathChecker = NewGlobPathChecker()
 	}
 	return dt.pathChecker.AddRule(urlparts)
 }
 
-func (dt *DTree) parseRule(rule string) ([]string, error) {
+func (dt *URLMatcher) parseRule(rule string) ([]string, error) {
 	if strings.Count(rule, "|") > 4 {
 		rule = strings.TrimRight(rule, "|")
 	}
@@ -105,7 +107,7 @@ func (dt *DTree) parseRule(rule string) ([]string, error) {
 	// start after first `|`
 	for _, r := range rule[1:] {
 		if r == '|' {
-			index += 1
+			index++
 			continue
 		}
 		ruleset[index].WriteRune(r)
@@ -117,14 +119,15 @@ func (dt *DTree) parseRule(rule string) ([]string, error) {
 	return parts, nil
 }
 
-func (dt *DTree) AddRule(rule string) error {
+// AddRule adds a match rule to the URLMatcher node.
+func (dt *URLMatcher) AddRule(rule string) error {
 	// expected format: |s|example.com|i|/some/subdir/*
 	if dt == nil {
 		return fmt.Errorf("node is nil")
 	}
 
 	if dt.subtrees == nil {
-		dt.subtrees = make(map[string]*DTree)
+		dt.subtrees = make(map[string]*URLMatcher)
 	}
 
 	ruleParts, err := dt.parseRule(rule)
@@ -133,10 +136,10 @@ func (dt *DTree) AddRule(rule string) error {
 	}
 
 	var (
-		hostRuleFlags string = ruleParts[0]
-		hostRuleMatch string = ruleParts[1]
-		urlRuleFlags  string = ruleParts[2]
-		urlRuleMatch  string = ruleParts[3]
+		hostRuleFlags = ruleParts[0]
+		hostRuleMatch = ruleParts[1]
+		urlRuleFlags  = ruleParts[2]
+		urlRuleMatch  = ruleParts[3]
 		pathRule      string
 		hasRules      bool
 	)
@@ -204,7 +207,7 @@ func (dt *DTree) AddRule(rule string) error {
 			curdt.canMatch = true
 			if hasRules {
 				curdt.hasRules = true
-				err := curdt.AddPathRule(pathRule)
+				err := curdt.addPathRule(pathRule)
 				if err != nil {
 					return err
 				}
@@ -220,10 +223,10 @@ func (dt *DTree) AddRule(rule string) error {
 	return nil
 }
 
-func (dt *DTree) walkFind(s string) []*DTree {
+func (dt *URLMatcher) walkFind(s string) []*URLMatcher {
 	// hostname should already be lowercase. avoid work by not doing it.
 	// hostname := strings.ToLower(s)
-	matches := *getDTreeSlice()
+	matches := *getURLMatcherSlice()
 	labels := reverse(strings.Split(s, "."))
 	plen := len(labels)
 	curnode := dt
@@ -263,10 +266,13 @@ func (dt *DTree) walkFind(s string) []*DTree {
 	return matches
 }
 
-func (dt *DTree) CheckURL(u *url.URL) bool {
+// CheckURL checks a *url.URL against the URLMatcher.
+// If the url matches (a "hit"), it returns true.
+// If the url does not match (a "miss"), it return false.
+func (dt *URLMatcher) CheckURL(u *url.URL) bool {
 	hostname := u.Hostname()
 	matches := dt.walkFind(hostname)
-	defer putDTreeSlice(&matches)
+	defer putURLMatcherSlice(&matches)
 
 	// check for base domain matches first, to avoid path checking if possible
 	for _, match := range matches {
@@ -289,9 +295,13 @@ func (dt *DTree) CheckURL(u *url.URL) bool {
 	return false
 }
 
-func (dt *DTree) CheckHostname(u *url.URL) bool {
+// CheckHostname checks a *url.URL's hostname component against
+// the URLMatcher. The path component is ignored.
+// If the hostname matches, it returns true.
+// If the hostname does not match, it returns false.
+func (dt *URLMatcher) CheckHostname(u *url.URL) bool {
 	matches := dt.walkFind(u.Hostname())
-	defer putDTreeSlice(&matches)
+	defer putURLMatcherSlice(&matches)
 	return len(matches) > 0
 }
 
@@ -299,21 +309,23 @@ func (dt *DTree) CheckHostname(u *url.URL) bool {
 // Note: CheckHostnameString requires that the hostname is already escaped,
 // sanitized, space trimmed, and lowercased...
 // Basically sanitized in a way similar to `(*url.URL).Hostname()`
-func (dt *DTree) CheckHostnameString(hostname string) bool {
+func (dt *URLMatcher) CheckHostnameString(hostname string) bool {
 	matches := dt.walkFind(hostname)
-	defer putDTreeSlice(&matches)
+	defer putURLMatcherSlice(&matches)
 	return len(matches) > 0
 }
 
-func NewDTree() *DTree {
-	return &DTree{
-		subtrees: make(map[string]*DTree),
+// NewURLMatcher returns a new URLMatcher
+func NewURLMatcher() *URLMatcher {
+	return &URLMatcher{
+		subtrees: make(map[string]*URLMatcher),
 	}
 }
 
-func NewDTreeWithRules(rules []string) (*DTree, error) {
-	dt := &DTree{
-		subtrees: make(map[string]*DTree),
+// NewURLMatcherWithRules returns a new URLMatcher initialized with rules.
+func NewURLMatcherWithRules(rules []string) (*URLMatcher, error) {
+	dt := &URLMatcher{
+		subtrees: make(map[string]*URLMatcher),
 	}
 	for _, rule := range rules {
 		err := dt.AddRule(rule)
@@ -324,17 +336,17 @@ func NewDTreeWithRules(rules []string) (*DTree, error) {
 	return dt, nil
 }
 
-// MustNewDTreeWithRules is like NewDTreeWithRules but panics if one of the rules
-// is invalid or cannot be parsed.
+// MustNewURLMatcherWithRules is like NewURLMatcherWithRules but panics if one
+// of the rules is invalid or cannot be parsed.
 // It simplifies safe initialization of global variables.
-func MustNewDTreeWithRules(rules []string) *DTree {
-	dt := &DTree{
-		subtrees: make(map[string]*DTree),
+func MustNewURLMatcherWithRules(rules []string) *URLMatcher {
+	dt := &URLMatcher{
+		subtrees: make(map[string]*URLMatcher),
 	}
 	for _, rule := range rules {
 		err := dt.AddRule(rule)
 		if err != nil {
-			panic(`regexp: DTree.AddRule(` + rule + `): ` + err.Error())
+			panic(`regexp: URLMatcher.AddRule(` + rule + `): ` + err.Error())
 		}
 	}
 	return dt

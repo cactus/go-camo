@@ -43,7 +43,7 @@ func TestHTrieCheckURL(t *testing.T) {
 		"http://bar.example.net/foo/test.png.ex",
 	}
 
-	dt := NewDTree()
+	dt := NewURLMatcher()
 	for _, rule := range rules {
 		err := dt.AddRule(rule)
 		if err != nil {
@@ -88,7 +88,7 @@ func TestHTrieCheckHostname(t *testing.T) {
 		"http://bar.example.net/foo/test.png.ex",
 	}
 
-	dt := NewDTree()
+	dt := NewURLMatcher()
 	for _, rule := range rules {
 		err := dt.AddRule(rule)
 		if err != nil {
@@ -109,7 +109,7 @@ func TestHTrieCheckHostname(t *testing.T) {
 }
 
 func BenchmarkHTrieCreate(b *testing.B) {
-	dt := NewDTree()
+	dt := NewURLMatcher()
 	urls := []string{
 		"||*.example.com||*/test.png",
 		"|s|example.org|i|*/test.png",
@@ -161,15 +161,15 @@ func BenchmarkHTrieMatch(b *testing.B) {
 	}
 
 	var (
-		testIters   int = 10
-		testURLSize int = 10000
+		testIters   = 10
+		testURLSize = 10000
 	)
 	testURLs := make([]string, 0)
 	for i := 0; i < testURLSize; i++ {
 		testURLs = append(testURLs, testURLin[i%3])
 	}
 
-	dt := NewDTree()
+	dt := NewURLMatcher()
 	for _, rule := range rules {
 		err := dt.AddRule(rule)
 		if err != nil {
@@ -211,8 +211,8 @@ func BenchmarkRegexMatch(b *testing.B) {
 	}
 
 	var (
-		testIters   int = 10
-		testURLSize int = 10000
+		testIters   = 10
+		testURLSize = 10000
 	)
 	testURLs := make([]string, 0)
 	for i := 0; i < testURLSize; i++ {

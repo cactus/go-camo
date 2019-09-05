@@ -12,7 +12,7 @@ import (
 	"github.com/xlab/treeprint"
 )
 
-func (dt *DTree) printTree(stree treeprint.Tree) {
+func (dt *URLMatcher) printTree(stree treeprint.Tree) {
 	meta := make([]string, 0)
 	if dt.isWild {
 		meta = append(meta, "wild")
@@ -34,7 +34,7 @@ func (dt *DTree) printTree(stree treeprint.Tree) {
 
 }
 
-func (dt *DTree) RenderTree() string {
+func (dt *URLMatcher) RenderTree() string {
 	tree := treeprint.New()
 	dt.printTree(tree)
 	return tree.String()

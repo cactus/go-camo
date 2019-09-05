@@ -12,6 +12,7 @@ import (
 
 const charOffset int = 31
 
+// A GlobPathChecker represents a path checker that supports globbing comparisons
 type GlobPathChecker struct {
 	//subtree []*GlobPathChecker
 	subtrees map[int]*GlobPathChecker
@@ -40,7 +41,7 @@ func (gpc *GlobPathChecker) parseRule(rule string) (string, string, error) {
 	// start after first `|`
 	for _, r := range rule[1:] {
 		if r == '|' {
-			index += 1
+			index++
 			continue
 		}
 		ruleset[index].WriteRune(r)
@@ -52,6 +53,18 @@ func (gpc *GlobPathChecker) parseRule(rule string) (string, string, error) {
 	return parts[0], parts[1], nil
 }
 
+// AddRule adds a rule to the GlobPathChecker.
+// The expected rule format is:
+//
+//     <pipe-character><flags><pipe-character><match-url>
+//
+// Example:
+//
+//    |i|/some/subdir/*
+//
+// Allowed flags:
+//
+// * `i`: URL match string should be matched case insensitively
 func (gpc *GlobPathChecker) AddRule(rule string) error {
 	// expected format: |i|/some/subdir/*
 	if gpc == nil {
@@ -311,6 +324,7 @@ func (gpc *GlobPathChecker) CheckPathString(url string) bool {
 	return gpc.walkBranch(url, 0)
 }
 
+// NewGlobPathChecker returns a new GlobPathChecker
 func NewGlobPathChecker() *GlobPathChecker {
 	// refs for valid tree chars
 	// https://www.w3.org/TR/2011/WD-html5-20110525/urls.html (refers to RFC 3986)

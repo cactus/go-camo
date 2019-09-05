@@ -78,7 +78,7 @@ var rejectIPv6Networks = mustParseNetmasks(
 )
 
 // match for localhost
-var localhostDomainProxyFilter = htrie.MustNewDTreeWithRules(
+var localhostDomainProxyFilter = htrie.MustNewURLMatcherWithRules(
 	[]string{
 		"|s|localhost||",
 		"|s|localdomain||",
