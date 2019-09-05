@@ -12,7 +12,7 @@ const globChar byte = 1
 
 // A globPathNode represents a path checker that supports globbing comparisons
 type globPathNode struct {
-	subtrees map[uint8]*globPathNode
+	subtrees map[byte]*globPathNode
 	// used to avoid map lookup when there is only one subtree candidate
 	oneShot *globPathNode
 	// is this path component a glob
@@ -75,7 +75,8 @@ func (gpn *globPathNode) addPath(s string) error {
 		}
 	}
 
-	// this node can be a match, even if future urls add children
+	// this is the end of the path, so this node can be a match, even if future
+	// urls add children to it (a longer url).
 	curnode.canMatch = true
 	return nil
 }
@@ -240,7 +241,7 @@ func newGlobPathNode(icase bool) *globPathNode {
 	// as needed.
 	// return &globPathNode{subtrees: make(map[int]*globPathNode, 95)}
 	return &globPathNode{
-		subtrees: make(map[uint8]*globPathNode, 0),
+		subtrees: make(map[byte]*globPathNode, 0),
 		icase:    icase,
 	}
 }

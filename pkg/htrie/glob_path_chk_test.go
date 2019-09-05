@@ -18,6 +18,7 @@ func TestGlobPathChecker(t *testing.T) {
 	rules := []string{
 		"|i|*/test.png",
 		"||/hodor/test.png",
+		"||/hodor/test.png.longer",
 		"||/hodor/bar*",
 		"||/hodor/ütest.png",
 		"||/no*/to/s*/here",
@@ -29,6 +30,8 @@ func TestGlobPathChecker(t *testing.T) {
 	testMatch := []string{
 		"http://bar.example.com/foo/TEST.png",
 		"http://example.org/foo/test.png",
+		"http://example.org/hodor/test.png",
+		"http://example.org/hodor/test.png.longer",
 		"http://example.org/hodor/bartholemew",
 		"http://example.org/hodor/bart/homer.png",
 		"http://example.net/nothing/to/see/here",
@@ -40,6 +43,7 @@ func TestGlobPathChecker(t *testing.T) {
 	testNoMatch := []string{
 		"http://bar.example.com/foo/testx.png",
 		"http://example.net/something/to/see/here/file.png",
+		"http://example.org/hodor/test.png.long",
 	}
 
 	gpc := NewGlobPathChecker()
