@@ -38,6 +38,7 @@ func TestGlobPathChecker(t *testing.T) {
 		"http://example.net/i/can/see/it/in/the/clouds/file.png",
 		"http://example.org/play/base/ball/img.png",
 		"http://example.org/yalp/base/llab/img.png",
+		"http://example.org/yalpllab/img.png",
 	}
 
 	testNoMatch := []string{
