@@ -220,7 +220,6 @@ func (dt *URLMatcher) AddRule(rule string) error {
 
 func (dt *URLMatcher) walkFind(s string) []*URLMatcher {
 	// hostname should already be lowercase. avoid work by not doing it.
-	// hostname := strings.ToLower(s)
 	matches := *getURLMatcherSlice()
 	labels := reverse(strings.Split(s, "."))
 	plen := len(labels)
@@ -265,7 +264,8 @@ func (dt *URLMatcher) walkFind(s string) []*URLMatcher {
 // If the url matches (a "hit"), it returns true.
 // If the url does not match (a "miss"), it return false.
 func (dt *URLMatcher) CheckURL(u *url.URL) bool {
-	hostname := u.Hostname()
+	// alas, (*url.URL).Hostname() does not ToLower
+	hostname := strings.ToLower(u.Hostname())
 	matches := dt.walkFind(hostname)
 	defer putURLMatcherSlice(&matches)
 
@@ -291,10 +291,14 @@ func (dt *URLMatcher) CheckURL(u *url.URL) bool {
 }
 
 // CheckHostname checks the supplied hostname (as a string).
-// Note: CheckHostnameString requires that the hostname is already escaped,
+// Note: CheckHostname requires that the hostname is already escaped,
 // sanitized, space trimmed, and lowercased...
-// Basically sanitized in a way similar to `(*url.URL).Hostname()`
+// Basically sanitized in a way similar to:
+//
+//     strings.ToLower((*url.URL).Hostname())
+//
 func (dt *URLMatcher) CheckHostname(hostname string) bool {
+	hostname = strings.ToLower(hostname)
 	matches := dt.walkFind(hostname)
 	defer putURLMatcherSlice(&matches)
 	return len(matches) > 0

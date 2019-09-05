@@ -81,7 +81,7 @@ func (gpn *globPathNode) addPath(s string) error {
 	return nil
 }
 
-func (gpn *globPathNode) globConsume(s *string, index, mlen int) bool {
+func (gpn *globPathNode) globConsume(s string, index, mlen int) bool {
 	// we have a glob and no follow-on chars, so we can consume
 	// till the end and then match. early return
 	if gpn.canMatch {
@@ -101,7 +101,7 @@ func (gpn *globPathNode) globConsume(s *string, index, mlen int) bool {
 	curnode := gpn
 	// don't need to iter runes since we have ascii
 	for i := index; i < mlen; i++ {
-		part := (*s)[i]
+		part := s[i]
 		// if icase, use lowercase letters for comparisons
 		if gpn.icase && 'A' <= part && part <= 'Z' {
 			part = part + 32
@@ -151,11 +151,11 @@ func (gpn *globPathNode) globConsume(s *string, index, mlen int) bool {
 	return false
 }
 
-func (gpn *globPathNode) checkPath(s *string, index, mlen int) bool {
+func (gpn *globPathNode) checkPath(s string, index, mlen int) bool {
 	curnode := gpn
 	// don't need to iter runes since we have ascii
 	for i := index; i < mlen; i++ {
-		part := (*s)[i]
+		part := s[i]
 
 		// if icase, use lowercase letters for comparisons
 		if gpn.icase && 'A' <= part && part <= 'Z' {
@@ -230,16 +230,12 @@ func newGlobPathNode(icase bool) *globPathNode {
 	//   0x0061...0x007A    97-122
 	//   0x007E             126
 	// so a total possible of 85 chars, but spread out over 94 slots
-	// since there are quite a few slots, let's use a map for now...
+	// since there are quite a few possible slots, let's use a map for now...
 	// web searches say a map is faster in go above a certain size. benchmark later...
 
-	// for now, just use the top bounds minus low bound for array size: 126-32=94
-	// plus one for our globbing
-
-	// NOTE: since realloc cost is paid at creation, and we want to reduce size
-	// and we only care about lookup costs, just start with 0 and let it grow
-	// as needed.
-	// return &globPathNode{subtrees: make(map[int]*globPathNode, 95)}
+	// for now, since realloc cost is paid at creation, and we want to RSS size
+	// and since we only /really/ care about lookup costs, just start with 0 initial
+	// map size and let it grow as needed
 	return &globPathNode{
 		subtrees: make(map[byte]*globPathNode, 0),
 		icase:    icase,

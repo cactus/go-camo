@@ -111,3 +111,54 @@ func TestGlobPathCheckerPathsMisc(t *testing.T) {
 		assert.False(t, gpc.CheckPath(u), fmt.Sprintf("should NOT have matched: %s", u))
 	}
 }
+
+func BenchmarkGlobPathChecker(b *testing.B) {
+	rules := []string{
+		"|i|*/test.png",
+		"||/hodor/test.png",
+		"||/hodor/test.png.longer",
+		"||/hodor/bar*",
+		"||/hodor/ütest.png",
+		"||/no*/to/s*/here",
+		"||/i/can/s*/it*",
+		"||/play/*/ball/img.png",
+		"||/yalp*llab/img.png",
+	}
+
+	testMatch := []string{
+		"http://bar.example.com/foo/TEST.png",
+		"http://example.org/foo/test.png",
+		"http://example.org/hodor/test.png",
+		"http://example.org/hodor/test.png.longer",
+		"http://example.org/hodor/bartholemew",
+		"http://example.org/hodor/bart/homer.png",
+		"http://example.net/nothing/to/see/here",
+		"http://example.net/i/can/see/it/in/the/clouds/file.png",
+		"http://example.org/play/base/ball/img.png",
+		"http://example.org/yalp/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/base/llab/img.png",
+		"http://example.org/yalpllab/img.png",
+	}
+
+	gpc := NewGlobPathChecker()
+	for _, rule := range rules {
+		err := gpc.AddRule(rule)
+		assert.Nil(b, err)
+	}
+
+	var (
+		testIters = 10000
+	)
+
+	// avoid inlining optimization
+	var x bool
+	b.ResetTimer()
+
+	for _, u := range testMatch {
+		u, _ := url.Parse(u)
+		z := u.EscapedPath()
+		for i := 0; i < testIters; i++ {
+			x = gpc.CheckPath(z)
+		}
+	}
+	_ = x
+}

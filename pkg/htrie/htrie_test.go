@@ -156,22 +156,17 @@ func BenchmarkHTrieMatch(b *testing.B) {
 		"|s|example.org|i|*/test.png",
 	}
 
-	testURLin := []string{
+	testURLs := []string{
 		"http://example.com/foo/test.png",
 		"http://bar.example.com/foo/test.png",
 		"http://bar.example.com/foo/testx.png",
 		"http://bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/test.png",
 		"http://bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/testx.png",
+		// this one kills the regex pretty bad.
+		"bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/testx.png",
 	}
 
-	var (
-		testIters   = 10
-		testURLSize = 10000
-	)
-	testURLs := make([]string, 0)
-	for i := 0; i < testURLSize; i++ {
-		testURLs = append(testURLs, testURLin[i%3])
-	}
+	testIters := 10000
 
 	dt := NewURLMatcher()
 	for _, rule := range rules {
@@ -183,7 +178,6 @@ func BenchmarkHTrieMatch(b *testing.B) {
 	for _, u := range testURLs {
 		u, _ := url.Parse(u)
 		parsed = append(parsed, u)
-
 	}
 
 	// avoid inlining optimization
@@ -200,30 +194,26 @@ func BenchmarkHTrieMatch(b *testing.B) {
 
 func BenchmarkRegexMatch(b *testing.B) {
 	rules := []string{
-		`^foo.example.net/test.png`,
+		// giving regex lots of help here, putting this rule first
+		`^.*\.example.com/.*/test.png`,
 		`^bar.example.net/test.png`,
+		`^foo.example.net/test.png`,
 		`^.*\.bar.example.net/test.png`,
 		`^.*\.hodor.example.net/.*/test.png`,
-		`^.*\.example.com/.*/test.png`,
 		`^(.*\.)?example.org/(?:i.*/test.png)`,
 	}
 
-	testURLin := []string{
+	testURLs := []string{
 		"example.com/foo/test.png",
 		"bar.example.com/foo/test.png",
 		"bar.example.com/foo/testx.png",
 		"bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/test.png",
 		"bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/testx.png",
+		// this one kills the regex pretty bad. :(
+		//"bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/testx.png",
 	}
 
-	var (
-		testIters   = 10
-		testURLSize = 10000
-	)
-	testURLs := make([]string, 0)
-	for i := 0; i < testURLSize; i++ {
-		testURLs = append(testURLs, testURLin[i%3])
-	}
+	testIters := 10000
 
 	rexes := make([]*regexp.Regexp, 0)
 	for _, r := range rules {

@@ -253,8 +253,10 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 func (p *Proxy) checkURL(reqURL *url.URL) error {
 	// reject localhost urls
-	uHostname := strings.ToLower(reqURL.Hostname())
-	if uHostname == "" || localhostDomainProxyFilter.CheckHostname(uHostname) {
+	// lower case for matching is done by CheckHostname, so no need to
+	// ToLower here also
+	uHostname := reqURL.Hostname()
+	if uHostname == "" || localsFilter.CheckHostname(uHostname) {
 		return errors.New("Bad url host")
 	}
 
