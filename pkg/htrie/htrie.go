@@ -16,8 +16,8 @@ import (
 // PathChecker is an interface that specifes a CheckPath method, which returns
 // true when a path component is a "hit" and false for a "miss".
 type PathChecker interface {
-	CheckPath(*url.URL) bool
-	AddRule(s string) error
+	CheckPath(string) bool
+	AddRule(string) error
 }
 
 // URLMatcher is a
@@ -283,28 +283,18 @@ func (dt *URLMatcher) CheckURL(u *url.URL) bool {
 		if match.pathChecker == nil {
 			continue
 		}
-		if match.pathChecker.CheckPath(u) {
+		if match.pathChecker.CheckPath(u.EscapedPath()) {
 			return true
 		}
 	}
 	return false
 }
 
-// CheckHostname checks a *url.URL's hostname component against
-// the URLMatcher. The path component is ignored.
-// If the hostname matches, it returns true.
-// If the hostname does not match, it returns false.
-func (dt *URLMatcher) CheckHostname(u *url.URL) bool {
-	matches := dt.walkFind(u.Hostname())
-	defer putURLMatcherSlice(&matches)
-	return len(matches) > 0
-}
-
-// CheckHostnameString checks the supplied hostname (as a string).
+// CheckHostname checks the supplied hostname (as a string).
 // Note: CheckHostnameString requires that the hostname is already escaped,
 // sanitized, space trimmed, and lowercased...
 // Basically sanitized in a way similar to `(*url.URL).Hostname()`
-func (dt *URLMatcher) CheckHostnameString(hostname string) bool {
+func (dt *URLMatcher) CheckHostname(hostname string) bool {
 	matches := dt.walkFind(hostname)
 	defer putURLMatcherSlice(&matches)
 	return len(matches) > 0

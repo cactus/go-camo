@@ -112,12 +112,12 @@ func (gpc *GlobPathChecker) AddRule(rule string) error {
 
 	if icase {
 		if gpc.ciNode == nil {
-			gpc.ciNode = newGlobPathNode()
+			gpc.ciNode = newGlobPathNode(true)
 		}
-		err = gpc.ciNode.addPath(strings.ToLower(escapedURL))
+		err = gpc.ciNode.addPath(escapedURL)
 	} else {
 		if gpc.csNode == nil {
-			gpc.csNode = newGlobPathNode()
+			gpc.csNode = newGlobPathNode(false)
 		}
 		err = gpc.csNode.addPath(escapedURL)
 	}
@@ -128,22 +128,25 @@ func (gpc *GlobPathChecker) AddRule(rule string) error {
 	return nil
 }
 
-// CheckPath checks the path component of the supplied url.
-func (gpc *GlobPathChecker) CheckPath(url *url.URL) bool {
-	return gpc.CheckPathString(url.EscapedPath())
-}
-
-// CheckPathString checks the supplied path (as a string).
+// CheckPath checks the supplied path (as a string).
 // Note: CheckPathString requires that the url path component is already escaped,
 // in a similar way to `(*url.URL).EscapePath()`, as well as TrimSpace'd.
-func (gpc *GlobPathChecker) CheckPathString(url string) bool {
+func (gpc *GlobPathChecker) CheckPath(url string) bool {
+	return gpc.CheckPathPtr(&url)
+}
+
+// CheckPathPtr operates like CheckPath, but takes a *string
+// (to optionally avoid extra copies)
+func (gpc *GlobPathChecker) CheckPathPtr(url *string) bool {
+	ulen := len(*url)
+
 	// if we have a case sensitive checker, check that one first
-	if gpc.csNode != nil && gpc.csNode.walkBranch(url, 0) {
+	if gpc.csNode != nil && gpc.csNode.checkPath(url, 0, ulen) {
 		return true
 	}
 
 	// if we have a case insensitive checker, check that one next
-	if gpc.ciNode != nil && gpc.ciNode.walkBranch(strings.ToLower(url), 0) {
+	if gpc.ciNode != nil && gpc.ciNode.checkPath(url, 0, ulen) {
 		return true
 	}
 

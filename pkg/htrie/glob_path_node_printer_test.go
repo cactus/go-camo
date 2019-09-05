@@ -2,8 +2,6 @@
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
-// +build ignore
-
 package htrie
 
 import (
@@ -12,15 +10,16 @@ import (
 	"github.com/xlab/treeprint"
 )
 
-func (gpc *GlobPathChecker) printTree(stree treeprint.Tree) {
-	for i, x := range gpc.subtrees {
+func (gpn *globPathNode) printTree(stree treeprint.Tree) {
+	for i, x := range gpn.subtrees {
 		if x == nil {
 			continue
 		}
 		c := "*"
 		if i != 0 {
-			c = string(i + charOffset)
+			c = string(i)
 		}
+
 		subTree := stree.AddBranch(c)
 		meta := make([]string, 0)
 		if x.isGlob {
@@ -40,23 +39,23 @@ func (gpc *GlobPathChecker) printTree(stree treeprint.Tree) {
 	}
 }
 
-func (gpc *GlobPathChecker) RenderTree() string {
+func (gpn *globPathNode) RenderTree() string {
 	tree := treeprint.New()
 
 	meta := make([]string, 0)
-	if gpc.isGlob {
+	if gpn.isGlob {
 		meta = append(meta, "glob")
 	}
-	if gpc.hasGlobChild {
+	if gpn.hasGlobChild {
 		meta = append(meta, "glob-child")
 	}
-	if gpc.canMatch {
+	if gpn.canMatch {
 		meta = append(meta, "$")
 	}
 	if len(meta) > 0 {
 		tree.SetMetaValue(strings.Join(meta, ","))
 	}
 
-	gpc.printTree(tree)
+	gpn.printTree(tree)
 	return tree.String()
 }

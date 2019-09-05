@@ -194,7 +194,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		if !p.allowTypesFilter.CheckPathString(contentType) {
+		if !p.allowTypesFilter.CheckPath(contentType) {
 			mlog.Debugm("Unsupported content-type returned", mlog.Map{"type": u})
 			http.Error(w, "Unsupported content-type returned", http.StatusBadRequest)
 			return
@@ -254,7 +254,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 func (p *Proxy) checkURL(reqURL *url.URL) error {
 	// reject localhost urls
 	uHostname := strings.ToLower(reqURL.Hostname())
-	if uHostname == "" || localhostDomainProxyFilter.CheckHostnameString(uHostname) {
+	if uHostname == "" || localhostDomainProxyFilter.CheckHostname(uHostname) {
 		return errors.New("Bad url host")
 	}
 

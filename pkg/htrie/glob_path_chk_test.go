@@ -22,6 +22,8 @@ func TestGlobPathChecker(t *testing.T) {
 		"||/hodor/ütest.png",
 		"||/no*/to/s*/here",
 		"||/i/can/s*/it*",
+		"||/play/*/ball/img.png",
+		"||/yalp*llab/img.png",
 	}
 
 	testMatch := []string{
@@ -31,6 +33,8 @@ func TestGlobPathChecker(t *testing.T) {
 		"http://example.org/hodor/bart/homer.png",
 		"http://example.net/nothing/to/see/here",
 		"http://example.net/i/can/see/it/in/the/clouds/file.png",
+		"http://example.org/play/base/ball/img.png",
+		"http://example.org/yalp/base/llab/img.png",
 	}
 
 	testNoMatch := []string{
@@ -41,20 +45,22 @@ func TestGlobPathChecker(t *testing.T) {
 	gpc := NewGlobPathChecker()
 	for _, rule := range rules {
 		err := gpc.AddRule(rule)
-		if err != nil {
-			fmt.Println(err)
-		}
+		assert.Nil(t, err)
 	}
 
 	//fmt.Println(gpc.RenderTree())
 
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)
-		assert.True(t, gpc.CheckPath(u), fmt.Sprintf("should have matched: %s", u))
+		assert.True(t, gpc.CheckPath(u.EscapedPath()),
+			fmt.Sprintf("should have matched: %s", u),
+		)
 	}
 	for _, u := range testNoMatch {
 		u, _ := url.Parse(u)
-		assert.False(t, gpc.CheckPath(u), fmt.Sprintf("should NOT have matched: %s", u))
+		assert.False(t, gpc.CheckPath(u.EscapedPath()),
+			fmt.Sprintf("should NOT have matched: %s", u),
+		)
 	}
 }
 
@@ -88,17 +94,15 @@ func TestGlobPathCheckerPathsMisc(t *testing.T) {
 	gpc := NewGlobPathChecker()
 	for _, rule := range rules {
 		err := gpc.AddRule(rule)
-		if err != nil {
-			fmt.Println(err)
-		}
+		assert.Nil(t, err)
 	}
 
 	//fmt.Println(gpc.RenderTree())
 
 	for _, u := range testMatch {
-		assert.True(t, gpc.CheckPathString(u), fmt.Sprintf("should have matched: %s", u))
+		assert.True(t, gpc.CheckPath(u), fmt.Sprintf("should have matched: %s", u))
 	}
 	for _, u := range testNoMatch {
-		assert.False(t, gpc.CheckPathString(u), fmt.Sprintf("should NOT have matched: %s", u))
+		assert.False(t, gpc.CheckPath(u), fmt.Sprintf("should NOT have matched: %s", u))
 	}
 }

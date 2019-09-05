@@ -46,9 +46,7 @@ func TestHTrieCheckURL(t *testing.T) {
 	dt := NewURLMatcher()
 	for _, rule := range rules {
 		err := dt.AddRule(rule)
-		if err != nil {
-			t.Errorf("failed to add domain rule: %s", err)
-		}
+		assert.Nil(t, err)
 	}
 
 	//fmt.Println(dt.RenderTree())
@@ -100,11 +98,11 @@ func TestHTrieCheckHostname(t *testing.T) {
 
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)
-		assert.True(t, dt.CheckHostname(u), fmt.Sprintf("should have matched: %s", u))
+		assert.True(t, dt.CheckHostname(u.Hostname()), fmt.Sprintf("should have matched: %s", u))
 	}
 	for _, u := range testNoMatch {
 		u, _ := url.Parse(u)
-		assert.False(t, dt.CheckHostname(u), fmt.Sprintf("should not have matched: %s", u))
+		assert.False(t, dt.CheckHostname(u.Hostname()), fmt.Sprintf("should not have matched: %s", u))
 	}
 }
 
@@ -178,9 +176,7 @@ func BenchmarkHTrieMatch(b *testing.B) {
 	dt := NewURLMatcher()
 	for _, rule := range rules {
 		err := dt.AddRule(rule)
-		if err != nil {
-			fmt.Println(err)
-		}
+		assert.Nil(b, err)
 	}
 
 	parsed := make([]*url.URL, 0)
