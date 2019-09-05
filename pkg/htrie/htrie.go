@@ -59,17 +59,12 @@ func reverse(s []string) []string {
 	return s
 }
 
-func uniformify(s string, cutsetLeft string, cutsetRight string, lower bool) string {
+func uniformLower(s, cutset string) string {
 	s = strings.TrimSpace(s)
-	if len(cutsetLeft) > 0 {
-		s = strings.TrimLeft(s, cutsetLeft)
+	if len(cutset) > 0 {
+		s = strings.Trim(s, cutset)
 	}
-	if len(cutsetRight) > 0 {
-		s = strings.TrimRight(s, cutsetRight)
-	}
-	if lower {
-		s = strings.ToLower(s)
-	}
+	s = strings.ToLower(s)
 	return s
 }
 
@@ -161,7 +156,7 @@ func (dt *URLMatcher) AddRule(rule string) error {
 		hostRuleMatch = hostRuleMatch[2:]
 	}
 
-	hostRuleMatch, err = idna.ToASCII(uniformify(hostRuleMatch, ".", ".", true))
+	hostRuleMatch, err = idna.ToASCII(uniformLower(hostRuleMatch, "."))
 	if err != nil {
 		return err
 	}
@@ -182,7 +177,7 @@ func (dt *URLMatcher) AddRule(rule string) error {
 	revDomainLabels := reverse(domainLabels)
 	curdt := dt
 	for i, label := range revDomainLabels {
-		label = uniformify(label, "", "", true)
+		label = uniformLower(label, "")
 		if len(label) == 0 {
 			return fmt.Errorf("bad domain format: empty component")
 		}
