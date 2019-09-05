@@ -114,15 +114,17 @@ func BenchmarkHTrieCreate(b *testing.B) {
 		"||*.example.com||*/test.png",
 		"|s|example.org|i|*/test.png",
 	}
+	var err error
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for _, u := range urls {
-			err := dt.AddRule(u)
+			err = dt.AddRule(u)
 			if err != nil {
 				b.Errorf("%s", err)
 			}
 		}
 	}
+	_ = err
 }
 
 func BenchmarkRegexCreate(b *testing.B) {
@@ -130,16 +132,20 @@ func BenchmarkRegexCreate(b *testing.B) {
 		`^.*\.example.com/.*/test.png`,
 		`^(.*\.)?example.org/(?:i.*)/test.png`,
 	}
+
+	var r *regexp.Regexp
+	var err error
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for _, u := range urls {
-			r, err := regexp.Compile(u)
+			r, err = regexp.Compile(u)
 			if err != nil {
 				b.Errorf("%s", err)
 			}
-			_ = r
 		}
 	}
+	_ = r
+	_ = err
 }
 
 func BenchmarkHTrieMatch(b *testing.B) {
@@ -184,12 +190,16 @@ func BenchmarkHTrieMatch(b *testing.B) {
 
 	}
 
+	// avoid inlining optimization
+	var x bool
 	b.ResetTimer()
+
 	for _, u := range parsed {
 		for i := 0; i < testIters; i++ {
-			dt.CheckURL(u)
+			x = dt.CheckURL(u)
 		}
 	}
+	_ = x
 }
 
 func BenchmarkRegexMatch(b *testing.B) {
@@ -225,6 +235,8 @@ func BenchmarkRegexMatch(b *testing.B) {
 		rexes = append(rexes, rx)
 	}
 
+	// avoid inlining optimization
+	var x bool
 	b.ResetTimer()
 
 	for _, u := range testURLs {
@@ -232,9 +244,11 @@ func BenchmarkRegexMatch(b *testing.B) {
 			// walk regexes in order. first match wins
 			for _, rx := range rexes {
 				if rx.MatchString(u) {
+					x = true
 					break
 				}
 			}
 		}
 	}
+	_ = x
 }
