@@ -56,7 +56,7 @@ type FilterFunc func(*url.URL) bool
 type Proxy struct {
 	client            *http.Client
 	config            *Config
-	allowTypesFilter  *htrie.GlobPathChecker
+	acceptTypesFilter *htrie.GlobPathChecker
 	acceptTypesString string
 	filters           []FilterFunc
 	filtersLen        int
@@ -194,7 +194,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		if !p.allowTypesFilter.CheckPath(contentType) {
+		if !p.acceptTypesFilter.CheckPath(contentType) {
 			mlog.Debugm("Unsupported content-type returned", mlog.Map{"type": u})
 			http.Error(w, "Unsupported content-type returned", http.StatusBadRequest)
 			return
@@ -365,9 +365,9 @@ func New(pc Config) (*Proxy, error) {
 	}
 
 	// re-use the htrie glob path checker for accept types validation
-	allowTypesFilter := htrie.NewGlobPathChecker()
+	acceptTypesFilter := htrie.NewGlobPathChecker()
 	for _, v := range acceptTypes {
-		err := allowTypesFilter.AddRule("|i|" + v)
+		err := acceptTypesFilter.AddRule("|i|" + v)
 		if err != nil {
 			return nil, err
 		}
@@ -377,7 +377,7 @@ func New(pc Config) (*Proxy, error) {
 		client:            client,
 		config:            &pc,
 		acceptTypesString: strings.Join(acceptTypes, ", "),
-		allowTypesFilter:  allowTypesFilter,
+		acceptTypesFilter: acceptTypesFilter,
 	}
 
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {

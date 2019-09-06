@@ -238,3 +238,47 @@ func BenchmarkRegexMatch(b *testing.B) {
 	}
 	_ = x
 }
+
+func BenchmarkHTrieMatchHostname(b *testing.B) {
+	rules := []string{
+		"||foo.example.net||/test.png",
+		"||bar.example.net||/test.png",
+		"||*.bar.example.net||/test.png",
+		"||*.hodor.example.net||/*/test.png",
+		"||*.example.com||*/test.png",
+		"|s|example.org|i|*/test.png",
+	}
+
+	testURLs := []string{
+		"http://example.com/foo/test.png",
+		"http://bar.example.com/foo/test.png",
+		"http://bar.example.com/foo/testx.png",
+		"http://bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/test.png",
+		"http://bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/testx.png",
+	}
+
+	testIters := 10000
+
+	dt := NewURLMatcher()
+	for _, rule := range rules {
+		err := dt.AddRule(rule)
+		assert.Nil(b, err)
+	}
+
+	parsed := make([]string, 0)
+	for _, u := range testURLs {
+		u, _ := url.Parse(u)
+		parsed = append(parsed, u.Hostname())
+	}
+
+	// avoid inlining optimization
+	var x bool
+	b.ResetTimer()
+
+	for _, u := range parsed {
+		for i := 0; i < testIters; i++ {
+			x = dt.CheckHostname(u)
+		}
+	}
+	_ = x
+}
