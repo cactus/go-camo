@@ -335,7 +335,7 @@ func MustNewURLMatcherWithRules(rules []string) *URLMatcher {
 	for _, rule := range rules {
 		err := dt.AddRule(rule)
 		if err != nil {
-			panic(`regexp: URLMatcher.AddRule(` + rule + `): ` + err.Error())
+			panic(`htrie: URLMatcher.AddRule(` + rule + `): ` + err.Error())
 		}
 	}
 	return dt
