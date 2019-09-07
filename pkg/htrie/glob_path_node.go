@@ -102,6 +102,7 @@ func (gpn *globPathNode) globConsume(s string, index, mlen int) bool {
 	// don't need to iter runes since we have ascii
 	for i := index; i < mlen; i++ {
 		part := s[i]
+
 		// if icase, use lowercase letters for comparisons
 		if gpn.icase && 'A' <= part && part <= 'Z' {
 			part = part + 32
