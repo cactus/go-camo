@@ -14,9 +14,9 @@ The components are as follows:
 
     See [rule-type](#rule-type) for more information.
 
-*   `<domain-comonent>`: required
+*   `<domain-component>`: required
 
-    See [domain-comonent](#domain-comonent) for more information.
+    See [domain-component](#domain-component) for more information.
 
 *   `<url-component>`: optional
 
