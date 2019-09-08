@@ -321,8 +321,16 @@ func NewWithFilters(pc Config, filters []FilterFunc) (*Proxy, error) {
 		return nil, err
 	}
 
-	proxy.filters = filters
-	proxy.filtersLen = len(filters)
+	filterFuncs := make([]FilterFunc, 0)
+	// check for nil entries, and copy the slice in case the original
+	// is mutated.
+	for _, filter := range filters {
+		if filter != nil {
+			filterFuncs = append(filterFuncs, filter)
+		}
+	}
+	proxy.filters = filterFuncs
+	proxy.filtersLen = len(filterFuncs)
 	return proxy, nil
 }
 
