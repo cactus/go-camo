@@ -12,10 +12,11 @@ APP_VER           := $(shell git describe --always --tags|sed 's/^v//')
 VERSION_VAR       := main.ServerVersion
 
 # flags and build configuration
+GOBUILD_OPTIONS   :=
 GOTEST_FLAGS      := -cpu=1,2
 GOBUILD_DEPFLAGS  := -tags netgo
 GOBUILD_LDFLAGS   ?= -s -w
-GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${APP_VER}"
+GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} ${GOBUILD_OPTIONS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${APP_VER}"
 
 # cross compile defs
 CC_BUILD_ARCHES    = darwin/amd64 freebsd/amd64 linux/amd64
