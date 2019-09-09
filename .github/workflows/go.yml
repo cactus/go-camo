@@ -1,5 +1,5 @@
 name: Go
-on: [push]
+on: [push, pull_request]
 jobs:
   build:
     name: Build
@@ -7,13 +7,13 @@ jobs:
       matrix:
         go_version: [1.12, 1.13]
         platform: [ubuntu-latest]
-    runs-on: ${{ matrix.platform }}        
+    runs-on: ${{ matrix.platform }}
     steps:
 
-    - name: Go setup
+    - name: Go setup ${{ matrix.go_version }}
       uses: actions/setup-go@v1
       with:
-        go-version: ${{ matrix.go-version }}
+        go-version: ${{ matrix.go_version }}
       id: go
 
     - name: Checkout
@@ -23,3 +23,5 @@ jobs:
 
     - name: Tests
       run: make test
+      env:
+        GOPROXY: "https://proxy.golang.org"
