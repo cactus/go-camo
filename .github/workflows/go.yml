@@ -1,7 +1,6 @@
 name: Go
 on: [push]
 jobs:
-
   build:
     name: Build
     strategy:
@@ -11,14 +10,14 @@ jobs:
     runs-on: ${{ matrix.platform }}        
     steps:
 
-    - name: Set up Go 1.12
+    - name: Set up Go ${{ matrix.go-version }}
       uses: actions/setup-go@v1
       with:
         go-version: ${{ matrix.go-version }}
       id: go
 
-    - name: Check out code into the Go module directory
+    - name: Checkout
       uses: actions/checkout@v1
 
-    - name: Build
+    - name: Tests
       run: make test
