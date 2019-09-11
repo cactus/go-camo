@@ -8,3 +8,5 @@
 /server.csr
 *.py[co]
 /test-ruleset.conf
+/man/*.html
+/man/*.[1-9]

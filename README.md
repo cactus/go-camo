@@ -121,6 +121,7 @@ Building requires:
 *   make
 *   git
 *   go (latest version recommended. At least version >= 1.11 for go mod support)
+*   asciidoctor (for building man pages only)
 
 Additionally required, if cross compiling:
 
