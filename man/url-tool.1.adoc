@@ -79,4 +79,4 @@ http://golang.org/doc/gopher/frontpage.png
 
 == WWW
 
-
+https://github.com/cactus/go-camo/
