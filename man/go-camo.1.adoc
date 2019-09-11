@@ -50,7 +50,7 @@ For exmaple, if the HMAC key is provided on the command line, it will override
 Extra header to return for each response. This option can be used
 multiple times to add multiple headers.
 
-See _ADD_HEADERS_ for more info.
+See __<<ADD_HEADERS>>__ for more info.
 --
 
 *--listen*=<__ADDRESS:PORT__>::
@@ -113,7 +113,7 @@ If an filter-ruleset file is defined, that file is read and each line
 converted into a filter rule. If the request fails the rule-set, the
 request is denied.
 
-See go-camo-filtering(5) for more information.
+See <<go-camo-filtering.5.adoc#,go-camo-filtering(5)>> for more information.
 --
 
 *--server-name*=<__SERVER-NAME__>::
@@ -182,9 +182,8 @@ go-camo \
 
 == WWW
 
-https://github.com/cactus/go-camo
+*Website:* https://github.com/cactus/go-camo
 
 == SEE_ALSO
 
 https://github.com/atmos/camo
-

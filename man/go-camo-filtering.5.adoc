@@ -15,7 +15,7 @@ go-camo-filtering - Go-camo filtering information
 go-camo(1) is an implementation of Camo in Go.
 
 Go-camo accepts a filter for filtering as part of the *--filter-ruleset*
-argument (see go-camo(1) for more info on arguments).
+argument (see <<go-camo.1.adoc#,go-camo(1)>> for more info on arguments).
 
 This document describes that syntax.
 
@@ -29,27 +29,27 @@ Each line of the ruleset file must adhere to the following format:
 
 The components are as follows:
 
-*__RULE_TYPE__*: _required_::
+*RULE_TYPE*: __required__::
 +
 --
-See _RULE_TYPE_ for more information.
+See __<<RULE_TYPE>>__ for more information.
 --
 
-*__DOMAIN_COMPONENT__*: _required_::
+*DOMAIN_COMPONENT*: _required_::
 +
 --
-See _DOMAIN_COMPONENT_ for more information.
+See __<<DOMAIN_COMPONENT>>__ for more information.
 --
 
-*__URL_COMPONENT__*: _optional_::
+*URL_COMPONENT*: _optional_::
 +
 --
-See _URL_COMPONENT_ for more information.
+See __<<URL_COMPONENT>>__ for more information.
 --
 
 == RULE_TYPE
 
-The *__RULE_TYPE__* component defines the filter type.
+The *RULE_TYPE* component defines the filter type.
 
 The supported types are:
 
@@ -76,7 +76,7 @@ The domain component has the following format:
 
 The components are as follows:
 
-*__DOMAIN_FLAGS__*: _optional_::
+*DOMAIN_FLAGS*: _optional_::
 +
 --
 *s*::
@@ -84,16 +84,16 @@ The components are as follows:
     except it also matches the base domain.
 --
 
-*__DOMAIN_MATCH_RULE__*: _required_::
+*DOMAIN_MATCH_RULE*: _required_::
 +
 --
 The domain match rule is the glob match string for domain matching. A single
 glob character may be used, to match to the left. Think of this as matching any
 subdomains.  Partial component glob matches are not currently supported for
-domain match rules. See _INVALID_EXAMPLES_ for more info.
+domain match rules. See _<<INVALID_EXAMPLES>>_ for more info.
 --
 
-.some examples
+.Some Examples
 ====
 The following would match `example.com` as well as any subdomain, as the *s*
 domain-flag is specified:
@@ -120,7 +120,7 @@ The url component has the following format:
 
 The components are as follows:
 
-*__URL_FLAG__*: _optional_::
+*URL_FLAG*: _optional_::
 +
 --
 *i*::
@@ -130,14 +130,14 @@ Please note that case insensitive comparisons are a bit slower. Benchmark for
 large url lists.
 --
 
-*__URL_MATCH_RULE__*: _required_::
+*URL_MATCH_RULE*: _required_::
 +
 --
 The url match rule is the glob match string for matching against the url path.
 Glob characters match to the right.
 --
 
-.some examples
+.Some Examples
 ====
 This would match `/foo/file.png` as well as `/fOo/FiLe.PnG`:
 
@@ -176,6 +176,17 @@ Reject everything from `bad.example.net`, including subdomains:
 deny|s|bad.example.net||
 ----
 
+== INVALID_EXAMPLES
+
+These are NOT valid, as globs for domains need to break on subdomain
+boundaries:
+
+----
+deny||ex*ample.com||*
+deny||*example.com||*
+deny||example*.com||*
+----
+
 == IDNA_NOTES
 
 Any idna domains are internally converted to ascii/punycode and matched in that
@@ -195,3 +206,7 @@ deny||bA1/4cher.example.com||*
     character case. This can make for large trees.
 
 *   Domains are always compared case insensitively (by lowercasing on input)
+
+== WWW
+
+*Website:* https://github.com/cactus/go-camo
