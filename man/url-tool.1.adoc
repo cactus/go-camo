@@ -17,7 +17,7 @@ url-tool - Provides a simple way to generate signed URLs from the command line
 == DESCRIPTION
 
 url-tool(1) provides a simple way to generate signed URLs from the command line
-compatible with go-camo(1).
+compatible with <<go-camo.1.adoc#,go-camo(1)>>.
 
 == OPTIONS
 
