@@ -2,6 +2,9 @@ Changelog
 =========
 
 ## HEAD
+*   Update man page generation (makefile) to use asciidoctor.
+    Not only is this easier to maintain, but it has the nice property of
+    being rendered on github.
 
 ## v2.0.0 2019-09-08
 *   Remove `--allow-list` flag, and replace with a unified filtering flag
