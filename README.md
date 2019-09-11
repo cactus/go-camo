@@ -260,7 +260,7 @@ A few notes about specific flags:
 *   `--filter-ruleset`
 
     If a `filter-ruleset` file is defined, that file is read and each line
-    converted into a filter rule. See [`FILTER_FORMAT.md`][20] for more
+    converted into a filter rule. See [`go-camo-filtering(5)`][20] for more
     information regarding the format for the filter file itself.
 
     Regarding evaluatation: The ruleset is NOT evaluated in-order. The rules
@@ -388,4 +388,4 @@ file for details.
 [17]: https://github.com/MrSaints
 [18]: https://github.com/arachnys/go-camo
 [19]: https://www.freedesktop.org/wiki/Software/systemd/
-[20]: FILTER_FORMAT.md
+[20]: man/go-camo-filtering.5.adoc
