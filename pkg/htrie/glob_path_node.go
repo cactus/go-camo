@@ -25,8 +25,7 @@ type globPathNode struct {
 	//  BenchmarkUInt32      298597942   3.99 ns/op
 	//  BenchmarkUInt64      300239860   4.02 ns/op
 	//
-	// Since we would /want/ to use uint8 here, use int instead
-	// (64 or 32 based on native platform)
+	// Since we would /want/ to use uint8 here, use uint32 instead
 	// Ugly and wasteful, but quite a bit faster for now...
 	subtrees map[uint32]*globPathNode
 	// used to avoid map lookup when there is only one subtree candidate
