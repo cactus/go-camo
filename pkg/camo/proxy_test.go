@@ -219,7 +219,7 @@ func Test404URLWithoutHTTPHost(t *testing.T) {
 
 func Test404ImageLargerThan5MB(t *testing.T) {
 	t.Parallel()
-	testURL := "http://apod.nasa.gov/apod/image/0505/larryslookout_spirit_big.jpg"
+	testURL := "https://apod.nasa.gov/apod/image/0505/larryslookout_spirit_big.jpg"
 	_, err := makeTestReq(testURL, 404, camoConfig)
 	assert.Nil(t, err)
 }
