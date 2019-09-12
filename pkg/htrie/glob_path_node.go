@@ -15,13 +15,13 @@ type globPathNode struct {
 	// go maps are optimized for only certain int types:
 	//  -- results as of go 1.13 on my slow laptop --
 	//  BenchmarkInt        297391227    3.99 ns/op
-	//  BenchmarkInt8        68107761    17.9 ns/op
-	//  BenchmarkInt16       65628482    18.3 ns/op
+	//  BenchmarkInt8        68107761   17.90 ns/op
+	//  BenchmarkInt16       65628482   18.30 ns/op
 	//  BenchmarkInt32      292725417    4.08 ns/op
 	//  BenchmarkInt64      293602374    4.11 ns/op
 	//  BenchmarkUInt       298711089    3.99 ns/op
-	//  BenchmarkUInt8       68173198    17.8 ns/op
-	//  BenchmarkUInt16      67566312    18.1 ns/op
+	//  BenchmarkUInt8       68173198   17.80 ns/op
+	//  BenchmarkUInt16      67566312   18.10 ns/op
 	//  BenchmarkUInt32      298597942   3.99 ns/op
 	//  BenchmarkUInt64      300239860   4.02 ns/op
 	//
