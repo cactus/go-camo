@@ -363,7 +363,7 @@ http://golang.org/doc/gopher/frontpage.png
 
 ## Changelog
 
-See `CHANGELOG.md`
+See [CHANGELOG.md][21]
 
 ## License
 
@@ -389,3 +389,4 @@ file for details.
 [18]: https://github.com/arachnys/go-camo
 [19]: https://www.freedesktop.org/wiki/Software/systemd/
 [20]: man/go-camo-filtering.5.adoc
+[21]: CHANGELOG.md
