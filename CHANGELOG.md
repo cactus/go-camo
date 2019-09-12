@@ -2,14 +2,16 @@ Changelog
 =========
 
 ## HEAD
+*   Switch htrie node map from uint8 to uint32, due to go map optimizations.
+    See commit bbf7b9ffee8382417ca3d848188a8da09cef3115 for more info.
 *   Update man page generation (makefile) to use asciidoctor.
     Not only is this easier to maintain, but it has the nice property of
     being rendered on github.
 
 ## v2.0.0 2019-09-08
 *   Remove `--allow-list` flag, and replace with a unified filtering flag
-    `filter-ruleset`. See [FILTER_FORMAT.md](FILTER_FORMAT.md) for more
-    information on the accepted syntax.
+    `filter-ruleset`. See [go-camo-filtering(5)](man/go-camo-filtering.5.adoc)
+    for more information on the accepted syntax.
 *   Update man pages.
 *   Refactor some internals (remove some regex in favor of a trie like
     data structure for some comparisons)
