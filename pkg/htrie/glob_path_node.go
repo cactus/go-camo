@@ -8,11 +8,27 @@ import (
 	"fmt"
 )
 
-const globChar byte = 1
+const globChar uint32 = 1
 
 // A globPathNode represents a path checker that supports globbing comparisons
 type globPathNode struct {
-	subtrees map[byte]*globPathNode
+	// go maps are optimized for only certain int types:
+	//  -- results as of go 1.13 on my slow laptop --
+	//  BenchmarkInt        297391227    3.99 ns/op
+	//  BenchmarkInt8        68107761    17.9 ns/op
+	//  BenchmarkInt16       65628482    18.3 ns/op
+	//  BenchmarkInt32      292725417    4.08 ns/op
+	//  BenchmarkInt64      293602374    4.11 ns/op
+	//  BenchmarkUInt       298711089    3.99 ns/op
+	//  BenchmarkUInt8       68173198    17.8 ns/op
+	//  BenchmarkUInt16      67566312    18.1 ns/op
+	//  BenchmarkUInt32      298597942   3.99 ns/op
+	//  BenchmarkUInt64      300239860   4.02 ns/op
+	//
+	// Since we would /want/ to use uint8 here, use int instead
+	// (64 or 32 based on native platform)
+	// Ugly and wasteful, but quite a bit faster for now...
+	subtrees map[uint32]*globPathNode
 	// used to avoid map lookup when there is only one subtree candidate
 	oneShot *globPathNode
 	// is this path component a glob
@@ -24,7 +40,7 @@ type globPathNode struct {
 	// optimization to avoid an extra map lookup on every char
 	hasGlobChild bool
 	// char for this node
-	nodeChar byte
+	nodeChar uint32
 	// is this a case insensitive comparison tree?
 	icase bool
 }
@@ -39,15 +55,17 @@ func (gpn *globPathNode) addPath(s string) error {
 	mlen := len(s)
 	//for _, part := range s {
 	for i := 0; i < mlen; i++ {
-		part := s[i]
+		part := uint32(s[i])
 
 		// if icase, use lowercase letters for comparisons
-		if gpn.icase && 'A' <= part && part <= 'Z' {
+		// 'A' == 65; 'Z' == 90
+		if gpn.icase && 65 <= part && part <= 90 {
 			part = part + 32
 		}
 
-		var c byte
-		if part == '*' {
+		var c uint32
+		// '*' == 42
+		if part == 42 {
 			c = globChar
 		} else {
 			c = part
@@ -101,10 +119,11 @@ func (gpn *globPathNode) globConsume(s string, index, mlen int) bool {
 	curnode := gpn
 	// don't need to iter runes since we have ascii
 	for i := index; i < mlen; i++ {
-		part := s[i]
+		part := uint32(s[i])
 
 		// if icase, use lowercase letters for comparisons
-		if gpn.icase && 'A' <= part && part <= 'Z' {
+		// 'A' == 65; 'Z' == 90
+		if gpn.icase && 65 <= part && part <= 90 {
 			part = part + 32
 		}
 
@@ -156,10 +175,11 @@ func (gpn *globPathNode) checkPath(s string, index, mlen int) bool {
 	curnode := gpn
 	// don't need to iter runes since we have ascii
 	for i := index; i < mlen; i++ {
-		part := s[i]
+		part := uint32(s[i])
 
 		// if icase, use lowercase letters for comparisons
-		if gpn.icase && 'A' <= part && part <= 'Z' {
+		// 'A' == 65; 'Z' == 90
+		if gpn.icase && 65 <= part && part <= 90 {
 			part = part + 32
 		}
 
@@ -238,7 +258,7 @@ func newGlobPathNode(icase bool) *globPathNode {
 	// and since we only /really/ care about lookup costs, just start with 0 initial
 	// map size and let it grow as needed
 	return &globPathNode{
-		subtrees: make(map[byte]*globPathNode, 0),
+		subtrees: make(map[uint32]*globPathNode, 0),
 		icase:    icase,
 	}
 }
