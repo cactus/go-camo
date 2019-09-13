@@ -193,11 +193,11 @@ Any idna domains are internally converted to ascii/punycode and matched in that
 format. This should make it safe to include unicode domains and have it match
 either incoming format.
 
-Thus the following should match both `bA1/4cher.example.com`, as well as
+Thus the following should match both `bücher.example.com`, as well as
 `xn--bcher-kva.example.com`.
 
 ----
-deny||bA1/4cher.example.com||*
+deny||bücher.example.com||*
 ----
 
 == OTHER_NOTES
