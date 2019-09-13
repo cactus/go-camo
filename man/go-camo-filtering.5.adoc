@@ -194,7 +194,7 @@ format. This should make it safe to include unicode domains and have it match
 either incoming format.
 
 Thus the following should match both `bücher.example.com`, as well as
-`xn--bcher-kva.example.com`.
+`+xn--bcher-kva.example.com+`.
 
 ----
 deny||bücher.example.com||*
