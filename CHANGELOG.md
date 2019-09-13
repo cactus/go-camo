@@ -2,6 +2,9 @@ Changelog
 =========
 
 ## HEAD
+
+## v2.0.1 2019-09-12
+*   Slightly optimize some structure layouts to reduce memory overhead.
 *   Switch htrie node map from uint8 to uint32, due to go map optimizations.
     See commit bbf7b9ffee83 for more info.
 *   Update man page generation (makefile) to use asciidoctor.
