@@ -24,11 +24,11 @@ type PathChecker interface {
 type URLMatcher struct {
 	subtrees     map[string]*URLMatcher
 	pathChecker  PathChecker
+	pathPart     string // mostly for debugging
 	isWild       bool
 	hasWildChild bool
 	canMatch     bool
 	hasRules     bool
-	pathPart     string // mostly for debugging
 }
 
 var matchesPool = sync.Pool{

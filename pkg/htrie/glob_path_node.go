@@ -22,14 +22,16 @@ type globPathNode struct {
 	//  BenchmarkUInt       298711089    3.99 ns/op
 	//  BenchmarkUInt8       68173198   17.80 ns/op
 	//  BenchmarkUInt16      67566312   18.10 ns/op
-	//  BenchmarkUInt32      298597942   3.99 ns/op
-	//  BenchmarkUInt64      300239860   4.02 ns/op
+	//  BenchmarkUInt32     298597942    3.99 ns/op
+	//  BenchmarkUInt64     300239860    4.02 ns/op
 	//
 	// Since we would /want/ to use uint8 here, use uint32 instead
 	// Ugly and wasteful, but quite a bit faster for now...
 	subtrees map[uint32]*globPathNode
 	// used to avoid map lookup when there is only one subtree candidate
 	oneShot *globPathNode
+	// char for this node
+	nodeChar uint32
 	// is this path component a glob
 	isGlob bool
 	// determines whether a node can be a match even if it isn't a leaf node;
@@ -38,8 +40,6 @@ type globPathNode struct {
 	canMatch bool
 	// optimization to avoid an extra map lookup on every char
 	hasGlobChild bool
-	// char for this node
-	nodeChar uint32
 	// is this a case insensitive comparison tree?
 	icase bool
 }
