@@ -3,8 +3,8 @@ go-camo
 
 [![Current Release](https://img.shields.io/github/release/cactus/go-camo.svg)](http://github.com/cactus/go-camo/releases)
 ![BuildStatus](https://github.com/cactus/go-camo/workflows/unit-tests/badge.svg)
-[![License](https://img.shields.io/github/license/cactus/go-camo.svg)](https://github.com/cactus/go-camo/blob/master/LICENSE.md)
-<!-- [![CircleCI](https://img.shields.io/circleci/project/github/cactus/go-camo/master.svg)](https://circleci.com/gh/cactus/go-camo) -->
+[![License](.github/img-readme-license.svg)](https://github.com/cactus/go-camo/blob/master/LICENSE.md)
+<!-- [![CircleCI](https://circleci.com/gh/cactus/go-camo.svg?style=svg)](https://circleci.com/gh/cactus/go-camo) -->
 
 ## Contents
 
