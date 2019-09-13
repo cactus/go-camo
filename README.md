@@ -1,10 +1,10 @@
 go-camo
 =======
 
-[![Current Release](https://img.shields.io/github/release/cactus/go-camo.svg)](http://github.com/cactus/go-camo/releases)
-![BuildStatus](https://github.com/cactus/go-camo/workflows/unit-tests/badge.svg)
-[![License](.github/img-readme-license.svg)](https://github.com/cactus/go-camo/blob/master/LICENSE.md)
-<!-- [![CircleCI](https://circleci.com/gh/cactus/go-camo.svg?style=svg)](https://circleci.com/gh/cactus/go-camo) -->
+[![Current Release][releases-img]][releases-link]
+![BuildStatus][build-img]
+[![License][license-img]][license-link]
+<!-- [![CircleCI][circleci-img]][circleci-link] -->
 
 ## Contents
 
@@ -371,6 +371,13 @@ Released under the [MIT
 license](http://www.opensource.org/licenses/mit-license.php). See `LICENSE.md`
 file for details.
 
+[releases-img]: https://img.shields.io/github/release/cactus/go-camo.svg
+[releases-link]: http://github.com/cactus/go-camo/releases
+[build-img]: https://github.com/cactus/go-camo/workflows/unit-tests/badge.svg
+[license-img]: .github/img-readme-license.svg
+[license-link]: https://github.com/cactus/go-camo/blob/master/LICENSE.md
+[circleci-img]: https://circleci.com/gh/cactus/go-camo.svg?style=svg
+[circleci-link]: https://circleci.com/gh/cactus/go-camo
 [1]: https://github.com/atmos/camo
 [3]: http://golang.org/doc/install
 [4]: http://en.wikipedia.org/wiki/HMAC
