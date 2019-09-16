@@ -234,7 +234,7 @@ Application Options:
       --ssl-listen=            Address:Port to bind to for HTTPS/SSL/TLS
       --ssl-key=               ssl private key (key.pem) path
       --ssl-cert=              ssl cert (cert.pem) path
-      --max-size=              Max allowed response size (KB) (default: 0)
+      --max-size=              Max allowed response size (KB)
       --timeout=               Upstream request timeout (default: 4s)
       --max-redirects=         Maximum number of redirects to follow (default: 3)
       --metrics                Enable prometheus compatible metrics endpoint
