@@ -15,13 +15,13 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
 
-    - name: "Go setup ${{ matrix.go_version }}"
+    - name: Go Setup
       uses: actions/setup-go@v1
       with:
         go-version: ${{ matrix.go_version }}
       id: go
 
-    - name: Checkout
+    - name: Src Checkout
       uses: actions/checkout@v1
       with:
         fetch-depth: 1
