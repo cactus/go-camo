@@ -5,11 +5,26 @@
 package camo
 
 import (
+	"io"
 	"net"
 	"os"
+	"strings"
 	"sync"
 	"syscall"
 )
+
+type LimitReadCloser struct {
+	io.ReadCloser
+	io.Reader
+}
+
+func (l *LimitReadCloser) Read(p []byte) (int, error) {
+	return l.Reader.Read(p)
+}
+
+func NewLimitReadCloser(r io.ReadCloser, n int64) *LimitReadCloser {
+	return &LimitReadCloser{ReadCloser: r, Reader: io.LimitReader(r, n)}
+}
 
 func isBrokenPipe(err error) bool {
 	if opErr, ok := err.(*net.OpError); ok {
@@ -71,6 +86,16 @@ func isRejectedIP(ip net.IP) bool {
 		}
 	}
 
+	return false
+}
+
+func containsOneOf(s string, substrs ...string) bool {
+	j := len(substrs)
+	for i := 0; i < j; i++ {
+		if strings.Index(s, substrs[i]) >= 0 {
+			return true
+		}
+	}
 	return false
 }
 

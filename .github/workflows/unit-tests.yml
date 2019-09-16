@@ -10,7 +10,7 @@ jobs:
     name: Build
     strategy:
       matrix:
-        go_version: [1.12, 1.13]
+        go_version: [1.13]
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
     steps:

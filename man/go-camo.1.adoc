@@ -69,8 +69,8 @@ See __<<ADD_HEADERS>>__ for more info.
     Default: `cert.pem`
 
 *--max-size*=<__SIZE__>::
-    Max response image size in KB. +
-    Default: `5120`
+    Max response size allowed in KB. Set to `0` to disable size restriction. +
+    Default: `0`
 
 *--timeout*=<__TIME__>::
     Timeout value for upstream response. Format is "4s" where s means seconds. +

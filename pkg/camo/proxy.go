@@ -7,6 +7,7 @@
 package camo
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -107,7 +108,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	nreq, err := http.NewRequest(req.Method, sURL, nil)
+	nreq, err := http.NewRequestWithContext(req.Context(), req.Method, sURL, nil)
 	if err != nil {
 		mlog.Debugm("could not create NewRequest", mlog.Map{"err": err})
 		http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
@@ -151,24 +152,28 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if err != nil {
-		mlog.Debugm("could not connect to endpoint", mlog.Map{"err": err})
-		// this is a bit janky, but better than peeling off the
-		// 3 layers of wrapped errors and trying to get to net.OpErr and
-		// still having to rely on string comparison to find out if it is
-		// a net.errClosing or not.
-		errString := err.Error()
-		// go 1.5 changes this to http.httpError
-		// go 1.4 has this as net.OpError
-		// and the error strings are different depending on which version too.
-		if strings.Contains(errString, "timeout") || strings.Contains(errString, "Client.Timeout") {
-			http.Error(w, "Error Fetching Resource", http.StatusGatewayTimeout)
-		} else if strings.Contains(errString, "use of closed") {
-			http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
-		} else if strings.Contains(errString, "BadRedirect:") {
+		// handle client aborting request early in the request lifetime
+		if errors.Is(err, context.Canceled) {
+			mlog.Debugm("client aborted request (early)", mlog.Map{"req": req})
+			return
+		} else if errors.Is(err, RedirectErr) {
 			// Got a bad redirect
-			mlog.Debugm("response from upstream", mlog.Map{"err": err})
+			mlog.Debugm("bad redirect from server", mlog.Map{"err": err})
 			http.Error(w, "Error Fetching Resource", http.StatusNotFound)
-		} else {
+			return
+		}
+
+		// handle other errors
+		mlog.Debugm("could not connect to endpoint", mlog.Map{"err": err})
+
+		// this is a bit janky, but some of these errors don't support
+		// the newer error semantics yet...
+		switch errString := err.Error(); {
+		case containsOneOf(errString, "timeout", "Client.Timeout"):
+			http.Error(w, "Error Fetching Resource", http.StatusGatewayTimeout)
+		case strings.Contains(errString, "use of closed"):
+			http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
+		default:
 			// some other error. call it a not found (camo compliant)
 			http.Error(w, "Error Fetching Resource", http.StatusNotFound)
 		}
@@ -178,7 +183,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	mlog.Debugm("response from upstream", mlog.Map{"resp": resp})
 
 	// check for too large a response
-	if resp.ContentLength > p.config.MaxSize {
+	if p.config.MaxSize > 0 && resp.ContentLength > p.config.MaxSize {
 		mlog.Debugm("content length exceeded", mlog.Map{"url": sURL})
 		http.Error(w, "Content length exceeded", http.StatusNotFound)
 		return
@@ -232,19 +237,43 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	buf := *bufPool.Get().(*[]byte)
 	defer bufPool.Put(&buf)
 
+	// wrap body in limit reader, so even while chunk/streaming, we read
+	// less than desired max size
+	var bodyRC io.ReadCloser = resp.Body
+	if p.config.MaxSize > 0 {
+		bodyRC = NewLimitReadCloser(resp.Body, p.config.MaxSize)
+	}
+
 	// since this uses io.Copy/CopyBuffer from the respBody, it is streaming
 	// from the request to the response. This means it will nearly
 	// always end up with a chunked response.
-	_, err = io.CopyBuffer(w, resp.Body, buf)
+	written, err := io.CopyBuffer(w, bodyRC, buf)
 	if err != nil {
-		// only log broken pipe errors at debug level
-		if isBrokenPipe(err) {
-			mlog.Debugm("error writing response", mlog.Map{"err": err})
-		} else {
-			// unknown error and not a broken pipe
-			mlog.Printm("error writing response", mlog.Map{"err": err})
+		if err == context.Canceled || errors.Is(err, context.Canceled) {
+			// client aborted/closed request, which is why copy failed to finish
+			mlog.Debugm("client aborted request (late)", mlog.Map{"req": req})
+			return
 		}
 
+		// got an early EOF from the server side
+		if errors.Is(err, io.ErrUnexpectedEOF) {
+			mlog.Debugm("server sent unexpected EOF", mlog.Map{"req": req})
+			return
+		}
+
+		// only log broken pipe errors at debug level
+		if isBrokenPipe(err) {
+			mlog.Debugm("error writing response", mlog.Map{"err": err, "req": req})
+			return
+		}
+
+		// unknown error (not: a broken pipe; server early EOF; client close)
+		mlog.Printm("error writing response", mlog.Map{"err": err, "req": req})
+		return
+	}
+
+	if p.config.MaxSize > 0 && written >= p.config.MaxSize {
+		mlog.Debugm("response to client truncated: size > MaxSize", mlog.Map{"req": req})
 		return
 	}
 
@@ -390,13 +419,13 @@ func New(pc Config) (*Proxy, error) {
 
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		if len(via) >= pc.MaxRedirects {
-			mlog.Debug("Got bad redirect: Too many redirects")
-			return errors.New("BadRedirect: Too many redirects")
+			mlog.Debug("Got bad redirect: Too many redirects", mlog.Map{"url": req})
+			return fmt.Errorf("Too many redirects: %w", RedirectErr)
 		}
 		err := p.checkURL(req.URL)
 		if err != nil {
 			mlog.Debugm("Got bad redirect", mlog.Map{"url": req})
-			return fmt.Errorf("BadRedirect: %s", err)
+			return fmt.Errorf("Bad redirect: %w", RedirectErr)
 		}
 
 		return nil

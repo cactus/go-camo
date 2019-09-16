@@ -127,7 +127,7 @@ func main() {
 		BindAddressSSL      string        `long:"ssl-listen" description:"Address:Port to bind to for HTTPS/SSL/TLS"`
 		SSLKey              string        `long:"ssl-key" description:"ssl private key (key.pem) path"`
 		SSLCert             string        `long:"ssl-cert" description:"ssl cert (cert.pem) path"`
-		MaxSize             int64         `long:"max-size" default:"5120" description:"Max allowed response size (KB)"`
+		MaxSize             int64         `long:"max-size" default:"0" description:"Max allowed response size (KB)"`
 		ReqTimeout          time.Duration `long:"timeout" default:"4s" description:"Upstream request timeout"`
 		MaxRedirects        int           `long:"max-redirects" default:"3" description:"Maximum number of redirects to follow"`
 		Metrics             bool          `long:"metrics" description:"Enable prometheus compatible metrics endpoint"`

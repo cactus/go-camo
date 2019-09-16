@@ -98,7 +98,7 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
 *   Go-Camo supports some optional "allow/deny" origin filters.
 *   Go-Camo supports client http keep-alives.
 *   Go-Camo provides native SSL support.
-*   Go-Camo provides native HTTP/2 support (if built using >=go1.6).
+*   Go-Camo provides native HTTP/2 support
 *   Go-Camo supports using more than one os thread (via GOMAXPROCS) without the
     need of multiple instances or additional proxying.
 *   Go-Camo builds to a static binary. This makes deploying to large numbers
@@ -120,7 +120,7 @@ Building requires:
 
 *   make
 *   git
-*   go (latest version recommended. At least version >= 1.11 for go mod support)
+*   go (latest version recommended. At least version >= 1.13)
 *   asciidoctor (for building man pages only)
 
 Additionally required, if cross compiling:
@@ -234,7 +234,7 @@ Application Options:
       --ssl-listen=            Address:Port to bind to for HTTPS/SSL/TLS
       --ssl-key=               ssl private key (key.pem) path
       --ssl-cert=              ssl cert (cert.pem) path
-      --max-size=              Max allowed response size (KB) (default: 5120)
+      --max-size=              Max allowed response size (KB) (default: 0)
       --timeout=               Upstream request timeout (default: 4s)
       --max-redirects=         Maximum number of redirects to follow (default: 3)
       --metrics                Enable prometheus compatible metrics endpoint
@@ -282,6 +282,10 @@ A few notes about specific flags:
     where you have previously generated a url and you need a quick temporary
     fix, or for cases where rolling keys takes a while and/or is difficult.
 
+*   `--max-size`
+
+    The `--max-size` value is defined in KB. Set to `0` to disable size
+    restriction. The default is `0`.
 
 *   `--metrics`
 
