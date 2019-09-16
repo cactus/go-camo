@@ -15,7 +15,7 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
 
-    - name: Go setup ${{ matrix.go_version }}
+    - name: "Go setup ${{ matrix.go_version }}"
       uses: actions/setup-go@v1
       with:
         go-version: ${{ matrix.go_version }}
