@@ -12,7 +12,7 @@ APP_VER           := $(shell git describe --always --tags|sed 's/^v//')
 VERSION_VAR       := main.ServerVersion
 
 # flags and build configuration
-GOBUILD_OPTIONS   :=
+GOBUILD_OPTIONS   := -trimpath
 GOTEST_FLAGS      := -cpu=1,2
 GOBUILD_DEPFLAGS  := -tags netgo
 GOBUILD_LDFLAGS   ?= -s -w
