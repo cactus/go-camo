@@ -14,7 +14,6 @@ jobs:
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
     steps:
-
     - name: Go Setup
       uses: actions/setup-go@v1
       with:
@@ -26,7 +25,12 @@ jobs:
       with:
         fetch-depth: 1
 
-    - name: Tests
-      run: make test
+    - name: Build
       env:
         GOPROXY: "https://proxy.golang.org"
+      run: make build
+
+    - name: Tests
+      env:
+        GOPROXY: "https://proxy.golang.org"
+      run: make test
