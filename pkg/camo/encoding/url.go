@@ -127,7 +127,9 @@ func DecodeURL(hmackey []byte, encdig string, encURL string) (string, bool) {
 
 	urlBytes, err := decoder(hmackey, encdig, encURL)
 	if err != nil {
-		mlog.Debugf("Bad Decode of URL: %s", err)
+		if mlog.HasDebug() {
+			mlog.Debugf("Bad Decode of URL: %s", err)
+		}
 		return "", false
 	}
 	return urlBytes, true
