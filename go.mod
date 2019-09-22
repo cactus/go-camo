@@ -1,7 +1,7 @@
 module github.com/cactus/go-camo
 
 require (
-	github.com/cactus/mlog v1.0.2
+	github.com/cactus/mlog v1.0.3
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/prometheus/client_golang v1.1.0
 	github.com/stretchr/testify v1.4.0
