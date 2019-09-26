@@ -18,6 +18,7 @@ go-camo
 *   [Securing an installation](#securing-an-installation)
 *   [Configuring](#configuring)
 *   [Additional tools](#additional-tools)
+*   [Containers](#containers)
 *   [Alternative Implementations](#alternative-implementations)
 *   [Changelog](#changelog)
 *   [License](#license)
@@ -321,6 +322,14 @@ A few notes about specific flags:
 
 Go-Camo includes a couple of additional tools.
 
+## Containers
+
+There are [containers][22] built automatically from version tags.
+
+These containers are untested and provided only for those with specific
+containerization requirements. When in doubt, prefer the statically compiled
+[binary releases][releases-link], unless you specifically need a container.
+
 ### url-tool
 
 The `url-tool` utility provides a simple way to generate signed URLs from the command line.
@@ -401,3 +410,4 @@ file for details.
 [19]: https://www.freedesktop.org/wiki/Software/systemd/
 [20]: man/go-camo-filtering.5.adoc
 [21]: CHANGELOG.md
+[22]: https://hub.docker.com/r/cactus4docker/go-camo
