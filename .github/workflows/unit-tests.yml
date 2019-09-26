@@ -1,9 +1,11 @@
 name: unit-tests
 on:
   push:
+    branches:
+      - '*'
   pull_request:
     branches:
-    - master
+      - master
 
 jobs:
   build:
@@ -14,23 +16,23 @@ jobs:
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
     steps:
-    - name: Setup Go ${{ matrix.goVer }}
-      uses: actions/setup-go@v1
-      with:
-        go-version: ${{ matrix.goVer }}
-      id: go
+      - name: Setup Go ${{ matrix.goVer }}
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.goVer }}
+        id: go
 
-    - name: Src Checkout
-      uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
+      - name: Src Checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
 
-    - name: Build
-      env:
-        GOPROXY: "https://proxy.golang.org"
-      run: make build
+      - name: Build
+        env:
+          GOPROXY: "https://proxy.golang.org"
+        run: make build
 
-    - name: Tests
-      env:
-        GOPROXY: "https://proxy.golang.org"
-      run: make test
+      - name: Tests
+        env:
+          GOPROXY: "https://proxy.golang.org"
+        run: make test

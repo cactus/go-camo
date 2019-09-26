@@ -1,0 +1,52 @@
+name: publish-docker
+on:
+  push:
+    tags:
+     - 'v*'
+
+jobs:
+  build:
+    name: docker-publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Go ${{ matrix.goVer }}
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.13
+        id: go
+
+      - name: Src Checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Tests
+        if: success()
+        env:
+          GOPROXY: "https://proxy.golang.org"
+        run: make test
+
+      - name: Build
+        if: success()
+        env:
+          GOPROXY: "https://proxy.golang.org"
+        run: make build
+
+      - name: Build Container
+        if: success()
+        run: |
+          TAG=$(git describe --tags)
+          docker build -f examples/Dockerfile -t cactus4docker/go-camo:${TAG} .
+          # also tag as latest?
+          # docker tag cactus4docker/go-camo:${TAG} cactus4docker/go-camo:latest
+
+      - name: Publish Container
+        if: success()
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        run: |
+          TAG=$(git describe --tags)
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          docker push cactus4docker/go-camo:${TAG}
+          rm -f "$HOME/.docker/config.json"
