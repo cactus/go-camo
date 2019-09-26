@@ -322,14 +322,6 @@ A few notes about specific flags:
 
 Go-Camo includes a couple of additional tools.
 
-## Containers
-
-There are [containers][22] built automatically from version tags.
-
-These containers are untested and provided only for those with specific
-containerization requirements. When in doubt, prefer the statically compiled
-[binary releases][releases-link], unless you specifically need a container.
-
 ### url-tool
 
 The `url-tool` utility provides a simple way to generate signed URLs from the command line.
@@ -368,6 +360,14 @@ https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9j
 $ url-tool -k "test" decode "https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n"
 http://golang.org/doc/gopher/frontpage.png
 ```
+
+## Containers
+
+There are [containers][22] built automatically from version tags.
+
+These containers are untested and provided only for those with specific
+containerization requirements. When in doubt, prefer the statically compiled
+[binary releases][releases-link], unless you specifically need a container.
 
 ## Alternative Implementations
 
