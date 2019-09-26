@@ -47,6 +47,11 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           TAG=$(git describe --tags)
+          LATEST_TAG=$(git tag -l | grep -viE '(alpha|beta)' | sort -V | tail -n 1)
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
           docker push cactus4docker/go-camo:${TAG}
+          if [[ "$TAG" = "$LATEST_TAG" ]]; then
+              docker tag cactus4docker/go-camo:${TAG} cactus4docker/go-camo:latest
+              docker push cactus4docker/go-camo:latest
+          fi
           docker logout
