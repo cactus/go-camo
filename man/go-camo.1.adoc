@@ -83,9 +83,9 @@ See __<<ADD_HEADERS>>__ for more info.
 *--metrics*::
 +
 --
-Enable prometheus compatible metrics endpoint.
+Enable Prometheus compatible metrics endpoint.
 
-If metrics flag is provided, then the service will make a prometheus
+If metrics flag is provided, then the service will make a Prometheus
 compatible endpoint available at `/metrics` via HTTP GET.
 --
 

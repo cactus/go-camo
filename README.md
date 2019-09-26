@@ -237,7 +237,7 @@ Application Options:
       --max-size=              Max allowed response size (KB)
       --timeout=               Upstream request timeout (default: 4s)
       --max-redirects=         Maximum number of redirects to follow (default: 3)
-      --metrics                Enable prometheus compatible metrics endpoint
+      --metrics                Enable Prometheus compatible metrics endpoint
       --no-log-ts              Do not add a timestamp to logging
       --no-fk                  Disable frontend http keep-alive support
       --no-bk                  Disable backend http keep-alive support
