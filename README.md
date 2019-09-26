@@ -25,13 +25,12 @@ go-camo
 
 ## About
 
-Go version of [Camo][1] server.
+go-camo is a go version of a [camo][1] server
 
-[Camo][1] is a special type of image proxy that proxies non-secure images over
-SSL/TLS. This prevents mixed content warnings on secure pages.
-
-It works in conjunction with back-end code that rewrites image URLs and signs
-them with an [HMAC][4].
+A [camo][1] server is a special type of image proxy that proxies non-secure
+images over SSL/TLS, in order to prevent mixed content warnings on secure
+pages. The server works in conjunction with back-end code that rewrites image
+URLs and signs them with an [HMAC][4].
 
 ## How it works
 
