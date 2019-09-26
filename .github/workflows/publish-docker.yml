@@ -49,4 +49,4 @@ jobs:
           TAG=$(git describe --tags)
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
           docker push cactus4docker/go-camo:${TAG}
-          rm -f "$HOME/.docker/config.json"
+          docker logout
