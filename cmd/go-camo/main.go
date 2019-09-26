@@ -130,7 +130,7 @@ func main() {
 		MaxSize             int64         `long:"max-size" description:"Max allowed response size (KB)"`
 		ReqTimeout          time.Duration `long:"timeout" default:"4s" description:"Upstream request timeout"`
 		MaxRedirects        int           `long:"max-redirects" default:"3" description:"Maximum number of redirects to follow"`
-		Metrics             bool          `long:"metrics" description:"Enable prometheus compatible metrics endpoint"`
+		Metrics             bool          `long:"metrics" description:"Enable Prometheus compatible metrics endpoint"`
 		NoLogTS             bool          `long:"no-log-ts" description:"Do not add a timestamp to logging"`
 		DisableKeepAlivesFE bool          `long:"no-fk" description:"Disable frontend http keep-alive support"`
 		DisableKeepAlivesBE bool          `long:"no-bk" description:"Disable backend http keep-alive support"`
