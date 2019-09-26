@@ -25,7 +25,7 @@ go-camo
 
 ## About
 
-go-camo is a go version of a [camo][1] server
+go-camo is a go version of a [camo][1] server.
 
 A [camo][1] server is a special type of image proxy that proxies non-secure
 images over SSL/TLS, in order to prevent mixed content warnings on secure
