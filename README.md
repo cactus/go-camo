@@ -17,6 +17,7 @@ go-camo
 *   [Running on Heroku](#running-on-heroku)
 *   [Securing an installation](#securing-an-installation)
 *   [Configuring](#configuring)
+*   [Monitoring](#monitoring)
 *   [Additional tools](#additional-tools)
 *   [Containers](#containers)
 *   [Alternative Implementations](#alternative-implementations)
@@ -316,6 +317,25 @@ A few notes about specific flags:
     ```text
     -H "Strict-Transport-Security:  max-age=16070400"
     ```
+
+## Monitoring
+
+### Metrics
+
+When the `--metrics` flag is used, the service will expose a Prometheus-compatible `/metrics` endpoint. This can be used by monitoring systems to gather data.
+
+The endpoint includes all of the default `go_` and `process_`. In addition, a number of custom metrics.
+
+| Name                                     | Type      | Help |
+| ---------------------------------------- | --------- | ---- |
+| camo_response_duration_seconds           | Histogram | A histogram of latencies for proxy responses. |
+| camo_response_size_bytes                 | Histogram | A histogram of sizes for proxy responses. |
+| camo_proxy_content_length_exceeded_total | Counter   | The number of requests where the content length was exceeded. |
+| camo_proxy_reponses_failed_total         | Counter   | The number of responses that failed to send to the client. |
+| camo_proxy_reponses_truncated_total      | Counter   | The number of responess that were too large to send. |
+| camo_responses_total                     | Counter   | Total HTTP requests processed by the go-camo, excluding scrapes. |
+
+It also includes a `camo_build_info` metric that exposes the version, git branch/revision, and Go version used to build the server.
 
 ## Additional tools
 

@@ -34,7 +34,7 @@ var (
 		prometheus.HistogramOpts{
 			Namespace: camo.MetricNamespace,
 			Name:      "response_size_bytes",
-			Help:      "A histogram of response sizes for requests.",
+			Help:      "A histogram of sizes for proxy responses.",
 			Buckets:   prometheus.ExponentialBuckets(1024, 2, 10),
 		},
 		[]string{},
@@ -43,7 +43,7 @@ var (
 		prometheus.HistogramOpts{
 			Namespace: camo.MetricNamespace,
 			Name:      "response_duration_seconds",
-			Help:      "A histogram of latencies for requests.",
+			Help:      "A histogram of latencies for proxy responses.",
 			Buckets:   prometheus.DefBuckets,
 		},
 		[]string{},
