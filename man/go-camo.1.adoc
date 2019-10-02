@@ -87,6 +87,8 @@ Enable Prometheus compatible metrics endpoint.
 
 If metrics flag is provided, then the service will make a Prometheus
 compatible endpoint available at `/metrics` via HTTP GET.
+
+See __<<METRICS>>__ for more info.
 --
 
 *--no-log-ts*::
@@ -159,6 +161,42 @@ go-camo -k BEEFBEEFBEEF \
     -H "Strict-Transport-Security: max-age=16070400" \
     -H "X-Frame-Options: deny"
 ----
+
+== METRICS
+
+When the *--metrics* flag is used, the service will expose a
+Prometheus-compatible `/metrics` endpoint. This can be used by monitoring
+systems to gather data.
+
+The endpoint includes all of the default `go_` and `process_`. In addition, a
+number of custom metrics.
+
+.Exposed Camo Metrics
+[%header,cols="<m,<,<.^6"]
+|===
+| Metric | Type | Description
+
+| camo_response_duration_seconds | Histogram |
+A histogram of latencies for proxy responses.
+
+| camo_response_size_bytes | Histogram |
+A histogram of sizes for proxy responses.
+
+| camo_proxy_content_length_exceeded_total | Counter |
+The number of requests where the content length was exceeded.
+
+| camo_proxy_reponses_failed_total | Counter |
+The number of responses that failed to send to the client.
+
+| camo_proxy_reponses_truncated_total | Counter |
+The number of responess that were too large to send.
+
+| camo_responses_total | Counter |
+Total HTTP requests processed by the go-camo, excluding scrapes.
+|===
+
+It also includes a `camo_build_info` metric that exposes the version, git
+branch/revision, and Go version used to build the server.
 
 == EXAMPLES
 
