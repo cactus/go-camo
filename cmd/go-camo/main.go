@@ -291,7 +291,7 @@ func main() {
 		http.Handle("/metrics", promhttp.Handler())
 		// Register a version info metric.
 		verOverride := os.Getenv("APP_INFO_VERSION")
-		if verOverride {
+		if verOverride != "" {
 			version.Version = verOverride
 		} else {
 			version.Version = ServerVersion
