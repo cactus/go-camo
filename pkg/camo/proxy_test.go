@@ -162,6 +162,31 @@ func TestVideoContentTypeAllowed(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestAudioContentTypeAllowed(t *testing.T) {
+	t.Parallel()
+
+	camoConfigWithAudio := Config{
+		HMACKey:           []byte("0x24FEEDFACEDEADBEEFCAFE"),
+		MaxSize:           180 * 1024,
+		RequestTimeout:    time.Duration(10) * time.Second,
+		MaxRedirects:      3,
+		ServerName:        "go-camo",
+		AllowContentAudio: true,
+	}
+
+	testURL := "https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"
+	_, err := makeTestReq(testURL, 200, camoConfigWithAudio)
+	assert.Nil(t, err)
+
+	// try a range request
+	req, err := makeReq(camoConfigWithAudio, testURL)
+	assert.Nil(t, err)
+	req.Header.Add("Range", "bytes=0-10")
+	resp, err := processRequest(req, 206, camoConfigWithAudio, nil)
+	assert.Equal(t, resp.Header.Get("Content-Range"), "bytes 0-10/49872")
+	assert.Nil(t, err)
+}
+
 func TestCredetialURLsAllowed(t *testing.T) {
 	t.Parallel()
 
