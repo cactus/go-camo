@@ -2,6 +2,9 @@ Changelog
 =========
 
 ## HEAD
+*   Support `audio/*` with `--allow-content-audio` flag
+    (similar to how video is handled)
+*   Additional metrics datapoints when using `--metrics`
 *   support only go 1.13, due to use of new error wrapping semantics
 *   improved client connection early abort handling
 *   improved max response side handling -- only read MaxSize KB from any
