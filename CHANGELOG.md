@@ -13,9 +13,9 @@ Changelog
     no way to signal the client other than closing the connection.
 *   Change default of `--max-size` to 0, as previously chunked encoding
     responses bypassed size restrictions (only content-length was previously
-    enforced). To avoid unexpected failures (preserve backwards compate in this
-    regard), set max-size to 0 by default moving forward. Previous default was
-    5mb (use `--max-size=5120` to set to previous default).
+    enforced). To avoid unexpected failures (preserve backwards compatibility
+    in this regard), set max-size to 0 by default moving forward. Previous
+    default was 5mb (use `--max-size=5120` to set to previous default).
 
 ## v2.0.1 2019-09-12
 *   Slightly optimize some structure layouts to reduce memory overhead.
