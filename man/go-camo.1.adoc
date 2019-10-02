@@ -148,7 +148,7 @@ The list of default headers sent are:
 ----
 X-Content-Type-Options: nosniff
 X-XSS-Protection: 1; mode=block
-Content-Security-Policy: default-src 'none'`
+Content-Security-Policy: default-src 'none'
 ----
 
 Additional headers are added to the above set.
