@@ -335,7 +335,12 @@ The endpoint includes all of the default `go_` and `process_`. In addition, a nu
 | camo_proxy_reponses_truncated_total      | Counter   | The number of responess that were too large to send. |
 | camo_responses_total                     | Counter   | Total HTTP requests processed by the go-camo, excluding scrapes. |
 
-It also includes a `camo_build_info` metric that exposes the version, git branch/revision, and Go version used to build the server.
+It also includes a `camo_build_info` metric that exposes the version. In addition, you can expose some extra data to metrics via env vars, if desired:
+
+*   Revision via `APP_INFO_REVISION`
+*   Branch via `APP_INFO_BRANCH`
+*   BuildDate via `APP_INFO_BUILD_DATE`
+*   You can also override the version by setting `APP_INFO_VERSION`
 
 ## Additional tools
 
