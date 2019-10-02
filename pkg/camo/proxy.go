@@ -21,39 +21,6 @@ import (
 	"github.com/cactus/go-camo/pkg/htrie"
 
 	"github.com/cactus/mlog"
-
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
-)
-
-// Subsystem for proxy metrics in Prometheus.
-const proxySubsystem = "proxy"
-
-var (
-	contentLengthExceeded = promauto.NewCounter(
-		prometheus.CounterOpts{
-			Namespace: MetricNamespace,
-			Subsystem: proxySubsystem,
-			Name:      "content_length_exceeded_total",
-			Help:      "The number of requests where the content length was exceeded.",
-		},
-	)
-	responseFailed = promauto.NewCounter(
-		prometheus.CounterOpts{
-			Namespace: MetricNamespace,
-			Subsystem: proxySubsystem,
-			Name:      "reponses_failed_total",
-			Help:      "The number of responses that failed to send to the client.",
-		},
-	)
-	responseTruncated = promauto.NewCounter(
-		prometheus.CounterOpts{
-			Namespace: MetricNamespace,
-			Subsystem: proxySubsystem,
-			Name:      "reponses_truncated_total",
-			Help:      "The number of responess that were too large to send.",
-		},
-	)
 )
 
 // Config holds configuration data used when creating a Proxy with New.
@@ -77,6 +44,8 @@ type Config struct {
 	AllowContentVideo bool
 	// allow URLs to contain user/pass credentials
 	AllowCredetialURLs bool
+	// Whether to call/increment metrics
+	CollectMetrics bool
 	// no ip filtering (test mode)
 	noIPFiltering bool
 }
@@ -235,7 +204,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// check for too large a response
 	if p.config.MaxSize > 0 && resp.ContentLength > p.config.MaxSize {
-		contentLengthExceeded.Inc()
+		if p.config.CollectMetrics {
+			contentLengthExceeded.Inc()
+		}
 		if mlog.HasDebug() {
 			mlog.Debugm("content length exceeded", mlog.Map{"url": sURL})
 		}
@@ -307,7 +278,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// always end up with a chunked response.
 	written, err := io.CopyBuffer(w, bodyRC, buf)
 	if err != nil {
-		responseFailed.Inc()
+		if p.config.CollectMetrics {
+			responseFailed.Inc()
+		}
 		if err == context.Canceled || errors.Is(err, context.Canceled) {
 			// client aborted/closed request, which is why copy failed to finish
 			if mlog.HasDebug() {
@@ -338,7 +311,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if p.config.MaxSize > 0 && written >= p.config.MaxSize {
-		responseTruncated.Inc()
+		if p.config.CollectMetrics {
+			responseTruncated.Inc()
+		}
 		if mlog.HasDebug() {
 			mlog.Debugm("response to client truncated: size > MaxSize", mlog.Map{"req": req})
 		}

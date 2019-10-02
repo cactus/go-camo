@@ -286,6 +286,7 @@ func main() {
 	}
 
 	if opts.Metrics {
+		config.CollectMetrics = true
 		mlog.Printf("Enabling metrics at /metrics")
 		http.Handle("/metrics", promhttp.Handler())
 		// Register a version info metric.

@@ -13,9 +13,6 @@ import (
 	"syscall"
 )
 
-// Namespace used for Prometheus metrics.
-const MetricNamespace = "camo"
-
 type LimitReadCloser struct {
 	io.ReadCloser
 	io.Reader
