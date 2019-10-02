@@ -290,7 +290,15 @@ func main() {
 		mlog.Printf("Enabling metrics at /metrics")
 		http.Handle("/metrics", promhttp.Handler())
 		// Register a version info metric.
-		version.Version = ServerVersion
+		verOverride := os.Getenv("APP_INFO_VERSION")
+		if verOverride {
+			version.Version = verOverride
+		} else {
+			version.Version = ServerVersion
+		}
+		version.Revision = os.Getenv("APP_INFO_REVISION")
+		version.Branch = os.Getenv("APP_INFO_BRANCH")
+		version.BuildDate = os.Getenv("APP_INFO_BUILD_DATE")
 		prometheus.MustRegister(version.NewCollector(metricNamespace))
 		// Wrap the dumb router in instrumentation.
 		router = promhttp.InstrumentHandlerDuration(responseDuration, router)
