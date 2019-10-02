@@ -13,13 +13,13 @@ import (
 
 // Namespace used for Prometheus metrics.
 const MetricNamespace = "camo"
-const proxySubsystem = "proxy"
+const MetricSubsystem = "proxy"
 
 var (
 	contentLengthExceeded = promauto.NewCounter(
 		prometheus.CounterOpts{
 			Namespace: MetricNamespace,
-			Subsystem: proxySubsystem,
+			Subsystem: MetricSubsystem,
 			Name:      "content_length_exceeded_total",
 			Help:      "The number of requests where the content length was exceeded.",
 		},
@@ -27,7 +27,7 @@ var (
 	responseFailed = promauto.NewCounter(
 		prometheus.CounterOpts{
 			Namespace: MetricNamespace,
-			Subsystem: proxySubsystem,
+			Subsystem: MetricSubsystem,
 			Name:      "reponses_failed_total",
 			Help:      "The number of responses that failed to send to the client.",
 		},
@@ -35,7 +35,7 @@ var (
 	responseTruncated = promauto.NewCounter(
 		prometheus.CounterOpts{
 			Namespace: MetricNamespace,
-			Subsystem: proxySubsystem,
+			Subsystem: MetricSubsystem,
 			Name:      "reponses_truncated_total",
 			Help:      "The number of responess that were too large to send.",
 		},
