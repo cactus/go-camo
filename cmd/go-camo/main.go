@@ -27,12 +27,15 @@ import (
 	"github.com/prometheus/common/version"
 )
 
+const metricNamespace = "camo"
+
 var (
 	// ServerVersion holds the server version string
 	ServerVersion = "no-version"
-	responseSize  = promauto.NewHistogramVec(
+
+	responseSize = promauto.NewHistogramVec(
 		prometheus.HistogramOpts{
-			Namespace: camo.MetricNamespace,
+			Namespace: metricNamespace,
 			Name:      "response_size_bytes",
 			Help:      "A histogram of sizes for proxy responses.",
 			Buckets:   prometheus.ExponentialBuckets(1024, 2, 10),
@@ -41,7 +44,7 @@ var (
 	)
 	responseDuration = promauto.NewHistogramVec(
 		prometheus.HistogramOpts{
-			Namespace: camo.MetricNamespace,
+			Namespace: metricNamespace,
 			Name:      "response_duration_seconds",
 			Help:      "A histogram of latencies for proxy responses.",
 			Buckets:   prometheus.DefBuckets,
@@ -50,7 +53,7 @@ var (
 	)
 	responseCount = promauto.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: camo.MetricNamespace,
+			Namespace: metricNamespace,
 			Name:      "responses_total",
 			Help:      "Total HTTP requests processed by the go-camo, excluding scrapes.",
 		},
@@ -287,13 +290,11 @@ func main() {
 		http.Handle("/metrics", promhttp.Handler())
 		// Register a version info metric.
 		version.Version = ServerVersion
-		prometheus.MustRegister(version.NewCollector(camo.MetricNamespace))
+		prometheus.MustRegister(version.NewCollector(metricNamespace))
 		// Wrap the dumb router in instrumentation.
-		router = promhttp.InstrumentHandlerDuration(responseDuration,
-			promhttp.InstrumentHandlerResponseSize(responseSize,
-				promhttp.InstrumentHandlerCounter(responseCount, router),
-			),
-		)
+		router = promhttp.InstrumentHandlerDuration(responseDuration, router)
+		router = promhttp.InstrumentHandlerCounter(responseCount, router)
+		router = promhttp.InstrumentHandlerResponseSize(responseSize, router)
 	}
 
 	http.Handle("/", router)
