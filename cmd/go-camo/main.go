@@ -288,7 +288,6 @@ func main() {
 		// Register a version info metric.
 		version.Version = ServerVersion
 		prometheus.MustRegister(version.NewCollector(camo.MetricNamespace))
-		mlog.Printf(version.Info())
 		// Wrap the dumb router in instrumentation.
 		router = promhttp.InstrumentHandlerDuration(responseDuration,
 			promhttp.InstrumentHandlerResponseSize(responseSize,
