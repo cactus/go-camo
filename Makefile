@@ -9,10 +9,6 @@ SIGN_KEY          ?= ${HOME}/.minisign/go-camo.key
 # app specific info
 APP_NAME          := go-camo
 APP_VER           := $(shell git describe --always --tags|sed 's/^v//')
-BRANCH_VAR        := github.com/prometheus/common/version.Branch
-BRANCH            ?= $(shell git rev-parse --abbrev-ref HEAD)
-REVISION_VAR      := github.com/prometheus/common/version.Revision
-REVISION          ?= $(shell git rev-parse HEAD)
 VERSION_VAR       := main.ServerVersion
 
 # flags and build configuration
@@ -20,7 +16,7 @@ GOBUILD_OPTIONS   := -trimpath
 GOTEST_FLAGS      := -cpu=1,2
 GOBUILD_DEPFLAGS  := -tags netgo
 GOBUILD_LDFLAGS   ?= -s -w
-GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} ${GOBUILD_OPTIONS} -ldflags "${GOBUILD_LDFLAGS} -X ${BRANCH_VAR}=${BRANCH} -X ${REVISION_VAR}=${REVISION} -X ${VERSION_VAR}=${APP_VER}"
+GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} ${GOBUILD_OPTIONS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${APP_VER}"
 
 # cross compile defs
 CC_BUILD_ARCHES    = darwin/amd64 freebsd/amd64 linux/amd64

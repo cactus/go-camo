@@ -51,8 +51,8 @@ var (
 	responseCount = promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: camo.MetricNamespace,
-			Name: "responses_total",
-			Help: "Total HTTP requests processed by the go-camo, excluding scrapes.",
+			Name:      "responses_total",
+			Help:      "Total HTTP requests processed by the go-camo, excluding scrapes.",
 		},
 		[]string{"code", "method"},
 	)
@@ -292,7 +292,7 @@ func main() {
 		// Wrap the dumb router in instrumentation.
 		router = promhttp.InstrumentHandlerDuration(responseDuration,
 			promhttp.InstrumentHandlerResponseSize(responseSize,
-			  promhttp.InstrumentHandlerCounter(responseCount, router),
+				promhttp.InstrumentHandlerCounter(responseCount, router),
 			),
 		)
 	}
