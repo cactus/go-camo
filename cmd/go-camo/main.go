@@ -24,30 +24,37 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/prometheus/common/version"
 )
-
-const metricNamespace = "camo"
 
 var (
 	// ServerVersion holds the server version string
 	ServerVersion = "no-version"
 	responseSize  = promauto.NewHistogramVec(
 		prometheus.HistogramOpts{
-			Namespace: metricNamespace,
+			Namespace: camo.MetricNamespace,
 			Name:      "response_size_bytes",
-			Help:      "A histogram of response sizes for requests.",
+			Help:      "A histogram of sizes for proxy responses.",
 			Buckets:   prometheus.ExponentialBuckets(1024, 2, 10),
 		},
 		[]string{},
 	)
 	responseDuration = promauto.NewHistogramVec(
 		prometheus.HistogramOpts{
-			Namespace: metricNamespace,
+			Namespace: camo.MetricNamespace,
 			Name:      "response_duration_seconds",
-			Help:      "A histogram of latencies for requests.",
+			Help:      "A histogram of latencies for proxy responses.",
 			Buckets:   prometheus.DefBuckets,
 		},
 		[]string{},
+	)
+	responseCount = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace: camo.MetricNamespace,
+			Name: "responses_total",
+			Help: "Total HTTP requests processed by the go-camo, excluding scrapes.",
+		},
+		[]string{"code", "method"},
 	)
 )
 
@@ -278,9 +285,15 @@ func main() {
 	if opts.Metrics {
 		mlog.Printf("Enabling metrics at /metrics")
 		http.Handle("/metrics", promhttp.Handler())
+		// Register a version info metric.
+		version.Version = ServerVersion
+		prometheus.MustRegister(version.NewCollector(camo.MetricNamespace))
+		mlog.Printf(version.Info())
 		// Wrap the dumb router in instrumentation.
 		router = promhttp.InstrumentHandlerDuration(responseDuration,
-			promhttp.InstrumentHandlerResponseSize(responseSize, router),
+			promhttp.InstrumentHandlerResponseSize(responseSize,
+			  promhttp.InstrumentHandlerCounter(responseCount, router),
+			),
 		)
 	}
 
