@@ -75,12 +75,14 @@ func TestGlobPathCheckerPathsMisc(t *testing.T) {
 	rules := []string{
 		"|i|image/*",
 		"||video/mp4",
+		"||audio/ogg",
 		"||pickle/dill+brine",
 	}
 
 	testMatch := []string{
 		"image/png",
 		"video/mp4",
+		"audio/ogg",
 		"pickle/dill+brine",
 	}
 
@@ -92,6 +94,8 @@ func TestGlobPathCheckerPathsMisc(t *testing.T) {
 		"ximage/png\n",
 		"VIDEO/mp4",
 		"xVIDEO/mp4",
+		"AUDIO/ogg",
+		"xAUDIO/ogg",
 		"pickle/dill+briney",
 		"pickley/dilly+brine",
 	}

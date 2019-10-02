@@ -42,6 +42,7 @@ type Config struct {
 	EnableXFwdFor bool
 	// additional content types to allow
 	AllowContentVideo bool
+	AllowContentAudio bool
 	// allow URLs to contain user/pass credentials
 	AllowCredetialURLs bool
 	// Whether to call/increment metrics
@@ -444,6 +445,9 @@ func New(pc Config) (*Proxy, error) {
 	// add additional accept types, if appropriate
 	if pc.AllowContentVideo {
 		acceptTypes = append(acceptTypes, "video/*")
+	}
+	if pc.AllowContentAudio {
+		acceptTypes = append(acceptTypes, "audio/*")
 	}
 
 	// re-use the htrie glob path checker for accept types validation

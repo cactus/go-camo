@@ -145,6 +145,7 @@ func main() {
 		DisableKeepAlivesFE bool          `long:"no-fk" description:"Disable frontend http keep-alive support"`
 		DisableKeepAlivesBE bool          `long:"no-bk" description:"Disable backend http keep-alive support"`
 		AllowContentVideo   bool          `long:"allow-content-video" description:"Additionally allow 'video/*' content"`
+		AllowContentAudio   bool          `long:"allow-content-audio" description:"Additionally allow 'audio/*' content"`
 		AllowCredetialURLs  bool          `long:"allow-credential-urls" description:"Allow urls to contain user/pass credentials"`
 		FilterRuleset       string        `long:"filter-ruleset" description:"Text file containing filtering rules (one per line)"`
 		ServerName          string        `long:"server-name" default:"go-camo" description:"Value to use for the HTTP server field"`
@@ -224,6 +225,7 @@ func main() {
 
 	// additional content types to allow
 	config.AllowContentVideo = opts.AllowContentVideo
+	config.AllowContentAudio = opts.AllowContentAudio
 
 	var filters []camo.FilterFunc
 	if opts.FilterRuleset != "" {

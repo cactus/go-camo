@@ -243,6 +243,7 @@ Application Options:
       --no-fk                  Disable frontend http keep-alive support
       --no-bk                  Disable backend http keep-alive support
       --allow-content-video    Additionally allow 'video/*' content
+      --allow-content-audio    Additionally allow 'audio/*' content
       --allow-credential-urls  Allow urls to contain user/pass credentials
       --filter-ruleset=        Text file containing filtering rules (one per line)
       --server-name=           Value to use for the HTTP server field (default: go-camo)
