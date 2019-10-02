@@ -2,21 +2,20 @@ Changelog
 =========
 
 ## HEAD
-*   Support `audio/*` with `--allow-content-audio` flag
-    (similar to how video is handled)
+*   Support `audio/*` with `--allow-content-audio` flag (similar to how video
+    is handled)
 *   Additional metrics datapoints when using `--metrics`
-*   support only go 1.13, due to use of new error wrapping semantics
-*   improved client connection early abort handling
-*   improved max response side handling -- only read MaxSize KB from any
+*   Support only go 1.13, due to use of new error wrapping semantics
+*   Improve client connection early abort handling
+*   Improve max response side handling -- only read MaxSize KB from any
     upstream server. Note: This may result in partial responses to clients
     for chunked encoding requests that are longer than MaxSize, as there is
     no way to signal the client other than closing the connection.
-*   change default --max-size to 0
-    previously chunked encoding responses bypassed size restrictions. to
-    avoid unexpected failures (preserve backwards compate in this
-    regard), set max-size to 0 by default moving forward.
-    previous default was 5mb (`--max-size=5120`)
-
+*   Change default of `--max-size` to 0, as previously chunked encoding
+    responses bypassed size restrictions (only content-length was previously
+    enforced). To avoid unexpected failures (preserve backwards compate in this
+    regard), set max-size to 0 by default moving forward. Previous default was
+    5mb (use `--max-size=5120` to set to previous default).
 
 ## v2.0.1 2019-09-12
 *   Slightly optimize some structure layouts to reduce memory overhead.
