@@ -1,5 +1,19 @@
 = Changelog
-:toc:
+:toc: macro
+ifdef::env-github[]
+:toc-title:
+:tip-caption: :bulb:
+:note-caption: :bulb:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+ifdef::env-github[]
+[discrete]
+== Contents
+endif::[]
+toc::[]
 
 == HEAD
 

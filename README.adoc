@@ -2,6 +2,7 @@
 :toc: macro
 :hide-uri-scheme:
 ifdef::env-github[]
+:toc-title:
 :tip-caption: :bulb:
 :note-caption: :bulb:
 :important-caption: :heavy_exclamation_mark:
@@ -14,6 +15,10 @@ image:https://github.com/cactus/go-camo/workflows/unit-tests/badge.svg[BuildStat
 image:.github/img-readme-license.svg[License,link=https://github.com/cactus/go-camo/blob/master/LICENSE.md]
 // image:https://circleci.com/gh/cactus/go-camo.svg?style=svg[CircleCI,link=https://circleci.com/gh/cactus/go-camo]
 
+ifdef::env-github[]
+[discrete]
+== Contents
+endif::[]
 toc::[]
 
 == About
