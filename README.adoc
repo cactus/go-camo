@@ -12,7 +12,7 @@ endif::[]
 
 image:https://img.shields.io/github/release/cactus/go-camo.svg[Current Release,link=http://github.com/cactus/go-camo/releases]
 image:https://github.com/cactus/go-camo/workflows/unit-tests/badge.svg[BuildStatus]
-image:.github/img-readme-license.svg[License,link=https://github.com/cactus/go-camo/blob/master/LICENSE.md]
+image:.github/img-readme-license.svg[License,link=https://github.com/cactus/go-camo/blob/master/LICENSE.adoc]
 // image:https://circleci.com/gh/cactus/go-camo.svg?style=svg[CircleCI,link=https://circleci.com/gh/cactus/go-camo]
 
 ifdef::env-github[]
@@ -479,5 +479,4 @@ See xref:CHANGELOG.adoc[CHANGELOG.adoc]
 == License
 
 Released under the http://www.opensource.org/licenses/mit-license.php[MIT
-license]. See `LICENSE.md`
-file for details.
+license]. See `LICENSE.adoc` file for details.
