@@ -93,13 +93,16 @@ tar: all
 
 cross-tar: man setup setup-gox
 	@echo "Building (cross-compile: ${CC_BUILD_ARCHES})..."
-	@echo "...go-camo..."
-	@gox -gocmd="go" -output="${CC_OUTPUT_TPL}" -osarch="${CC_BUILD_ARCHES}" ${GOBUILD_FLAGS} ./cmd/go-camo
-	@echo
-
-	@echo "...url-tool..."
-	@gox -gocmd="go" -output="${CC_OUTPUT_TPL}" -osarch="${CC_BUILD_ARCHES}" ${GOBUILD_FLAGS} ./cmd/url-tool
-	@echo
+	@(for x in go-camo url-tool; do \
+		echo "...$${x}..."; \
+		env GOFLAGS="${GOBUILD_OPTIONS}" gox \
+			-gocmd="go" \
+			-output="${CC_OUTPUT_TPL}" \
+			-osarch="${CC_BUILD_ARCHES}" \
+			-ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${APP_VER}" \
+		${GOBUILD_DEPFLAGS} ./cmd/$${x}; \
+		echo; \
+	done)
 
 	@echo "...creating tar files..."
 	@(for x in $(subst /,-,${CC_BUILD_ARCHES}); do \
