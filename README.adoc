@@ -1,12 +1,20 @@
 = go-camo
 :toc: macro
 :hide-uri-scheme:
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :bulb:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
 
 image:https://img.shields.io/github/release/cactus/go-camo.svg[Current Release,link=http://github.com/cactus/go-camo/releases]
 image:https://github.com/cactus/go-camo/workflows/unit-tests/badge.svg[BuildStatus]
 image:.github/img-readme-license.svg[License,link=https://github.com/cactus/go-camo/blob/master/LICENSE.md]
 // image:https://circleci.com/gh/cactus/go-camo.svg?style=svg[CircleCI,link=https://circleci.com/gh/cactus/go-camo]
 
+.*Contents*
 toc::[]
 
 == About

@@ -1,5 +1,8 @@
 = Changelog
-:toc:
+:toc: macro
+
+.*Contents*
+toc::[]
 
 == HEAD
 
