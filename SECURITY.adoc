@@ -1,8 +1,5 @@
 = Security Policy
-:toc: macro
-
-.*Contents*
-toc::[]
+:toc:
 
 == Supported Versions
 
