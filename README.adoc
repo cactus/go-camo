@@ -474,9 +474,9 @@ specifically need a container.
 
 == Changelog
 
-See xref:CHANGELOG.adoc[CHANGELOG.adoc]
+See xref:CHANGELOG.adoc[CHANGELOG].
 
 == License
 
-Released under the http://www.opensource.org/licenses/mit-license.php[MIT
-license]. See `LICENSE.adoc` file for details.
+Released under the http://www.opensource.org/licenses/mit-license.php[MIT license].
+See xref:LICENSE.adoc[LICENSE] file for details.
