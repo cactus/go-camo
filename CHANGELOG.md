@@ -2,6 +2,8 @@ Changelog
 =========
 
 ## HEAD
+
+## v2.1.0 2019-10-02
 *   Support `audio/*` with `--allow-content-audio` flag (similar to how video
     is handled)
 *   Additional metrics datapoints when using `--metrics`
