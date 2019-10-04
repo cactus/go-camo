@@ -1,3 +1,7 @@
+# Copyright (c) 2012-2019 Eli Janssen
+# Use of this source code is governed by an MIT-style
+# license that can be found in the LICENSE file.
+
 # this example shows how filtering can be done on the url generation side.
 # this example through https urls (no proxying required), and only allows http
 # requests over port 80.
