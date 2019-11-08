@@ -101,6 +101,40 @@ func TestBadContentType(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestContentTypeParams(t *testing.T) {
+	t.Parallel()
+	testURL := "http://httpbin.org/response-headers?Content-Type=image/svg%2Bxml;charset%3DUTF-8"
+	resp, err := makeTestReq(testURL, 200, camoConfig)
+
+	assert.Nil(t, err)
+	if assert.Nil(t, err) {
+		headerAssert(t, "image/svg+xml; charset=UTF-8", "content-type", resp)
+	}
+}
+
+func TestBadContentTypeSmuggle(t *testing.T) {
+	t.Parallel()
+	testURL := "http://httpbin.org/response-headers?Content-Type=image/png,%20text/html;%20charset%3DUTF-8"
+	_, err := makeTestReq(testURL, 400, camoConfig)
+	assert.Nil(t, err)
+
+	testURL = "http://httpbin.org/response-headers?Content-Type=image/png,text/html;%20charset%3DUTF-8"
+	_, err = makeTestReq(testURL, 400, camoConfig)
+	assert.Nil(t, err)
+
+	testURL = "http://httpbin.org/response-headers?Content-Type=image/png%20text/html"
+	_, err = makeTestReq(testURL, 400, camoConfig)
+	assert.Nil(t, err)
+
+	testURL = "http://httpbin.org/response-headers?Content-Type=image/png%;text/html"
+	_, err = makeTestReq(testURL, 400, camoConfig)
+	assert.Nil(t, err)
+
+	testURL = "http://httpbin.org/response-headers?Content-Type=image/png;%20charset%3DUTF-8;text/html"
+	_, err = makeTestReq(testURL, 400, camoConfig)
+	assert.Nil(t, err)
+}
+
 func TestXForwardedFor(t *testing.T) {
 	t.Parallel()
 
