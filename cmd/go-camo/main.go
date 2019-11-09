@@ -62,9 +62,10 @@ var (
 )
 
 func loadFilterList(fname string) ([]camo.FilterFunc, error) {
+	// #nosec
 	file, err := os.Open(fname)
 	if err != nil {
-		return nil, fmt.Errorf("Could not open filter-ruleset file: %s", err)
+		return nil, fmt.Errorf("could not open filter-ruleset file: %s", err)
 	}
 	defer file.Close()
 
@@ -101,7 +102,7 @@ func loadFilterList(fname string) ([]camo.FilterFunc, error) {
 		}
 	}
 	if err != nil {
-		return nil, fmt.Errorf("Error building filter ruleset: %s", err)
+		return nil, fmt.Errorf("error building filter ruleset: %s", err)
 	}
 
 	// append in order. allow first, then deny filters.

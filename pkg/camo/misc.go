@@ -92,6 +92,7 @@ func isRejectedIP(ip net.IP) bool {
 func containsOneOf(s string, substrs ...string) bool {
 	j := len(substrs)
 	for i := 0; i < j; i++ {
+		//lint:ignore S1003 avoid additional method call overhead
 		if strings.Index(s, substrs[i]) >= 0 {
 			return true
 		}

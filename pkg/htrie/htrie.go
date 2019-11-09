@@ -94,7 +94,7 @@ func (dt *URLMatcher) parseRule(rule string) ([]string, error) {
 		rule = strings.TrimRight(rule, "|")
 	}
 	if strings.Count(rule, "|") != 4 {
-		return nil, fmt.Errorf("Bad rule format: %s", rule)
+		return nil, fmt.Errorf("bad rule format: %s", rule)
 	}
 
 	ruleset := make([]strings.Builder, 4)
@@ -105,7 +105,10 @@ func (dt *URLMatcher) parseRule(rule string) ([]string, error) {
 			index++
 			continue
 		}
-		ruleset[index].WriteRune(r)
+		_, err := ruleset[index].WriteRune(r)
+		if err != nil {
+			return nil, err
+		}
 	}
 	parts := make([]string, 4)
 	for i, sb := range ruleset {

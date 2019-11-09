@@ -26,16 +26,16 @@ type EncodeCommand struct {
 // Execute runs the encode command
 func (c *EncodeCommand) Execute(args []string) error {
 	if opts.HmacKey == "" {
-		return errors.New("Empty HMAC")
+		return errors.New("empty HMAC")
 	}
 
 	if len(args) == 0 {
-		return errors.New("No url argument provided")
+		return errors.New("no url argument provided")
 	}
 
 	oURL := args[0]
 	if oURL == "" {
-		return errors.New("No url argument provided")
+		return errors.New("no url argument provided")
 	}
 
 	hmacKeyBytes := []byte(opts.HmacKey)
@@ -46,7 +46,7 @@ func (c *EncodeCommand) Execute(args []string) error {
 	case "hex":
 		outURL = encoding.HexEncodeURL(hmacKeyBytes, oURL)
 	default:
-		return errors.New("Invalid base provided")
+		return errors.New("invalid base provided")
 	}
 	fmt.Println(c.Prefix + outURL)
 	return nil
@@ -58,16 +58,16 @@ type DecodeCommand struct{}
 // Execute runs the decode command
 func (c *DecodeCommand) Execute(args []string) error {
 	if opts.HmacKey == "" {
-		return errors.New("Empty HMAC")
+		return errors.New("empty HMAC")
 	}
 
 	if len(args) == 0 {
-		return errors.New("No url argument provided")
+		return errors.New("no url argument provided")
 	}
 
 	oURL := args[0]
 	if oURL == "" {
-		return errors.New("No url argument provided")
+		return errors.New("no url argument provided")
 	}
 
 	hmacKeyBytes := []byte(opts.HmacKey)
@@ -89,6 +89,7 @@ var opts struct {
 	HmacKey string `short:"k" long:"key" description:"HMAC key"`
 }
 
+// #nosec G104
 func main() {
 	parser := flags.NewParser(&opts, flags.Default)
 	parser.AddCommand("encode", "Encode a url and print result",

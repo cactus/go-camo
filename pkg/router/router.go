@@ -29,7 +29,7 @@ func (dr *DumbRouter) SetHeaders(w http.ResponseWriter) {
 // HealthCheckHandler is HTTP handler for confirming the backend service
 // is available from an external client, such as a load balancer.
 func (dr *DumbRouter) HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 }
 
 // ServeHTTP fulfills the http server interface
@@ -38,7 +38,7 @@ func (dr *DumbRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	dr.SetHeaders(w)
 
 	if r.Method != "HEAD" && r.Method != "GET" {
-		http.Error(w, "Method Not Allowed", 405)
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -53,5 +53,5 @@ func (dr *DumbRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Error(w, "404 Not Found", 404)
+	http.Error(w, "404 Not Found", http.StatusNotFound)
 }

@@ -32,6 +32,15 @@ jobs:
           GOPROXY: "https://proxy.golang.org"
         run: make build
 
+      - name: Check
+        env:
+          GOPROXY: "https://proxy.golang.org"
+        run: |
+          go get honnef.co/go/tools/cmd/staticcheck
+          go get github.com/securego/gosec/cmd/gosec
+          hash -r
+          make check
+
       - name: Tests
         env:
           GOPROXY: "https://proxy.golang.org"

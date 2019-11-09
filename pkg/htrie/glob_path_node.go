@@ -150,13 +150,9 @@ func (gpn *globPathNode) globConsume(s string, index, mlen int) bool {
 		// was this the last char in path?
 		if i == mlen-1 {
 			// reached the end without a match, and the glob wasn't at the end
-			// of the line...
-			if !curnode.canMatch {
-				return false
-			}
-			// this should be covered by the test in the start of the function,
-			// but add it here in case the code changes in the future.
-			return true
+			// of the line... return whether the curnode can match or not,
+			// to determine overall success or failure
+			return curnode.canMatch
 		}
 
 		// if we walked the branch, and got no match, we may just need to consume
@@ -257,7 +253,7 @@ func newGlobPathNode(icase bool) *globPathNode {
 	// and since we only /really/ care about lookup costs, just start with 0 initial
 	// map size and let it grow as needed
 	return &globPathNode{
-		subtrees: make(map[uint32]*globPathNode, 0),
+		subtrees: make(map[uint32]*globPathNode),
 		icase:    icase,
 	}
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/cactus/go-camo/pkg/htrie"
 )
 
-var RedirectErr = errors.New("RedirectErr")
+var ErrRedirect = errors.New("ErrRedirect")
 
 // ValidReqHeaders are http request headers that are acceptable to pass from
 // the client to the remote server. Only those present and true, are forwarded.

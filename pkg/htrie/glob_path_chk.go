@@ -21,7 +21,7 @@ type GlobPathChecker struct {
 func (gpc *GlobPathChecker) parseRule(rule string) (string, string, error) {
 	rule = strings.TrimRight(rule, "|")
 	if strings.Count(rule, "|") != 2 {
-		return "", "", fmt.Errorf("Bad rule format: %s", rule)
+		return "", "", fmt.Errorf("bad rule format: %s", rule)
 	}
 
 	ruleset := make([]strings.Builder, 2)
@@ -32,7 +32,10 @@ func (gpc *GlobPathChecker) parseRule(rule string) (string, string, error) {
 			index++
 			continue
 		}
-		ruleset[index].WriteRune(r)
+		_, err := ruleset[index].WriteRune(r)
+		if err != nil {
+			return "", "", err
+		}
 	}
 	parts := make([]string, 2)
 	for i, sb := range ruleset {

@@ -6,7 +6,7 @@ package encoding
 
 import (
 	"crypto/hmac"
-	"crypto/sha1"
+	"crypto/sha1" // #nosec G505 -- used for hmac only
 	"crypto/subtle"
 	"encoding/base64"
 	"encoding/hex"
@@ -24,7 +24,7 @@ type EncoderFunc func([]byte, string) string
 
 func validateURL(hmackey *[]byte, macbytes *[]byte, urlbytes *[]byte) error {
 	mac := hmac.New(sha1.New, *hmackey)
-	mac.Write(*urlbytes)
+	mac.Write(*urlbytes) // #nosec G104 -- doesn't apply to hmac
 	macSum := mac.Sum(nil)
 
 	// ensure lengths are equal. if not, return false
@@ -75,7 +75,7 @@ func HexDecodeURL(hmackey []byte, hexdig string, hexURL string) (string, error) 
 func HexEncodeURL(hmacKey []byte, oURL string) string {
 	oBytes := []byte(oURL)
 	mac := hmac.New(sha1.New, hmacKey)
-	mac.Write(oBytes)
+	mac.Write(oBytes) // #nosec G104 -- doesn't apply to hmac
 	macSum := hex.EncodeToString(mac.Sum(nil))
 	encodedURL := hex.EncodeToString(oBytes)
 	hexURL := "/" + macSum + "/" + encodedURL
@@ -106,7 +106,7 @@ func B64DecodeURL(hmackey []byte, encdig string, encURL string) (string, error) 
 func B64EncodeURL(hmacKey []byte, oURL string) string {
 	oBytes := []byte(oURL)
 	mac := hmac.New(sha1.New, hmacKey)
-	mac.Write(oBytes)
+	mac.Write(oBytes) // #nosec G104 -- doesn't apply to hmac
 	macSum := b64encode(mac.Sum(nil))
 	encodedURL := b64encode(oBytes)
 	encURL := "/" + macSum + "/" + encodedURL

@@ -23,6 +23,9 @@ import (
 	"github.com/cactus/mlog"
 )
 
+//lint:file-ignore ST1005 Ignore string case error to maintain existing responses
+// as some may people parse these
+
 // Config holds configuration data used when creating a Proxy with New.
 type Config struct {
 	// HMACKey is a byte slice to be used as the hmac key
@@ -171,7 +174,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 				mlog.Debugm("client aborted request (early)", mlog.Map{"req": req})
 			}
 			return
-		} else if errors.Is(err, RedirectErr) {
+		} else if errors.Is(err, ErrRedirect) {
 			// Got a bad redirect
 			if mlog.HasDebug() {
 				mlog.Debugm("bad redirect from server", mlog.Map{"err": err})
@@ -471,14 +474,14 @@ func New(pc Config) (*Proxy, error) {
 			if mlog.HasDebug() {
 				mlog.Debug("Got bad redirect: Too many redirects", mlog.Map{"url": req})
 			}
-			return fmt.Errorf("Too many redirects: %w", RedirectErr)
+			return fmt.Errorf("Too many redirects: %w", ErrRedirect)
 		}
 		err := p.checkURL(req.URL)
 		if err != nil {
 			if mlog.HasDebug() {
 				mlog.Debugm("Got bad redirect", mlog.Map{"url": req})
 			}
-			return fmt.Errorf("Bad redirect: %w", RedirectErr)
+			return fmt.Errorf("Bad redirect: %w", ErrRedirect)
 		}
 
 		return nil

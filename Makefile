@@ -75,6 +75,15 @@ cover: setup
 	@echo "Running tests with coverage..."
 	@env go test -cover ${GOTEST_FLAGS} ./...
 
+check: setup
+	@echo "Running checks and validators..."
+	@echo "... staticcheck ..."
+	@$$(go env GOPATH)/bin/staticcheck ./...
+	@echo "... go-vet ..."
+	@go vet ./...
+	@echo "... gosec ..."
+	@$$(go env GOPATH)/bin/gosec -quiet ./...
+
 ${BUILDDIR}/man/%: man/%.adoc
 	@[ -d "${BUILDDIR}/man" ] || mkdir -p "${BUILDDIR}/man"
 	@asciidoctor -b manpage -a release-version="${APP_VER}" -o $@ $<
