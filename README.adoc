@@ -269,12 +269,12 @@ More generally, it is recommended to either:
 === Environment Vars
 
 *   `GOCAMO_HMAC` - HMAC key to use.
-*   `HTTPS_PROXY` - Configure an outbound proxy for https requests. +
-    Either a complete URL or a `host[:port]`, in which case an http scheme
-    is assumed. It will be used as the proxy URL for HTTPS requests.
-*   `HTTP_PROXY` - Configure an outbound proxy for http requests. +
-    Either a complete URL or a `host[:port]`, in which case an http scheme
-    is assumed. It will be used as the proxy URL for HTTP requests.
+*   `HTTPS_PROXY` - Configure an outbound proxy for HTTPS requests. +
+    Either a complete URL or a `host[:port]`, in which case an HTTP scheme
+    is assumed.
+*   `HTTP_PROXY` - Configure an outbound proxy for HTTP requests. +
+    Either a complete URL or a `host[:port]`, in which case an HTTP scheme
+    is assumed.
 
 === Command line flags
 
