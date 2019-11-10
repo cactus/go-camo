@@ -15,7 +15,14 @@ ifdef::env-github[]
 endif::[]
 toc::[]
 
+:link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
+
 == HEAD
+
+*   Add `ProxyFromEnvironment` support. This uses HTTP proxies directed by the
+    `HTTP_PROXY` and `NO_PROXY` (or `http_proxy` and `no_proxy`) environment
+    variables. See {link-proxy-from-env} for more info.
+*   Bump 
 
 == v2.1.0 - 2019-10-02
 

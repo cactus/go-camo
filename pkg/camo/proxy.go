@@ -419,7 +419,14 @@ func New(pc Config) (*Proxy, error) {
 			Timeout:   3 * time.Second,
 			KeepAlive: 30 * time.Second,
 		}).DialContext,
-		TLSHandshakeTimeout: 3 * time.Second,
+
+		// Use proxy from environment
+		// It uses HTTP proxies as directed by the $HTTP_PROXY and $NO_PROXY
+		// (or $http_proxy and $no_poxy) environment variables.
+		//
+		// Also Note: This is invoked as a once.Do deep in go http client, and
+		// reified, to avoid constant overhead. Nice.
+		Proxy: http.ProxyFromEnvironment,
 
 		// max idle conns. Go DetaultTransport uses 100, which seems like a
 		// fairly reasonable number. Very busy servers may wish to raise
@@ -429,6 +436,7 @@ func New(pc Config) (*Proxy, error) {
 
 		// more defaults from DefaultTransport, with a few tweaks
 		IdleConnTimeout:       30 * time.Second,
+		TLSHandshakeTimeout:   3 * time.Second,
 		ExpectContinueTimeout: 1 * time.Second,
 
 		DisableKeepAlives: pc.DisableKeepAlivesBE,
