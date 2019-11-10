@@ -29,6 +29,14 @@ with an HMAC.
 *GOCAMO_HMAC*::
     The HMAC key to use.
 
+*HTTPS_PROXY*::
+    Either a complete URL or a `host[:port]`, in which case the __http__ scheme
+    is assumed. *HTTPS_PROXY* takes precedence over *HTTP_PROXY* for https requests.
+
+*HTTP_PROXY*::
+    Either a complete URL or a `host[:port]`, in which case the __http__ scheme
+    is assumed. *HTTPS_PROXY* takes precedence over *HTTP_PROXY* for https requests.
+
 
 [NOTE]
 .On Environmen Vars vs OPTIONS precedence
