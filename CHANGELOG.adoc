@@ -19,7 +19,7 @@ toc::[]
 
 == HEAD
 
-== v2.1.1 - 2019-11-11
+== v2.1.1 - 2019-11-12
 
 *   Security fixes / content-type validation
 *   Add `ProxyFromEnvironment` support. This uses HTTP proxies directed by the
