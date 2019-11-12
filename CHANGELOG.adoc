@@ -19,6 +19,9 @@ toc::[]
 
 == HEAD
 
+== v2.1.1 - 2019-11-11
+
+*   Security fixes / content-type validation
 *   Add `ProxyFromEnvironment` support. This uses HTTP proxies directed by the
     `HTTP_PROXY` and `NO_PROXY` (or `http_proxy` and `no_proxy`) environment
     variables. See {link-proxy-from-env} for more info.

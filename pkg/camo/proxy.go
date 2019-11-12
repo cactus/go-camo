@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime"
 	"net"
 	"net/http"
 	"net/url"
@@ -218,10 +219,12 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	var responseContentType string
 	switch resp.StatusCode {
 	case 200, 206:
 		contentType := resp.Header.Get("Content-Type")
 
+		// early abort if content type is empty. avoids empty mime parsing overhead.
 		if contentType == "" {
 			if mlog.HasDebug() {
 				mlog.Debug("Empty content-type returned")
@@ -230,9 +233,32 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		if !p.acceptTypesFilter.CheckPath(contentType) {
+		// content-type: image/png; charset=...
+		// be careful of malformed content type records. apparently some browsers
+		// only loosely validate this, and tend to pick whichever one "seems correct",
+		// or have a "default fallback" such as text/html, which would be insecure in
+		// this context.
+		// content-type: image/png, text/html; charset=...
+		mediatype, param, err := mime.ParseMediaType(contentType)
+		if err != nil || !p.acceptTypesFilter.CheckPath(mediatype) {
 			if mlog.HasDebug() {
 				mlog.Debugm("Unsupported content-type returned", mlog.Map{"type": u})
+			}
+			http.Error(w, "Unsupported content-type returned", http.StatusBadRequest)
+			return
+		}
+
+		// add params back in, as certain content types have various optional and/or
+		// required parameters.
+		// refs: https://www.iana.org/assignments/media-types/media-types.xhtml
+		responseContentType = mime.FormatMediaType(mediatype, param)
+
+		// also check if the parsed content type is empty, just to be safe.
+		// note: round trip of mediatype and params _should_ be fine, but guard
+		// against implementation changes or bugs.
+		if responseContentType == "" {
+			if mlog.HasDebug() {
+				mlog.Debug("Unsupported content-type returned")
 			}
 			http.Error(w, "Unsupported content-type returned", http.StatusBadRequest)
 			return
@@ -264,6 +290,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	h := w.Header()
 	p.copyHeaders(&h, &resp.Header, &ValidRespHeaders)
+	// set content type based on parsed content type, not originally supplied
+	h.Set("content-type", responseContentType)
 	w.WriteHeader(resp.StatusCode)
 
 	// get a []byte from bufpool, and put it back on defer

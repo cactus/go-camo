@@ -88,7 +88,7 @@ func bodyAssert(t *testing.T, expected string, resp *http.Response) {
 func headerAssert(t *testing.T, expected, name string, resp *http.Response) {
 	assert.Equal(
 		t, expected, resp.Header.Get(name),
-		"Expected response header 'Server' not found",
+		"Expected response header mismatch",
 	)
 }
 
