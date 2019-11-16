@@ -12,14 +12,14 @@ jobs:
     name: Build
     strategy:
       matrix:
-        goVer: [1.13]
+        go: ['1.13.x']
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
     steps:
-      - name: Setup Go ${{ matrix.goVer }}
+      - name: Setup Go ${{ matrix.go }}
         uses: actions/setup-go@v1
         with:
-          go-version: ${{ matrix.goVer }}
+          go-version: ${{ matrix.go }}
         id: go
 
       - name: Src Checkout
