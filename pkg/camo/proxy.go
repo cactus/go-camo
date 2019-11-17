@@ -421,7 +421,7 @@ func (p *Proxy) copyHeaders(dst, src *http.Header, filter *map[string]bool) {
 // NewWithFilters returns a new Proxy that utilises the passed in proxy filters.
 // filters are evaluated in order, and the first false response from a filter
 // function halts further evaluation and fails the request.
-func NewWithFilters(pc Config, filters []FilterFunc) (*Proxy, error) {
+func NewWithFilters(pc *Config, filters []FilterFunc) (*Proxy, error) {
 	proxy, err := New(pc)
 	if err != nil {
 		return nil, err
@@ -441,7 +441,7 @@ func NewWithFilters(pc Config, filters []FilterFunc) (*Proxy, error) {
 }
 
 // New returns a new Proxy. Returns an error if Proxy could not be constructed.
-func New(pc Config) (*Proxy, error) {
+func New(pc *Config) (*Proxy, error) {
 	tr := &http.Transport{
 		DialContext: (&net.Dialer{
 			Timeout:   3 * time.Second,
@@ -500,7 +500,7 @@ func New(pc Config) (*Proxy, error) {
 
 	p := &Proxy{
 		client:            client,
-		config:            &pc,
+		config:            pc,
 		acceptTypesString: strings.Join(acceptTypes, ", "),
 		acceptTypesFilter: acceptTypesFilter,
 	}

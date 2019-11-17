@@ -277,7 +277,7 @@ func main() {
 	config.MaxRedirects = opts.MaxRedirects
 	config.ServerName = ServerName
 
-	proxy, err := camo.NewWithFilters(config, filters)
+	proxy, err := camo.NewWithFilters(&config, filters)
 	if err != nil {
 		mlog.Fatal("Error creating camo", err)
 	}
