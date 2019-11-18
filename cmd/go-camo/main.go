@@ -276,9 +276,11 @@ func main() {
 	config.RequestTimeout = opts.ReqTimeout
 	config.MaxRedirects = opts.MaxRedirects
 	config.ServerName = ServerName
+
+	// configure metrics collection in camo
 	if opts.Metrics {
 		config.CollectMetrics = true
-  }
+	}
 
 	proxy, err := camo.NewWithFilters(config, filters)
 	if err != nil {
@@ -291,6 +293,7 @@ func main() {
 		CamoHandler: proxy,
 	}
 
+	// configure router endpoint for rendering metrics
 	if opts.Metrics {
 		mlog.Printf("Enabling metrics at /metrics")
 		http.Handle("/metrics", promhttp.Handler())
