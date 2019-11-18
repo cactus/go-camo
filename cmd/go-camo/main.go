@@ -276,9 +276,22 @@ func main() {
 	config.RequestTimeout = opts.ReqTimeout
 	config.MaxRedirects = opts.MaxRedirects
 	config.ServerName = ServerName
-
 	if opts.Metrics {
 		config.CollectMetrics = true
+  }
+
+	proxy, err := camo.NewWithFilters(config, filters)
+	if err != nil {
+		mlog.Fatal("Error creating camo", err)
+	}
+
+	var router http.Handler = &router.DumbRouter{
+		ServerName:  ServerResponse,
+		AddHeaders:  AddHeaders,
+		CamoHandler: proxy,
+	}
+
+	if opts.Metrics {
 		mlog.Printf("Enabling metrics at /metrics")
 		http.Handle("/metrics", promhttp.Handler())
 		// Register a version info metric.
@@ -296,17 +309,6 @@ func main() {
 		router = promhttp.InstrumentHandlerDuration(responseDuration, router)
 		router = promhttp.InstrumentHandlerCounter(responseCount, router)
 		router = promhttp.InstrumentHandlerResponseSize(responseSize, router)
-	}
-
-	proxy, err := camo.NewWithFilters(config, filters)
-	if err != nil {
-		mlog.Fatal("Error creating camo", err)
-	}
-
-	var router http.Handler = &router.DumbRouter{
-		ServerName:  ServerResponse,
-		AddHeaders:  AddHeaders,
-		CamoHandler: proxy,
 	}
 
 	http.Handle("/", router)
