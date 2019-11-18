@@ -186,6 +186,8 @@ $ make all GOBUILD_LDFLAGS=""
 [source,text]
 ----
 $ go-camo -k "somekey"
+# run the gc less frequently (a bit better performance, uses more memory)
+$ env GOGC=300 go-camo -k "somekey"
 ----
 
 Go-Camo does not daemonize on its own.
