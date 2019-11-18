@@ -18,6 +18,8 @@ toc::[]
 :link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
 
 == HEAD
+
+== v2.1.2 - 2019-11-17
 *   Fix for enabling metrics collection in proxy
 
 == v2.1.1 - 2019-11-12
