@@ -19,7 +19,7 @@ GOBUILD_LDFLAGS   ?= -s -w
 GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} ${GOBUILD_OPTIONS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${APP_VER}"
 
 # cross compile defs
-CC_BUILD_ARCHES    = darwin/amd64 freebsd/amd64 linux/amd64
+CC_BUILD_ARCHES    = darwin/amd64 freebsd/amd64 linux/amd64 windows/amd64
 CC_OUTPUT_TPL     := ${BUILDDIR}/bin/{{.Dir}}.{{.OS}}-{{.Arch}}
 
 # some exported vars (pre-configure go build behavior)
@@ -116,11 +116,13 @@ cross-tar: man setup setup-gox
 	@echo "...creating tar files..."
 	@(for x in $(subst /,-,${CC_BUILD_ARCHES}); do \
 		echo "making tar for ${APP_NAME}.$${x}"; \
+		EXT=""; \
+		if echo "$${x}" | grep -q 'windows-'; then EXT=".exe"; fi; \
 		XDIR="${GOVER}.$${x}"; \
 		ODIR="${TARBUILDDIR}/$${XDIR}/${APP_NAME}-${APP_VER}"; \
 		mkdir -p $${ODIR}/{bin,man}/; \
-		cp ${BUILDDIR}/bin/${APP_NAME}.$${x} $${ODIR}/bin/${APP_NAME}; \
-		cp ${BUILDDIR}/bin/url-tool.$${x} $${ODIR}/bin/url-tool; \
+		cp ${BUILDDIR}/bin/${APP_NAME}.$${x}$${EXT} $${ODIR}/bin/${APP_NAME}$${EXT}; \
+		cp ${BUILDDIR}/bin/url-tool.$${x}$${EXT} $${ODIR}/bin/url-tool$${EXT}; \
 		cp ${BUILDDIR}/man/*.[1-9] $${ODIR}/man/; \
 		tar -C ${TARBUILDDIR}/$${XDIR} -czf ${TARBUILDDIR}/${APP_NAME}-${APP_VER}.$${XDIR}.tar.gz ${APP_NAME}-${APP_VER}; \
 		rm -rf "${TARBUILDDIR}/$${XDIR}/"; \
@@ -137,4 +139,5 @@ release-sign:
 	    -x SHA256.sig -m SHA256; \
 	 )
 
+release: cross-tar release-sign
 all: build man
