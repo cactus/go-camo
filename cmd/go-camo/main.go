@@ -67,6 +67,7 @@ func loadFilterList(fname string) ([]camo.FilterFunc, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not open filter-ruleset file: %s", err)
 	}
+	// #nosec
 	defer file.Close()
 
 	allowFilter := htrie.NewURLMatcher()
