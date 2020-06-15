@@ -103,7 +103,7 @@ func TestBadContentType(t *testing.T) {
 
 func TestContentTypeParams(t *testing.T) {
 	t.Parallel()
-	testURL := "http://httpbin.org/response-headers?Content-Type=image/svg%2Bxml;charset%3DUTF-8"
+	testURL := "http://httpbin.org/response-headers?Content-Type=image/svg%2Bxml;charset=UTF-8"
 	resp, err := makeTestReq(testURL, 200, camoConfig)
 
 	assert.Nil(t, err)

@@ -198,15 +198,15 @@ func TestClientCancelLate(t *testing.T) {
 			for {
 				d, err := cReader.ReadBytes('\n')
 				if err == io.EOF {
-					fmt.Println("got eof")
+					mlog.Debug("got eof")
 					break
 				}
 				assert.Nil(t, err)
-				fmt.Printf("got %s", string(d))
+				mlog.Debugf("got: %s", string(d))
 			}
 			break
 		} else {
-			fmt.Printf("data: %s\n", string(data))
+			mlog.Debugf("data: %s", string(data))
 		}
 	}
 	conn.Close()
