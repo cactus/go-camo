@@ -371,7 +371,7 @@ func (p *Proxy) checkURL(reqURL *url.URL) error {
 		return errors.New("Userinfo URL rejected")
 	}
 
-	// ip/whitelist/blacklist filtering
+	// ip/allow-list/deny-list filtering
 	if !p.config.noIPFiltering {
 		// filter out rejected networks
 		if ip := net.ParseIP(uHostname); ip != nil {

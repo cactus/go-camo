@@ -263,7 +263,7 @@ More generally, it is recommended to either:
 
 *   Run go-camo on an isolated instance (physical, vlans, firewall rules, etc).
 *   Run a local resolver for go-camo that returns NXDOMAIN responses
-    for addresses in blacklisted ranges (e.g. unbound's `private-address` functionality).
+    for addresses in deny-listed ranges (e.g. unbound's `private-address` functionality).
     This is also useful to help prevent dns rebinding in general.
 
 == Configuring
