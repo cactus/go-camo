@@ -1,11 +1,9 @@
 name: unit-tests
 on:
   push:
-    branches:
-      - '*'
+    branches: [master]
   pull_request:
-    branches:
-      - master
+    branches: [master]
 
 jobs:
   build:
