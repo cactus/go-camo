@@ -44,4 +44,5 @@ jobs:
       - name: Tests
         env:
           GOPROXY: "https://proxy.golang.org"
+          CI: true
         run: make test

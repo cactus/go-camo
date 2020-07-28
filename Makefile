@@ -69,11 +69,11 @@ build: setup
 
 test: setup
 	@echo "Running tests..."
-	@env go test -count=1 -vet=off ${GOTEST_FLAGS} ./...
+	@go test -count=1 -vet=off ${GOTEST_FLAGS} ./...
 
 cover: setup
 	@echo "Running tests with coverage..."
-	@env go test -vet=off -cover ${GOTEST_FLAGS} ./...
+	@go test -vet=off -cover ${GOTEST_FLAGS} ./...
 
 check: setup
 	@echo "Running checks and validators..."

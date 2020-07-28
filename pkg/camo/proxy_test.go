@@ -28,6 +28,12 @@ var camoConfig = Config{
 	AllowCredetialURLs: false,
 }
 
+func skipIfCI(t *testing.T) {
+	if os.Getenv("CI") != "" {
+		t.Skip("Skipping test. CI environments generally enable something similar to unbound's private-address functionality, making this test fail.")
+	}
+}
+
 func TestNotFound(t *testing.T) {
 	t.Parallel()
 	req, err := http.NewRequest("GET", "http://example.com/favicon.ico", nil)
@@ -82,14 +88,24 @@ func TestStrangeFormatRedirects(t *testing.T) {
 
 func TestRedirectsWithPathOnly(t *testing.T) {
 	t.Parallel()
-	testURL := "http://httpbin.org/redirect-to?url=%2Fredirect-to%3Furl%3Dhttp%3A%2F%2Fwww.google.com%2Fimages%2Fsrpr%2Flogo11w.png"
+	//testURL := "http://httpbin.org/redirect-to?url=%2Fredirect-to%3Furl%3Dhttp%3A%2F%2Fwww.google.com%2Fimages%2Fsrpr%2Flogo11w.png"
+	testURL := "http://mockbin.org/redirect/302?to=%2Fredirect%2F302%3Fto%3Dhttp%3A%2F%2Fwww.google.com%2Fimages%2Fsrpr%2Flogo11w.png"
+	_, err := makeTestReq(testURL, 200, camoConfig)
+	assert.Nil(t, err)
+}
+
+func TestFollowPermRedirects(t *testing.T) {
+	t.Parallel()
+	//testURL := "http://httpbin.org/redirect-to?url=http://www.google.com/images/srpr/logo11w.png"
+	testURL := "http://mockbin.org/redirect/301?to=http://www.google.com/images/srpr/logo11w.png"
 	_, err := makeTestReq(testURL, 200, camoConfig)
 	assert.Nil(t, err)
 }
 
 func TestFollowTempRedirects(t *testing.T) {
 	t.Parallel()
-	testURL := "http://httpbin.org/redirect-to?url=http://www.google.com/images/srpr/logo11w.png"
+	//testURL := "http://httpbin.org/redirect-to?url=http://www.google.com/images/srpr/logo11w.png"
+	testURL := "http://mockbin.org/redirect/302?to=http://www.google.com/images/srpr/logo11w.png"
 	_, err := makeTestReq(testURL, 200, camoConfig)
 	assert.Nil(t, err)
 }
@@ -264,7 +280,8 @@ func Test404OnCredentialURL(t *testing.T) {
 
 func Test404InfiniRedirect(t *testing.T) {
 	t.Parallel()
-	testURL := "http://httpbin.org/redirect/4"
+	//testURL := "http://httpbin.org/redirect/4"
+	testURL := "http://mockbin.org/redirect/302/4"
 	_, err := makeTestReq(testURL, 404, camoConfig)
 	assert.Nil(t, err)
 }
@@ -354,7 +371,8 @@ func Test404OnLocalhostWithPort(t *testing.T) {
 
 func Test404OnRedirectWithLocalhostTarget(t *testing.T) {
 	t.Parallel()
-	testURL := "http://httpbin.org/redirect-to?url=http://localhost/some.png"
+	//testURL := "http://httpbin.org/redirect-to?url=http://localhost/some.png"
+	testURL := "http://mockbin.org/redirect/302?to=http://localhost/some.png"
 	resp, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Nil(t, err) {
 		bodyAssert(t, "Error Fetching Resource\n", resp)
@@ -363,7 +381,8 @@ func Test404OnRedirectWithLocalhostTarget(t *testing.T) {
 
 func Test404OnRedirectWithLoopbackIP(t *testing.T) {
 	t.Parallel()
-	testURL := "http://httpbin.org/redirect-to?url=http://127.0.0.100/some.png"
+	//testURL := "http://httpbin.org/redirect-to?url=http://127.0.0.100/some.png"
+	testURL := "http://mockbin.org/redirect/302?to=http://127.0.0.100/some.png"
 	resp, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Nil(t, err) {
 		bodyAssert(t, "Error Fetching Resource\n", resp)
@@ -372,7 +391,8 @@ func Test404OnRedirectWithLoopbackIP(t *testing.T) {
 
 func Test404OnRedirectWithLoopbackIPwCreds(t *testing.T) {
 	t.Parallel()
-	testURL := "http://httpbin.org/redirect-to?url=http://user:pass@127.0.0.100/some.png"
+	//testURL := "http://httpbin.org/redirect-to?url=http://user:pass@127.0.0.100/some.png"
+	testURL := "http://mockbin.org/redirect/302?to=http://user:pass@127.0.0.100/some.png"
 	resp, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Nil(t, err) {
 		bodyAssert(t, "Error Fetching Resource\n", resp)
@@ -381,9 +401,10 @@ func Test404OnRedirectWithLoopbackIPwCreds(t *testing.T) {
 
 // Test will fail if dns relay implements dns rebind prevention
 func Test404OnLoopback(t *testing.T) {
-	t.Skip("Skipping test. CI environments generally enable something similar to unbound's private-address functionality, making this test fail.")
+	skipIfCI(t)
 	t.Parallel()
-	testURL := "http://httpbin.org/redirect-to?url=localhost.me&status_code=302"
+	//testURL := "http://httpbin.org/redirect-to?url=localhost.me&status_code=302"
+	testURL := "http://mockbin.org/redirect/302?to=http://localhost.me"
 	resp, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Nil(t, err) {
 		bodyAssert(t, "Denylist host failure\n", resp)
