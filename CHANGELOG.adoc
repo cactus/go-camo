@@ -19,6 +19,9 @@ toc::[]
 
 == HEAD
 
+== v2.1.5 - 2020-08-11
+*   Rebuild release with go-1.15
+
 == v2.1.4 - 2020-02-18
 *   Rebuild release with go-1.13.8
 *   Experimental windows build
