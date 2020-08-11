@@ -7,8 +7,7 @@ require (
 	github.com/prometheus/common v0.6.0
 	github.com/stretchr/testify v1.4.0
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
-	golang.org/x/net v0.0.0-20190921015927-1a5e07d1ff72
-	golang.org/x/text v0.3.2 // indirect
+	golang.org/x/net v0.0.0-20200625001655-4c5254603344
 )
 
 go 1.13
