@@ -17,7 +17,10 @@ func (gpn *globPathNode) printTree(stree treeprint.Tree) {
 		}
 		c := "*"
 		if i != 0 {
-			c = string(i)
+			// we use uint32 for performance, and don't care about
+			// truncation at all here (just printing anyway), so
+			// just convert.
+			c = string(uint8(i))
 		}
 
 		subTree := stree.AddBranch(c)
