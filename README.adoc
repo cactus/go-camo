@@ -32,6 +32,7 @@ endif::[]
 :link-arachnys-fork: https://github.com/arachnys/go-camo[fork]
 
 image:https://img.shields.io/github/release/cactus/go-camo.svg[Current Release,link=http://github.com/cactus/go-camo/releases]
+image:https://img.shields.io/docker/pulls/cactus4docker/go-camo.svg[Docker Pulls,link=https://hub.docker.com/r/cactus4docker/go-camo]
 image:https://github.com/cactus/go-camo/workflows/unit-tests/badge.svg[BuildStatus]
 image:.github/img-readme-license.svg[License,link=https://github.com/cactus/go-camo/blob/master/LICENSE.adoc]
 // image:https://circleci.com/gh/cactus/go-camo.svg?style=svg[CircleCI,link=https://circleci.com/gh/cactus/go-camo]
