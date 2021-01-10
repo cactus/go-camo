@@ -18,7 +18,10 @@ toc::[]
 :link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
 
 == HEAD
-*   Move ip filtering to Dialer.Control, to further improve SSRF protections
+
+== v2.2.0 - 2021-01-10
+*   Move ip filtering to Dialer.Control, to further improve SSRF protections. +
+    Note: Added a few additional debug log messages emitted when ip filtering
 
 == v2.1.5 - 2020-08-11
 *   Rebuild release with go-1.15
@@ -109,8 +112,8 @@ toc::[]
 
 == v1.1.3 - 2018-09-15
 
-*   switch to go-1.11 w/GO111MODULE support
-    this makes building outside GOPATH easy.
+*   switch to go-1.11 w/GO111MODULE support. +
+    this makes building outside GOPATH easy. +
     Looks like heroku supports it now too? (heroku-buildpack-go issue #249)
 *   build release with go-1.11
 *   fix ipv6 length comparison
