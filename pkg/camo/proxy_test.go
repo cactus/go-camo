@@ -404,10 +404,10 @@ func Test404OnLoopback(t *testing.T) {
 	skipIfCI(t)
 	t.Parallel()
 	//testURL := "http://httpbin.org/redirect-to?url=localhost.me&status_code=302"
-	testURL := "http://mockbin.org/redirect/302?to=http://localhost.me"
+	testURL := "http://mockbin.org/redirect/302?to=http://test.vcap.me"
 	resp, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Nil(t, err) {
-		bodyAssert(t, "Denylist host failure\n", resp)
+		bodyAssert(t, "Error Fetching Resource\n", resp)
 	}
 }
 

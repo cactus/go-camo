@@ -1,7 +1,7 @@
 name: unit-tests
 on:
   push:
-    branches: [master]
+    branches: ['**']
   pull_request:
     branches: [master]
 

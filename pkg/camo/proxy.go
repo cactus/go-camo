@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/cactus/go-camo/pkg/camo/encoding"
@@ -169,16 +170,38 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if err != nil {
-		// handle client aborting request early in the request lifetime
-		if errors.Is(err, context.Canceled) {
+		switch {
+		case errors.Is(err, context.Canceled):
+			// handle client aborting request early in the request lifetime
 			if mlog.HasDebug() {
 				mlog.Debugm("client aborted request (early)", mlog.Map{"req": req})
 			}
 			return
-		} else if errors.Is(err, ErrRedirect) {
+		case errors.Is(err, ErrRedirect):
 			// Got a bad redirect
 			if mlog.HasDebug() {
 				mlog.Debugm("bad redirect from server", mlog.Map{"err": err})
+			}
+			http.Error(w, "Error Fetching Resource", http.StatusNotFound)
+			return
+		case errors.Is(err, ErrRejectIP):
+			// Got a deny list failure from Dial.Control
+			if mlog.HasDebug() {
+				mlog.Debugm("ip filter rejection from dial.control", mlog.Map{"err": err})
+			}
+			http.Error(w, "Error Fetching Resource", http.StatusNotFound)
+			return
+		case errors.Is(err, ErrInvalidHostPort):
+			// Got a deny list failure from Dial.Control
+			if mlog.HasDebug() {
+				mlog.Debugm("invalid host/port rejection from dial.control", mlog.Map{"err": err})
+			}
+			http.Error(w, "Error Fetching Resource", http.StatusNotFound)
+			return
+		case errors.Is(err, ErrInvalidNetType):
+			// Got a deny list failure from Dial.Control
+			if mlog.HasDebug() {
+				mlog.Debugm("net type rejection from dial.control", mlog.Map{"err": err})
 			}
 			http.Error(w, "Error Fetching Resource", http.StatusNotFound)
 			return
@@ -358,6 +381,13 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 func (p *Proxy) checkURL(reqURL *url.URL) error {
+	// ensure we have an http or https url
+	// (eg. no file:// or other)
+	scheme := reqURL.Scheme
+	if !(scheme == "http" || scheme == "https") {
+		return errors.New("Bad url scheme")
+	}
+
 	// reject localhost urls
 	// lower case for matching is done by CheckHostname, so no need to
 	// ToLower here also
@@ -369,24 +399,6 @@ func (p *Proxy) checkURL(reqURL *url.URL) error {
 	// if not allowed, reject credentialed/userinfo urls
 	if !p.config.AllowCredetialURLs && reqURL.User != nil {
 		return errors.New("Userinfo URL rejected")
-	}
-
-	// ip/allow-list/deny-list filtering
-	if !p.config.noIPFiltering {
-		// filter out rejected networks
-		if ip := net.ParseIP(uHostname); ip != nil {
-			if isRejectedIP(ip) {
-				return errors.New("Denylist host failure")
-			}
-		} else {
-			if ips, err := net.LookupIP(uHostname); err == nil {
-				for _, ip := range ips {
-					if isRejectedIP(ip) {
-						return errors.New("Denylist host failure")
-					}
-				}
-			}
-		}
 	}
 
 	// evaluate filters. first false value "fails"
@@ -442,11 +454,52 @@ func NewWithFilters(pc Config, filters []FilterFunc) (*Proxy, error) {
 
 // New returns a new Proxy. Returns an error if Proxy could not be constructed.
 func New(pc Config) (*Proxy, error) {
+	doFiltering := !pc.noIPFiltering
+
+	dailer := &net.Dialer{
+		Timeout:   3 * time.Second,
+		KeepAlive: 30 * time.Second,
+		// Move ip filtering to dial.control, this avoids cases where
+		// an adversary may return an unblocked ip on name resolution
+		// the first time, and a blocked ip the second time.
+		// if the server's resolver has no caching, or hits an unlucky ttl expiry,
+		// an ip check in checkURL may pass (unblocked ip), then the bad ip may
+		// be connected to (re-resolve in dailer).
+		// Moving the ip filtering here avoids that.
+		Control: func(network string, address string, conn syscall.RawConn) error {
+			// reject not tcp/tcp6 connection attempts
+			if !(network == "tcp4" || network == "tcp6") {
+				return fmt.Errorf("%s is not a safe network type: %w", network, ErrInvalidNetType)
+			}
+
+			// ip/allow-list/deny-list filtering
+			if doFiltering {
+				host, _, err := net.SplitHostPort(address)
+				if err != nil {
+					return fmt.Errorf("%s:%s is not a valid host/port pair: %w", address, err, ErrInvalidHostPort)
+				}
+
+				// filter out rejected networks
+				if ip := net.ParseIP(host); ip != nil {
+					if isRejectedIP(ip) {
+						return ErrRejectIP
+					}
+				} else {
+					if ips, err := net.LookupIP(host); err == nil {
+						for _, ip := range ips {
+							if isRejectedIP(ip) {
+								return ErrRejectIP
+							}
+						}
+					}
+				}
+			}
+			return nil
+		},
+	}
+
 	tr := &http.Transport{
-		DialContext: (&net.Dialer{
-			Timeout:   3 * time.Second,
-			KeepAlive: 30 * time.Second,
-		}).DialContext,
+		DialContext: dailer.DialContext,
 
 		// Use proxy from environment
 		// It uses HTTP proxies as directed by the $HTTP_PROXY and $NO_PROXY

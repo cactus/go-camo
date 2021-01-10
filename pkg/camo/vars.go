@@ -10,7 +10,13 @@ import (
 	"github.com/cactus/go-camo/pkg/htrie"
 )
 
-var ErrRedirect = errors.New("ErrRedirect")
+var (
+	ErrRedirect        = errors.New("bad redirect")
+	ErrDenyList        = errors.New("denylist host failure")
+	ErrRejectIP        = errors.New("ip rejection")
+	ErrInvalidHostPort = errors.New("invalid host/port")
+	ErrInvalidNetType  = errors.New("invalid network type")
+)
 
 // ValidReqHeaders are http request headers that are acceptable to pass from
 // the client to the remote server. Only those present and true, are forwarded.
@@ -68,16 +74,24 @@ var rejectIPv4Networks = mustParseNetmasks(
 
 var rejectIPv6Networks = mustParseNetmasks(
 	[]string{
+		// unspecified address
+		"::/128",
 		// ipv6 loopback
 		"::1/128",
+		// ipv4 mapped onto ipv6
+		"::ffff:0:0/96",
+		// discard prefix
+		"100::/64",
+		// addresses reserved for documentation and example code rfc3849
+		"2001:db8::/32",
+		// ipv6 ULA. Encompasses rfc4193 (fd00::/8)
+		"fc00::/7",
 		// ipv6 link local
 		"fe80::/10",
 		// old ipv6 site local
 		"fec0::/10",
-		// ipv6 ULA
-		"fc00::/7",
-		// ipv4 mapped onto ipv6
-		"::ffff:0:0/96",
+		// global multicast
+		"ff00::/8",
 	},
 )
 
