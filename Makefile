@@ -84,6 +84,14 @@ check: setup
 	@echo "... gosec ..."
 	@$$(go env GOPATH)/bin/gosec -quiet ./...
 
+.PHONY: update-go-deps
+update-go-deps:
+	@echo ">> updating Go dependencies"
+	@for m in $$(go list -mod=readonly -m -f '{{ if and (not .Indirect) (not .Main)}}{{.Path}}{{end}}' all); do \
+		go get $$m; \
+	done
+	go mod tidy
+
 ${BUILDDIR}/man/%: man/%.adoc
 	@[ -d "${BUILDDIR}/man" ] || mkdir -p "${BUILDDIR}/man"
 	@asciidoctor -b manpage -a release-version="${APP_VER}" -o $@ $<
