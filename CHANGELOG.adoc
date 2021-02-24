@@ -18,6 +18,7 @@ toc::[]
 :link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
 
 == HEAD
+*   Update some dependencies.
 
 == v2.2.0 - 2021-01-10
 *   Move ip filtering to Dialer.Control, to further improve SSRF protections. +
