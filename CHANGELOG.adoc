@@ -18,6 +18,8 @@ toc::[]
 :link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
 
 == HEAD
+
+== v2.2.1 - 2021-03-25
 *   Update some dependencies.
 
 == v2.2.0 - 2021-01-10
