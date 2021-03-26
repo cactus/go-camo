@@ -209,8 +209,9 @@ func TestVideoContentTypeAllowed(t *testing.T) {
 	// try a range request (should fail, MaxSize is smaller than requested range)
 	camoConfigWithVideo.MaxSize = 1 * 1024
 	req, err = makeReq(camoConfigWithVideo, testURL)
+	assert.Nil(t, err)
 	req.Header.Add("Range", "bytes=0-1025")
-	resp, err = processRequest(req, 404, camoConfigWithVideo, nil)
+	_, err = processRequest(req, 404, camoConfigWithVideo, nil)
 	assert.Nil(t, err)
 
 	// try full request (should fail, too large)
