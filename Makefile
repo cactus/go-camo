@@ -128,7 +128,7 @@ cross-tar: man setup setup-gox
 		if echo "$${x}" | grep -q 'windows-'; then EXT=".exe"; fi; \
 		XDIR="${GOVER}.$${x}"; \
 		ODIR="${TARBUILDDIR}/$${XDIR}/${APP_NAME}-${APP_VER}"; \
-		mkdir -p "$${ODIR}/bin;" \
+		mkdir -p "$${ODIR}/bin"; \
 		mkdir -p "$${ODIR}/man"; \
 		cp ${BUILDDIR}/bin/${APP_NAME}.$${x}$${EXT} $${ODIR}/bin/${APP_NAME}$${EXT}; \
 		cp ${BUILDDIR}/bin/url-tool.$${x}$${EXT} $${ODIR}/bin/url-tool$${EXT}; \
