@@ -88,7 +88,6 @@ func TestStrangeFormatRedirects(t *testing.T) {
 
 func TestRedirectsWithPathOnly(t *testing.T) {
 	t.Parallel()
-	//testURL := "http://httpbin.org/redirect-to?url=%2Fredirect-to%3Furl%3Dhttp%3A%2F%2Fwww.google.com%2Fimages%2Fsrpr%2Flogo11w.png"
 	testURL := "http://mockbin.org/redirect/302?to=%2Fredirect%2F302%3Fto%3Dhttp%3A%2F%2Fwww.google.com%2Fimages%2Fsrpr%2Flogo11w.png"
 	_, err := makeTestReq(testURL, 200, camoConfig)
 	assert.Nil(t, err)
@@ -96,7 +95,6 @@ func TestRedirectsWithPathOnly(t *testing.T) {
 
 func TestFollowPermRedirects(t *testing.T) {
 	t.Parallel()
-	//testURL := "http://httpbin.org/redirect-to?url=http://www.google.com/images/srpr/logo11w.png"
 	testURL := "http://mockbin.org/redirect/301?to=http://www.google.com/images/srpr/logo11w.png"
 	_, err := makeTestReq(testURL, 200, camoConfig)
 	assert.Nil(t, err)
@@ -104,7 +102,6 @@ func TestFollowPermRedirects(t *testing.T) {
 
 func TestFollowTempRedirects(t *testing.T) {
 	t.Parallel()
-	//testURL := "http://httpbin.org/redirect-to?url=http://www.google.com/images/srpr/logo11w.png"
 	testURL := "http://mockbin.org/redirect/302?to=http://www.google.com/images/srpr/logo11w.png"
 	_, err := makeTestReq(testURL, 200, camoConfig)
 	assert.Nil(t, err)
@@ -295,7 +292,6 @@ func Test404OnCredentialURL(t *testing.T) {
 
 func Test404InfiniRedirect(t *testing.T) {
 	t.Parallel()
-	//testURL := "http://httpbin.org/redirect/4"
 	testURL := "http://mockbin.org/redirect/302/4"
 	_, err := makeTestReq(testURL, 404, camoConfig)
 	assert.Nil(t, err)
@@ -386,7 +382,6 @@ func Test404OnLocalhostWithPort(t *testing.T) {
 
 func Test404OnRedirectWithLocalhostTarget(t *testing.T) {
 	t.Parallel()
-	//testURL := "http://httpbin.org/redirect-to?url=http://localhost/some.png"
 	testURL := "http://mockbin.org/redirect/302?to=http://localhost/some.png"
 	resp, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Nil(t, err) {
@@ -396,7 +391,6 @@ func Test404OnRedirectWithLocalhostTarget(t *testing.T) {
 
 func Test404OnRedirectWithLoopbackIP(t *testing.T) {
 	t.Parallel()
-	//testURL := "http://httpbin.org/redirect-to?url=http://127.0.0.100/some.png"
 	testURL := "http://mockbin.org/redirect/302?to=http://127.0.0.100/some.png"
 	resp, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Nil(t, err) {
@@ -406,7 +400,6 @@ func Test404OnRedirectWithLoopbackIP(t *testing.T) {
 
 func Test404OnRedirectWithLoopbackIPwCreds(t *testing.T) {
 	t.Parallel()
-	//testURL := "http://httpbin.org/redirect-to?url=http://user:pass@127.0.0.100/some.png"
 	testURL := "http://mockbin.org/redirect/302?to=http://user:pass@127.0.0.100/some.png"
 	resp, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Nil(t, err) {
@@ -414,13 +407,25 @@ func Test404OnRedirectWithLoopbackIPwCreds(t *testing.T) {
 	}
 }
 
-// Test will fail if dns relay implements dns rebind prevention
+// Test will always pass if dns relay implements dns rebind prevention
+//
+// Even if local dns is doing rebinding prevention, we will still get back the
+// same final response. The difference is where the error originates. If there
+// is no dns rebinding prevention in the dns resolver, then the proxy code
+// rejects in net.dail. If there IS dns rebinding prevention, the dns resolver
+// does not return an ip address, and we get a "No address associated with
+// hostname" result.
+// As such, there is little sense running this when dns rebinding
+// prevention is present in the dns resolver....
 func Test404OnLoopback(t *testing.T) {
 	skipIfCI(t)
 	t.Parallel()
-	//testURL := "http://httpbin.org/redirect-to?url=localhost.me&status_code=302"
+
 	testURL := "http://mockbin.org/redirect/302?to=http://test.vcap.me"
-	resp, err := makeTestReq(testURL, 404, camoConfig)
+	req, err := makeReq(camoConfig, testURL)
+	assert.Nil(t, err)
+
+	resp, err := processRequest(req, 404, camoConfig, nil)
 	if assert.Nil(t, err) {
 		bodyAssert(t, "Error Fetching Resource\n", resp)
 	}

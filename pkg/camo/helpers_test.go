@@ -29,7 +29,6 @@ func makeReq(config Config, testURL string) (*http.Request, error) {
 }
 
 func processRequest(req *http.Request, status int, camoConfig Config, filters []FilterFunc) (*http.Response, error) {
-
 	var (
 		camoServer *Proxy
 		err        error
