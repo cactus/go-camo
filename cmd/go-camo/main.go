@@ -144,6 +144,7 @@ func main() {
 		MaxRedirects        int           `long:"max-redirects" default:"3" description:"Maximum number of redirects to follow"`
 		Metrics             bool          `long:"metrics" description:"Enable Prometheus compatible metrics endpoint"`
 		NoLogTS             bool          `long:"no-log-ts" description:"Do not add a timestamp to logging"`
+		LogJson             bool          `long:"log-json" description:"Log in JSON format"`
 		DisableKeepAlivesFE bool          `long:"no-fk" description:"Disable frontend http keep-alive support"`
 		DisableKeepAlivesBE bool          `long:"no-bk" description:"Disable backend http keep-alive support"`
 		AllowContentVideo   bool          `long:"allow-content-video" description:"Additionally allow 'video/*' content"`
@@ -270,6 +271,10 @@ func main() {
 	if opts.Verbose {
 		mlog.SetFlags(mlog.Flags() | mlog.Ldebug)
 		mlog.Debug("debug logging enabled")
+	}
+
+	if opts.LogJson {
+		mlog.SetEmitter(&mlog.FormatWriterJSON{})
 	}
 
 	// convert from KB to Bytes
