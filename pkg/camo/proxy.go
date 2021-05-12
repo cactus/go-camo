@@ -578,26 +578,3 @@ func New(pc Config) (*Proxy, error) {
 
 	return p, nil
 }
-
-func httpReqToMlogMap(req *http.Request) mlog.Map {
-	return mlog.Map{
-		"method":            req.Method,
-		"path":              req.RequestURI,
-		"proto":             req.Proto,
-		"header":            req.Header,
-		"content_length":    req.ContentLength,
-		"transfer_encoding": req.TransferEncoding,
-		"host":              req.Host,
-		"remote_addr":       req.RemoteAddr,
-	}
-}
-
-func httpRespToMlogMap(resp *http.Response) mlog.Map {
-	return mlog.Map{
-		"status":            resp.StatusCode,
-		"proto":             resp.Proto,
-		"header":            resp.Header,
-		"content_length":    resp.ContentLength,
-		"transfer_encoding": resp.TransferEncoding,
-	}
-}
