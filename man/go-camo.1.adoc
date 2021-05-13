@@ -117,6 +117,9 @@ See __<<METRICS>>__ for more info.
 *--no-bk*::
     Disable backend http keep-alive support.
 
+*--log-json*::
+    Log in JSON format.
+
 *--allow-content-video*::
     Additionally allow `video/*` content type.
 
