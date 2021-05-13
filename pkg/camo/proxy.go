@@ -94,7 +94,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	sigHash, encodedURL := components[1], components[2]
 
 	if mlog.HasDebug() {
-		mlog.Debugm("client request", mlog.Map{"req": req})
+		mlog.Debugm("client request", httpReqToMlogMap(req))
 	}
 
 	sURL, ok := encoding.DecodeURL(p.config.HMACKey, sigHash, encodedURL)
@@ -160,7 +160,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	nreq.Header.Add("Via", p.config.ServerName)
 
 	if mlog.HasDebug() {
-		mlog.Debugm("built outgoing request", mlog.Map{"req": nreq})
+		mlog.Debugm("built outgoing request", mlog.Map{"req": httpReqToMlogMap(nreq)})
 	}
 
 	resp, err := p.client.Do(nreq)
@@ -174,7 +174,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		case errors.Is(err, context.Canceled):
 			// handle client aborting request early in the request lifetime
 			if mlog.HasDebug() {
-				mlog.Debugm("client aborted request (early)", mlog.Map{"req": req})
+				mlog.Debugm("client aborted request (early)", httpReqToMlogMap(req))
 			}
 			return
 		case errors.Is(err, ErrRedirect):
@@ -227,7 +227,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if mlog.HasDebug() {
-		mlog.Debugm("response from upstream", mlog.Map{"resp": resp})
+		mlog.Debugm("response from upstream", httpRespToMlogMap(resp))
 	}
 
 	// check for too large a response

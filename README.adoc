@@ -300,6 +300,7 @@ Application Options:
       --max-redirects=         Maximum number of redirects to follow (default: 3)
       --metrics                Enable Prometheus compatible metrics endpoint
       --no-log-ts              Do not add a timestamp to logging
+      --log-json               Log in JSON format
       --no-fk                  Disable frontend http keep-alive support
       --no-bk                  Disable backend http keep-alive support
       --allow-content-video    Additionally allow 'video/*' content
