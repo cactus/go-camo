@@ -13,8 +13,8 @@ import (
 
 	"github.com/cactus/go-camo/pkg/camo/encoding"
 	"github.com/cactus/go-camo/pkg/router"
-
-	"github.com/stretchr/testify/assert"
+	"gotest.tools/v3/assert"
+	is "gotest.tools/v3/assert/cmp"
 )
 
 func makeReq(config Config, testURL string) (*http.Request, error) {
@@ -75,26 +75,20 @@ func makeTestReq(testURL string, status int, config Config) (*http.Response, err
 
 func bodyAssert(t *testing.T, expected string, resp *http.Response) {
 	body, err := ioutil.ReadAll(resp.Body)
-	assert.Nil(t, err)
+	assert.Check(t, err)
 	bodyString := string(body)
-	assert.Equal(
-		t, expected, bodyString,
-		"Expected 404 response body but got '%s' instead",
-		bodyString,
-	)
+	assert.Check(t, is.Equal(expected, bodyString), "Expected 404 response body but got '%s' instead",
+		bodyString)
+
 }
 
 func headerAssert(t *testing.T, expected, name string, resp *http.Response) {
-	assert.Equal(
-		t, expected, resp.Header.Get(name),
-		"Expected response header mismatch",
-	)
+	assert.Check(t, is.Equal(expected, resp.Header.Get(name)), "Expected response header mismatch")
+
 }
 
 func statusCodeAssert(t *testing.T, expected int, resp *http.Response) {
-	assert.Equal(
-		t, expected, resp.StatusCode,
-		"Expected %d but got '%d' instead",
-		expected, resp.StatusCode,
-	)
+	assert.Check(t, is.Equal(expected, resp.StatusCode), "Expected %d but got '%d' instead",
+		expected, resp.StatusCode)
+
 }

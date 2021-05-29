@@ -9,7 +9,8 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"gotest.tools/v3/assert"
+	is "gotest.tools/v3/assert/cmp"
 )
 
 func TestFilterListAcceptSimple(t *testing.T) {
@@ -24,10 +25,10 @@ func TestFilterListAcceptSimple(t *testing.T) {
 	}
 	testURL := "http://www.google.com/images/srpr/logo11w.png"
 	req, err := makeReq(camoConfig, testURL)
-	assert.Nil(t, err)
+	assert.Check(t, err)
 	_, err = processRequest(req, 200, camoConfig, filters)
-	assert.Nil(t, err)
-	assert.True(t, called, "filter func wasn't called")
+	assert.Check(t, err)
+	assert.Check(t, called, "filter func wasn't called")
 }
 
 func TestFilterListMatrixMultiples(t *testing.T) {
@@ -35,7 +36,7 @@ func TestFilterListMatrixMultiples(t *testing.T) {
 
 	testURL := "http://www.google.com/images/srpr/logo11w.png"
 	req, err := makeReq(camoConfig, testURL)
-	assert.Nil(t, err)
+	assert.Check(t, err)
 
 	var mixtests = []struct {
 		filterRuleAnswers  []bool
@@ -87,16 +88,14 @@ func TestFilterListMatrixMultiples(t *testing.T) {
 		}
 
 		_, err = processRequest(req, tt.respcode, camoConfig, filters)
-		assert.Nil(t, err)
+		assert.Check(t, err)
 		for i := range callMatrix {
-			assert.Equal(t,
-				callMatrix[i],
-				tt.expectedCallMatrix[i],
-				fmt.Sprintf(
-					"filter func called='%t' wanted '%t'",
-					callMatrix[i], tt.expectedCallMatrix[i],
-				),
-			)
+			assert.Check(t, is.Equal(callMatrix[i],
+				tt.expectedCallMatrix[i]), fmt.Sprintf(
+				"filter func called='%t' wanted '%t'",
+				callMatrix[i], tt.expectedCallMatrix[i],
+			))
+
 		}
 	}
 }

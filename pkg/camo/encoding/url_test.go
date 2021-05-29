@@ -8,7 +8,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"gotest.tools/v3/assert"
+	is "gotest.tools/v3/assert/cmp"
 )
 
 type enctesto struct {
@@ -37,7 +38,7 @@ func TestEncoder(t *testing.T) {
 		hmacKey := []byte(p.hmac)
 		// test specific encoder
 		encodedURL := p.encoder(hmacKey, p.sURL)
-		assert.Equal(t, encodedURL, fmt.Sprintf("/%s/%s", p.edig, p.eURL), "encoded url does not match")
+		assert.Check(t, is.Equal(encodedURL, fmt.Sprintf("/%s/%s", p.edig, p.eURL)), "encoded url does not match")
 	}
 }
 
@@ -67,13 +68,13 @@ func TestDecoder(t *testing.T) {
 		hmacKey := []byte(p.hmac)
 		// test specific decoder
 		encodedURL, err := p.decoder(hmacKey, p.edig, p.eURL)
-		assert.Nil(t, err, "decoded url failed to verify")
-		assert.Equal(t, encodedURL, p.sURL, "decoded url does not match")
+		assert.Check(t, err, "decoded url failed to verify")
+		assert.Check(t, is.Equal(encodedURL, p.sURL), "decoded url does not match")
 
 		// also test generic "guessing" decoder
 		encodedURL, ok := DecodeURL(hmacKey, p.edig, p.eURL)
-		assert.True(t, ok, "decoded url failed to verify")
-		assert.Equal(t, encodedURL, p.sURL, "decoded url does not match")
+		assert.Check(t, ok, "decoded url failed to verify")
+		assert.Check(t, is.Equal(encodedURL, p.sURL), "decoded url does not match")
 	}
 }
 
@@ -144,12 +145,12 @@ func TestBadDecodes(t *testing.T) {
 		hmacKey := []byte(p.hmac)
 		// test specific decoder
 		encodedURL, err := p.decoder(hmacKey, p.edig, p.eURL)
-		assert.NotNil(t, err, "decoded url verfied when it shouldn't have")
-		assert.Equal(t, encodedURL, "", "decoded url result not empty")
+		assert.Check(t, err != nil, "decoded url verfied when it shouldn't have")
+		assert.Check(t, is.Equal(encodedURL, ""), "decoded url result not empty")
 
 		// also test generic "guessing" decoder
 		encodedURL, ok := DecodeURL(hmacKey, p.edig, p.eURL)
-		assert.False(t, ok, "decoded url verfied when it shouldn't have")
-		assert.Equal(t, encodedURL, "", "decoded url result not empty")
+		assert.Check(t, !ok, "decoded url verfied when it shouldn't have")
+		assert.Check(t, is.Equal(encodedURL, ""), "decoded url result not empty")
 	}
 }

@@ -14,5 +14,5 @@ Portions of this software utilize third party libraries:
     └── github.com/jessevdk/go-flags (BSD license)
 
 *   Test/Build only dependencies:
-    └── github.com/stretchr/testify (MIT license)
+    └── gotest.tools/v3/assert (Apache 2.0)
 `

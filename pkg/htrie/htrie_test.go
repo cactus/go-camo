@@ -10,7 +10,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"gotest.tools/v3/assert"
 )
 
 func TestHTrieCheckURL(t *testing.T) {
@@ -46,18 +46,18 @@ func TestHTrieCheckURL(t *testing.T) {
 	dt := NewURLMatcher()
 	for _, rule := range rules {
 		err := dt.AddRule(rule)
-		assert.Nil(t, err)
+		assert.Check(t, err)
 	}
 
 	//fmt.Println(dt.RenderTree())
 
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)
-		assert.True(t, dt.CheckURL(u), fmt.Sprintf("should have matched: %s", u))
+		assert.Check(t, dt.CheckURL(u), fmt.Sprintf("should have matched: %s", u))
 	}
 	for _, u := range testNoMatch {
 		u, _ := url.Parse(u)
-		assert.False(t, dt.CheckURL(u), fmt.Sprintf("should not have matched: %s", u))
+		assert.Check(t, !dt.CheckURL(u), fmt.Sprintf("should not have matched: %s", u))
 	}
 }
 
@@ -98,11 +98,11 @@ func TestHTrieCheckHostname(t *testing.T) {
 
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)
-		assert.True(t, dt.CheckHostname(u.Hostname()), fmt.Sprintf("should have matched: %s", u))
+		assert.Check(t, dt.CheckHostname(u.Hostname()), fmt.Sprintf("should have matched: %s", u))
 	}
 	for _, u := range testNoMatch {
 		u, _ := url.Parse(u)
-		assert.False(t, dt.CheckHostname(u.Hostname()), fmt.Sprintf("should not have matched: %s", u))
+		assert.Check(t, !dt.CheckHostname(u.Hostname()), fmt.Sprintf("should not have matched: %s", u))
 	}
 }
 
@@ -171,7 +171,7 @@ func BenchmarkHTrieMatch(b *testing.B) {
 	dt := NewURLMatcher()
 	for _, rule := range rules {
 		err := dt.AddRule(rule)
-		assert.Nil(b, err)
+		assert.Check(b, err)
 	}
 
 	parsed := make([]*url.URL, 0)
@@ -262,7 +262,7 @@ func BenchmarkHTrieMatchHostname(b *testing.B) {
 	dt := NewURLMatcher()
 	for _, rule := range rules {
 		err := dt.AddRule(rule)
-		assert.Nil(b, err)
+		assert.Check(b, err)
 	}
 
 	parsed := make([]string, 0)

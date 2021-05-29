@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
+	"gotest.tools/v3/assert"
 )
 
 func TestHTTPDateGoroutineUpdate(t *testing.T) {
@@ -17,7 +17,7 @@ func TestHTTPDateGoroutineUpdate(t *testing.T) {
 	n := d.String()
 	time.Sleep(2 * time.Second)
 	l := d.String()
-	assert.NotEqual(t, n, l, "Date did not update as expected: %s == %s", n, l)
+	assert.Check(t, n != l, "Date did not update as expected: %s == %s", n, l)
 }
 
 func TestHTTPDateManualUpdate(t *testing.T) {
@@ -28,7 +28,7 @@ func TestHTTPDateManualUpdate(t *testing.T) {
 	time.Sleep(2 * time.Second)
 	d.Update()
 	l := d.String()
-	assert.NotEqual(t, n, l, "Date did not update as expected: %s == %s", n, l)
+	assert.Check(t, n != l, "Date did not update as expected: %s == %s", n, l)
 }
 
 func TestHTTPDateManualUpdateUninitialized(t *testing.T) {
@@ -39,7 +39,7 @@ func TestHTTPDateManualUpdateUninitialized(t *testing.T) {
 	time.Sleep(2 * time.Second)
 	d.Update()
 	l := d.String()
-	assert.NotEqual(t, n, l, "Date did not update as expected: %s == %s", n, l)
+	assert.Check(t, n != l, "Date did not update as expected: %s == %s", n, l)
 }
 
 func BenchmarkDataString(b *testing.B) {
