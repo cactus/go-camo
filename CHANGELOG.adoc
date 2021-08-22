@@ -18,6 +18,8 @@ toc::[]
 :link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
 
 == HEAD
+
+== v2.2.2 - 2021-08-21
 *   Change test only helper library
 *   structure logging (json) support for http requests (debug logging). +
     PR #52
