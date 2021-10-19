@@ -326,28 +326,28 @@ func main() {
 
 	http.Handle("/", router)
 
-        if opts.Socket != "" {
-                mlog.Printf("Starting server on: %s", opts.Socket)
-                go func() {
-                        server := &http.Server{
-                                Handler: router,
-                                ReadTimeout: 30 * time.Second}
-                        unixListener, err := net.Listen("unix", opts.Socket)
-                        if err != nil {
-                                panic(err)
+	if opts.Socket != "" {
+		mlog.Printf("Starting server on: %s", opts.Socket)
+		go func() {
+			server := &http.Server{
+				Handler:     router,
+				ReadTimeout: 30 * time.Second}
+			unixListener, err := net.Listen("unix", opts.Socket)
+			if err != nil {
+				panic(err)
 				return
-                        }
+			}
 			sigc := make(chan os.Signal, 1)
 			signal.Notify(sigc, os.Interrupt, os.Kill, syscall.SIGTERM)
 			go func(c chan os.Signal) {
-			    sig := <-c
-			    mlog.Printf("Caught signal %s: shutting down.", sig)
-			    unixListener.Close()
-			    os.Exit(0)
+				sig := <-c
+				mlog.Printf("Caught signal %s: shutting down.", sig)
+				unixListener.Close()
+				os.Exit(0)
 			}(sigc)
-                        mlog.Fatal(server.Serve(unixListener))
-                }()
-        }
+			mlog.Fatal(server.Serve(unixListener))
+		}()
+	}
 	if opts.BindAddress != "" {
 		mlog.Printf("Starting server on: %s", opts.BindAddress)
 		go func() {
