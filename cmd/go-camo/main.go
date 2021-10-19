@@ -8,11 +8,14 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 	"runtime"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/cactus/go-camo/pkg/camo"
@@ -139,6 +142,7 @@ func main() {
 		BindAddressSSL      string        `long:"ssl-listen" description:"Address:Port to bind to for HTTPS/SSL/TLS"`
 		SSLKey              string        `long:"ssl-key" description:"ssl private key (key.pem) path"`
 		SSLCert             string        `long:"ssl-cert" description:"ssl cert (cert.pem) path"`
+		Socket              string        `long:"socket" description:"path for unix domain socket to bind to"`
 		MaxSize             int64         `long:"max-size" description:"Max allowed response size (KB)"`
 		ReqTimeout          time.Duration `long:"timeout" default:"4s" description:"Upstream request timeout"`
 		MaxRedirects        int           `long:"max-redirects" default:"3" description:"Maximum number of redirects to follow"`
@@ -207,8 +211,8 @@ func main() {
 		mlog.Fatal("HMAC key required")
 	}
 
-	if opts.BindAddress == "" && opts.BindAddressSSL == "" {
-		mlog.Fatal("One of listen or ssl-listen required")
+	if opts.BindAddress == "" && opts.BindAddressSSL == "" && opts.Socket == "" {
+		mlog.Fatal("One of listen, ssl-listen, or socket required")
 	}
 
 	if opts.BindAddressSSL != "" && opts.SSLKey == "" {
@@ -322,6 +326,28 @@ func main() {
 
 	http.Handle("/", router)
 
+        if opts.Socket != "" {
+                mlog.Printf("Starting server on: %s", opts.Socket)
+                go func() {
+                        server := &http.Server{
+                                Handler: router,
+                                ReadTimeout: 30 * time.Second}
+                        unixListener, err := net.Listen("unix", opts.Socket)
+                        if err != nil {
+                                panic(err)
+				return
+                        }
+			sigc := make(chan os.Signal, 1)
+			signal.Notify(sigc, os.Interrupt, os.Kill, syscall.SIGTERM)
+			go func(c chan os.Signal) {
+			    sig := <-c
+			    mlog.Printf("Caught signal %s: shutting down.", sig)
+			    unixListener.Close()
+			    os.Exit(0)
+			}(sigc)
+                        mlog.Fatal(server.Serve(unixListener))
+                }()
+        }
 	if opts.BindAddress != "" {
 		mlog.Printf("Starting server on: %s", opts.BindAddress)
 		go func() {
