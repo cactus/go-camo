@@ -19,6 +19,7 @@ toc::[]
 
 == HEAD
 *   Add support for listening on a unix socket.
+*   A more graceful shutdown process, under SIGINT or SIGTERM.
 
 == v2.2.2 - 2021-08-21
 *   Change test only helper library
