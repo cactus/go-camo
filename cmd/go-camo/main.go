@@ -7,6 +7,7 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"net"
 	"net/http"
@@ -140,9 +141,9 @@ func main() {
 		AddHeaders          []string      `short:"H" long:"header" description:"Add additional header to each response. This option can be used multiple times to add multiple headers"`
 		BindAddress         string        `long:"listen" default:"0.0.0.0:8080" description:"Address:Port to bind to for HTTP"`
 		BindAddressSSL      string        `long:"ssl-listen" description:"Address:Port to bind to for HTTPS/SSL/TLS"`
+		BindSocket          string        `long:"socket-listen" description:"Path for unix domain socket to bind to for HTTP"`
 		SSLKey              string        `long:"ssl-key" description:"ssl private key (key.pem) path"`
 		SSLCert             string        `long:"ssl-cert" description:"ssl cert (cert.pem) path"`
-		Socket              string        `long:"socket" description:"path for unix domain socket to bind to"`
 		MaxSize             int64         `long:"max-size" description:"Max allowed response size (KB)"`
 		ReqTimeout          time.Duration `long:"timeout" default:"4s" description:"Upstream request timeout"`
 		MaxRedirects        int           `long:"max-redirects" default:"3" description:"Maximum number of redirects to follow"`
@@ -211,8 +212,8 @@ func main() {
 		mlog.Fatal("HMAC key required")
 	}
 
-	if opts.BindAddress == "" && opts.BindAddressSSL == "" && opts.Socket == "" {
-		mlog.Fatal("One of listen, ssl-listen, or socket required")
+	if opts.BindAddress == "" && opts.BindAddressSSL == "" && opts.BindSocket == "" {
+		mlog.Fatal("One of listen or ssl-listen required")
 	}
 
 	if opts.BindAddressSSL != "" && opts.SSLKey == "" {
@@ -326,48 +327,80 @@ func main() {
 
 	http.Handle("/", router)
 
-	if opts.Socket != "" {
-		mlog.Printf("Starting server on: %s", opts.Socket)
+	srv := &http.Server{
+		ReadTimeout: 30 * time.Second,
+	}
+
+	idleConnsClosed := make(chan struct{})
+	go func() {
+		// we need to reserve to buffer size 1, so the notifier are not blocked
+		sigint := make(chan os.Signal, 1)
+		signal.Notify(sigint, os.Interrupt, syscall.SIGTERM)
+		s := <-sigint
+		mlog.Info("Handling signal:", s)
+
+		mlog.Info("Starting graceful shutdown")
+
+		d := time.Now().Add(200 * time.Millisecond)
+		ctx, cancel := context.WithDeadline(context.Background(), d)
+
+		if err := srv.Shutdown(ctx); err != nil {
+			mlog.Info("Error gracefully shutting down server:", err)
+		}
+		// Even though ctx may be expired, it is good practice to call its
+		// cancellation function in any case. Failure to do so may keep the
+		// context and its parent alive longer than necessary.
+		cancel()
+
+		close(idleConnsClosed)
+	}()
+
+	if opts.BindSocket != "" {
+		if _, err := os.Stat(opts.BindSocket); err == nil {
+			mlog.Fatal("Cannot bind to unix socket, file aready exists.")
+		}
+
+		mlog.Printf("Starting HTTP server on: unix:%s", opts.BindSocket)
 		go func() {
-			server := &http.Server{
-				Handler:     router,
-				ReadTimeout: 30 * time.Second}
-			unixListener, err := net.Listen("unix", opts.Socket)
+			ln, err := net.Listen("unix", opts.BindSocket)
 			if err != nil {
-				panic(err)
-				return
+				mlog.Fatal("Error listening on unix socket", err)
 			}
-			sigc := make(chan os.Signal, 1)
-			signal.Notify(sigc, os.Interrupt, os.Kill, syscall.SIGTERM)
-			go func(c chan os.Signal) {
-				sig := <-c
-				mlog.Printf("Caught signal %s: shutting down.", sig)
-				unixListener.Close()
-				os.Exit(0)
-			}(sigc)
-			mlog.Fatal(server.Serve(unixListener))
-		}()
-	}
-	if opts.BindAddress != "" {
-		mlog.Printf("Starting server on: %s", opts.BindAddress)
-		go func() {
-			srv := &http.Server{
-				Addr:        opts.BindAddress,
-				ReadTimeout: 30 * time.Second}
-			mlog.Fatal(srv.ListenAndServe())
-		}()
-	}
-	if opts.BindAddressSSL != "" {
-		mlog.Printf("Starting TLS server on: %s", opts.BindAddressSSL)
-		go func() {
-			srv := &http.Server{
-				Addr:        opts.BindAddressSSL,
-				ReadTimeout: 30 * time.Second}
-			mlog.Fatal(srv.ListenAndServeTLS(opts.SSLCert, opts.SSLKey))
+
+			if err := srv.Serve(ln); err != http.ErrServerClosed {
+				mlog.Fatal(err)
+			}
 		}()
 	}
 
-	// just block. listen and serve will exit the program if they fail/return
-	// so we just need to block to prevent main from exiting.
-	select {}
+	if opts.BindAddress != "" {
+		mlog.Printf("Starting HTTP server on: tcp:%s", opts.BindAddress)
+		go func() {
+			ln, err := net.Listen("tcp", opts.BindAddress)
+			if err != nil {
+				mlog.Fatal("Error listening on tcp socket", err)
+			}
+
+			if err := srv.Serve(ln); err != http.ErrServerClosed {
+				mlog.Fatal(err)
+			}
+		}()
+	}
+
+	if opts.BindAddressSSL != "" {
+		mlog.Printf("Starting TLS server on: tcp:%s", opts.BindAddressSSL)
+		go func() {
+			ln, err := net.Listen("tcp", opts.BindAddressSSL)
+			if err != nil {
+				mlog.Fatal("Error listening on tcp socket", err)
+			}
+
+			if err := srv.ServeTLS(ln, opts.SSLCert, opts.SSLKey); err != http.ErrServerClosed {
+				mlog.Fatal(err)
+			}
+		}()
+	}
+
+	// just block waiting for closure
+	<-idleConnsClosed
 }

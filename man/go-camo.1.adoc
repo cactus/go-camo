@@ -74,6 +74,9 @@ See __<<ADD_HEADERS>>__ for more info.
     Address and port to listen to, as a string of _ADDRESS:PORT_. +
     Default: `0.0.0.0:8080`
 
+*--socket-listen*=<__SOCKET_PATH__>::
+    Path for unix domain socket to bind to for HTTP.
+
 *--ssl-listen*=<__ADDRESS:PORT__>::
     Address and port to listen via SSL to, as a string of _ADDRESS:PORT_.
 
