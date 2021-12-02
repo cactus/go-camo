@@ -65,7 +65,7 @@ The general steps are as follows:
     creating the signed url.
 *   The signed url replaces the original image URL.
 *   The web app returns the content to the client.
-*   The client requets the signed url from Go-Camo.
+*   The client requests the signed url from Go-Camo.
 *   Go-Camo validates the HMAC, decodes the URL,
     then requests the content from the origin server and streams it to the client.
 
