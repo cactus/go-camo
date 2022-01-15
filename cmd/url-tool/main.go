@@ -19,8 +19,11 @@ import (
 
 // EncodeCommand holds command options for the encode command
 type EncodeCommand struct {
-	Base   string `short:"b" long:"base" default:"hex" description:"Encode/Decode base. Either hex or base64"`
-	Prefix string `short:"p" long:"prefix" default:"" description:"Optional url prefix used by encode output"`
+	Base       string `short:"b" long:"base" default:"hex" description:"Encode/Decode base. Either hex or base64"`
+	Prefix     string `short:"p" long:"prefix" default:"" description:"Optional url prefix used by encode output"`
+	Positional struct {
+		Url string `positional-arg-name:"URL"`
+	} `positional-args:"yes" required:"true"`
 }
 
 // Execute runs the encode command
@@ -29,12 +32,7 @@ func (c *EncodeCommand) Execute(args []string) error {
 		return errors.New("empty HMAC")
 	}
 
-	if len(args) == 0 {
-		return errors.New("no url argument provided")
-	}
-
-	oURL := args[0]
-	if oURL == "" {
+	if len(c.Positional.Url) == 0 {
 		return errors.New("no url argument provided")
 	}
 
@@ -42,18 +40,22 @@ func (c *EncodeCommand) Execute(args []string) error {
 	var outURL string
 	switch c.Base {
 	case "base64":
-		outURL = encoding.B64EncodeURL(hmacKeyBytes, oURL)
+		outURL = encoding.B64EncodeURL(hmacKeyBytes, c.Positional.Url)
 	case "hex":
-		outURL = encoding.HexEncodeURL(hmacKeyBytes, oURL)
+		outURL = encoding.HexEncodeURL(hmacKeyBytes, c.Positional.Url)
 	default:
 		return errors.New("invalid base provided")
 	}
-	fmt.Println(c.Prefix + outURL)
+	fmt.Println(strings.TrimRight(c.Prefix, "/") + outURL)
 	return nil
 }
 
 // DecodeCommand holds command options for the decode command
-type DecodeCommand struct{}
+type DecodeCommand struct {
+	Positional struct {
+		Url string `positional-arg-name:"URL"`
+	} `positional-args:"yes" required:"true"`
+}
 
 // Execute runs the decode command
 func (c *DecodeCommand) Execute(args []string) error {
@@ -61,18 +63,13 @@ func (c *DecodeCommand) Execute(args []string) error {
 		return errors.New("empty HMAC")
 	}
 
-	if len(args) == 0 {
-		return errors.New("no url argument provided")
-	}
-
-	oURL := args[0]
-	if oURL == "" {
+	if len(c.Positional.Url) == 0 {
 		return errors.New("no url argument provided")
 	}
 
 	hmacKeyBytes := []byte(opts.HmacKey)
 
-	u, err := url.Parse(oURL)
+	u, err := url.Parse(c.Positional.Url)
 	if err != nil {
 		return err
 	}
