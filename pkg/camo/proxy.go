@@ -63,12 +63,13 @@ type FilterFunc func(*url.URL) bool
 // A Proxy is a Camo like HTTP proxy, that provides content type
 // restrictions as well as regex host allow list support.
 type Proxy struct {
-	client            *http.Client
-	config            *Config
-	acceptTypesFilter *htrie.GlobPathChecker
-	acceptTypesString string
-	filters           []FilterFunc
-	filtersLen        int
+	client              *http.Client
+	config              *Config
+	upstreamProxyConfig *upstreamProxyConfig
+	acceptTypesFilter   *htrie.GlobPathChecker
+	acceptTypesString   string
+	filters             []FilterFunc
+	filtersLen          int
 }
 
 // ServerHTTP handles the client request, validates the request is validly
@@ -408,6 +409,12 @@ func (p *Proxy) checkURL(reqURL *url.URL) error {
 		}
 	}
 
+	// if using a proxy config, block directly url requests to the proxy
+	if p.upstreamProxyConfig.hasProxy &&
+		p.upstreamProxyConfig.matchesAny(uHostname, reqURL.Port()) {
+		return errors.New("Rejected due to filter-ruleset")
+	}
+
 	return nil
 }
 
@@ -456,6 +463,9 @@ func NewWithFilters(pc Config, filters []FilterFunc) (*Proxy, error) {
 func New(pc Config) (*Proxy, error) {
 	doFiltering := !pc.noIPFiltering
 
+	upstreamProxyConf := &upstreamProxyConfig{}
+	upstreamProxyConf.init()
+
 	dailer := &net.Dialer{
 		Timeout:   3 * time.Second,
 		KeepAlive: 30 * time.Second,
@@ -474,20 +484,20 @@ func New(pc Config) (*Proxy, error) {
 
 			// ip/allow-list/deny-list filtering
 			if doFiltering {
-				host, _, err := net.SplitHostPort(address)
+				host, port, err := net.SplitHostPort(address)
 				if err != nil {
 					return fmt.Errorf("%s:%s is not a valid host/port pair: %w", address, err, ErrInvalidHostPort)
 				}
 
 				// filter out rejected networks
 				if ip := net.ParseIP(host); ip != nil {
-					if isRejectedIP(ip) {
+					if isRejectedIP(ip) && !upstreamProxyConf.matchesIP(ip, port) {
 						return ErrRejectIP
 					}
 				} else {
 					if ips, err := net.LookupIP(host); err == nil {
 						for _, ip := range ips {
-							if isRejectedIP(ip) {
+							if isRejectedIP(ip) && !upstreamProxyConf.matchesIP(ip, port) {
 								return ErrRejectIP
 							}
 						}
@@ -552,10 +562,11 @@ func New(pc Config) (*Proxy, error) {
 	}
 
 	p := &Proxy{
-		client:            client,
-		config:            &pc,
-		acceptTypesString: strings.Join(acceptTypes, ", "),
-		acceptTypesFilter: acceptTypesFilter,
+		client:              client,
+		config:              &pc,
+		acceptTypesString:   strings.Join(acceptTypes, ", "),
+		acceptTypesFilter:   acceptTypesFilter,
+		upstreamProxyConfig: upstreamProxyConf,
 	}
 
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {

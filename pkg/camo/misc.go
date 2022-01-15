@@ -5,6 +5,7 @@
 package camo
 
 import (
+	"fmt"
 	"io"
 	"net"
 	"os"
@@ -98,6 +99,17 @@ func containsOneOf(s string, substrs ...string) bool {
 		}
 	}
 	return false
+}
+
+func hostnameToIPs(hostname string) ([]net.IP, error) {
+	if ip := net.ParseIP(hostname); ip != nil {
+		return []net.IP{ip}, nil
+	} else {
+		if ips, err := net.LookupIP(hostname); err == nil {
+			return ips, nil
+		}
+	}
+	return nil, fmt.Errorf("no ips for hostname %s", hostname)
 }
 
 var bufPool = sync.Pool{
