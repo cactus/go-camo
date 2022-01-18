@@ -18,6 +18,9 @@ toc::[]
 :link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
 
 == HEAD
+*   Add support for internal address proxies (HTTP(S)_PROXY). +
+    issue #55
+*   Add some additional documentation/caveats regarding HTTP(S)_PROXY usage.
 
 == v2.3.0 - 2021-10-20
 *   Add support for listening on a unix socket.

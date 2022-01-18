@@ -274,10 +274,10 @@ More generally, it is recommended to either:
 *   `GOCAMO_HMAC` - HMAC key to use.
 *   `HTTPS_PROXY` - Configure an outbound proxy for HTTPS requests. +
     Either a complete URL or a `host[:port]`, in which case an HTTP scheme
-    is assumed.
+    is assumed. See <<Upstream Http Proxying>> notes for more information.
 *   `HTTP_PROXY` - Configure an outbound proxy for HTTP requests. +
     Either a complete URL or a `host[:port]`, in which case an HTTP scheme
-    is assumed.
+    is assumed. See <<Upstream Http Proxying>> notes for more information.
 
 === Command line flags
 
@@ -397,6 +397,36 @@ by default, you could add this to the command line:
 -H "Strict-Transport-Security:  max-age=16070400"
 ----
 --
+
+== Upstream Http Proxying
+
+Care should be taken when using upstream http proxy support. go-camo has
+several protections against SSRF vectors, for example:
+
+*   Checking http redirect chains against rfc1918 addresses.
+*   Limits to maximum number of redirects.
+*   Protection against self-redirect loops.
+*   Various other protections.
+
+The use of an upstream http proxy may subvert several of these protections, as
+go-camo will be required to offload certain operations to the upstream http proxy.
+
+Some examples (list is not exhaustive):
+
+*   The upstream http proxy itself may be responsible for following redirects
+    (depending on configuration). As such, go-camo may not have visibility into
+    the redirect chain. This could result in resource exhaustion (redirect
+    loops), or SSRF (redirects to internal urls).
+*   The upstream http proxy itself will be responsible for connecting to external
+    servers, and would need to be configured for any request size limits.
+    While go-camo would still limit request sizes based on its own configuration,
+    the upstream http proxy may still fetch the content before handoff.
+*   There may be other chances for "configuration confusion" -- where two
+    services are configured together in such a way together, that introduces
+    issues not possible when operating standalone.
+
+Proper configuration of the upstream http proxy may mitigate these issues. +
+Test your configurations and monitor carefully!
 
 == Monitoring
 
