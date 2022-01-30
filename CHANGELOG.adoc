@@ -18,6 +18,8 @@ toc::[]
 :link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
 
 == HEAD
+
+== v2.4.0 - 2022-01-30
 *   Add support for internal address proxies (HTTP(S)_PROXY). +
     issue #55
 *   Add some additional documentation/caveats regarding HTTP(S)_PROXY usage.
