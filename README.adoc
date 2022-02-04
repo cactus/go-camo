@@ -422,7 +422,7 @@ Some examples (list is not exhaustive):
     While go-camo would still limit request sizes based on its own configuration,
     the upstream http proxy may still fetch the content before handoff.
 *   There may be other chances for "configuration confusion" -- where two
-    services are configured together in such a way together, that introduces
+    services are configured together in such a way, that introduces
     issues not possible when operating standalone.
 
 Proper configuration of the upstream http proxy may mitigate these issues. +
