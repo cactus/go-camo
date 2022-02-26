@@ -432,6 +432,47 @@ func Test404OnLoopback(t *testing.T) {
 	}
 }
 
+func TestDownloadDisposition(t *testing.T) {
+	t.Parallel()
+	testURL := "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Proxi%2C_Bordeaux%2C_July_2014.JPG/1200px-Proxi%2C_Bordeaux%2C_July_2014.JPG"
+	req, err := makeReq(camoConfig, testURL)
+	assert.Check(t, err)
+	resp, err := processRequest(req, 200, camoConfig, nil)
+	headerAssert(t, "", "Content-Disposition", resp)
+	assert.Check(t, err)
+
+	req.URL.Path = req.URL.Path + "/download"
+	resp, err = processRequest(req, 200, camoConfig, nil)
+	headerAssert(t, "attachment", "Content-Disposition", resp)
+	assert.Check(t, err)
+}
+
+func TestPathPieces(t *testing.T) {
+	t.Parallel()
+	testURL := "http://www.google.com/images/srpr/logo11w.png"
+	req, err := makeReq(camoConfig, testURL)
+	assert.Check(t, err)
+	req.URL.Path = req.URL.Path + "/"
+	resp, err := processRequest(req, 404, camoConfig, nil)
+	bodyAssert(t, "Malformed request path\n", resp)
+	assert.Check(t, err)
+
+	req.URL.Path = req.URL.Path + "down"
+	resp, err = processRequest(req, 404, camoConfig, nil)
+	bodyAssert(t, "Malformed request path\n", resp)
+	assert.Check(t, err)
+
+	req.URL.Path = req.URL.Path + "/load"
+	resp, err = processRequest(req, 404, camoConfig, nil)
+	bodyAssert(t, "404 Not Found\n", resp)
+	assert.Check(t, err)
+
+	req.URL.Path = "/download"
+	resp, err = processRequest(req, 404, camoConfig, nil)
+	bodyAssert(t, "404 Not Found\n", resp)
+	assert.Check(t, err)
+}
+
 func TestMain(m *testing.M) {
 	flag.Parse()
 
