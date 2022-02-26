@@ -15,6 +15,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -333,7 +334,15 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// set content type based on parsed content type, not originally supplied
 	h.Set("content-type", responseContentType)
 	if attachmentDisposition {
-		h.Set("content-disposition", "attachment")
+		_, params, err := mime.ParseMediaType(resp.Header.Get("Content-Disposition"))
+		if err != nil {
+			params = make(map[string]string)
+		}
+		if _, ok := params["filename"]; !ok {
+			_, params["filename"] = filepath.Split(u.EscapedPath())
+		}
+		disposition := mime.FormatMediaType("attachment", params)
+		h.Set("Content-Disposition", disposition)
 	}
 	w.WriteHeader(resp.StatusCode)
 
