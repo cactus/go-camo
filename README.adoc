@@ -134,6 +134,8 @@ Note that it is recommended to front Go-Camo with a CDN when possible.
 *   Go-Camo supports HTTP HEAD requests.
 *   Go-Camo allows custom default headers to be added --
     useful for things like adding {link-hsts} headers.
+*   Go-Camo supports appending `/download` to make browsers
+    download, instead of display, the content.
 
 == Installing pre-built binaries
 
