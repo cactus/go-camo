@@ -154,7 +154,7 @@ func main() {
 		DisableKeepAlivesBE bool          `long:"no-bk" description:"Disable backend http keep-alive support"`
 		AllowContentVideo   bool          `long:"allow-content-video" description:"Additionally allow 'video/*' content"`
 		AllowContentAudio   bool          `long:"allow-content-audio" description:"Additionally allow 'audio/*' content"`
-		AllowCredetialURLs  bool          `long:"allow-credential-urls" description:"Allow urls to contain user/pass credentials"`
+		AllowCredentialURLs bool          `long:"allow-credential-urls" description:"Allow urls to contain user/pass credentials"`
 		FilterRuleset       string        `long:"filter-ruleset" description:"Text file containing filtering rules (one per line)"`
 		ServerName          string        `long:"server-name" default:"go-camo" description:"Value to use for the HTTP server field"`
 		ExposeServerVersion bool          `long:"expose-server-version" description:"Include the server version in the HTTP server response header"`
@@ -229,7 +229,7 @@ func main() {
 
 	// other options
 	config.EnableXFwdFor = opts.EnableXFwdFor
-	config.AllowCredetialURLs = opts.AllowCredetialURLs
+	config.AllowCredentialURLs = opts.AllowCredentialURLs
 
 	// additional content types to allow
 	config.AllowContentVideo = opts.AllowContentVideo

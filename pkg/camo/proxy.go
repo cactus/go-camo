@@ -49,7 +49,7 @@ type Config struct {
 	AllowContentVideo bool
 	AllowContentAudio bool
 	// allow URLs to contain user/pass credentials
-	AllowCredetialURLs bool
+	AllowCredentialURLs bool
 	// Whether to call/increment metrics
 	CollectMetrics bool
 	// no ip filtering (test mode)
@@ -398,7 +398,7 @@ func (p *Proxy) checkURL(reqURL *url.URL) error {
 	}
 
 	// if not allowed, reject credentialed/userinfo urls
-	if !p.config.AllowCredetialURLs && reqURL.User != nil {
+	if !p.config.AllowCredentialURLs && reqURL.User != nil {
 		return errors.New("Userinfo URL rejected")
 	}
 
