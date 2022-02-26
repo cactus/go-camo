@@ -88,12 +88,21 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// split path and get components
 	components := strings.Split(req.URL.Path, "/")
-	if len(components) < 3 {
+	if len(components) < 3 || len(components) > 4 {
 		http.Error(w, "Malformed request path", http.StatusNotFound)
 		return
 	}
 
 	sigHash, encodedURL := components[1], components[2]
+	attachmentDisposition := false
+	if len(components) == 4 {
+		if components[3] == "download" {
+			attachmentDisposition = true
+		} else {
+			http.Error(w, "Malformed request path", http.StatusNotFound)
+			return
+		}
+	}
 
 	if mlog.HasDebug() {
 		mlog.Debugm("client request", httpReqToMlogMap(req))
@@ -323,6 +332,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	p.copyHeaders(&h, &resp.Header, &ValidRespHeaders)
 	// set content type based on parsed content type, not originally supplied
 	h.Set("content-type", responseContentType)
+	if attachmentDisposition {
+		h.Set("content-disposition", "attachment")
+	}
 	w.WriteHeader(resp.StatusCode)
 
 	// get a []byte from bufpool, and put it back on defer
