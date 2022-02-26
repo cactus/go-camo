@@ -19,13 +19,13 @@ import (
 )
 
 var camoConfig = Config{
-	HMACKey:            []byte("0x24FEEDFACEDEADBEEFCAFE"),
-	MaxSize:            5120 * 1024,
-	RequestTimeout:     time.Duration(10) * time.Second,
-	MaxRedirects:       3,
-	ServerName:         "go-camo",
-	AllowContentVideo:  false,
-	AllowCredetialURLs: false,
+	HMACKey:             []byte("0x24FEEDFACEDEADBEEFCAFE"),
+	MaxSize:             5120 * 1024,
+	RequestTimeout:      time.Duration(10) * time.Second,
+	MaxRedirects:        3,
+	ServerName:          "go-camo",
+	AllowContentVideo:   false,
+	AllowCredentialURLs: false,
 }
 
 func skipIfCI(t *testing.T) {
@@ -254,12 +254,12 @@ func TestCredetialURLsAllowed(t *testing.T) {
 	t.Parallel()
 
 	camoConfigWithCredentials := Config{
-		HMACKey:            []byte("0x24FEEDFACEDEADBEEFCAFE"),
-		MaxSize:            180 * 1024,
-		RequestTimeout:     time.Duration(10) * time.Second,
-		MaxRedirects:       3,
-		ServerName:         "go-camo",
-		AllowCredetialURLs: true,
+		HMACKey:             []byte("0x24FEEDFACEDEADBEEFCAFE"),
+		MaxSize:             180 * 1024,
+		RequestTimeout:      time.Duration(10) * time.Second,
+		MaxRedirects:        3,
+		ServerName:          "go-camo",
+		AllowCredentialURLs: true,
 	}
 
 	testURL := "http://user:pass@www.google.com/images/srpr/logo11w.png"
