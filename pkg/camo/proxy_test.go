@@ -443,7 +443,22 @@ func TestDownloadDisposition(t *testing.T) {
 
 	req.URL.Path = req.URL.Path + "/download"
 	resp, err = processRequest(req, 200, camoConfig, nil)
-	headerAssert(t, "attachment", "Content-Disposition", resp)
+	headerAssert(t, "attachment; filename=\"Proxi,_Bordeaux,_July_2014.JPG\"", "Content-Disposition", resp)
+	assert.Check(t, err)
+}
+
+func TestDownloadDispositionUnicode(t *testing.T) {
+	t.Parallel()
+	testURL := "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Aillant-sur-Tholon-FR-89-Proxi_March%C3%A9-09.jpg/1200px-Aillant-sur-Tholon-FR-89-Proxi_March%C3%A9-09.jpg"
+	req, err := makeReq(camoConfig, testURL)
+	assert.Check(t, err)
+	resp, err := processRequest(req, 200, camoConfig, nil)
+	headerAssert(t, "", "Content-Disposition", resp)
+	assert.Check(t, err)
+
+	req.URL.Path = req.URL.Path + "/download"
+	resp, err = processRequest(req, 200, camoConfig, nil)
+	headerAssert(t, "attachment; filename*=utf-8''Aillant-sur-Tholon-FR-89-Proxi_March%C3%A9-09.jpg", "Content-Disposition", resp)
 	assert.Check(t, err)
 }
 
