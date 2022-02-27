@@ -24,8 +24,7 @@ var (
 var ValidReqHeaders = map[string]bool{
 	"Accept":         true,
 	"Accept-Charset": true,
-	// images (aside from xml/svg), don't generally benefit (generally) from
-	// compression
+	// images (aside from xml/svg), don't typically benefit from compression
 	"Accept-Encoding":   false,
 	"Accept-Language":   true,
 	"Cache-Control":     true,
