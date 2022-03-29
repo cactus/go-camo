@@ -26,6 +26,7 @@ var camoConfig = Config{
 	ServerName:          "go-camo",
 	AllowContentVideo:   false,
 	AllowCredentialURLs: false,
+	EnableDownloadParam: false,
 }
 
 func skipIfCI(t *testing.T) {
@@ -434,57 +435,39 @@ func Test404OnLoopback(t *testing.T) {
 
 func TestDownloadDisposition(t *testing.T) {
 	t.Parallel()
-	testURL := "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Proxi%2C_Bordeaux%2C_July_2014.JPG/1200px-Proxi%2C_Bordeaux%2C_July_2014.JPG"
-	req, err := makeReq(camoConfig, testURL)
-	assert.Check(t, err)
-	resp, err := processRequest(req, 200, camoConfig, nil)
-	headerAssert(t, "", "Content-Disposition", resp)
-	assert.Check(t, err)
-
-	req.URL.Path = req.URL.Path + "/download"
-	resp, err = processRequest(req, 200, camoConfig, nil)
-	headerAssert(t, "attachment; filename=\"Proxi,_Bordeaux,_July_2014.JPG\"", "Content-Disposition", resp)
-	assert.Check(t, err)
-}
-
-func TestDownloadDispositionUnicode(t *testing.T) {
-	t.Parallel()
-	testURL := "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Aillant-sur-Tholon-FR-89-Proxi_March%C3%A9-09.jpg/1200px-Aillant-sur-Tholon-FR-89-Proxi_March%C3%A9-09.jpg"
-	req, err := makeReq(camoConfig, testURL)
-	assert.Check(t, err)
-	resp, err := processRequest(req, 200, camoConfig, nil)
-	headerAssert(t, "", "Content-Disposition", resp)
-	assert.Check(t, err)
-
-	req.URL.Path = req.URL.Path + "/download"
-	resp, err = processRequest(req, 200, camoConfig, nil)
-	headerAssert(t, "attachment; filename*=utf-8''Aillant-sur-Tholon-FR-89-Proxi_March%C3%A9-09.jpg", "Content-Disposition", resp)
-	assert.Check(t, err)
-}
-
-func TestPathPieces(t *testing.T) {
-	t.Parallel()
+	camoConfigCopy := camoConfig
 	testURL := "http://www.google.com/images/srpr/logo11w.png"
-	req, err := makeReq(camoConfig, testURL)
+
+	// with EnableDownloadParam disabled
+	camoConfigCopy.EnableDownloadParam = false
+
+	req, err := makeReq(camoConfigCopy, testURL)
 	assert.Check(t, err)
-	req.URL.Path = req.URL.Path + "/"
-	resp, err := processRequest(req, 404, camoConfig, nil)
-	bodyAssert(t, "Malformed request path\n", resp)
+	resp, err := processRequest(req, 200, camoConfigCopy, nil)
+	headerAssert(t, "", "Content-Disposition", resp)
 	assert.Check(t, err)
 
-	req.URL.Path = req.URL.Path + "down"
-	resp, err = processRequest(req, 404, camoConfig, nil)
-	bodyAssert(t, "Malformed request path\n", resp)
+	params := req.URL.Query()
+	params.Add("download", "")
+	req.URL.RawQuery = params.Encode()
+	resp, err = processRequest(req, 200, camoConfigCopy, nil)
+	headerAssert(t, "", "Content-Disposition", resp)
 	assert.Check(t, err)
 
-	req.URL.Path = req.URL.Path + "/load"
-	resp, err = processRequest(req, 404, camoConfig, nil)
-	bodyAssert(t, "404 Not Found\n", resp)
+	// with EnableDownloadParam enabled
+	camoConfigCopy.EnableDownloadParam = true
+
+	req, err = makeReq(camoConfigCopy, testURL)
+	assert.Check(t, err)
+	resp, err = processRequest(req, 200, camoConfigCopy, nil)
+	headerAssert(t, "", "Content-Disposition", resp)
 	assert.Check(t, err)
 
-	req.URL.Path = "/download"
-	resp, err = processRequest(req, 404, camoConfig, nil)
-	bodyAssert(t, "404 Not Found\n", resp)
+	params = req.URL.Query()
+	params.Add("download", "")
+	req.URL.RawQuery = params.Encode()
+	resp, err = processRequest(req, 200, camoConfigCopy, nil)
+	headerAssert(t, "attachment", "Content-Disposition", resp)
 	assert.Check(t, err)
 }
 
