@@ -21,7 +21,6 @@ import (
 type EncodeCommand struct {
 	Base       string `short:"b" long:"base" default:"hex" description:"Encode/Decode base. Either hex or base64"`
 	Prefix     string `short:"p" long:"prefix" default:"" description:"Optional url prefix used by encode output"`
-	Attachment bool   `short:"d" long:"download" description:"If set, the URL will have 'Content-Disposition: attachment' set"`
 	Positional struct {
 		Url string `positional-arg-name:"URL"`
 	} `positional-args:"yes" required:"true"`
@@ -46,9 +45,6 @@ func (c *EncodeCommand) Execute(args []string) error {
 		outURL = encoding.HexEncodeURL(hmacKeyBytes, c.Positional.Url)
 	default:
 		return errors.New("invalid base provided")
-	}
-	if c.Attachment {
-		outURL += "/download"
 	}
 	fmt.Println(strings.TrimRight(c.Prefix, "/") + outURL)
 	return nil
@@ -77,12 +73,7 @@ func (c *DecodeCommand) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
-	comp := strings.SplitN(u.Path, "/", 4)
-	if len(comp) == 4 {
-		if comp[3] != "download" {
-			return errors.New("invalid trailer")
-		}
-	}
+	comp := strings.SplitN(u.Path, "/", 3)
 	decURL, valid := encoding.DecodeURL(hmacKeyBytes, comp[1], comp[2])
 	if !valid {
 		return errors.New("hmac is invalid")

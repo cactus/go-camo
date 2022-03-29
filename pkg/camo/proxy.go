@@ -15,7 +15,6 @@ import (
 	"net"
 	"net/http"
 	"net/url"
-	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -49,6 +48,8 @@ type Config struct {
 	// additional content types to allow
 	AllowContentVideo bool
 	AllowContentAudio bool
+	// enable support for ?download content-disposition:attachment support
+	EnableDownloadParam bool
 	// allow URLs to contain user/pass credentials
 	AllowCredentialURLs bool
 	// Whether to call/increment metrics
@@ -89,20 +90,17 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// split path and get components
 	components := strings.Split(req.URL.Path, "/")
-	if len(components) < 3 || len(components) > 4 {
+	if len(components) < 3 {
 		http.Error(w, "Malformed request path", http.StatusNotFound)
 		return
 	}
 
 	sigHash, encodedURL := components[1], components[2]
-	attachmentDisposition := false
-	if len(components) == 4 {
-		if components[3] == "download" {
-			attachmentDisposition = true
-		} else {
-			http.Error(w, "Malformed request path", http.StatusNotFound)
-			return
-		}
+
+	// check for content disposition forcing
+	forceAttachmentDisposition := false
+	if p.config.EnableDownloadParam && req.URL.Query().Has("download") {
+		forceAttachmentDisposition = true
 	}
 
 	if mlog.HasDebug() {
@@ -331,19 +329,12 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	h := w.Header()
 	p.copyHeaders(&h, &resp.Header, &ValidRespHeaders)
+	// check for setting content-disposition
+	if forceAttachmentDisposition {
+		h.Set("Content-Disposition", "attachment")
+	}
 	// set content type based on parsed content type, not originally supplied
 	h.Set("content-type", responseContentType)
-	if attachmentDisposition {
-		_, params, err := mime.ParseMediaType(resp.Header.Get("Content-Disposition"))
-		if err != nil {
-			params = make(map[string]string)
-		}
-		if _, ok := params["filename"]; !ok {
-			_, params["filename"] = filepath.Split(u.EscapedPath())
-		}
-		disposition := mime.FormatMediaType("attachment", params)
-		h.Set("Content-Disposition", disposition)
-	}
 	w.WriteHeader(resp.StatusCode)
 
 	// get a []byte from bufpool, and put it back on defer
