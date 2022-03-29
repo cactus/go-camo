@@ -331,7 +331,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	p.copyHeaders(&h, &resp.Header, &ValidRespHeaders)
 	// check for setting content-disposition
 	if forceAttachmentDisposition {
-		h.Set("Content-Disposition", "attachment")
+		h.Set("Content-Disposition", `attachment; filename="image"`)
 	}
 	// set content type based on parsed content type, not originally supplied
 	h.Set("content-type", responseContentType)
