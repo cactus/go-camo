@@ -46,6 +46,10 @@ func (dr *DumbRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		dr.HealthCheckHandler(w, r)
 		return
 	}
+        if r.URL.Path == "/_health" {
+                dr.HealthCheckHandler(w, r)
+                return
+        }
 
 	components := strings.Split(r.URL.Path, "/")
 	if len(components) == 3 {
