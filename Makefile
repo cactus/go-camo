@@ -54,7 +54,7 @@ setup-gox:
 	@if [ -z "$(shell which gox)" ]; then \
 		echo "* 'gox' command not found."; \
 		echo "  install (or otherwise ensure presence in PATH)"; \
-		echo "  go get github.com/mitchellh/gox"; \
+		echo "  go install github.com/mitchellh/gox"; \
 		exit 1;\
 	fi
 
