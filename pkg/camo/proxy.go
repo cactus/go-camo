@@ -167,7 +167,13 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	resp, err := p.client.Do(nreq)
 
 	if resp != nil {
-		defer resp.Body.Close()
+		defer func() {
+			if err:= resp.Body.Close(); err != nil {
+				if mlog.HasDebug() {
+					mlog.Debug("error on body close. ignoring.")
+				}
+			}
+		}()
 	}
 
 	if err != nil {
