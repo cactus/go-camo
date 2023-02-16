@@ -10,7 +10,7 @@ jobs:
     name: Build
     strategy:
       matrix:
-        go: ['1.17.x']
+        go: ['1.19.x']
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
     steps:
@@ -34,8 +34,8 @@ jobs:
         env:
           GOPROXY: "https://proxy.golang.org"
         run: |
-          go install honnef.co/go/tools/cmd/staticcheck
-          go install github.com/securego/gosec/cmd/gosec
+          go install honnef.co/go/tools/cmd/staticcheck@2023.1.1
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
           hash -r
           make check
 
