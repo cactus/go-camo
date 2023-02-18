@@ -19,6 +19,18 @@ toc::[]
 
 == HEAD
 
+== v2.4.3 - 2023-02-18
+*   update library dependency golang.org/x/net. +
+    refs:
+    link:https://github.com/cactus/go-camo/security/dependabot/3[dependabot-3],
+    link:https://github.com/cactus/go-camo/security/dependabot/4[dependabot-4]
+
+== v2.4.2 - 2023-02-16
+*   update library dependency prometheus, covering CVE-2022-21698. +
+    Note that for go-camo, the issue in the prometheus library was exploitable
+    only when the metrics option/flag (--metrics) is enabled.
+*   build with go1.19.5
+
 == v2.4.1 - 2022-09-28
 *   Rebuild release with go-1.19.1
 
