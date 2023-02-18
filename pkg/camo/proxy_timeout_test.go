@@ -9,7 +9,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -242,7 +241,7 @@ func TestServerEarlyEOF(t *testing.T) {
 	resp, err := processRequest(req, 200, c, nil)
 	assert.Check(t, err)
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	assert.Check(t, err)
 	assert.Check(t, is.Len(body, 0))
 }

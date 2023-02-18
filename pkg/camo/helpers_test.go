@@ -6,7 +6,7 @@ package camo
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -74,7 +74,7 @@ func makeTestReq(testURL string, status int, config Config) (*http.Response, err
 }
 
 func bodyAssert(t *testing.T, expected string, resp *http.Response) {
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	assert.Check(t, err)
 	bodyString := string(body)
 	assert.Check(t, is.Equal(expected, bodyString), "Expected 404 response body but got '%s' instead",
