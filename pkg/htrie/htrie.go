@@ -298,8 +298,7 @@ func (dt *URLMatcher) CheckURL(u *url.URL) bool {
 // sanitized, space trimmed, and lowercased...
 // Basically sanitized in a way similar to:
 //
-//     strings.ToLower((*url.URL).Hostname())
-//
+//	strings.ToLower((*url.URL).Hostname())
 func (dt *URLMatcher) CheckHostname(hostname string) bool {
 	hostname = strings.ToLower(hostname)
 	matches := dt.walkFind(hostname)

@@ -47,11 +47,11 @@ func (gpc *GlobPathChecker) parseRule(rule string) (string, string, error) {
 // AddRule adds a rule to the GlobPathChecker.
 // The expected rule format is:
 //
-//     <pipe-character><flags><pipe-character><match-url>
+//	<pipe-character><flags><pipe-character><match-url>
 //
 // Example:
 //
-//    |i|/some/subdir/*
+//	|i|/some/subdir/*
 //
 // Allowed flags:
 //
