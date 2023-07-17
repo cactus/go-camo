@@ -9,6 +9,7 @@ SIGN_KEY          ?= ${HOME}/.minisign/go-camo.key
 # app specific info
 APP_NAME          := go-camo
 APP_VER           := $(shell git describe --always --tags|sed 's/^v//')
+GOPATH            := $(shell go env GOPATH)
 VERSION_VAR       := main.ServerVersion
 
 # flags and build configuration
@@ -25,6 +26,8 @@ CC_OUTPUT_TPL     := ${BUILDDIR}/bin/{{.Dir}}.{{.OS}}-{{.Arch}}
 # some exported vars (pre-configure go build behavior)
 export GO111MODULE=on
 export CGO_ENABLED=0
+## enable go 1.21 loopvar "experiment"
+#export GOEXPERIMENT=loopvar
 
 define HELP_OUTPUT
 Available targets:
@@ -40,7 +43,7 @@ Available targets:
 endef
 export HELP_OUTPUT
 
-.PHONY: help clean build test cover man man-copy all tar cross-tar
+.PHONY: help clean build test cover man man-copy all tar cross-tar setup-check setup-gox
 
 help:
 	@echo "$$HELP_OUTPUT"
@@ -50,13 +53,21 @@ clean:
 
 setup:
 
-setup-gox:
-	@if [ -z "$(shell which gox)" ]; then \
-		echo "* 'gox' command not found."; \
-		echo "  install (or otherwise ensure presence in PATH)"; \
-		echo "  go install github.com/mitchellh/gox"; \
-		exit 1;\
-	fi
+setup-check: ${GOPATH}/bin/staticcheck ${GOPATH}/bin/gosec ${GOPATH}/bin/govulncheck
+
+${GOPATH}/bin/staticcheck:
+	go install honnef.co/go/tools/cmd/staticcheck@latest
+
+${GOPATH}/bin/gosec:
+	go install github.com/securego/gosec/v2/cmd/gosec@latest
+
+${GOPATH}/bin/govulncheck:
+	go install golang.org/x/vuln/cmd/govulncheck@latest
+
+setup-gox: $GOPATH/bin/gox
+
+$GOPATH/bin/gox:
+	go install github.com/mitchellh/gox@latest
 
 build: setup
 	@[ -d "${BUILDDIR}/bin" ] || mkdir -p "${BUILDDIR}/bin"
@@ -75,14 +86,16 @@ cover: setup
 	@echo "Running tests with coverage..."
 	@go test -vet=off -cover ${GOTEST_FLAGS} ./...
 
-check: setup
+check: setup setup-check
 	@echo "Running checks and validators..."
 	@echo "... staticcheck ..."
-	@$$(go env GOPATH)/bin/staticcheck ./...
+	@${GOPATH}/bin/staticcheck ./...
 	@echo "... go-vet ..."
 	@go vet ./...
 	@echo "... gosec ..."
-	@$$(go env GOPATH)/bin/gosec -quiet ./...
+	@${GOPATH}/bin/gosec -quiet ./...
+	@echo "... govulncheck ..."
+	@${GOPATH}/bin/govulncheck ./...
 
 .PHONY: update-go-deps
 update-go-deps:
