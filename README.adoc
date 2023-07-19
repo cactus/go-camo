@@ -525,11 +525,6 @@ with specific containerization requirements.
 When in doubt, prefer the statically compiled {link-releases},
 unless you specifically need a container.
 
-== Alternative Implementations
-
-*   {link-mrsaints}' go-camo {link-arachnys-fork} --
-    supports proxying additional content types (fonts/css).
-
 == Changelog
 
 See xref:CHANGELOG.adoc[CHANGELOG].
