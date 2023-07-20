@@ -22,14 +22,23 @@ jobs:
         # a pull request then we can checkout the head.
         fetch-depth: 2
 
+    - name: Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.20.x'
+        check-latest: true
+      id: go
+
+    - name: Build
+      env:
+        GOPROXY: "https://proxy.golang.org"
+      run: make build
+
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:
         languages: go
-
-    - name: build
-      run: make build
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
