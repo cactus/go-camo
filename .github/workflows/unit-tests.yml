@@ -35,9 +35,6 @@ jobs:
         env:
           GOPROXY: "https://proxy.golang.org"
         run: |
-          go install honnef.co/go/tools/cmd/staticcheck@2023.1.1
-          go install github.com/securego/gosec/v2/cmd/gosec@latest
-          hash -r
           make check
 
       - name: Tests
