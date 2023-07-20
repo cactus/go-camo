@@ -18,6 +18,7 @@ toc::[]
 :link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
 
 == HEAD
+*   update dependencies
 
 == v2.4.3 - 2023-02-18
 *   update library dependency golang.org/x/net. +
