@@ -1,4 +1,4 @@
-module github.com/cactus/go-camo
+module github.com/cactus/go-camo/v2
 
 go 1.19
 
