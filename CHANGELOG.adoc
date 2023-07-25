@@ -18,6 +18,8 @@ toc::[]
 :link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
 
 == HEAD
+
+== v2.4.4 - 2023-07-25
 *   update dependencies
 *   bump version in go.mod (and fix all internal module references) +
     ref: discussion link:https://github.com/cactus/go-camo/discussions/62[#62]
