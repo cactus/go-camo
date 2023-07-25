@@ -19,6 +19,8 @@ toc::[]
 
 == HEAD
 *   update dependencies
+*   bump version in go.mod (and fix all internal module references)+
+    ref: discussion #62
 
 == v2.4.3 - 2023-02-18
 *   update library dependency golang.org/x/net. +
