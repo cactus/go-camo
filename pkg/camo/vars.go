@@ -7,7 +7,7 @@ package camo
 import (
 	"errors"
 
-	"github.com/cactus/go-camo/pkg/htrie"
+	"github.com/cactus/go-camo/v2/pkg/htrie"
 )
 
 var (

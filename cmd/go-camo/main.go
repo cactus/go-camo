@@ -19,9 +19,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/cactus/go-camo/pkg/camo"
-	"github.com/cactus/go-camo/pkg/htrie"
-	"github.com/cactus/go-camo/pkg/router"
+	"github.com/cactus/go-camo/v2/pkg/camo"
+	"github.com/cactus/go-camo/v2/pkg/htrie"
+	"github.com/cactus/go-camo/v2/pkg/router"
 
 	"github.com/cactus/mlog"
 	flags "github.com/jessevdk/go-flags"

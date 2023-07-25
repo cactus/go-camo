@@ -19,8 +19,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/cactus/go-camo/pkg/camo/encoding"
-	"github.com/cactus/go-camo/pkg/htrie"
+	"github.com/cactus/go-camo/v2/pkg/camo/encoding"
+	"github.com/cactus/go-camo/v2/pkg/htrie"
 
 	"github.com/cactus/mlog"
 )
