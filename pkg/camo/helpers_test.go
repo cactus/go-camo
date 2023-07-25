@@ -11,8 +11,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/cactus/go-camo/pkg/camo/encoding"
-	"github.com/cactus/go-camo/pkg/router"
+	"github.com/cactus/go-camo/v2/pkg/camo/encoding"
+	"github.com/cactus/go-camo/v2/pkg/router"
 	"gotest.tools/v3/assert"
 	is "gotest.tools/v3/assert/cmp"
 )
