@@ -167,9 +167,10 @@ Available targets:
   help                this help
   clean               clean up
   all                 build binaries and man pages
+  check               run checks and validators
   test                run tests
   cover               run tests with cover output
-  build               build all
+  build               build all binaries
   man                 build all man pages
   tar                 build release tarball
   cross-tar           cross compile and build release tarballs
