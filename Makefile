@@ -27,13 +27,14 @@ CC_OUTPUT_TPL     := ${BUILDDIR}/bin/{{.Dir}}.{{.OS}}-{{.Arch}}
 export GO111MODULE=on
 export CGO_ENABLED=0
 ## enable go 1.21 loopvar "experiment"
-#export GOEXPERIMENT=loopvar
+export GOEXPERIMENT=loopvar
 
 define HELP_OUTPUT
 Available targets:
   help                this help
   clean               clean up
   all                 build binaries and man pages
+  check               run checks and validators
   test                run tests
   cover               run tests with cover output
   build               build all binaries
