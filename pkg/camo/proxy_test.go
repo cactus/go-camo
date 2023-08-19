@@ -221,7 +221,7 @@ func TestVideoContentTypeAllowed(t *testing.T) {
 	// bump limit, try again (should succeed)
 	camoConfigWithVideo.MaxSize = 5000 * 1024
 	_, err = makeTestReq(testURL, 200, camoConfigWithVideo)
-	fmt.Println(err)
+	//fmt.Println(err)
 	assert.Check(t, err)
 }
 

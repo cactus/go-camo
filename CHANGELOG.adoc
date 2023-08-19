@@ -18,6 +18,7 @@ toc::[]
 :link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
 
 == HEAD
+*   fix htrie matching of non punycode (eg. unicode) idna hostnames
 
 == v2.4.4 - 2023-07-25
 *   update dependencies

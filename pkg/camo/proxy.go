@@ -58,7 +58,7 @@ type Config struct {
 
 // The FilterFunc type is a function that validates a *url.URL
 // A true value approves the url. A false value rejects the url.
-type FilterFunc func(*url.URL) bool
+type FilterFunc func(*url.URL) (bool, error)
 
 // A Proxy is a Camo like HTTP proxy, that provides content type
 // restrictions as well as regex host allow list support.
@@ -395,11 +395,24 @@ func (p *Proxy) checkURL(reqURL *url.URL) error {
 		return errors.New("Bad url scheme")
 	}
 
-	// reject localhost urls
-	// lower case for matching is done by CheckHostname, so no need to
-	// ToLower here also
 	uHostname := reqURL.Hostname()
-	if uHostname == "" || localsFilter.CheckHostname(uHostname) {
+	// reject empy hostnames
+	if uHostname == "" {
+		return errors.New("Bad url host")
+	}
+
+	// ensure valid idna lookup mapping for hostname
+	// this is also used by htrie filtering (localsFilter and p.filters)
+	cleanHostname, err := htrie.CleanHostname(uHostname)
+	if err != nil {
+		mlog.Infof("Filter lookup rejected: malformed hostname: %s", uHostname)
+		return errors.New("Bad url host")
+	}
+
+	// reject localhost urls
+	// lower case for matching is done by IdnaLookupMap above, so no need to
+	// ToLower here also
+	if localsFilter.CheckCleanHostname(cleanHostname) {
 		return errors.New("Bad url host")
 	}
 
@@ -408,9 +421,9 @@ func (p *Proxy) checkURL(reqURL *url.URL) error {
 		return errors.New("Userinfo URL rejected")
 	}
 
-	// evaluate filters. first false value "fails"
+	// evaluate filters. first false (or filter error) value "fails"
 	for i := 0; i < p.filtersLen; i++ {
-		if !p.filters[i](reqURL) {
+		if chk, err := p.filters[i](reqURL); err != nil || !chk {
 			return errors.New("Rejected due to filter-ruleset")
 		}
 	}

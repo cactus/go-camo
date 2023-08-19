@@ -5,11 +5,19 @@
 package router
 
 import (
+	"bytes"
 	"testing"
 	"time"
 
+	"github.com/cactus/mlog"
 	"gotest.tools/v3/assert"
 )
+
+var logBuffer = &bytes.Buffer{}
+
+func init() {
+	mlog.DefaultLogger = mlog.New(logBuffer, mlog.Lstd)
+}
 
 func TestHTTPDateGoroutineUpdate(t *testing.T) {
 	t.Parallel()

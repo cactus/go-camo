@@ -133,8 +133,9 @@ func (gpc *GlobPathChecker) AddRule(rule string) error {
 
 // CheckPath checks the supplied path (as a string).
 // Note: CheckPathString requires that the url path component is already escaped,
-// in a similar way to `(*url.URL).EscapePath()`, as well as TrimSpace'd.
+// in a similar way to `(*url.URL).EscapePath()`.
 func (gpc *GlobPathChecker) CheckPath(url string) bool {
+	url = strings.TrimSpace(url)
 	ulen := len(url)
 
 	// if we have a case sensitive checker, check that one first

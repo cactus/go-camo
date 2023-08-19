@@ -81,7 +81,7 @@ func loadFilterList(fname string) ([]camo.FilterFunc, error) {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		line := scanner.Text()
+		line := strings.TrimSpace(scanner.Text())
 
 		if strings.HasPrefix(line, "allow|") {
 			line = strings.TrimPrefix(line, "allow")
@@ -118,17 +118,28 @@ func loadFilterList(fname string) ([]camo.FilterFunc, error) {
 		filterFuncs = append(filterFuncs, allowFilter.CheckURL)
 	}
 
-	// denyFilter returns true on a match. we want a "false" value to abort processing.
+	// denyFilter returns true on a match. we want to invert this for a deny rule, so
+	// any deny rule match should return true, and anything _not_ matching should return false
 	// so just wrap and invert the bool.
 	if hasDeny {
-		denyF := func(u *url.URL) bool {
-			return !denyFilter.CheckURL(u)
+		denyF := func(u *url.URL) (bool, error) {
+			chk, err := denyFilter.CheckURL(u)
+			return !chk, err
 		}
 		filterFuncs = append(filterFuncs, denyF)
 	}
 
 	if hasAllow && hasDeny {
-		mlog.Printf("Warning! Allow and Deny rules both supplied. Having Allow rules means anything not matching an allow rule is denied. THEN deny rules are evaluated. Be sure this is what you want!")
+		mlog.Print(
+			strings.Join(
+				[]string{
+					"Warning! Allow and Deny rules both supplied.",
+					"Having Allow rules means anything not matching an allow rule is denied.",
+					"THEN deny rules are evaluated. Be sure this is what you want!",
+				},
+				" ",
+			),
+		)
 	}
 
 	return filterFuncs, nil

@@ -15,6 +15,7 @@ VERSION_VAR       := main.ServerVersion
 # flags and build configuration
 GOBUILD_OPTIONS   := -trimpath
 GOTEST_FLAGS      := -cpu=1,2
+GOTEST_BENCHFLAGS :=
 GOBUILD_DEPFLAGS  := -tags netgo
 GOBUILD_LDFLAGS   ?= -s -w
 GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} ${GOBUILD_OPTIONS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${APP_VER}"
@@ -82,6 +83,10 @@ build: setup
 test: setup
 	@echo "Running tests..."
 	@go test -count=1 -vet=off ${GOTEST_FLAGS} ./...
+
+bench: setup
+	@echo "Running benchmarks..."
+	@go test -bench="." -run="^$$" -test.benchmem=true ${GOTEST_BENCHFLAGS} ./...
 
 cover: setup
 	@echo "Running tests with coverage..."

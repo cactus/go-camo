@@ -132,7 +132,7 @@ func TestClientCancelEarly(t *testing.T) {
 	assert.Check(t, err)
 	conn.Close()
 	time.Sleep(100 * time.Millisecond)
-	fmt.Printf("done\n")
+	//fmt.Printf("done\n")
 }
 
 func TestClientCancelLate(t *testing.T) {
@@ -210,7 +210,7 @@ func TestClientCancelLate(t *testing.T) {
 		}
 	}
 	conn.Close()
-	fmt.Printf("done\n")
+	//fmt.Printf("done\n")
 }
 
 func TestServerEarlyEOF(t *testing.T) {

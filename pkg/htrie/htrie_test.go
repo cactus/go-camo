@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
+	"strings"
 	"testing"
 
 	"gotest.tools/v3/assert"
@@ -23,6 +24,7 @@ func TestHTrieCheckURL(t *testing.T) {
 		"||foo.example.net||/",
 		"||bar.example.net|i|*/test.png",
 		"||bar.example.net|i|*/test.png.extra",
+		"||bücher.example.net||",
 	}
 
 	testMatch := []string{
@@ -33,6 +35,8 @@ func TestHTrieCheckURL(t *testing.T) {
 		"http://foo.example.net/",
 		"http://bar.example.net/foo/test.png",
 		"http://bar.example.net/foo/test.png.extra",
+		"http://bücher.example.net/",
+		"http://xn--bcher-kva.example.net/",
 	}
 
 	testNoMatch := []string{
@@ -41,6 +45,7 @@ func TestHTrieCheckURL(t *testing.T) {
 		"http://foo.example.net/nope",
 		"http://bar.example.org/foo/testx.png",
 		"http://bar.example.net/foo/test.png.ex",
+		"http://bücher.example.com/",
 	}
 
 	dt := NewURLMatcher()
@@ -53,12 +58,22 @@ func TestHTrieCheckURL(t *testing.T) {
 
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)
-		assert.Check(t, dt.CheckURL(u), fmt.Sprintf("should have matched: %s", u))
+		chk, err := dt.CheckURL(u)
+		assert.NilError(t, err)
+		assert.Check(t, chk, fmt.Sprintf("should have matched: %s", urlPathUnescape(u)))
 	}
 	for _, u := range testNoMatch {
 		u, _ := url.Parse(u)
-		assert.Check(t, !dt.CheckURL(u), fmt.Sprintf("should not have matched: %s", u))
+		chk, err := dt.CheckURL(u)
+		assert.NilError(t, err)
+		assert.Check(t, !chk, fmt.Sprintf("should not have matched: %s", urlPathUnescape(u)))
 	}
+}
+
+func urlPathUnescape(u *url.URL) string {
+	s := u.String()
+	p, _ := url.PathUnescape(s)
+	return p
 }
 
 func TestHTrieCheckHostname(t *testing.T) {
@@ -67,6 +82,7 @@ func TestHTrieCheckHostname(t *testing.T) {
 	rules := []string{
 		"|s|localhost||",
 		"|s|localdomain||",
+		"||bücher.example.net||",
 	}
 
 	testMatch := []string{
@@ -76,6 +92,8 @@ func TestHTrieCheckHostname(t *testing.T) {
 		"http://localdomain/foo/TEST.png",
 		"http://foo.localdomain/foo/test.png",
 		"http://bar.foo.localdomain/foo/test.png",
+		"http://bücher.example.net/",
+		"http://xn--bcher-kva.example.net/",
 	}
 
 	testNoMatch := []string{
@@ -84,6 +102,7 @@ func TestHTrieCheckHostname(t *testing.T) {
 		"http://foo.example.net/nope",
 		"http://bar.example.org/foo/testx.png",
 		"http://bar.example.net/foo/test.png.ex",
+		"http://bücher.example.com/",
 	}
 
 	dt := NewURLMatcher()
@@ -98,11 +117,15 @@ func TestHTrieCheckHostname(t *testing.T) {
 
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)
-		assert.Check(t, dt.CheckHostname(u.Hostname()), fmt.Sprintf("should have matched: %s", u))
+		result, err := dt.CheckHostname(u.Hostname())
+		assert.NilError(t, err)
+		assert.Check(t, result, fmt.Sprintf("should have matched: %s", urlPathUnescape(u)))
 	}
 	for _, u := range testNoMatch {
 		u, _ := url.Parse(u)
-		assert.Check(t, !dt.CheckHostname(u.Hostname()), fmt.Sprintf("should not have matched: %s", u))
+		result, err := dt.CheckHostname(u.Hostname())
+		assert.NilError(t, err)
+		assert.Check(t, !result, fmt.Sprintf("should not have matched: %s", urlPathUnescape(u)))
 	}
 }
 
@@ -146,6 +169,16 @@ func BenchmarkRegexCreate(b *testing.B) {
 	_ = err
 }
 
+var urlMatchTestURLs = []string{
+	"http://example.com/foo/test.png",
+	"http://bar.example.com/foo/test.png",
+	"http://bar.example.com/foo/testx.png",
+	"http://bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/test.png",
+	"http://bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/testx.png",
+	// this one kills the regex pretty bad. :(
+	"http://bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/testx.png",
+}
+
 func BenchmarkHTrieMatch(b *testing.B) {
 	rules := []string{
 		"||foo.example.net||/test.png",
@@ -154,16 +187,6 @@ func BenchmarkHTrieMatch(b *testing.B) {
 		"||*.hodor.example.net||/*/test.png",
 		"||*.example.com||*/test.png",
 		"|s|example.org|i|*/test.png",
-	}
-
-	testURLs := []string{
-		"http://example.com/foo/test.png",
-		"http://bar.example.com/foo/test.png",
-		"http://bar.example.com/foo/testx.png",
-		"http://bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/test.png",
-		"http://bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/testx.png",
-		// this one kills the regex pretty bad.
-		"bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/testx.png",
 	}
 
 	testIters := 10000
@@ -175,7 +198,7 @@ func BenchmarkHTrieMatch(b *testing.B) {
 	}
 
 	parsed := make([]*url.URL, 0)
-	for _, u := range testURLs {
+	for _, u := range urlMatchTestURLs {
 		u, _ := url.Parse(u)
 		parsed = append(parsed, u)
 	}
@@ -186,7 +209,7 @@ func BenchmarkHTrieMatch(b *testing.B) {
 
 	for _, u := range parsed {
 		for i := 0; i < testIters; i++ {
-			x = dt.CheckURL(u)
+			x, _ = dt.CheckURL(u)
 		}
 	}
 	_ = x
@@ -203,16 +226,6 @@ func BenchmarkRegexMatch(b *testing.B) {
 		`^(.*\.)?example.org/(?:i.*/test.png)`,
 	}
 
-	testURLs := []string{
-		"example.com/foo/test.png",
-		"bar.example.com/foo/test.png",
-		"bar.example.com/foo/testx.png",
-		"bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/test.png",
-		"bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/testx.png",
-		// this one kills the regex pretty bad. :(
-		//"bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/testx.png",
-	}
-
 	testIters := 10000
 
 	rexes := make([]*regexp.Regexp, 0)
@@ -221,11 +234,17 @@ func BenchmarkRegexMatch(b *testing.B) {
 		rexes = append(rexes, rx)
 	}
 
+	// strip protocol prefix to make regex matches easier
+	testUrls := make([]string, len(urlMatchTestURLs))
+	for _, u := range urlMatchTestURLs {
+		testUrls = append(testUrls, strings.TrimPrefix(u, "http://"))
+	}
+
 	// avoid inlining optimization
 	var x bool
 	b.ResetTimer()
 
-	for _, u := range testURLs {
+	for _, u := range testUrls {
 		for i := 0; i < testIters; i++ {
 			// walk regexes in order. first match wins
 			for _, rx := range rexes {
@@ -249,14 +268,6 @@ func BenchmarkHTrieMatchHostname(b *testing.B) {
 		"|s|example.org|i|*/test.png",
 	}
 
-	testURLs := []string{
-		"http://example.com/foo/test.png",
-		"http://bar.example.com/foo/test.png",
-		"http://bar.example.com/foo/testx.png",
-		"http://bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/test.png",
-		"http://bar.example.com/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/foo/testx.png",
-	}
-
 	testIters := 10000
 
 	dt := NewURLMatcher()
@@ -266,7 +277,7 @@ func BenchmarkHTrieMatchHostname(b *testing.B) {
 	}
 
 	parsed := make([]string, 0)
-	for _, u := range testURLs {
+	for _, u := range urlMatchTestURLs {
 		u, _ := url.Parse(u)
 		parsed = append(parsed, u.Hostname())
 	}
@@ -275,10 +286,21 @@ func BenchmarkHTrieMatchHostname(b *testing.B) {
 	var x bool
 	b.ResetTimer()
 
-	for _, u := range parsed {
-		for i := 0; i < testIters; i++ {
-			x = dt.CheckHostname(u)
+	b.Run("CheckHostname", func(b *testing.B) {
+		for _, u := range parsed {
+			for i := 0; i < testIters; i++ {
+				x, _ = dt.CheckHostname(u)
+			}
 		}
-	}
+	})
+
+	b.Run("CheckCleanHostname", func(b *testing.B) {
+		for _, u := range parsed {
+			for i := 0; i < testIters; i++ {
+				x = dt.CheckCleanHostname(u)
+			}
+		}
+	})
+
 	_ = x
 }
