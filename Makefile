@@ -38,6 +38,7 @@ Available targets:
   check               run checks and validators
   test                run tests
   cover               run tests with cover output
+  bench               run benchmarks
   build               build all binaries
   man                 build all man pages
   tar                 build release tarball
@@ -45,7 +46,7 @@ Available targets:
 endef
 export HELP_OUTPUT
 
-.PHONY: help clean build test cover man man-copy all tar cross-tar setup-check setup-gox
+.PHONY: help clean build test cover bench man man-copy all tar cross-tar setup-check setup-gox
 
 help:
 	@echo "$$HELP_OUTPUT"
