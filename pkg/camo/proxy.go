@@ -48,8 +48,8 @@ type Config struct {
 	// additional content types to allow
 	AllowContentVideo bool
 	AllowContentAudio bool
-	// enable support for ?download content-disposition:attachment support
-	EnableDownloadParam bool
+	// enable support for an additional headers component in the hmac signed url path
+	EnableExtraHeaders bool
 	// allow URLs to contain user/pass credentials
 	AllowCredentialURLs bool
 	// Whether to call/increment metrics
@@ -90,24 +90,26 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// split path and get components
 	components := strings.Split(req.URL.Path, "/")
-	if len(components) < 3 {
+	compLen := len(components)
+	// allow len 3, or if extra headers is enabled, length 4...
+	// otherwise, no good.
+	if !(compLen == 3 || (p.config.EnableExtraHeaders && compLen == 4)) {
 		http.Error(w, "Malformed request path", http.StatusNotFound)
 		return
 	}
 
 	sigHash, encodedURL := components[1], components[2]
 
-	// check for content disposition forcing
-	forceAttachmentDisposition := false
-	if p.config.EnableDownloadParam && req.URL.Query().Has("download") {
-		forceAttachmentDisposition = true
-	}
-
 	if mlog.HasDebug() {
 		mlog.Debugm("client request", httpReqToMlogMap(req))
 	}
 
-	sURL, ok := encoding.DecodeURL(p.config.HMACKey, sigHash, encodedURL)
+	encodedExtraHdr := ""
+	if p.config.EnableExtraHeaders && compLen == 4 {
+		encodedExtraHdr = components[3]
+	}
+
+	sURL, extraHdr, ok := encoding.DecodeURL(p.config.HMACKey, sigHash, encodedURL, encodedExtraHdr)
 	if !ok {
 		http.Error(w, "Bad Signature", http.StatusForbidden)
 		return
@@ -329,10 +331,17 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	h := w.Header()
 	p.copyHeaders(&h, &resp.Header, &ValidRespHeaders)
-	// check for setting content-disposition
-	if forceAttachmentDisposition {
-		h.Set("Content-Disposition", `attachment; filename="image"`)
+
+	// check for setting additional hmac signed headers
+	if p.config.EnableExtraHeaders && len(extraHdr) > 0 {
+		for k, v := range extraHdr {
+			if k == "" || v == "" {
+				continue
+			}
+			h.Set(k, v)
+		}
 	}
+
 	// set content type based on parsed content type, not originally supplied
 	h.Set("content-type", responseContentType)
 	w.WriteHeader(resp.StatusCode)

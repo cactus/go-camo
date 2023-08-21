@@ -166,7 +166,7 @@ func main() {
 		AllowContentVideo   bool          `long:"allow-content-video" description:"Additionally allow 'video/*' content"`
 		AllowContentAudio   bool          `long:"allow-content-audio" description:"Additionally allow 'audio/*' content"`
 		AllowCredentialURLs bool          `long:"allow-credential-urls" description:"Allow urls to contain user/pass credentials"`
-		EnableDownloadParam bool          `long:"enable-download-param" description:"Enable support for forced content disposition attachment with ?download query param"`
+		EnableExtraHeaders  bool          `long:"enable-extra-headers" description:"Enable support for extra headers as part of hmac signed url data"`
 		FilterRuleset       string        `long:"filter-ruleset" description:"Text file containing filtering rules (one per line)"`
 		ServerName          string        `long:"server-name" default:"go-camo" description:"Value to use for the HTTP server field"`
 		ExposeServerVersion bool          `long:"expose-server-version" description:"Include the server version in the HTTP server response header"`
@@ -242,7 +242,7 @@ func main() {
 	// other options
 	config.EnableXFwdFor = opts.EnableXFwdFor
 	config.AllowCredentialURLs = opts.AllowCredentialURLs
-	config.EnableDownloadParam = opts.EnableDownloadParam
+	config.EnableExtraHeaders = opts.EnableExtraHeaders
 
 	// additional content types to allow
 	config.AllowContentVideo = opts.AllowContentVideo

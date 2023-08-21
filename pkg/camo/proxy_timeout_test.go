@@ -44,7 +44,7 @@ func TestTimeout(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	req, err := makeReq(c, ts.URL)
+	req, err := makeReq(c, ts.URL, nil)
 	assert.Check(t, err)
 
 	errc := make(chan error, 1)
@@ -124,9 +124,12 @@ func TestClientCancelEarly(t *testing.T) {
 	assert.Check(t, err)
 	defer conn.Close()
 
+	encodedURL, err := encoding.EncodeURL(encoding.B64Codec, c.HMACKey, ts.URL+"/image.png", nil)
+	assert.Check(t, err)
+
 	req := []byte(fmt.Sprintf(
 		"GET %s HTTP/1.1\r\nHost: foo.com\r\nConnection: close\r\n\r\n",
-		encoding.B64EncodeURL(c.HMACKey, ts.URL+"/image.png"),
+		encodedURL,
 	))
 	_, err = conn.Write(req)
 	assert.Check(t, err)
@@ -179,9 +182,12 @@ func TestClientCancelLate(t *testing.T) {
 	assert.Check(t, err)
 	defer conn.Close()
 
+	encodedURL, err := encoding.EncodeURL(encoding.B64Codec, c.HMACKey, ts.URL+"/image.png", nil)
+	assert.Check(t, err)
+
 	req := []byte(fmt.Sprintf(
 		"GET %s HTTP/1.1\r\nHost: foo.com\r\nConnection: close\r\n\r\n",
-		encoding.B64EncodeURL(c.HMACKey, ts.URL+"/image.png"),
+		encodedURL,
 	))
 	_, err = conn.Write(req)
 	assert.Check(t, err)
@@ -234,7 +240,7 @@ func TestServerEarlyEOF(t *testing.T) {
 	))
 	defer ts.Close()
 
-	req, err := makeReq(c, ts.URL)
+	req, err := makeReq(c, ts.URL, nil)
 	assert.Check(t, err)
 	// response is a 200, not much we can do about that since we response
 	// streaming (chunked)...
@@ -280,7 +286,7 @@ func TestServerChunkTooBig(t *testing.T) {
 	))
 	defer ts.Close()
 
-	req, err := makeReq(c, ts.URL)
+	req, err := makeReq(c, ts.URL, nil)
 	assert.Check(t, err)
 	// response is a 200, not much we can do about that since we response
 	// streaming (chunked)...

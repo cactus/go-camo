@@ -26,6 +26,7 @@ toc::[]
     (approx 12-30% in microbenchmarks)
 *   slight improvement in request path url processing
     (approx 2-4% in microbenchmarks)
+*   add support for adding extra headers to responses, based on signed data passed in a url partial
 
 == v2.4.4 - 2023-07-25
 *   update dependencies

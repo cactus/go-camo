@@ -47,8 +47,8 @@ func (dr *DumbRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	components := strings.Split(r.URL.Path, "/")
-	if len(components) == 3 {
+	compLen := strings.Count(r.URL.Path, "/")
+	if compLen == 2 || compLen == 3 {
 		dr.CamoHandler.ServeHTTP(w, r)
 		return
 	}

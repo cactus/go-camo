@@ -24,7 +24,7 @@ func TestFilterListAcceptSimple(t *testing.T) {
 		},
 	}
 	testURL := "http://www.google.com/images/srpr/logo11w.png"
-	req, err := makeReq(camoConfig, testURL)
+	req, err := makeReq(camoConfig, testURL, nil)
 	assert.Check(t, err)
 	_, err = processRequest(req, 200, camoConfig, filters)
 	assert.Check(t, err)
@@ -42,7 +42,7 @@ func TestFilterListAcceptSimpleWithFilterError(t *testing.T) {
 		},
 	}
 	testURL := "http://www.google.com/images/srpr/logo11w.png"
-	req, err := makeReq(camoConfig, testURL)
+	req, err := makeReq(camoConfig, testURL, nil)
 	assert.Check(t, err)
 	_, err = processRequest(req, 404, camoConfig, filters)
 	assert.Check(t, err)
@@ -53,7 +53,7 @@ func TestFilterListMatrixMultiples(t *testing.T) {
 	t.Parallel()
 
 	testURL := "http://www.google.com/images/srpr/logo11w.png"
-	req, err := makeReq(camoConfig, testURL)
+	req, err := makeReq(camoConfig, testURL, nil)
 	assert.Check(t, err)
 	type chkResponse struct {
 		chk bool

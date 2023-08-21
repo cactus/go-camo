@@ -5,6 +5,7 @@
 import hashlib
 import hmac
 import base64
+import json
 
 
 CAMO_HOST = 'https://img.example.com'
@@ -15,7 +16,7 @@ def wrap_encode(data):
     return base64.urlsafe_b64encode(data).strip(b'=').decode('utf-8')
 
 
-def camo_url(hmac_key, image_url):
+def camo_url(hmac_key, image_url, extra_headers=None):
     if image_url.startswith("https:"):
         return image_url
 
@@ -27,6 +28,16 @@ def camo_url(hmac_key, image_url):
     # add image_url
     mac.update(image_url)
 
+    # if we have extra headers, encode them, and add to the hmac
+    # this helps protect the header portion against tampering/modification
+    if extra_headers:
+        json_headers = json.dumps(extra_headers).encode('utf-8')
+        # add json_headers to hmac, if present
+        mac.update(json_headers)
+        b64headers = wrap_encode(json_headers)
+    else:
+        b64headers = ""
+
     # generate digest
     digest = mac.digest()
 
@@ -34,6 +45,9 @@ def camo_url(hmac_key, image_url):
     b64digest = wrap_encode(digest)
     b64url = wrap_encode(image_url)
     requrl = '%s/%s/%s' % (CAMO_HOST, b64digest, b64url)
+    # if we have extra headers, add it too
+    if b64headers:
+        requrl = requrl + f"/{b64headers}"
     return requrl
 
 
@@ -41,3 +55,12 @@ print(
     camo_url("test", "http://golang.org/doc/gopher/frontpage.png")
 )
 # https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n
+
+print(
+    camo_url(
+        "test",
+        "http://golang.org/doc/gopher/frontpage.png",
+        {"content-disposition": 'attachment; filename="image.png"'}
+    )
+)
+# https://img.example.com/-hNoquWgyjNgzF7HXYyvGwteyLI/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n/eyJjb250ZW50LWRpc3Bvc2l0aW9uIjogImF0dGFjaG1lbnQ7IGZpbGVuYW1lPVwiaW1hZ2UucG5nXCIifQ

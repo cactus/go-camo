@@ -17,9 +17,12 @@ import (
 	is "gotest.tools/v3/assert/cmp"
 )
 
-func makeReq(config Config, testURL string) (*http.Request, error) {
+func makeReq(config Config, testURL string, extraHdr encoding.SimpleHeader) (*http.Request, error) {
 	k := []byte(config.HMACKey)
-	hexURL := encoding.B64EncodeURL(k, testURL)
+	hexURL, err := encoding.EncodeURL(encoding.B64Codec, k, testURL, extraHdr)
+	if err != nil {
+		return nil, fmt.Errorf("Error encoding req url '%s': %s", testURL, err.Error())
+	}
 	out := "http://example.com" + hexURL
 	req, err := http.NewRequest("GET", out, nil)
 	if err != nil {
@@ -62,7 +65,7 @@ func processRequest(req *http.Request, status int, camoConfig Config, filters []
 }
 
 func makeTestReq(testURL string, status int, config Config) (*http.Response, error) {
-	req, err := makeReq(config, testURL)
+	req, err := makeReq(config, testURL, nil)
 	if err != nil {
 		return nil, err
 	}
