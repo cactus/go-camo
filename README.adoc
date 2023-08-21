@@ -293,8 +293,7 @@ Usage:
 
 Application Options:
   -k, --key=                   HMAC key
-  -H, --header=                Add additional header to each response. This option can
-                               be used multiple times to add multiple headers
+  -H, --header=                Add additional header to each response. This option can be used multiple times to add multiple headers
       --listen=                Address:Port to bind to for HTTP (default: 0.0.0.0:8080)
       --ssl-listen=            Address:Port to bind to for HTTPS/SSL/TLS
       --socket-listen=         Path for unix domain socket to bind to for HTTP
@@ -311,6 +310,7 @@ Application Options:
       --allow-content-video    Additionally allow 'video/*' content
       --allow-content-audio    Additionally allow 'audio/*' content
       --allow-credential-urls  Allow urls to contain user/pass credentials
+      --enable-extra-headers   Enable support for extra headers as part of hmac signed url data
       --filter-ruleset=        Text file containing filtering rules (one per line)
       --server-name=           Value to use for the HTTP server field (default: go-camo)
       --expose-server-version  Include the server version in the HTTP server response header
@@ -400,6 +400,34 @@ by default, you could add this to the command line:
 ----
 -H "Strict-Transport-Security:  max-age=16070400"
 ----
+--
+
+* `--enable-extra-headers`
++
+--
+When this option is supplied, extra headers may be included with the url payload as part of url generation.
+These extra headers will then be returned as part of the response.
+
+These extra headers are part of an additional encoded url path component, signed under the hmac signature.
+
+Example standard url format:
+----
+/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n
+----
+
+Example of extra-headers component url format:
+----
+/sYpOByX0byESnG24QMUX5Ac0IXM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n/eyJjb250ZW50LWRpc3Bvc2l0aW9uIjoiYXR0YWNobWVudDsgZmlsZW5hbWU9XCJpbWFnZS5wbmdcIiJ9
+----
+
+The underlying extra-headers data in the above url path partial is a json dict/map of string values:
+----
+{
+    "content-disposition": "attachment; filename=\"image.png\""
+}
+----
+
+An possible use-case is setting content-disposition headers on specific image urls.
 --
 
 == Upstream Http Proxying

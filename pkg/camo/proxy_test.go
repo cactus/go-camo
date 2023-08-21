@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cactus/go-camo/v2/pkg/camo/encoding"
 	"github.com/cactus/mlog"
 	"gotest.tools/v3/assert"
 	is "gotest.tools/v3/assert/cmp"
@@ -26,7 +27,7 @@ var camoConfig = Config{
 	ServerName:          "go-camo",
 	AllowContentVideo:   false,
 	AllowCredentialURLs: false,
-	EnableDownloadParam: false,
+	EnableExtraHeaders:  false,
 }
 
 func skipIfCI(t *testing.T) {
@@ -170,7 +171,7 @@ func TestXForwardedFor(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	req, err := makeReq(camoConfig, ts.URL)
+	req, err := makeReq(camoConfig, ts.URL, nil)
 	assert.Check(t, err)
 
 	req.Header.Set("X-Forwarded-For", "2.2.2.2, 1.1.1.1")
@@ -200,7 +201,7 @@ func TestVideoContentTypeAllowed(t *testing.T) {
 	testURL := "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
 
 	// try a range request (should succeed, MaxSize is larger than requested range)
-	req, err := makeReq(camoConfigWithVideo, testURL)
+	req, err := makeReq(camoConfigWithVideo, testURL, nil)
 	assert.Check(t, err)
 	req.Header.Add("Range", "bytes=0-10")
 	resp, err := processRequest(req, 206, camoConfigWithVideo, nil)
@@ -209,7 +210,7 @@ func TestVideoContentTypeAllowed(t *testing.T) {
 
 	// try a range request (should fail, MaxSize is smaller than requested range)
 	camoConfigWithVideo.MaxSize = 1 * 1024
-	req, err = makeReq(camoConfigWithVideo, testURL)
+	req, err = makeReq(camoConfigWithVideo, testURL, nil)
 	assert.Check(t, err)
 	req.Header.Add("Range", "bytes=0-1025")
 	_, err = processRequest(req, 404, camoConfigWithVideo, nil)
@@ -243,7 +244,7 @@ func TestAudioContentTypeAllowed(t *testing.T) {
 	assert.Check(t, err)
 
 	// try a range request
-	req, err := makeReq(camoConfigWithAudio, testURL)
+	req, err := makeReq(camoConfigWithAudio, testURL, nil)
 	assert.Check(t, err)
 	req.Header.Add("Range", "bytes=0-10")
 	resp, err := processRequest(req, 206, camoConfigWithAudio, nil)
@@ -271,7 +272,7 @@ func TestCredetialURLsAllowed(t *testing.T) {
 func TestSupplyAcceptIfNoneGiven(t *testing.T) {
 	t.Parallel()
 	testURL := "http://images.anandtech.com/doci/6673/OpenMoboAMD30_575px.png"
-	req, err := makeReq(camoConfig, testURL)
+	req, err := makeReq(camoConfig, testURL, nil)
 	req.Header.Del("Accept")
 	assert.Check(t, err)
 	_, err = processRequest(req, 200, camoConfig, nil)
@@ -424,7 +425,7 @@ func Test404OnLoopback(t *testing.T) {
 	t.Parallel()
 
 	testURL := "http://mockbin.org/redirect/302?to=http://test.vcap.me"
-	req, err := makeReq(camoConfig, testURL)
+	req, err := makeReq(camoConfig, testURL, nil)
 	assert.Check(t, err)
 
 	resp, err := processRequest(req, 404, camoConfig, nil)
@@ -438,36 +439,38 @@ func TestDownloadDisposition(t *testing.T) {
 	camoConfigCopy := camoConfig
 	testURL := "http://www.google.com/images/srpr/logo11w.png"
 
-	// with EnableDownloadParam disabled
-	camoConfigCopy.EnableDownloadParam = false
+	// with EnableExtraHeaders disabled
+	camoConfigCopy.EnableExtraHeaders = false
 
-	req, err := makeReq(camoConfigCopy, testURL)
+	req, err := makeReq(
+		camoConfigCopy,
+		testURL,
+		encoding.SimpleHeader{
+			"content-disposition": "attachment; filename=\"image\"",
+		},
+	)
+	assert.Check(t, err)
+	// making a request for additional headers, emits a 4th url component
+	// that is included under the hmac. If the camo proxy disables
+	// additional header support, the request will not be processed
+	// as camo will reject a 4 part url path as not matching, and
+	// reject with a 404 (just like previous versions of go-camo would).
+	_, err = processRequest(req, 404, camoConfigCopy, nil)
+	assert.Check(t, err)
+
+	// with EnableExtraHeaders enabled
+	camoConfigCopy.EnableExtraHeaders = true
+
+	req, err = makeReq(
+		camoConfigCopy,
+		testURL,
+		encoding.SimpleHeader{
+			"content-disposition": "attachment; filename=\"image\"",
+		},
+	)
 	assert.Check(t, err)
 	resp, err := processRequest(req, 200, camoConfigCopy, nil)
-	headerAssert(t, "", "Content-Disposition", resp)
-	assert.Check(t, err)
-
-	params := req.URL.Query()
-	params.Add("download", "")
-	req.URL.RawQuery = params.Encode()
-	resp, err = processRequest(req, 200, camoConfigCopy, nil)
-	headerAssert(t, "", "Content-Disposition", resp)
-	assert.Check(t, err)
-
-	// with EnableDownloadParam enabled
-	camoConfigCopy.EnableDownloadParam = true
-
-	req, err = makeReq(camoConfigCopy, testURL)
-	assert.Check(t, err)
-	resp, err = processRequest(req, 200, camoConfigCopy, nil)
-	headerAssert(t, "", "Content-Disposition", resp)
-	assert.Check(t, err)
-
-	params = req.URL.Query()
-	params.Add("download", "")
-	req.URL.RawQuery = params.Encode()
-	resp, err = processRequest(req, 200, camoConfigCopy, nil)
-	headerAssert(t, "attachment", "Content-Disposition", resp)
+	headerAssert(t, "attachment; filename=\"image\"", "Content-Disposition", resp)
 	assert.Check(t, err)
 }
 

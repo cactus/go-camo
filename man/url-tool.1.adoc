@@ -41,11 +41,19 @@ Available encode options:
 
 *--prefix*=<__PREFIX__>::
 	Optional url prefix used by encode output.
+
+*-H*, *--header*=<__HEADER__>::
+	Add an additional header to the encoded url. May be supplied multiple times. Requires camo additional headers support.
 --
 
 *decode* <__URL__>::
++
+--
+Available decode options:
 
-[]
+*-x*, *--print-headers*::
+	Print any encoded extra headers, if present.
+--
 
 == EXAMPLES
 

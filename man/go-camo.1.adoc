@@ -133,6 +133,14 @@ See __<<METRICS>>__ for more info.
 *--allow-credential-urls*::
     Allow urls to contain user/pass credentials.
 
+*--enable-extra-headers*::
++
+--
+Enable "extra header support", as part of an additional component in the hmac signed url.
+
+See __<<EXTRA_HEADERS>>__ for more info.
+--
+
 *--filter-ruleset*=<__FILE__>::
 +
 --
@@ -188,6 +196,24 @@ go-camo -k BEEFBEEFBEEF \
     -H "Strict-Transport-Security: max-age=16070400" \
     -H "X-Frame-Options: deny"
 ----
+
+== EXTRA_HEADERS
+
+When this option is supplied, extra headers may be included with the url payload as part of url generation.
+These extra headers will then be returned as part of the response.
+
+These extra headers are part of a 4th encoded url path component, signed under the hmac signature.
+
+The underlying data is a json map of headers. Example:
+----
+{
+    "content-disposition": [
+        "attachment; filename=\"image.png\""
+    ]
+}
+----
+
+An possible use-case is setting content-disposition headers on specific image urls.
 
 == METRICS
 
