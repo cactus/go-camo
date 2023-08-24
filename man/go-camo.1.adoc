@@ -64,8 +64,9 @@ For exmaple, if the HMAC key is provided on the command line, it will override
 *-H*, *--header*=<__HEADER__>::
 +
 --
-Extra header to return for each response. This option can be used
-multiple times to add multiple headers.
+Add additional header to each response.
+This option can be used multiple times to add multiple headers.
+When specified, these headers are set unconditionally on all responses.
 
 See __<<ADD_HEADERS>>__ for more info.
 --

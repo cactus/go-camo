@@ -1,9 +1,7 @@
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/cactus/mlog v1.0.5 h1:TjaBRUD0ToZMTzv30SRfwDJfvz3IxDUxcw1dNk6dKAQ=
-github.com/cactus/mlog v1.0.5/go.mod h1:z0zgmK5rbywKn+lJPzhLEFZOJejzfRBBW1RqC/1i588=
-github.com/cactus/mlog v1.0.6 h1:e119rK5LhOyV/mER2Jx7T0QNT314kyziCSokiiTrq0o=
-github.com/cactus/mlog v1.0.6/go.mod h1:z0zgmK5rbywKn+lJPzhLEFZOJejzfRBBW1RqC/1i588=
+github.com/cactus/mlog v1.0.9 h1:34fiSfH7Ds9N50fXP2/c5xNvp1mZBZZCda9GJ1+fwxE=
+github.com/cactus/mlog v1.0.9/go.mod h1:z0zgmK5rbywKn+lJPzhLEFZOJejzfRBBW1RqC/1i588=
 github.com/cactus/tai64 v1.0.2 h1:c5rm3aQ9z3b6Vva2LXRSICx/Rpu9rj4MHEzRG1g7dK0=
 github.com/cactus/tai64 v1.0.2/go.mod h1:gu5LAXd6eWwrRD/HPw+aTrJF5WkieYswRVLSNslKGg4=
 github.com/cespare/xxhash/v2 v2.2.0 h1:DC2CZ1Ep5Y4k3ZQ899DldepgrayRUGE6BBZ/cd9Cj44=

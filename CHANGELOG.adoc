@@ -19,6 +19,9 @@ toc::[]
 
 == HEAD
 *   fix htrie matching of non punycode (eg. unicode) idna hostnames
+*   slightly faster logging (update to mlog dependency)
+*   address a logging issue with missing url path output in 
+    `"built outgoing request"` debug log
 
 == v2.4.4 - 2023-07-25
 *   update dependencies

@@ -6,6 +6,8 @@ package router
 
 import (
 	"bytes"
+	"flag"
+	"os"
 	"testing"
 	"time"
 
@@ -14,10 +16,6 @@ import (
 )
 
 var logBuffer = &bytes.Buffer{}
-
-func init() {
-	mlog.DefaultLogger = mlog.New(logBuffer, mlog.Lstd)
-}
 
 func TestHTTPDateGoroutineUpdate(t *testing.T) {
 	t.Parallel()
@@ -58,4 +56,21 @@ func BenchmarkDataString(b *testing.B) {
 			_ = d.String()
 		}
 	})
+}
+
+func TestMain(m *testing.M) {
+	flag.Parse()
+
+	debug := os.Getenv("DEBUG")
+	// now configure a standard logger
+	mlog.SetFlags(mlog.Lstd)
+
+	if debug != "" {
+		mlog.SetFlags(mlog.Flags() | mlog.Ldebug)
+		mlog.Debug("debug logging enabled")
+	}
+
+	mlog.DefaultLogger = mlog.New(logBuffer, mlog.Lstd)
+
+	os.Exit(m.Run())
 }

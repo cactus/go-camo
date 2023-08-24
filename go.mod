@@ -3,7 +3,7 @@ module github.com/cactus/go-camo/v2
 go 1.19
 
 require (
-	github.com/cactus/mlog v1.0.6
+	github.com/cactus/mlog v1.0.9
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/prometheus/client_golang v1.16.0
 	github.com/prometheus/common v0.44.0

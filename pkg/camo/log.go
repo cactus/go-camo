@@ -15,7 +15,7 @@ import (
 func httpReqToMlogMap(req *http.Request) mlog.Map {
 	return mlog.Map{
 		"method":            req.Method,
-		"path":              req.RequestURI,
+		"path":              req.URL.Path,
 		"proto":             req.Proto,
 		"header":            req.Header,
 		"content_length":    req.ContentLength,

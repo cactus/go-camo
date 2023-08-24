@@ -101,7 +101,7 @@ func TestClientCancelEarly(t *testing.T) {
 				_, err := fmt.Fprintf(w, "Chunk #%d\n", i)
 				// conn closed/broken pipe
 				if err != nil {
-					mlog.Debugm("write error", mlog.Map{"err": err, "i": i})
+					mlog.Debugx("write error", mlog.A("err", err), mlog.A("i", i))
 					break
 				}
 				flusher.Flush() // Trigger "chunked" encoding and send a chunk...
@@ -156,7 +156,7 @@ func TestClientCancelLate(t *testing.T) {
 				_, err := fmt.Fprintf(w, "Chunk #%d\n", i)
 				// conn closed/broken pipe
 				if err != nil {
-					mlog.Debugm("write error", mlog.Map{"err": err, "i": i})
+					mlog.Debugx("write error", mlog.A("err", err), mlog.A("i", i))
 					break
 				}
 				flusher.Flush() // Trigger "chunked" encoding and send a chunk...

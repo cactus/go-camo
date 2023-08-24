@@ -84,7 +84,6 @@ func bodyAssert(t *testing.T, expected string, resp *http.Response) {
 
 func headerAssert(t *testing.T, expected, name string, resp *http.Response) {
 	assert.Check(t, is.Equal(expected, resp.Header.Get(name)), "Expected response header mismatch")
-
 }
 
 func statusCodeAssert(t *testing.T, expected int, resp *http.Response) {

@@ -293,8 +293,8 @@ Application Options:
   -H, --header=                Add additional header to each response. This option can
                                be used multiple times to add multiple headers
       --listen=                Address:Port to bind to for HTTP (default: 0.0.0.0:8080)
-      --socket-listen=         Path for unix domain socket to bind to for HTTP
       --ssl-listen=            Address:Port to bind to for HTTPS/SSL/TLS
+      --socket-listen=         Path for unix domain socket to bind to for HTTP
       --ssl-key=               ssl private key (key.pem) path
       --ssl-cert=              ssl cert (cert.pem) path
       --max-size=              Max allowed response size (KB)

@@ -15,6 +15,11 @@ from urllib.parse import urlsplit
 CAMO_HOST = 'https://img.example.com'
 
 
+def wrap_encode(data):
+    """A little helper method to wrap b64encoding"""
+    return base64.urlsafe_b64encode(data).strip(b'=').decode('utf-8')
+
+
 def camo_url(hmac_key, image_url):
     url = urlsplit(image_url)
 
@@ -32,10 +37,10 @@ def camo_url(hmac_key, image_url):
     hmac_key = hmac_key.encode() if isinstance(hmac_key, str) else hmac_key
     image_url = image_url.encode() if isinstance(image_url, str) else image_url
 
-    b64digest = base64.urlsafe_b64encode(
+    b64digest = wrap_encode(
         hmac.new(hmac_key, image_url, hashlib.sha1).digest()
-    ).strip(b'=').decode('utf-8')
-    b64url = base64.urlsafe_b64encode(image_url).strip(b'=').decode('utf-8')
+    )
+    b64url = wrap_encode(image_url)
     requrl = '%s/%s/%s' % (CAMO_HOST, b64digest, b64url)
     return requrl
 

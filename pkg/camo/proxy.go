@@ -92,6 +92,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Malformed request path", http.StatusNotFound)
 		return
 	}
+
 	sigHash, encodedURL := components[1], components[2]
 
 	if mlog.HasDebug() {
@@ -105,13 +106,13 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if mlog.HasDebug() {
-		mlog.Debugm("signed client url", mlog.Map{"url": sURL})
+		mlog.Debugx("signed client url", mlog.A("url", sURL))
 	}
 
 	u, err := url.Parse(sURL)
 	if err != nil {
 		if mlog.HasDebug() {
-			mlog.Debugm("url parse error", mlog.Map{"err": err})
+			mlog.Debugx("url parse error", mlog.A("err", err))
 		}
 		http.Error(w, "Bad url", http.StatusBadRequest)
 		return
@@ -126,7 +127,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	nreq, err := http.NewRequestWithContext(req.Context(), req.Method, sURL, nil)
 	if err != nil {
 		if mlog.HasDebug() {
-			mlog.Debugm("could not create NewRequest", mlog.Map{"err": err})
+			mlog.Debugx("could not create NewRequest", mlog.A("err", err))
 		}
 		http.Error(w, "Error Fetching Resource", http.StatusBadGateway)
 		return
@@ -161,7 +162,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	nreq.Header.Add("Via", p.config.ServerName)
 
 	if mlog.HasDebug() {
-		mlog.Debugm("built outgoing request", mlog.Map{"req": httpReqToMlogMap(nreq)})
+		mlog.Debugm("built outgoing request", httpReqToMlogMap(nreq))
 	}
 
 	resp, err := p.client.Do(nreq)
@@ -187,28 +188,28 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		case errors.Is(err, ErrRedirect):
 			// Got a bad redirect
 			if mlog.HasDebug() {
-				mlog.Debugm("bad redirect from server", mlog.Map{"err": err})
+				mlog.Debugx("bad redirect from server", mlog.A("err", err))
 			}
 			http.Error(w, "Error Fetching Resource", http.StatusNotFound)
 			return
 		case errors.Is(err, ErrRejectIP):
 			// Got a deny list failure from Dial.Control
 			if mlog.HasDebug() {
-				mlog.Debugm("ip filter rejection from dial.control", mlog.Map{"err": err})
+				mlog.Debugx("ip filter rejection from dial.control", mlog.A("err", err))
 			}
 			http.Error(w, "Error Fetching Resource", http.StatusNotFound)
 			return
 		case errors.Is(err, ErrInvalidHostPort):
 			// Got a deny list failure from Dial.Control
 			if mlog.HasDebug() {
-				mlog.Debugm("invalid host/port rejection from dial.control", mlog.Map{"err": err})
+				mlog.Debugx("invalid host/port rejection from dial.control", mlog.A("err", err))
 			}
 			http.Error(w, "Error Fetching Resource", http.StatusNotFound)
 			return
 		case errors.Is(err, ErrInvalidNetType):
 			// Got a deny list failure from Dial.Control
 			if mlog.HasDebug() {
-				mlog.Debugm("net type rejection from dial.control", mlog.Map{"err": err})
+				mlog.Debugx("net type rejection from dial.control", mlog.A("err", err))
 			}
 			http.Error(w, "Error Fetching Resource", http.StatusNotFound)
 			return
@@ -216,7 +217,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 		// handle other errors
 		if mlog.HasDebug() {
-			mlog.Debugm("could not connect to endpoint", mlog.Map{"err": err})
+			mlog.Debugx("could not connect to endpoint", mlog.A("err", err))
 		}
 
 		// this is a bit janky, but some of these errors don't support
@@ -243,7 +244,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			contentLengthExceeded.Inc()
 		}
 		if mlog.HasDebug() {
-			mlog.Debugm("content length exceeded", mlog.Map{"url": sURL})
+			mlog.Debugx("content length exceeded", mlog.A("url", sURL))
 		}
 		http.Error(w, "Content length exceeded", http.StatusNotFound)
 		return
@@ -272,7 +273,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		mediatype, param, err := mime.ParseMediaType(contentType)
 		if err != nil || !p.acceptTypesFilter.CheckPath(mediatype) {
 			if mlog.HasDebug() {
-				mlog.Debugm("Unsupported content-type returned", mlog.Map{"type": u})
+				mlog.Debugx("Unsupported content-type returned", mlog.A("type", u))
 			}
 			http.Error(w, "Unsupported content-type returned", http.StatusBadRequest)
 			return
@@ -346,7 +347,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		if err == context.Canceled || errors.Is(err, context.Canceled) {
 			// client aborted/closed request, which is why copy failed to finish
 			if mlog.HasDebug() {
-				mlog.Debugm("client aborted request (late)", mlog.Map{"req": req})
+				mlog.Debugx("client aborted request (late)", mlog.A("req", req))
 			}
 			return
 		}
@@ -354,7 +355,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		// got an early EOF from the server side
 		if errors.Is(err, io.ErrUnexpectedEOF) {
 			if mlog.HasDebug() {
-				mlog.Debugm("server sent unexpected EOF", mlog.Map{"req": req})
+				mlog.Debugx("server sent unexpected EOF", mlog.A("req", req))
 			}
 			return
 		}
@@ -362,13 +363,13 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		// only log broken pipe errors at debug level
 		if isBrokenPipe(err) {
 			if mlog.HasDebug() {
-				mlog.Debugm("error writing response", mlog.Map{"err": err, "req": req})
+				mlog.Debugx("error writing response", mlog.A("err", err), mlog.A("req", req))
 			}
 			return
 		}
 
 		// unknown error (not: a broken pipe; server early EOF; client close)
-		mlog.Printm("error writing response", mlog.Map{"err": err, "req": req})
+		mlog.Printx("error writing response", mlog.A("err", err), mlog.A("req", req))
 		return
 	}
 
@@ -377,13 +378,13 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			responseTruncated.Inc()
 		}
 		if mlog.HasDebug() {
-			mlog.Debugm("response to client truncated: size > MaxSize", mlog.Map{"req": req})
+			mlog.Debugx("response to client truncated: size > MaxSize", mlog.A("req", req))
 		}
 		return
 	}
 
 	if mlog.HasDebug() {
-		mlog.Debugm("response to client", mlog.Map{"resp": w})
+		mlog.Debugx("response to client", mlog.A("headers", h), mlog.A("status", resp.StatusCode))
 	}
 }
 
@@ -591,14 +592,14 @@ func New(pc Config) (*Proxy, error) {
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		if len(via) >= pc.MaxRedirects {
 			if mlog.HasDebug() {
-				mlog.Debug("Got bad redirect: Too many redirects", mlog.Map{"url": req})
+				mlog.Debugx("Got bad redirect: Too many redirects", mlog.A("url", req))
 			}
 			return fmt.Errorf("Too many redirects: %w", ErrRedirect)
 		}
 		err := p.checkURL(req.URL)
 		if err != nil {
 			if mlog.HasDebug() {
-				mlog.Debugm("Got bad redirect", mlog.Map{"url": req})
+				mlog.Debugx("Got bad redirect", mlog.A("url", req))
 			}
 			return fmt.Errorf("Bad redirect: %w", ErrRedirect)
 		}
