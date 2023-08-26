@@ -12,8 +12,8 @@ func (gpc *GlobPathChecker) RenderTree() string {
 	tree := treeprint.New()
 
 	c := tree.AddBranch("case")
-	gpc.csNode.printTree(c)
+	gpc.csNode.printTree(c, 0)
 	i := tree.AddBranch("icase")
-	gpc.ciNode.printTree(i)
+	gpc.ciNode.printTree(i, 0)
 	return tree.String()
 }

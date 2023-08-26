@@ -139,12 +139,12 @@ func (gpc *GlobPathChecker) CheckPath(url string) bool {
 	ulen := len(url)
 
 	// if we have a case sensitive checker, check that one first
-	if gpc.csNode != nil && gpc.csNode.checkPath(url, 0, ulen) {
+	if gpc.csNode != nil && gpc.csNode.checkPath(url, 0, ulen, 0) {
 		return true
 	}
 
 	// if we have a case insensitive checker, check that one next
-	if gpc.ciNode != nil && gpc.ciNode.checkPath(url, 0, ulen) {
+	if gpc.ciNode != nil && gpc.ciNode.checkPath(url, 0, ulen, 0) {
 		return true
 	}
 

@@ -5,40 +5,52 @@
 package htrie
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/xlab/treeprint"
 )
 
-func (gpn *globPathNode) printTree(stree treeprint.Tree) {
-	for i, x := range gpn.subtrees {
-		if x == nil {
-			continue
-		}
-		c := "*"
-		if i != 0 {
-			// we use uint32 for performance, and don't care about
-			// truncation at all here (just printing anyway), so
-			// just convert.
-			c = string(uint8(i))
+func (gpn *globPathNode) printTree(stree treeprint.Tree, nodeIndex int) {
+
+	curnode := nodeIndex
+	b := &strings.Builder{}
+	if gpn == nil || len(gpn.nodeAttrs) < curnode {
+		return
+	}
+	for j := range gpn.nodeTree[curnode] {
+		idx := gpn.nodeTree[curnode][j]
+
+		c := gpn.nodeChars[idx]
+		if c == globChar {
+			c = '*'
 		}
 
-		subTree := stree.AddBranch(c)
 		meta := make([]string, 0)
-		if x.isGlob {
+		if gpn.nodeAttrs[idx][0] {
 			meta = append(meta, "glob")
 		}
-		if x.hasGlobChild {
+		if gpn.nodeAttrs[idx][2] {
 			meta = append(meta, "glob-child")
 		}
-		if x.canMatch {
+		/*
+			if gpn.nodeAttrs[idx][3] {
+				meta = append(meta, "1shot")
+			}
+		*/
+		if gpn.nodeAttrs[idx][1] {
 			meta = append(meta, "$")
 		}
-		if len(meta) > 0 {
-			subTree.SetMetaValue(strings.Join(meta, ","))
-		}
 
-		x.printTree(subTree)
+		b.WriteRune(rune(c))
+
+		if len(meta) > 0 {
+			fmt.Fprintf(b, " [%s]", strings.Join(meta, ","))
+		}
+		subTree := stree.AddBranch(b.String())
+		b.Reset()
+
+		gpn.printTree(subTree, idx)
 	}
 }
 
@@ -46,19 +58,15 @@ func (gpn *globPathNode) RenderTree() string {
 	tree := treeprint.New()
 
 	meta := make([]string, 0)
-	if gpn.isGlob {
-		meta = append(meta, "glob")
-	}
-	if gpn.hasGlobChild {
+	if gpn.nodeAttrs[0][2] {
 		meta = append(meta, "glob-child")
-	}
-	if gpn.canMatch {
-		meta = append(meta, "$")
 	}
 	if len(meta) > 0 {
 		tree.SetMetaValue(strings.Join(meta, ","))
 	}
 
-	gpn.printTree(tree)
+	if len(gpn.nodeChars) > 1 {
+		gpn.printTree(tree, 1)
+	}
 	return tree.String()
 }

@@ -8,7 +8,7 @@ import (
 	"fmt"
 )
 
-const globChar uint32 = 1
+const globChar uint8 = 1
 
 // A globPathNode represents a path checker that supports globbing comparisons
 type globPathNode struct {
@@ -27,34 +27,38 @@ type globPathNode struct {
 	//
 	// Since we would /want/ to use uint8 here, use uint32 instead
 	// Ugly and wasteful, but quite a bit faster for now...
-	subtrees map[uint32]*globPathNode
-	// used to avoid map lookup when there is only one subtree candidate
-	oneShot *globPathNode
-	// char for this node
-	nodeChar uint32
-	// is this path component a glob
-	isGlob bool
-	// determines whether a node can be a match even if it isn't a leaf node;
-	// this becomes necessary due to the possibility of longer and shorter
-	// paths overlapping
-	canMatch bool
-	// optimization to avoid an extra map lookup on every char
-	hasGlobChild bool
-	// is this a case insensitive comparison tree?
-	icase bool
+	// the same node is a vertical slice across these slices
+	nodeChars []uint8
+	nodeAttrs [][4]bool //isGlob, canMatch, hasGlobChild, oneShot
+	// the nodes here are references to the nodes in the index
+	nodeTree [][]int
+	icase    bool
+	/*
+		// is this path component a glob
+		isGlob bool
+		// determines whether a node can be a match even if it isn't a leaf node;
+		// this becomes necessary due to the possibility of longer and shorter
+		// paths overlapping
+		canMatch bool
+		// optimization to avoid an extra map lookup on every char
+		hasGlobChild bool
+		// is this a case insensitive comparison tree?
+		icase bool
+	*/
 }
 
 func (gpn *globPathNode) addPath(s string) error {
-	if gpn.subtrees == nil {
-		return fmt.Errorf("got nil <gpn>.subtrees in receiver")
+	if gpn == nil {
+		return fmt.Errorf("got nil <gpn> in receiver")
 	}
 
-	curnode := gpn
-	prevnode := curnode
 	mlen := len(s)
+	prevnode := 0
+	curnode := 0
+	nextnode := 0
 	//for _, part := range s {
 	for i := 0; i < mlen; i++ {
-		part := uint32(s[i])
+		part := uint8(s[i])
 
 		// if icase, use lowercase letters for comparisons
 		// 'A' == 65; 'Z' == 90
@@ -62,7 +66,7 @@ func (gpn *globPathNode) addPath(s string) error {
 			part = part + 32
 		}
 
-		var c uint32
+		var c uint8
 		// '*' == 42
 		if part == 42 {
 			c = globChar
@@ -70,55 +74,59 @@ func (gpn *globPathNode) addPath(s string) error {
 			c = part
 		}
 
-		subt := curnode.subtrees
-		if subt[c] == nil {
-			subt[c] = newGlobPathNode(gpn.icase)
+		// subt[c] == nil
+		found := false
+		for subTreeIndex := range gpn.nodeTree[curnode] {
+			idx := gpn.nodeTree[curnode][subTreeIndex]
+			if gpn.nodeChars[idx] == c {
+				nextnode = int(idx)
+				found = true
+				break
+			}
+		}
+		if !found {
+			gpn.nodeTree = append(gpn.nodeTree, make([]int, 0))
+			gpn.nodeAttrs = append(gpn.nodeAttrs, [4]bool{false, false, false, false})
+			gpn.nodeChars = append(gpn.nodeChars, c)
+			newIdx := len(gpn.nodeChars) - 1
+			gpn.nodeTree[curnode] = append(gpn.nodeTree[curnode], newIdx)
+			nextnode = newIdx
 		}
 
-		subt[c].nodeChar = part
-
 		// setup oneshot as an optimizaiton if there is only one subcandidate...
-		if len(subt) == 1 {
-			curnode.oneShot = subt[c]
+		if len(gpn.nodeTree[curnode]) == 1 {
+			gpn.nodeAttrs[curnode][3] = true
 		} else {
-			curnode.oneShot = nil
+			gpn.nodeAttrs[curnode][3] = false
 		}
 
 		prevnode = curnode
-		curnode = subt[c]
-		if part == '*' {
-			prevnode.hasGlobChild = true
-			curnode.isGlob = true
+		curnode = nextnode
+		if c == globChar {
+			gpn.nodeAttrs[prevnode][2] = true
+			gpn.nodeAttrs[curnode][0] = true
 		}
 	}
 
 	// this is the end of the path, so this node can be a match, even if future
 	// urls add children to it (a longer url).
-	curnode.canMatch = true
+	gpn.nodeAttrs[curnode][1] = true
 	return nil
 }
 
-func (gpn *globPathNode) globConsume(s string, index, mlen int) bool {
+func (gpn *globPathNode) globConsume(s string, index, mlen, nodeIndex int) bool {
+	curnode := nodeIndex
+
 	// we have a glob and no follow-on chars, so we can consume
 	// till the end and then match. early return
-	if gpn.canMatch {
+	if gpn.nodeAttrs[curnode][1] {
 		return true
 	}
 
-	oneShotLookahead := false
-	oneShotStep := false
-	// optimize common single char after * globbing
-	// eg. .../*/...
-	if gpn.oneShot != nil {
-		oneShotLookahead = true
-		oneShotStep = true
-	}
-
 	// otherwise we have some work to do...
-	curnode := gpn
 	// don't need to iter runes since we have ascii
 	for i := index; i < mlen; i++ {
-		part := uint32(s[i])
+		part := uint8(s[i])
 
 		// if icase, use lowercase letters for comparisons
 		// 'A' == 65; 'Z' == 90
@@ -126,24 +134,36 @@ func (gpn *globPathNode) globConsume(s string, index, mlen int) bool {
 			part = part + 32
 		}
 
-		// we know the glob has one one subcandidate (next char), so consume until
-		// we hit one of those
-		if oneShotStep {
-			if part != curnode.oneShot.nodeChar {
-				continue
-			}
-			// got the oneshot expected char finally, so unset oneshot
-			// stepping, and proceed
-			oneShotStep = false
+		x := gpn.nodeChars[curnode]
+		if x == globChar {
+			x = '*'
+		}
+		nextX := gpn.nodeChars[gpn.nodeTree[curnode][0]]
+		if nextX == globChar {
+			nextX = '*'
 		}
 
-		if v, ok := curnode.subtrees[part]; ok {
-			// found a candidate. follow it with normal branch logic.
-			// if it matches, we're done!
-			// increment index value for checkPath because we consumed a char
-			// by following oneShot
-			if v.checkPath(s, i+1, mlen) {
-				return true
+		// optimize common single char after * globbing
+		// eg. .../*/...
+		// if we know the glob has one one subcandidate (next char), we consume until
+		// we hit one of those
+		if gpn.nodeAttrs[curnode][3] && len(gpn.nodeTree[curnode]) > 0 {
+			idx := gpn.nodeTree[curnode][0]
+			if part != gpn.nodeChars[idx] {
+				continue
+			}
+		}
+
+		for j := range gpn.nodeTree[curnode] {
+			idx := gpn.nodeTree[curnode][j]
+			if gpn.nodeChars[idx] == part {
+				// found a candidate. follow it with normal branch logic.
+				// if it matches, we're done!
+				// increment index value for checkPath because we consumed a char
+				// by following oneShot
+				if gpn.checkPath(s, i+1, mlen, idx) {
+					return true
+				}
 			}
 		}
 
@@ -152,13 +172,7 @@ func (gpn *globPathNode) globConsume(s string, index, mlen int) bool {
 			// reached the end without a match, and the glob wasn't at the end
 			// of the line... return whether the curnode can match or not,
 			// to determine overall success or failure
-			return curnode.canMatch
-		}
-
-		// if we walked the branch, and got no match, we may just need to consume
-		// some more... reset oneshot stepping and continue onwards
-		if oneShotLookahead {
-			oneShotStep = true
+			return gpn.nodeAttrs[curnode][1]
 		}
 	}
 
@@ -166,11 +180,11 @@ func (gpn *globPathNode) globConsume(s string, index, mlen int) bool {
 	return false
 }
 
-func (gpn *globPathNode) checkPath(s string, index, mlen int) bool {
-	curnode := gpn
+func (gpn *globPathNode) checkPath(s string, index, mlen int, nodeIndex int) bool {
+	curnode := nodeIndex
 	// don't need to iter runes since we have ascii
 	for i := index; i < mlen; i++ {
-		part := uint32(s[i])
+		part := uint8(s[i])
 
 		// if icase, use lowercase letters for comparisons
 		// 'A' == 65; 'Z' == 90
@@ -179,27 +193,35 @@ func (gpn *globPathNode) checkPath(s string, index, mlen int) bool {
 		}
 
 		// node may have a glob child candidate (consumes), check that first
-		if curnode.hasGlobChild {
+		if gpn.nodeAttrs[curnode][2] {
 			// get glob node, and call globconsume.
 			// don't advance string pointer here though, as a glob is a match
 			// node and not a standard char node (it can also match zero characters)
-			if v, ok := curnode.subtrees[globChar]; ok && v.globConsume(s, i, mlen) {
-				return true
+			/// find glob child
+			for j := range gpn.nodeTree[curnode] {
+				idx := gpn.nodeTree[curnode][j]
+				if gpn.nodeChars[idx] == globChar {
+					// found our node
+					if gpn.globConsume(s, i, mlen, idx) {
+						return true
+					}
+				}
 			}
 		}
 
 		// oneshot means we only have one child candidate -- an optimization (fastpath)
 		// to avoid the slow path map fallback
-		if curnode.oneShot != nil {
+		if gpn.nodeAttrs[curnode][3] {
 			// only one candidate, and it _was_ the glob we tried.
 			// we're done!
-			if curnode.oneShot.nodeChar == globChar {
+			idx := gpn.nodeTree[curnode][0]
+			if gpn.nodeChars[idx] == globChar { // or gpn.nodeAttrs[idx][0] (isGlob)
 				return false
 			}
 
 			// if oneshot matches, use it
-			if curnode.oneShot.nodeChar == part {
-				curnode = curnode.oneShot
+			if gpn.nodeChars[idx] == part {
+				curnode = idx
 				continue
 			}
 
@@ -210,16 +232,23 @@ func (gpn *globPathNode) checkPath(s string, index, mlen int) bool {
 
 		// more than one candidate, so fallback to map lookup, since we don't
 		// know anything else
-		v, ok := curnode.subtrees[part]
-		if !ok {
+		found := false
+		for j := range gpn.nodeTree[curnode] {
+			idx := gpn.nodeTree[curnode][j]
+			if gpn.nodeChars[idx] == part {
+				curnode = idx
+				found = true
+				break
+			}
+		}
+		if !found {
 			return false
 		}
-		curnode = v
 	}
 
 	// reached the end of the string.. check if curnode is a leaf or globby
 	// note: unlikely we would end up with a globby here, but maybe possible.
-	if curnode.canMatch || curnode.isGlob {
+	if gpn.nodeAttrs[curnode][1] || gpn.nodeAttrs[curnode][0] {
 		return true
 	}
 
@@ -253,7 +282,9 @@ func newGlobPathNode(icase bool) *globPathNode {
 	// and since we only /really/ care about lookup costs, just start with 0 initial
 	// map size and let it grow as needed
 	return &globPathNode{
-		subtrees: make(map[uint32]*globPathNode),
-		icase:    icase,
+		nodeChars: []uint8{0},
+		nodeTree:  [][]int{{}},
+		nodeAttrs: [][4]bool{{false, false, false, false}},
+		icase:     icase,
 	}
 }
