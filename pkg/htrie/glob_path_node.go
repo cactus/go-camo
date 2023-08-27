@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-const globChar uint8 = 1
+const globChar byte = 1
 
 type BitMask uint8
 
@@ -48,7 +48,7 @@ func (m BitMask) String() string {
 
 // A globPathNode represents a path checker that supports globbing comparisons
 type globPathNode struct {
-	nodeChars []uint8
+	nodeChars []byte
 	nodeAttrs []BitMask
 	nodeTree  [][]int
 	icase     bool
@@ -133,7 +133,7 @@ func (gpn *globPathNode) globConsume(s string, index, mlen, nodeIndex int) bool 
 	// otherwise we have some work to do...
 	// don't need to iter runes since we have ascii
 	for i := index; i < mlen; i++ {
-		part := uint8(s[i])
+		part := s[i]
 
 		// if icase, use lowercase letters for comparisons
 		// 'A' == 65; 'Z' == 90
@@ -141,20 +141,11 @@ func (gpn *globPathNode) globConsume(s string, index, mlen, nodeIndex int) bool 
 			part = part + 32
 		}
 
-		x := gpn.nodeChars[curnode]
-		if x == globChar {
-			x = '*'
-		}
-		nextX := gpn.nodeChars[gpn.nodeTree[curnode][0]]
-		if nextX == globChar {
-			nextX = '*'
-		}
-
 		// optimize common single char after * globbing
 		// eg. .../*/...
 		// if we know the glob has one one subcandidate (next char), we consume until
 		// we hit one of those
-		if gpn.nodeAttrs[curnode]&oneShot != 0 && len(gpn.nodeTree[curnode]) > 0 {
+		if gpn.nodeAttrs[curnode]&oneShot != 0 {
 			idx := gpn.nodeTree[curnode][0]
 			if part != gpn.nodeChars[idx] {
 				continue
@@ -191,7 +182,7 @@ func (gpn *globPathNode) checkPath(s string, index, mlen int, nodeIndex int) boo
 	curnode := nodeIndex
 	// don't need to iter runes since we have ascii
 	for i := index; i < mlen; i++ {
-		part := uint8(s[i])
+		part := s[i]
 
 		// if icase, use lowercase letters for comparisons
 		// 'A' == 65; 'Z' == 90
@@ -284,7 +275,7 @@ func newGlobPathNode(icase bool) *globPathNode {
 	// and since we only /really/ care about lookup costs, just start with 0 initial
 	// map size and let it grow as needed
 	return &globPathNode{
-		nodeChars: []uint8{0},
+		nodeChars: []byte{0},
 		nodeTree:  [][]int{{}},
 		nodeAttrs: []BitMask{0},
 		icase:     icase,
