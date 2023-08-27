@@ -63,9 +63,8 @@ func (gpn *globPathNode) addPath(s string) error {
 	prevnode := 0
 	curnode := 0
 	nextnode := 0
-	//for _, part := range s {
 	for i := 0; i < mlen; i++ {
-		part := uint8(s[i])
+		part := s[i]
 
 		// if icase, use lowercase letters for comparisons
 		// 'A' == 65; 'Z' == 90
@@ -73,7 +72,7 @@ func (gpn *globPathNode) addPath(s string) error {
 			part = part + 32
 		}
 
-		var c uint8
+		var c byte
 		// '*' == 42
 		if part == 42 {
 			c = globChar
@@ -81,7 +80,6 @@ func (gpn *globPathNode) addPath(s string) error {
 			c = part
 		}
 
-		// subt[c] == nil
 		found := false
 		for subTreeIndex := range gpn.nodeTree[curnode] {
 			idx := gpn.nodeTree[curnode][subTreeIndex]
