@@ -27,10 +27,10 @@ func (gpn *globPathNode) printTree(stree treeprint.Tree, nodeIndex int) {
 		}
 
 		meta := make([]string, 0)
-		if gpn.nodeAttrs[idx][0] {
+		if gpn.nodeAttrs[idx]&isGlob != 0 {
 			meta = append(meta, "glob")
 		}
-		if gpn.nodeAttrs[idx][2] {
+		if gpn.nodeAttrs[idx]&hasGlobChild != 0 {
 			meta = append(meta, "glob-child")
 		}
 		/*
@@ -38,7 +38,7 @@ func (gpn *globPathNode) printTree(stree treeprint.Tree, nodeIndex int) {
 				meta = append(meta, "1shot")
 			}
 		*/
-		if gpn.nodeAttrs[idx][1] {
+		if gpn.nodeAttrs[idx]&canMatch != 0 {
 			meta = append(meta, "$")
 		}
 
@@ -58,7 +58,7 @@ func (gpn *globPathNode) RenderTree() string {
 	tree := treeprint.New()
 
 	meta := make([]string, 0)
-	if gpn.nodeAttrs[0][2] {
+	if gpn.nodeAttrs[0]&hasGlobChild != 0 {
 		meta = append(meta, "glob-child")
 	}
 	if len(meta) > 0 {

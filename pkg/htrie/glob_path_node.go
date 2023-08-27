@@ -6,45 +6,52 @@ package htrie
 
 import (
 	"fmt"
+	"strings"
 )
 
 const globChar uint8 = 1
 
+type BitMask uint8
+
+const (
+	isGlob BitMask = 1 << iota
+	canMatch
+	hasGlobChild
+	oneShot
+)
+
+func (m BitMask) String() string {
+	if m >= oneShot {
+		return fmt.Sprintf("<unknown key: %d>", m)
+	}
+
+	switch m {
+	case isGlob:
+		return "glob"
+	case canMatch:
+		return "can-match"
+	case hasGlobChild:
+		return "glob-child"
+	case oneShot:
+		return "one-shot"
+	}
+
+	// multiple keys
+	var names []string
+	for key := isGlob; key < oneShot; key <<= 1 {
+		if m&key != 0 {
+			names = append(names, key.String())
+		}
+	}
+	return strings.Join(names, "|")
+}
+
 // A globPathNode represents a path checker that supports globbing comparisons
 type globPathNode struct {
-	// go maps are optimized for only certain int types:
-	//  -- results as of go 1.13 on my slow laptop --
-	//  BenchmarkInt        297391227    3.99 ns/op
-	//  BenchmarkInt8        68107761   17.90 ns/op
-	//  BenchmarkInt16       65628482   18.30 ns/op
-	//  BenchmarkInt32      292725417    4.08 ns/op
-	//  BenchmarkInt64      293602374    4.11 ns/op
-	//  BenchmarkUInt       298711089    3.99 ns/op
-	//  BenchmarkUInt8       68173198   17.80 ns/op
-	//  BenchmarkUInt16      67566312   18.10 ns/op
-	//  BenchmarkUInt32     298597942    3.99 ns/op
-	//  BenchmarkUInt64     300239860    4.02 ns/op
-	//
-	// Since we would /want/ to use uint8 here, use uint32 instead
-	// Ugly and wasteful, but quite a bit faster for now...
-	// the same node is a vertical slice across these slices
 	nodeChars []uint8
-	nodeAttrs [][4]bool //isGlob, canMatch, hasGlobChild, oneShot
-	// the nodes here are references to the nodes in the index
-	nodeTree [][]int
-	icase    bool
-	/*
-		// is this path component a glob
-		isGlob bool
-		// determines whether a node can be a match even if it isn't a leaf node;
-		// this becomes necessary due to the possibility of longer and shorter
-		// paths overlapping
-		canMatch bool
-		// optimization to avoid an extra map lookup on every char
-		hasGlobChild bool
-		// is this a case insensitive comparison tree?
-		icase bool
-	*/
+	nodeAttrs []BitMask
+	nodeTree  [][]int
+	icase     bool
 }
 
 func (gpn *globPathNode) addPath(s string) error {
@@ -86,7 +93,7 @@ func (gpn *globPathNode) addPath(s string) error {
 		}
 		if !found {
 			gpn.nodeTree = append(gpn.nodeTree, make([]int, 0))
-			gpn.nodeAttrs = append(gpn.nodeAttrs, [4]bool{false, false, false, false})
+			gpn.nodeAttrs = append(gpn.nodeAttrs, 0)
 			gpn.nodeChars = append(gpn.nodeChars, c)
 			newIdx := len(gpn.nodeChars) - 1
 			gpn.nodeTree[curnode] = append(gpn.nodeTree[curnode], newIdx)
@@ -95,22 +102,22 @@ func (gpn *globPathNode) addPath(s string) error {
 
 		// setup oneshot as an optimizaiton if there is only one subcandidate...
 		if len(gpn.nodeTree[curnode]) == 1 {
-			gpn.nodeAttrs[curnode][3] = true
+			gpn.nodeAttrs[curnode] |= oneShot
 		} else {
-			gpn.nodeAttrs[curnode][3] = false
+			gpn.nodeAttrs[curnode] &^= oneShot
 		}
 
 		prevnode = curnode
 		curnode = nextnode
 		if c == globChar {
-			gpn.nodeAttrs[prevnode][2] = true
-			gpn.nodeAttrs[curnode][0] = true
+			gpn.nodeAttrs[prevnode] |= hasGlobChild
+			gpn.nodeAttrs[curnode] |= isGlob
 		}
 	}
 
 	// this is the end of the path, so this node can be a match, even if future
 	// urls add children to it (a longer url).
-	gpn.nodeAttrs[curnode][1] = true
+	gpn.nodeAttrs[curnode] |= canMatch
 	return nil
 }
 
@@ -119,7 +126,7 @@ func (gpn *globPathNode) globConsume(s string, index, mlen, nodeIndex int) bool 
 
 	// we have a glob and no follow-on chars, so we can consume
 	// till the end and then match. early return
-	if gpn.nodeAttrs[curnode][1] {
+	if gpn.nodeAttrs[curnode]&canMatch != 0 {
 		return true
 	}
 
@@ -147,7 +154,7 @@ func (gpn *globPathNode) globConsume(s string, index, mlen, nodeIndex int) bool 
 		// eg. .../*/...
 		// if we know the glob has one one subcandidate (next char), we consume until
 		// we hit one of those
-		if gpn.nodeAttrs[curnode][3] && len(gpn.nodeTree[curnode]) > 0 {
+		if gpn.nodeAttrs[curnode]&oneShot != 0 && len(gpn.nodeTree[curnode]) > 0 {
 			idx := gpn.nodeTree[curnode][0]
 			if part != gpn.nodeChars[idx] {
 				continue
@@ -172,7 +179,7 @@ func (gpn *globPathNode) globConsume(s string, index, mlen, nodeIndex int) bool 
 			// reached the end without a match, and the glob wasn't at the end
 			// of the line... return whether the curnode can match or not,
 			// to determine overall success or failure
-			return gpn.nodeAttrs[curnode][1]
+			return gpn.nodeAttrs[curnode]&canMatch != 0
 		}
 	}
 
@@ -193,7 +200,7 @@ func (gpn *globPathNode) checkPath(s string, index, mlen int, nodeIndex int) boo
 		}
 
 		// node may have a glob child candidate (consumes), check that first
-		if gpn.nodeAttrs[curnode][2] {
+		if gpn.nodeAttrs[curnode]&hasGlobChild != 0 {
 			// get glob node, and call globconsume.
 			// don't advance string pointer here though, as a glob is a match
 			// node and not a standard char node (it can also match zero characters)
@@ -211,7 +218,7 @@ func (gpn *globPathNode) checkPath(s string, index, mlen int, nodeIndex int) boo
 
 		// oneshot means we only have one child candidate -- an optimization (fastpath)
 		// to avoid the slow path map fallback
-		if gpn.nodeAttrs[curnode][3] {
+		if gpn.nodeAttrs[curnode]&oneShot != 0 {
 			// only one candidate, and it _was_ the glob we tried.
 			// we're done!
 			idx := gpn.nodeTree[curnode][0]
@@ -248,12 +255,7 @@ func (gpn *globPathNode) checkPath(s string, index, mlen int, nodeIndex int) boo
 
 	// reached the end of the string.. check if curnode is a leaf or globby
 	// note: unlikely we would end up with a globby here, but maybe possible.
-	if gpn.nodeAttrs[curnode][1] || gpn.nodeAttrs[curnode][0] {
-		return true
-	}
-
-	// didn't hit a leaf, and didn't find a match
-	return false
+	return gpn.nodeAttrs[curnode]&(isGlob|canMatch) != 0
 }
 
 func newGlobPathNode(icase bool) *globPathNode {
@@ -284,7 +286,7 @@ func newGlobPathNode(icase bool) *globPathNode {
 	return &globPathNode{
 		nodeChars: []uint8{0},
 		nodeTree:  [][]int{{}},
-		nodeAttrs: [][4]bool{{false, false, false, false}},
+		nodeAttrs: []BitMask{0},
 		icase:     icase,
 	}
 }
