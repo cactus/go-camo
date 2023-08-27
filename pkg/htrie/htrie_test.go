@@ -134,6 +134,10 @@ func BenchmarkHTrieCreate(b *testing.B) {
 	urls := []string{
 		"||*.example.com||*/test.png",
 		"|s|example.org|i|*/test.png",
+		"||foo.example.net||/test.png",
+		"||bar.example.net||/test.png",
+		"||*.bar.example.net||/test.png",
+		"||*.hodor.example.net||/*/test.png",
 	}
 	var err error
 	b.ResetTimer()

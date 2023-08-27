@@ -228,12 +228,30 @@ func (dt *URLMatcher) AddRule(rule string) error {
 func (dt *URLMatcher) walkFind(s string) []*URLMatcher {
 	// hostname should already be lowercase. avoid work by not doing it.
 	matches := *getURLMatcherSlice()
-	labels := reverse(strings.Split(s, "."))
-	plen := len(labels)
 	curnode := dt
+	slen := len(s)
 	// kind of weird ordering, because the root node isn't part of the search
-	// space.
-	for i, label := range labels {
+	// space, but walk backwards slicing as we go because we want hostname
+	// components in reverse order. eg. foo.example.com -> [com example foo]
+	// note: doing this manually because it saves allocations vs strings.Split
+	// (and is a bit faster as well)
+	for i := slen - 1; i >= 0; i-- {
+		label := ""
+		atLabel := false
+		if s[i] == '.' {
+			label = s[i+1 : slen]
+			slen = i
+			atLabel = true
+		}
+		if i == 0 {
+			label = s[i:slen]
+			slen = i
+			atLabel = true
+		}
+		if !atLabel {
+			continue
+		}
+
 		if curnode.subtrees == nil || len(curnode.subtrees) == 0 {
 			break
 		}
@@ -254,13 +272,13 @@ func (dt *URLMatcher) walkFind(s string) []*URLMatcher {
 
 		// not at a domain terminus, and there is a wildcard label,
 		// so add child to match (if exists)
-		if i < plen-1 && curnode.hasWildChild {
+		if i > 0 && curnode.hasWildChild {
 			if x, ok := curnode.subtrees["*"]; ok {
 				matches = append(matches, x)
 			}
 		}
 		// hit the end, and we can match at this level
-		if i == plen-1 && curnode.canMatch {
+		if i == 0 && curnode.canMatch {
 			matches = append(matches, curnode)
 		}
 	}

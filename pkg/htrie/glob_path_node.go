@@ -27,18 +27,37 @@ type globPathNode struct {
 	//
 	// Since we would /want/ to use uint8 here, use uint32 instead
 	// Ugly and wasteful, but quite a bit faster for now...
+	//
+	// Further, using a map of uint32 is also slightly faster than using
+	// a [][]uint list to hold indexes into another []uint8 list
+	// eg. SOA (Struct of Array) vs this AOS (Array of Struct) method.
+	// Go maps are pretty efficient, and these structs are pointers,
+	// which reduces some overhead.
+	// Note that as far as memory usage goes, SOA does come out ahead,
+	// but tree setup is a one-time startup cost, and we are willing to
+	// trade off some additional memory and/or slowness there
+	// for faster rules processing speed.
+
+	// subtree of nodes
 	subtrees map[uint32]*globPathNode
 	// used to avoid map lookup when there is only one subtree candidate
 	oneShot *globPathNode
 	// char for this node
 	nodeChar uint32
-	// is this path component a glob
+
+	// note: Using a bitmask instead of separate boolean slots, uses
+	// less memory, but we again make the tradeoff of slight increase
+	// in memory for slightly faster rules processing speed.
+	// A boolean check is faster than a bitcheck+equality check
+
+	// whether this node is a glob node
 	isGlob bool
 	// determines whether a node can be a match even if it isn't a leaf node;
 	// this becomes necessary due to the possibility of longer and shorter
 	// paths overlapping
 	canMatch bool
-	// optimization to avoid an extra map lookup on every char
+	// whether the node has a wildcard/glob descendent
+	// this is an optimization to avoid an extra map lookup on every char
 	hasGlobChild bool
 	// is this a case insensitive comparison tree?
 	icase bool
@@ -52,7 +71,6 @@ func (gpn *globPathNode) addPath(s string) error {
 	curnode := gpn
 	prevnode := curnode
 	mlen := len(s)
-	//for _, part := range s {
 	for i := 0; i < mlen; i++ {
 		part := uint32(s[i])
 
@@ -248,7 +266,7 @@ func newGlobPathNode(icase bool) *globPathNode {
 	// so a total possible of 85 chars, but spread out over 94 slots
 	// since there are quite a few possible slots, let's use a map for now...
 	// web searches say a map is faster in go above a certain size. benchmark later...
-
+	//
 	// for now, since realloc cost is paid at creation, and we want to RSS size
 	// and since we only /really/ care about lookup costs, just start with 0 initial
 	// map size and let it grow as needed
