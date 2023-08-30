@@ -144,9 +144,9 @@ Extract, and copy files to desired locations.
 Building requires:
 
 *   make
+*   posix compatible shell (sh)
 *   git
 *   go (latest version recommended. At least version >= 1.13)
-*   posix compatible shell (sh)
 *   {link-asciidoctor} (for building man pages only)
 
 Building:
