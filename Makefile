@@ -21,6 +21,7 @@ GOBUILD_LDFLAGS   ?= -s -w
 GOBUILD_FLAGS     := ${GOBUILD_DEPFLAGS} ${GOBUILD_OPTIONS} -ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${APP_VER}"
 
 # cross compile defs
+CC_BUILD_TARGETS   = go-camo url-tool
 CC_BUILD_ARCHES    = darwin/amd64 darwin/arm64 freebsd/amd64 linux/amd64 linux/arm64 windows/amd64
 CC_OUTPUT_TPL     := ${BUILDDIR}/bin/{{.Dir}}.{{.OS}}-{{.Arch}}
 
@@ -46,7 +47,7 @@ Available targets:
 endef
 export HELP_OUTPUT
 
-.PHONY: help clean build test cover bench man man-copy all tar cross-tar setup-check setup-gox
+.PHONY: help clean build test cover bench man man-copy all tar cross-tar setup-check
 
 help:
 	@echo "$$HELP_OUTPUT"
@@ -66,11 +67,6 @@ ${GOPATH}/bin/gosec:
 
 ${GOPATH}/bin/govulncheck:
 	go install golang.org/x/vuln/cmd/govulncheck@latest
-
-setup-gox: $GOPATH/bin/gox
-
-$GOPATH/bin/gox:
-	go install github.com/mitchellh/gox@latest
 
 build: setup
 	@[ -d "${BUILDDIR}/bin" ] || mkdir -p "${BUILDDIR}/bin"
@@ -128,30 +124,31 @@ tar: all
 	@tar -C ${TARBUILDDIR} -czf ${TARBUILDDIR}/${APP_NAME}-${APP_VER}.${GOVER}.${OS}-${ARCH}.tar.gz ${APP_NAME}-${APP_VER}
 	@rm -rf "${TARBUILDDIR}/${APP_NAME}-${APP_VER}"
 
-cross-tar: man setup setup-gox
+cross-tar: man setup
 	@echo "Building (cross-compile: ${CC_BUILD_ARCHES})..."
-	@(for x in go-camo url-tool; do \
-		echo "...$${x}..."; \
-		env GOFLAGS="${GOBUILD_OPTIONS}" gox \
-			-gocmd="go" \
-			-output="${CC_OUTPUT_TPL}" \
-			-osarch="${CC_BUILD_ARCHES}" \
-			-ldflags "${GOBUILD_LDFLAGS} -X ${VERSION_VAR}=${APP_VER}" \
-		${GOBUILD_DEPFLAGS} ./cmd/$${x}; \
-		echo; \
+	@(for x in ${CC_BUILD_TARGETS}; do \
+		for y in $(subst /,-,${CC_BUILD_ARCHES}); do \
+			printf -- "--> %15s: %s\n" "$${y}" "$${x}"; \
+			GOOS="$${y%%-*}"; \
+			GOARCH="$${y##*-}"; \
+			EXT=""; \
+			if echo "$${y}" | grep -q 'windows-'; then EXT=".exe"; fi; \
+			env GOOS=$${GOOS} GOARCH=$${GOARCH} go build ${GOBUILD_FLAGS} -o "${BUILDDIR}/bin/$${x}.$${GOOS}-$${GOARCH}$${EXT}" ./cmd/$${x}; \
+		done; \
 	done)
 
-	@echo "...creating tar files..."
+	@echo "Creating tar archives..."
 	@(for x in $(subst /,-,${CC_BUILD_ARCHES}); do \
-		echo "making tar for ${APP_NAME}.$${x}"; \
+		printf -- "--> %15s\n" "$${x}"; \
 		EXT=""; \
 		if echo "$${x}" | grep -q 'windows-'; then EXT=".exe"; fi; \
 		XDIR="${GOVER}.$${x}"; \
 		ODIR="${TARBUILDDIR}/$${XDIR}/${APP_NAME}-${APP_VER}"; \
 		mkdir -p "$${ODIR}/bin"; \
 		mkdir -p "$${ODIR}/man"; \
-		cp ${BUILDDIR}/bin/${APP_NAME}.$${x}$${EXT} $${ODIR}/bin/${APP_NAME}$${EXT}; \
-		cp ${BUILDDIR}/bin/url-tool.$${x}$${EXT} $${ODIR}/bin/url-tool$${EXT}; \
+		for t in ${CC_BUILD_TARGETS}; do \
+			cp ${BUILDDIR}/bin/$${t}.$${x}$${EXT} $${ODIR}/bin/$${t}$${EXT}; \
+		done; \
 		cp ${BUILDDIR}/man/*.[1-9] $${ODIR}/man/; \
 		tar -C ${TARBUILDDIR}/$${XDIR} -czf ${TARBUILDDIR}/${APP_NAME}-${APP_VER}.$${XDIR}.tar.gz ${APP_NAME}-${APP_VER}; \
 		rm -rf "${TARBUILDDIR}/$${XDIR}/"; \
