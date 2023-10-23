@@ -8,6 +8,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"expvar"
 	"fmt"
 	"net"
 	"net/http"
@@ -33,10 +34,11 @@ import (
 
 const metricNamespace = "camo"
 
-var (
-	// ServerVersion holds the server version string
-	ServerVersion = "no-version"
+// ServerVersion holds the server version string
+var ServerVersion = "no-version"
 
+var (
+	// configure histograms and counters
 	responseSize = promauto.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Namespace: metricNamespace,
@@ -315,10 +317,11 @@ func main() {
 		CamoHandler: proxy,
 	}
 
+	mux := http.NewServeMux()
+
 	// configure router endpoint for rendering metrics
 	if opts.Metrics {
 		mlog.Printf("Enabling metrics at /metrics")
-		http.Handle("/metrics", promhttp.Handler())
 		// Register a version info metric.
 		verOverride := os.Getenv("APP_INFO_VERSION")
 		if verOverride != "" {
@@ -330,16 +333,25 @@ func main() {
 		version.Branch = os.Getenv("APP_INFO_BRANCH")
 		version.BuildDate = os.Getenv("APP_INFO_BUILD_DATE")
 		prometheus.MustRegister(version.NewCollector(metricNamespace))
+
 		// Wrap the dumb router in instrumentation.
 		router = promhttp.InstrumentHandlerDuration(responseDuration, router)
 		router = promhttp.InstrumentHandlerCounter(responseCount, router)
 		router = promhttp.InstrumentHandlerResponseSize(responseSize, router)
+
+		// also configure expvars. this is usually a side effect of importing
+		// exvar, as it auto-adds it to the default servemux. Since we want
+		// to avoid it being available that when metrics is not enabled, we add
+		// it in manually only if metrics IS enabled.
+		mux.Handle("/debug/vars", expvar.Handler())
+		mux.Handle("/metrics", promhttp.Handler())
 	}
 
-	http.Handle("/", router)
+	mux.Handle("/", router)
 
 	srv := &http.Server{
 		ReadTimeout: 30 * time.Second,
+		Handler:     mux,
 	}
 
 	idleConnsClosed := make(chan struct{})

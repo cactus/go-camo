@@ -42,8 +42,8 @@ func TestUpstreamProxyParsing(t *testing.T) {
 		t,
 		uspc.httpsProxy.addresses,
 		[]net.IP{
-			net.ParseIP("::1"),
 			net.ParseIP("127.0.0.1"),
+			net.ParseIP("::1"),
 		},
 	)
 }

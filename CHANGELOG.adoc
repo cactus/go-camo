@@ -18,6 +18,8 @@ toc::[]
 :link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
 
 == HEAD
+
+== v2.4.5 - 2023-10-23
 *   fix htrie matching of non punycode (eg. unicode) idna hostnames
 *   slightly faster logging (update to mlog dependency)
 *   address a logging issue with missing url path output in
@@ -26,6 +28,8 @@ toc::[]
     (approx 12-30% in microbenchmarks)
 *   slight improvement in request path url processing
     (approx 2-4% in microbenchmarks)
+*   fix /debug/vars being enabled by default (#65) due to expvars import
+    side effect
 
 == v2.4.4 - 2023-07-25
 *   update dependencies

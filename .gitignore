@@ -8,6 +8,7 @@
 /server.crt
 /server.csr
 *.py[co]
+/test.py
 /test-ruleset.conf
 /man/*.html
 /man/*.[1-9]
