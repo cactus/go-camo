@@ -161,6 +161,7 @@ func main() {
 		ReqTimeout          time.Duration `long:"timeout" default:"4s" description:"Upstream request timeout"`
 		MaxRedirects        int           `long:"max-redirects" default:"3" description:"Maximum number of redirects to follow"`
 		Metrics             bool          `long:"metrics" description:"Enable Prometheus compatible metrics endpoint"`
+		NoDebugVars         bool          `long:"no-debug-vars" description:"Disable the /debug/vars/ metrics endpoint. This option has no effects when the metrics are not enabled"`
 		NoLogTS             bool          `long:"no-log-ts" description:"Do not add a timestamp to logging"`
 		LogJson             bool          `long:"log-json" description:"Log in JSON format"`
 		DisableKeepAlivesFE bool          `long:"no-fk" description:"Disable frontend http keep-alive support"`
@@ -343,7 +344,9 @@ func main() {
 		// exvar, as it auto-adds it to the default servemux. Since we want
 		// to avoid it being available that when metrics is not enabled, we add
 		// it in manually only if metrics IS enabled.
-		mux.Handle("/debug/vars", expvar.Handler())
+		if !opts.NoDebugVars {
+			mux.Handle("/debug/vars", expvar.Handler())
+		}
 		mux.Handle("/metrics", promhttp.Handler())
 	}
 
