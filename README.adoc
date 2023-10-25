@@ -286,8 +286,7 @@ Usage:
 
 Application Options:
   -k, --key=                   HMAC key
-  -H, --header=                Add additional header to each response. This option can
-                               be used multiple times to add multiple headers
+  -H, --header=                Add additional header to each response. This option can be used multiple times to add multiple headers
       --listen=                Address:Port to bind to for HTTP (default: 0.0.0.0:8080)
       --ssl-listen=            Address:Port to bind to for HTTPS/SSL/TLS
       --socket-listen=         Path for unix domain socket to bind to for HTTP
@@ -297,6 +296,7 @@ Application Options:
       --timeout=               Upstream request timeout (default: 4s)
       --max-redirects=         Maximum number of redirects to follow (default: 3)
       --metrics                Enable Prometheus compatible metrics endpoint
+      --no-debug-vars          Disable the /debug/vars/ metrics endpoint. This option has no effects when the metrics are not enabled
       --no-log-ts              Do not add a timestamp to logging
       --log-json               Log in JSON format
       --no-fk                  Disable frontend http keep-alive support
@@ -359,8 +359,14 @@ The default is `0`.
 * `--metrics`
 +
 --
-If the metrics flag is provided,
-then the service will expose a Prometheus `/metrics` endpoint.
+If the `metrics` flag is provided,
+then the service will expose a Prometheus `/metrics` endpoint and a `/debug/vars` endpoint from the go `expvar` package.
+--
+
+* `--no-debug-vars`
++
+--
+If the `no-debug-vars` flag is provided along with the `metrics` flag, the `/debug/vars` endpoint is removed.
 --
 
 * `-k`, `--key`
