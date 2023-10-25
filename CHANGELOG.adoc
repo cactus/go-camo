@@ -19,6 +19,10 @@ toc::[]
 
 == HEAD
 
+== v2.4.6 - 2023-10-25
+*   Add `--no-debug-vars` flag to disable /debug/vars when `--metrics` is
+    enabled. (#66, #67)
+
 == v2.4.5 - 2023-10-23
 *   fix htrie matching of non punycode (eg. unicode) idna hostnames
 *   slightly faster logging (update to mlog dependency)
