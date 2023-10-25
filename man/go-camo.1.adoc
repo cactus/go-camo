@@ -106,8 +106,17 @@ See __<<ADD_HEADERS>>__ for more info.
 --
 Enable Prometheus compatible metrics endpoint.
 
-If metrics flag is provided, then the service will make a Prometheus
-compatible endpoint available at `/metrics` via HTTP GET.
+If the `metrics` flag is provided, then the service will expose a Prometheus
+`/metrics` endpoint and a `/debug/vars` endpoint from the go `expvar` package.
+
+See __<<METRICS>>__ for more info.
+--
+
+*--no-debug-vars*::
++
+--
+If the `no-debug-vars` flag is provided along with the `metrics` flag, the
+`/debug/vars` endpoint is removed.
 
 See __<<METRICS>>__ for more info.
 --
@@ -197,6 +206,10 @@ systems to gather data.
 
 The endpoint includes all of the default `go_` and `process_`. In addition, a
 number of custom metrics.
+
+A `/debug/vars` endpoint is also included with *--metrics* by default.
+This endpoint returns memstats and some additional data. This endpoint can be
+disabled by additionally supplying the *--no-debug-vars* flag.
 
 .Exposed Camo Metrics
 [%header,cols="<m,<,<.^6"]

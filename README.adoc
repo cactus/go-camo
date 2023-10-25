@@ -214,11 +214,12 @@ go-camo will generally do what you tell it to with regard to fetching signed url
 There is some limited support for trying to prevent {link-dns-rebinding} attacks.
 
 go-camo will attempt to reject any address matching an rfc1918 network block,
-or a private scope ipv6 address,
-be it in the url or via resulting hostname resolution.
-Please note, however,
-that this does not provide protecton for a network that uses public address space (ipv4 or ipv6),
-or some of the {link-ip6-special-addresses}[more exotic] ipv6 addresses.
+or a private scope ipv6 address, be it in the url or via resulting hostname
+resolution.
+
+Please note, however, that this does not provide protecton for a network that
+uses public address space (ipv4 or ipv6), or some of the
+{link-ip6-special-addresses}[more exotic] ipv6 addresses.
 
 The list of networks rejected include...
 
@@ -286,7 +287,8 @@ Usage:
 
 Application Options:
   -k, --key=                   HMAC key
-  -H, --header=                Add additional header to each response. This option can be used multiple times to add multiple headers
+  -H, --header=                Add additional header to each response. This option can
+                               be used multiple times to add multiple headers
       --listen=                Address:Port to bind to for HTTP (default: 0.0.0.0:8080)
       --ssl-listen=            Address:Port to bind to for HTTPS/SSL/TLS
       --socket-listen=         Path for unix domain socket to bind to for HTTP
@@ -296,7 +298,8 @@ Application Options:
       --timeout=               Upstream request timeout (default: 4s)
       --max-redirects=         Maximum number of redirects to follow (default: 3)
       --metrics                Enable Prometheus compatible metrics endpoint
-      --no-debug-vars          Disable the /debug/vars/ metrics endpoint. This option has no effects when the metrics are not enabled
+      --no-debug-vars          Disable the /debug/vars/ metrics endpoint. This
+                               option has no effects when the metrics are not enabled
       --no-log-ts              Do not add a timestamp to logging
       --log-json               Log in JSON format
       --no-fk                  Disable frontend http keep-alive support
@@ -306,10 +309,12 @@ Application Options:
       --allow-credential-urls  Allow urls to contain user/pass credentials
       --filter-ruleset=        Text file containing filtering rules (one per line)
       --server-name=           Value to use for the HTTP server field (default: go-camo)
-      --expose-server-version  Include the server version in the HTTP server response header
+      --expose-server-version  Include the server version in the HTTP server response
+                               header
       --enable-xfwd4           Enable x-forwarded-for passthrough/generation
   -v, --verbose                Show verbose (debug) log level output
-  -V, --version                Print version and exit; specify twice to show license information
+  -V, --version                Print version and exit; specify twice to show license
+                               information
 
 Help Options:
   -h, --help                   Show this help message
@@ -359,14 +364,15 @@ The default is `0`.
 * `--metrics`
 +
 --
-If the `metrics` flag is provided,
-then the service will expose a Prometheus `/metrics` endpoint and a `/debug/vars` endpoint from the go `expvar` package.
+If the `metrics` flag is provided, then the service will expose a Prometheus
+`/metrics` endpoint and a `/debug/vars` endpoint from the go `expvar` package.
 --
 
 * `--no-debug-vars`
 +
 --
-If the `no-debug-vars` flag is provided along with the `metrics` flag, the `/debug/vars` endpoint is removed.
+If the `no-debug-vars` flag is provided along with the `metrics` flag, the
+`/debug/vars` endpoint is removed.
 --
 
 * `-k`, `--key`
@@ -472,6 +478,10 @@ In addition, you can expose some extra data to metrics via env vars, if desired:
 *   Branch via `APP_INFO_BRANCH`
 *   BuildDate via `APP_INFO_BUILD_DATE`
 *   You can also override the version by setting `APP_INFO_VERSION`
+
+A `/debug/vars` endpoint is also included with `--metrics` by default.
+This endpoint returns memstats and some additional data. This endpoint can be
+disabled by additionally supplying the `--no-debug-vars` flag.
 
 == Additional tools
 
