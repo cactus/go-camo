@@ -88,21 +88,21 @@ func TestStrangeFormatRedirects(t *testing.T) {
 
 func TestRedirectsWithPathOnly(t *testing.T) {
 	t.Parallel()
-	testURL := "http://mockbin.org/redirect/302?to=%2Fredirect%2F302%3Fto%3Dhttp%3A%2F%2Fwww.google.com%2Fimages%2Fsrpr%2Flogo11w.png"
+	testURL := "http://httpbin.org/redirect-to?status_code=302&url=%2Fredirect-to%3Furl%3Dhttp%3A%2F%2Fwww.google.com%2Fimages%2Fsrpr%2Flogo11w.png%26status_code%3D302"
 	_, err := makeTestReq(testURL, 200, camoConfig)
 	assert.Check(t, err)
 }
 
 func TestFollowPermRedirects(t *testing.T) {
 	t.Parallel()
-	testURL := "http://mockbin.org/redirect/301?to=http://www.google.com/images/srpr/logo11w.png"
+	testURL := "http://httpbin.org/redirect-to?status_code=301&url=http://www.google.com/images/srpr/logo11w.png"
 	_, err := makeTestReq(testURL, 200, camoConfig)
 	assert.Check(t, err)
 }
 
 func TestFollowTempRedirects(t *testing.T) {
 	t.Parallel()
-	testURL := "http://mockbin.org/redirect/302?to=http://www.google.com/images/srpr/logo11w.png"
+	testURL := "http://httpbin.org/redirect-to?status_code=302&url=http://www.google.com/images/srpr/logo11w.png"
 	_, err := makeTestReq(testURL, 200, camoConfig)
 	assert.Check(t, err)
 }
@@ -293,7 +293,7 @@ func Test404OnCredentialURL(t *testing.T) {
 
 func Test404InfiniRedirect(t *testing.T) {
 	t.Parallel()
-	testURL := "http://mockbin.org/redirect/302/4"
+	testURL := "http://httpbin.org/redirect/4"
 	_, err := makeTestReq(testURL, 404, camoConfig)
 	assert.Check(t, err)
 }
@@ -383,7 +383,7 @@ func Test404OnLocalhostWithPort(t *testing.T) {
 
 func Test404OnRedirectWithLocalhostTarget(t *testing.T) {
 	t.Parallel()
-	testURL := "http://mockbin.org/redirect/302?to=http://localhost/some.png"
+	testURL := "http://httpbin.org/redirect-to?status_code=302&url=http://localhost/some.png"
 	resp, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Check(t, err) {
 		bodyAssert(t, "Error Fetching Resource\n", resp)
@@ -392,7 +392,7 @@ func Test404OnRedirectWithLocalhostTarget(t *testing.T) {
 
 func Test404OnRedirectWithLoopbackIP(t *testing.T) {
 	t.Parallel()
-	testURL := "http://mockbin.org/redirect/302?to=http://127.0.0.100/some.png"
+	testURL := "http://httpbin.org/redirect-to?status_code=302&url=http://127.0.0.100/some.png"
 	resp, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Check(t, err) {
 		bodyAssert(t, "Error Fetching Resource\n", resp)
@@ -401,7 +401,7 @@ func Test404OnRedirectWithLoopbackIP(t *testing.T) {
 
 func Test404OnRedirectWithLoopbackIPwCreds(t *testing.T) {
 	t.Parallel()
-	testURL := "http://mockbin.org/redirect/302?to=http://user:pass@127.0.0.100/some.png"
+	testURL := "http://httpbin.org/redirect-to?status_code=302&url=http://user:pass@127.0.0.100/some.png"
 	resp, err := makeTestReq(testURL, 404, camoConfig)
 	if assert.Check(t, err) {
 		bodyAssert(t, "Error Fetching Resource\n", resp)
@@ -422,7 +422,7 @@ func Test404OnLoopback(t *testing.T) {
 	skipIfCI(t)
 	t.Parallel()
 
-	testURL := "http://mockbin.org/redirect/302?to=http://test.vcap.me"
+	testURL := "http://httpbin.org/redirect-to?status_code=302&url=http://test.vcap.me"
 	req, err := makeReq(camoConfig, testURL)
 	assert.Check(t, err)
 

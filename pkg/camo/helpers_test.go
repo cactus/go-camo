@@ -74,20 +74,30 @@ func makeTestReq(testURL string, status int, config Config) (*http.Response, err
 }
 
 func bodyAssert(t *testing.T, expected string, resp *http.Response) {
+	t.Helper()
 	body, err := io.ReadAll(resp.Body)
 	assert.Check(t, err)
 	bodyString := string(body)
-	assert.Check(t, is.Equal(expected, bodyString), "Expected 404 response body but got '%s' instead",
-		bodyString)
+	assert.Check(t, is.Equal(expected, bodyString),
+		"Expected 404 response body but got '%s' instead",
+		bodyString,
+	)
 
 }
 
 func headerAssert(t *testing.T, expected, name string, resp *http.Response) {
-	assert.Check(t, is.Equal(expected, resp.Header.Get(name)), "Expected response header mismatch")
+	t.Helper()
+	assert.Check(t,
+		is.Equal(expected, resp.Header.Get(name)),
+		"Expected response header mismatch",
+	)
 }
 
 func statusCodeAssert(t *testing.T, expected int, resp *http.Response) {
-	assert.Check(t, is.Equal(expected, resp.StatusCode), "Expected %d but got '%d' instead",
-		expected, resp.StatusCode)
-
+	t.Helper()
+	assert.Check(t,
+		is.Equal(expected, resp.StatusCode),
+		"Expected %d but got '%d' instead",
+		expected, resp.StatusCode,
+	)
 }
