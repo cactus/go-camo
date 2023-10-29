@@ -217,7 +217,7 @@ go-camo will attempt to reject any address matching an rfc1918 network block,
 or a private scope ipv6 address, be it in the url or via resulting hostname
 resolution.
 
-Please note, however, that this does not provide protecton for a network that
+Please note, however, that this does not provide protection for a network that
 uses public address space (ipv4 or ipv6), or some of the
 {link-ip6-special-addresses}[more exotic] ipv6 addresses.
 
