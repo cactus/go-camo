@@ -58,13 +58,13 @@ The general steps are as follows:
 
 *   A client requests a page from the web app.
 *   The original URL in the content is parsed.
-*   An HMAC signature of the url is generated.
-*   The url and hmac are encoded.
-*   The encoded url and hmac are placed into the expected format,
-    creating the signed url.
-*   The signed url replaces the original image URL.
+*   An HMAC signature of the URL is generated.
+*   The URL and hmac are encoded.
+*   The encoded URL and hmac are placed into the expected format,
+    creating the signed URL.
+*   The signed URL replaces the original image URL.
 *   The web app returns the content to the client.
-*   The client requests the signed url from Go-Camo.
+*   The client requests the signed URL from Go-Camo.
 *   Go-Camo validates the HMAC, decodes the URL,
     then requests the content from the origin server and streams it to the client.
 
@@ -221,7 +221,7 @@ Please note, however, that this does not provide protection for a network that
 uses public address space (ipv4 or ipv6), or some of the
 {link-ip6-special-addresses}[more exotic] ipv6 addresses.
 
-The list of networks rejected include...
+The list of networks rejected includes...
 
 [%header%autowidth.stretch]
 |===
@@ -306,7 +306,7 @@ Application Options:
       --no-bk                  Disable backend http keep-alive support
       --allow-content-video    Additionally allow 'video/*' content
       --allow-content-audio    Additionally allow 'audio/*' content
-      --allow-credential-urls  Allow urls to contain user/pass credentials
+      --allow-credential-urls  Allow URLs to contain user/pass credentials
       --filter-ruleset=        Text file containing filtering rules (one per line)
       --server-name=           Value to use for the HTTP server field (default: go-camo)
       --expose-server-version  Include the server version in the HTTP server response
@@ -326,11 +326,11 @@ A few notes about specific flags:
 +
 --
 If a `filter-ruleset` file is defined,
-that file is read and each line converted into a filter rule.
+that file is read and each line is converted into a filter rule.
 See link:man/go-camo-filtering.5.adoc[`go-camo-filtering(5)`]
 for more information regarding the format for the filter file itself.
 
-Regarding evaluatation: The ruleset is NOT evaluated in-order.
+Regarding evaluation: The ruleset is NOT evaluated in-order.
 The rules process in two phases: "allow rule phase" where the allow rules are evaluated,
 and the "deny rule phase" where the deny rules are evaluated.
 First match in each phase "wins" that phase.
@@ -345,10 +345,10 @@ If there are no deny rules supplied, this phase is skipped.
 
 [NOTE]
 ====
-It is always preferable to do filtering at the point of url generation and signing.
+It is always preferable to do filtering at the point of URL generation and signing.
 The `filter-ruleset` functionality (both allow and deny) is supplied
 predominantly as a fallback safety measure,
-for cases where you have previously generated a url and you need a quick temporary fix,
+for cases where you have previously generated a URL and you need a quick temporary fix,
 or where rolling keys takes a while and/or is difficult.
 ====
 --
@@ -425,7 +425,7 @@ Some examples (list is not exhaustive):
 *   The upstream http proxy itself may be responsible for following redirects
     (depending on configuration). As such, go-camo may not have visibility into
     the redirect chain. This could result in resource exhaustion (redirect
-    loops), or SSRF (redirects to internal urls).
+    loops), or SSRF (redirects to internal URLs).
 *   The upstream http proxy itself will be responsible for connecting to external
     servers, and would need to be configured for any request size limits.
     While go-camo would still limit request sizes based on its own configuration,
@@ -500,14 +500,14 @@ Usage:
 
 Application Options:
   -k, --key=    HMAC key
-  -p, --prefix= Optional url prefix used by encode output
+  -p, --prefix= Optional URL prefix used by encode output
 
 Help Options:
   -h, --help    Show this help message
 
 Available commands:
-  decode  Decode a url and print result
-  encode  Encode a url and print result
+  decode  Decode a URL and print result
+  encode  Encode a URL and print result
 ----
 
 Example usage:
