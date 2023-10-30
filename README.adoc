@@ -465,7 +465,7 @@ In addition, a number of custom metrics.
 | The number of responses that failed to send to the client.
 
 | camo_proxy_reponses_truncated_total | Counter
-| The number of responess that were too large to send.
+| The number of responses that were too large to send.
 
 | camo_responses_total | Counter
 | Total HTTP requests processed by the go-camo, excluding scrapes.
