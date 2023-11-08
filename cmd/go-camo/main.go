@@ -383,7 +383,7 @@ func main() {
 			}
 			// wrap default mux to set some default quic reference headers on tls responses
 			tlsSrv.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				quicSrv.SetQuicHeaders(w.Header())
+				_ = quicSrv.SetQuicHeaders(w.Header())
 				mux.ServeHTTP(w, r)
 			})
 		}
