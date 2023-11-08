@@ -399,15 +399,20 @@ func main() {
 		mlog.Info("Starting graceful shutdown")
 
 		closeWait := 200 * time.Millisecond
-		d := time.Now().Add(closeWait)
-		ctx, cancel := context.WithDeadline(context.Background(), d)
 
+		ctx, cancel := context.WithTimeout(context.Background(), closeWait)
+		// Even though ctx may be expired by then, it is good practice to call its
+		// cancellation function in any case. Failure to do so may keep the
+		// context and its parent alive longer than necessary.
+		defer cancel()
 		if httpSrv != nil {
 			if err := httpSrv.Shutdown(ctx); err != nil {
 				mlog.Info("Error gracefully shutting down HTTP server:", err)
 			}
 		}
 
+		ctx, cancel = context.WithTimeout(context.Background(), closeWait)
+		defer cancel()
 		if tlsSrv != nil {
 			if err := tlsSrv.Shutdown(ctx); err != nil {
 				mlog.Info("Error gracefully shutting down HTTP/TLS server:", err)
@@ -419,10 +424,6 @@ func main() {
 				mlog.Info("Error gracefully shutting down HTTP3/QUIC server:", err)
 			}
 		}
-		// Even though ctx may be expired, it is good practice to call its
-		// cancellation function in any case. Failure to do so may keep the
-		// context and its parent alive longer than necessary.
-		cancel()
 
 		close(idleConnsClosed)
 	}()
