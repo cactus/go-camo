@@ -23,6 +23,7 @@ import (
 	"github.com/cactus/go-camo/v2/pkg/camo"
 	"github.com/cactus/go-camo/v2/pkg/htrie"
 	"github.com/cactus/go-camo/v2/pkg/router"
+	"github.com/quic-go/quic-go/http3"
 
 	"github.com/cactus/mlog"
 	flags "github.com/jessevdk/go-flags"
@@ -155,6 +156,7 @@ func main() {
 		BindAddress         string        `long:"listen" default:"0.0.0.0:8080" description:"Address:Port to bind to for HTTP"`
 		BindAddressSSL      string        `long:"ssl-listen" description:"Address:Port to bind to for HTTPS/SSL/TLS"`
 		BindSocket          string        `long:"socket-listen" description:"Path for unix domain socket to bind to for HTTP"`
+		EnableQuic          bool          `long:"quic" description:"Enable http3/quic. Binds to the same port number as ssl-listen but udp+quic."`
 		SSLKey              string        `long:"ssl-key" description:"ssl private key (key.pem) path"`
 		SSLCert             string        `long:"ssl-cert" description:"ssl cert (cert.pem) path"`
 		MaxSize             int64         `long:"max-size" description:"Max allowed response size (KB)"`
@@ -235,6 +237,9 @@ func main() {
 	}
 	if opts.BindAddressSSL != "" && opts.SSLCert == "" {
 		mlog.Fatal("ssl-cert is required when specifying ssl-listen")
+	}
+	if opts.EnableQuic && opts.BindAddressSSL == "" {
+		mlog.Fatal("ssl-listen is required when specifying quic")
 	}
 
 	// set keepalive options
@@ -352,9 +357,36 @@ func main() {
 
 	mux.Handle("/", router)
 
-	srv := &http.Server{
-		ReadTimeout: 30 * time.Second,
-		Handler:     mux,
+	var httpSrv *http.Server
+	var tlsSrv *http.Server
+	var quicSrv *http3.Server
+
+	if opts.BindAddress != "" {
+		httpSrv = &http.Server{
+			Addr:        opts.BindAddress,
+			ReadTimeout: 30 * time.Second,
+			Handler:     mux,
+		}
+	}
+
+	if opts.BindAddressSSL != "" {
+		tlsSrv = &http.Server{
+			Addr:        opts.BindAddressSSL,
+			ReadTimeout: 30 * time.Second,
+			Handler:     mux,
+		}
+
+		if opts.EnableQuic {
+			quicSrv = &http3.Server{
+				Addr:    opts.BindAddressSSL,
+				Handler: mux,
+			}
+			// wrap default mux to set some default quic reference headers on tls responses
+			tlsSrv.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				quicSrv.SetQuicHeaders(w.Header())
+				mux.ServeHTTP(w, r)
+			})
+		}
 	}
 
 	idleConnsClosed := make(chan struct{})
@@ -364,14 +396,28 @@ func main() {
 		signal.Notify(sigint, os.Interrupt, syscall.SIGTERM)
 		s := <-sigint
 		mlog.Info("Handling signal:", s)
-
 		mlog.Info("Starting graceful shutdown")
 
-		d := time.Now().Add(200 * time.Millisecond)
+		closeWait := 200 * time.Millisecond
+		d := time.Now().Add(closeWait)
 		ctx, cancel := context.WithDeadline(context.Background(), d)
 
-		if err := srv.Shutdown(ctx); err != nil {
-			mlog.Info("Error gracefully shutting down server:", err)
+		if httpSrv != nil {
+			if err := httpSrv.Shutdown(ctx); err != nil {
+				mlog.Info("Error gracefully shutting down HTTP server:", err)
+			}
+		}
+
+		if tlsSrv != nil {
+			if err := tlsSrv.Shutdown(ctx); err != nil {
+				mlog.Info("Error gracefully shutting down HTTP/TLS server:", err)
+			}
+		}
+
+		if quicSrv != nil {
+			if err := quicSrv.CloseGracefully(closeWait); err != nil {
+				mlog.Info("Error gracefully shutting down HTTP3/QUIC server:", err)
+			}
 		}
 		// Even though ctx may be expired, it is good practice to call its
 		// cancellation function in any case. Failure to do so may keep the
@@ -393,35 +439,34 @@ func main() {
 				mlog.Fatal("Error listening on unix socket", err)
 			}
 
-			if err := srv.Serve(ln); err != http.ErrServerClosed {
+			if err := httpSrv.Serve(ln); err != http.ErrServerClosed {
 				mlog.Fatal(err)
 			}
 		}()
 	}
 
-	if opts.BindAddress != "" {
+	if httpSrv != nil {
 		mlog.Printf("Starting HTTP server on: tcp:%s", opts.BindAddress)
 		go func() {
-			ln, err := net.Listen("tcp", opts.BindAddress)
-			if err != nil {
-				mlog.Fatal("Error listening on tcp socket", err)
-			}
-
-			if err := srv.Serve(ln); err != http.ErrServerClosed {
+			if err := httpSrv.ListenAndServe(); err != http.ErrServerClosed {
 				mlog.Fatal(err)
 			}
 		}()
 	}
 
-	if opts.BindAddressSSL != "" {
-		mlog.Printf("Starting TLS server on: tcp:%s", opts.BindAddressSSL)
+	if tlsSrv != nil {
+		mlog.Printf("Starting HTTP/TLS server on: tcp:%s", opts.BindAddressSSL)
 		go func() {
-			ln, err := net.Listen("tcp", opts.BindAddressSSL)
-			if err != nil {
-				mlog.Fatal("Error listening on tcp socket", err)
+			if err := tlsSrv.ListenAndServeTLS(opts.SSLCert, opts.SSLKey); err != http.ErrServerClosed {
+				mlog.Fatal(err)
 			}
+		}()
+	}
 
-			if err := srv.ServeTLS(ln, opts.SSLCert, opts.SSLKey); err != http.ErrServerClosed {
+	if quicSrv != nil {
+		mlog.Printf("Starting HTTP3/QUIC server on: udp:%s", opts.BindAddressSSL)
+		go func() {
+			if err := quicSrv.ListenAndServeTLS(opts.SSLCert, opts.SSLKey); err != http.ErrServerClosed {
 				mlog.Fatal(err)
 			}
 		}()
