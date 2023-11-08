@@ -383,7 +383,7 @@ func main() {
 			}
 			// wrap default mux to set some default quic reference headers on tls responses
 			tlsSrv.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				_ = quicSrv.SetQuicHeaders(w.Header())
+				quicSrv.SetQuicHeaders(w.Header()) // #nosec G104 - ignore error. should only happen if server.Port isn't discoverable
 				mux.ServeHTTP(w, r)
 			})
 		}
