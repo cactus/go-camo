@@ -18,7 +18,9 @@ toc::[]
 :link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
 
 == HEAD
-*   Add http/3+quic server support. New flag `--quic`. Requires `--ssl-listen`.
+
+== v2.4.7 - 2023-11-12
+*   Add http3/quic server support. New flag `--quic`. Requires `--ssl-listen`.
 
 == v2.4.6 - 2023-10-25
 *   Add `--no-debug-vars` flag to disable /debug/vars when `--metrics` is

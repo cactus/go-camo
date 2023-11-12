@@ -23,14 +23,14 @@ import (
 	"github.com/cactus/go-camo/v2/pkg/camo"
 	"github.com/cactus/go-camo/v2/pkg/htrie"
 	"github.com/cactus/go-camo/v2/pkg/router"
-	"github.com/quic-go/quic-go/http3"
-
 	"github.com/cactus/mlog"
+
 	flags "github.com/jessevdk/go-flags"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
+	"github.com/quic-go/quic-go/http3"
 )
 
 const metricNamespace = "camo"

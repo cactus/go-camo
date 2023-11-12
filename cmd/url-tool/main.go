@@ -9,67 +9,62 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
-	"os"
 	"strings"
 
 	"github.com/cactus/go-camo/v2/pkg/camo/encoding"
 
-	flags "github.com/jessevdk/go-flags"
+	"github.com/alecthomas/kong"
 )
 
 // EncodeCommand holds command options for the encode command
-type EncodeCommand struct {
-	Base       string `short:"b" long:"base" default:"hex" description:"Encode/Decode base. Either hex or base64"`
-	Prefix     string `short:"p" long:"prefix" default:"" description:"Optional url prefix used by encode output"`
-	Positional struct {
-		Url string `positional-arg-name:"URL"`
-	} `positional-args:"yes" required:"true"`
+type EncodeCmd struct {
+	Base   string `name:"base" short:"b" enum:"hex,base64" default:"hex" help:"Encode/Decode base. One of: ${enum}"`
+	Prefix string `name:"prefix" short:"p" default:"" help:"Optional url prefix used by encode output"`
+	Url    string `arg:"" name:"URL" help:"URL to encode"`
 }
 
 // Execute runs the encode command
-func (c *EncodeCommand) Execute(args []string) error {
-	if opts.HmacKey == "" {
+func (cmd *EncodeCmd) Run(cli *CLI) error {
+	if cli.HmacKey == "" {
 		return errors.New("empty HMAC")
 	}
 
-	if len(c.Positional.Url) == 0 {
+	if len(cmd.Url) == 0 {
 		return errors.New("no url argument provided")
 	}
 
-	hmacKeyBytes := []byte(opts.HmacKey)
+	hmacKeyBytes := []byte(cli.HmacKey)
 	var outURL string
-	switch c.Base {
+	switch cmd.Base {
 	case "base64":
-		outURL = encoding.B64EncodeURL(hmacKeyBytes, c.Positional.Url)
+		outURL = encoding.B64EncodeURL(hmacKeyBytes, cmd.Url)
 	case "hex":
-		outURL = encoding.HexEncodeURL(hmacKeyBytes, c.Positional.Url)
+		outURL = encoding.HexEncodeURL(hmacKeyBytes, cmd.Url)
 	default:
 		return errors.New("invalid base provided")
 	}
-	fmt.Println(strings.TrimRight(c.Prefix, "/") + outURL)
+	fmt.Println(strings.TrimRight(cmd.Prefix, "/") + outURL)
 	return nil
 }
 
 // DecodeCommand holds command options for the decode command
-type DecodeCommand struct {
-	Positional struct {
-		Url string `positional-arg-name:"URL"`
-	} `positional-args:"yes" required:"true"`
+type DecodeCmd struct {
+	Url string `arg:"" name:"URL" help:"URL to decode"`
 }
 
 // Execute runs the decode command
-func (c *DecodeCommand) Execute(args []string) error {
-	if opts.HmacKey == "" {
+func (cmd *DecodeCmd) Run(cli *CLI) error {
+	if cli.HmacKey == "" {
 		return errors.New("empty HMAC")
 	}
 
-	if len(c.Positional.Url) == 0 {
+	if len(cmd.Url) == 0 {
 		return errors.New("no url argument provided")
 	}
 
-	hmacKeyBytes := []byte(opts.HmacKey)
+	hmacKeyBytes := []byte(cli.HmacKey)
 
-	u, err := url.Parse(c.Positional.Url)
+	u, err := url.Parse(cmd.Url)
 	if err != nil {
 		return err
 	}
@@ -82,26 +77,25 @@ func (c *DecodeCommand) Execute(args []string) error {
 	return nil
 }
 
-var opts struct {
-	HmacKey string `short:"k" long:"key" description:"HMAC key"`
+type CLI struct {
+	// global options
+	Version kong.VersionFlag `name:"version" short:"V" help:"Print version information and quit"`
+	HmacKey string           `name:"key" short:"k" help:"HMAC key"`
+
+	// subcommands
+	Encode EncodeCmd `cmd:"" aliases:"enc" help:"Encode a url and print result"`
+	Decode DecodeCmd `cmd:"" aliases:"dec" help:"Decode a url and print result"`
 }
 
 // #nosec G104
 func main() {
-	parser := flags.NewParser(&opts, flags.Default)
-	parser.AddCommand("encode", "Encode a url and print result",
-		"Encode a url and print result", &EncodeCommand{})
-	parser.AddCommand("decode", "Decode a url and print result",
-		"Decode a url and print result", &DecodeCommand{})
-
-	// parse said flags
-	_, err := parser.Parse()
-	if err != nil {
-		if e, ok := err.(*flags.Error); ok {
-			if e.Type == flags.ErrHelp {
-				os.Exit(0)
-			}
-		}
-		os.Exit(1)
-	}
+	cli := CLI{}
+	ctx := kong.Parse(&cli,
+		kong.Name("url-tool"),
+		kong.Description("A simple way to work with signed go-camo URLs from the command line"),
+		kong.UsageOnError(),
+		kong.Vars{"version": "2.4.7"},
+	)
+	err := ctx.Run(&cli)
+	ctx.FatalIfErrorf(err)
 }
