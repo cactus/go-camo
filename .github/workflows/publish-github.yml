@@ -1,0 +1,62 @@
+name: publish-docker
+on:
+  workflow_dispatch:
+  push:
+    tags:
+     - 'v*'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    name: docker-publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Src Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21.x'
+          check-latest: true
+        id: go
+
+      - name: Tests
+        if: success()
+        env:
+          GOPROXY: "https://proxy.golang.org"
+        run: make test
+
+      - name: Build
+        if: success()
+        env:
+          GOPROXY: "https://proxy.golang.org"
+        run: make build
+
+      - name: Build Container
+        if: success()
+        run: |
+          TAG=$(git describe --tags)
+          docker build -f examples/Dockerfile -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${TAG} .
+
+      - name: Publish Container
+        if: success()
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        run: |
+          TAG=$(git describe --tags)
+          LATEST_TAG=$(git tag -l | grep -viE '(alpha|beta)' | sort -V | tail -n 1)
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${TAG}
+          if [[ "$TAG" = "$LATEST_TAG" ]]; then
+              docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${TAG} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+              docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          fi
+          docker logout
