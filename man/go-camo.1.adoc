@@ -89,6 +89,9 @@ See __<<ADD_HEADERS>>__ for more info.
     Path to ssl certificate. +
     Default: `cert.pem`
 
+*--quic*::
+    Enable http3/quic. Binds to the same port number as _--ssl-listen_ but udp+quic.
+
 *--max-size*=<__SIZE__>::
     Max response size allowed in KB. Set to `0` to disable size restriction. +
     Default: `0`

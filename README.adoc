@@ -282,42 +282,43 @@ More generally, it is recommended to either:
 [source,text]
 ----
 $ go-camo -h
-Usage:
-  go-camo [OPTIONS]
+Usage: go-camo
 
-Application Options:
-  -k, --key=                   HMAC key
-  -H, --header=                Add additional header to each response. This option can
-                               be used multiple times to add multiple headers
-      --listen=                Address:Port to bind to for HTTP (default: 0.0.0.0:8080)
-      --ssl-listen=            Address:Port to bind to for HTTPS/SSL/TLS
-      --socket-listen=         Path for unix domain socket to bind to for HTTP
-      --ssl-key=               ssl private key (key.pem) path
-      --ssl-cert=              ssl cert (cert.pem) path
-      --max-size=              Max allowed response size (KB)
-      --timeout=               Upstream request timeout (default: 4s)
-      --max-redirects=         Maximum number of redirects to follow (default: 3)
-      --metrics                Enable Prometheus compatible metrics endpoint
-      --no-debug-vars          Disable the /debug/vars/ metrics endpoint. This
-                               option has no effects when the metrics are not enabled
-      --no-log-ts              Do not add a timestamp to logging
-      --log-json               Log in JSON format
-      --no-fk                  Disable frontend http keep-alive support
-      --no-bk                  Disable backend http keep-alive support
-      --allow-content-video    Additionally allow 'video/*' content
-      --allow-content-audio    Additionally allow 'audio/*' content
-      --allow-credential-urls  Allow URLs to contain user/pass credentials
-      --filter-ruleset=        Text file containing filtering rules (one per line)
-      --server-name=           Value to use for the HTTP server field (default: go-camo)
-      --expose-server-version  Include the server version in the HTTP server response
-                               header
-      --enable-xfwd4           Enable x-forwarded-for passthrough/generation
-  -v, --verbose                Show verbose (debug) log level output
-  -V, --version                Print version and exit; specify twice to show license
-                               information
+An image proxy that proxies non-secure images over SSL/TLS
 
-Help Options:
-  -h, --help                   Show this help message
+Flags:
+  -h, --help                     Show context-sensitive help.
+  -k, --key=STRING               HMAC key
+  -H, --header=HEADER,...        Add additional header to each response. This option can
+                                 be used multiple times to add multiple headers.
+      --listen="0.0.0.0:8080"    Address:Port to bind to for HTTP
+      --ssl-listen=STRING        Address:Port to bind to for HTTPS/SSL/TLS
+      --socket-listen=STRING     Path for unix domain socket to bind to for HTTP
+      --quic                     Enable http3/quic. Binds to the same port number as
+                                 ssl-listen but udp+quic.
+      --ssl-key=STRING           ssl private key (key.pem) path
+      --ssl-cert=STRING          ssl cert (cert.pem) path
+      --max-size=INT-64          Max allowed response size (KB)
+      --timeout=4s               Upstream request timeout
+      --max-redirects=3          Maximum number of redirects to follow
+      --metrics                  Enable Prometheus compatible metrics endpoint
+      --no-debug-vars            Disable the /debug/vars/ metrics endpoint. This option has
+                                 no effects when the metrics are not enabled.
+      --no-log-ts                Do not add a timestamp to logging
+      --log-json                 Log in JSON format
+      --no-fk                    Disable frontend http keep-alive support
+      --no-bk                    Disable backend http keep-alive support
+      --allow-content-video      Additionally allow 'video/*' content
+      --allow-content-audio      Additionally allow 'audio/*' content
+      --allow-credential-urls    Allow urls to contain user/pass credentials
+      --filter-ruleset=STRING    Text file containing filtering rules (one per line)
+      --server-name="go-camo"    Value to use for the HTTP server field
+      --expose-server-version    Include the server version in the HTTP server response
+                                 header
+      --enable-xfwd4             Enable x-forwarded-for passthrough/generation
+  -v, --verbose                  Show verbose (debug) log level output
+  -V, --version                  Print version and exit; specify twice to show
+                                 license information.
 ----
 
 A few notes about specific flags:
@@ -403,7 +404,7 @@ by default, you could add this to the command line:
 
 [source,text]
 ----
--H "Strict-Transport-Security:  max-age=16070400"
+-H "Strict-Transport-Security: max-age=16070400"
 ----
 --
 
