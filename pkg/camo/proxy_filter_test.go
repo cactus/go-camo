@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2019 Eli Janssen
+// Copyright (c) 2012-2023 Eli Janssen
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
@@ -60,7 +60,7 @@ func TestFilterListMatrixMultiples(t *testing.T) {
 		err error
 	}
 
-	var mixtests = []struct {
+	mixtests := []struct {
 		filterRuleAnswers  []chkResponse
 		expectedCallMatrix []bool
 		respcode           int
@@ -141,7 +141,6 @@ func TestFilterListMatrixMultiples(t *testing.T) {
 				"filter func called='%t' wanted '%t'",
 				callMatrix[i], tt.expectedCallMatrix[i],
 			))
-
 		}
 	}
 }

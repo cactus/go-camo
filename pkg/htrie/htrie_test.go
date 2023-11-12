@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2019 Eli Janssen
+// Copyright (c) 2012-2023 Eli Janssen
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
@@ -54,7 +54,7 @@ func TestHTrieCheckURL(t *testing.T) {
 		assert.Check(t, err)
 	}
 
-	//fmt.Println(dt.RenderTree())
+	// fmt.Println(dt.RenderTree())
 
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)
@@ -113,7 +113,7 @@ func TestHTrieCheckHostname(t *testing.T) {
 		}
 	}
 
-	//fmt.Println(dt.RenderTree())
+	// fmt.Println(dt.RenderTree())
 
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)

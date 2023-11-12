@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2019 Eli Janssen
+// Copyright (c) 2012-2023 Eli Janssen
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
@@ -22,14 +22,18 @@ type enctesto struct {
 
 var enctests = []enctesto{
 	// hex
-	{HexEncodeURL, "test", "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3",
+	{
+		HexEncodeURL, "test", "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3",
 		"687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67",
-		"http://golang.org/doc/gopher/frontpage.png"},
+		"http://golang.org/doc/gopher/frontpage.png",
+	},
 
 	// base64
-	{B64EncodeURL, "test", "D23vHLFHsOhPOcvdxeoQyAJTpvM",
+	{
+		B64EncodeURL, "test", "D23vHLFHsOhPOcvdxeoQyAJTpvM",
 		"aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n",
-		"http://golang.org/doc/gopher/frontpage.png"},
+		"http://golang.org/doc/gopher/frontpage.png",
+	},
 }
 
 func TestEncoder(t *testing.T) {
@@ -52,14 +56,18 @@ type dectesto struct {
 
 var dectests = []dectesto{
 	// hex
-	{HexDecodeURL, "test", "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3",
+	{
+		HexDecodeURL, "test", "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3",
 		"687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67",
-		"http://golang.org/doc/gopher/frontpage.png"},
+		"http://golang.org/doc/gopher/frontpage.png",
+	},
 
 	// base64
-	{B64DecodeURL, "test", "D23vHLFHsOhPOcvdxeoQyAJTpvM",
+	{
+		B64DecodeURL, "test", "D23vHLFHsOhPOcvdxeoQyAJTpvM",
 		"aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n",
-		"http://golang.org/doc/gopher/frontpage.png"},
+		"http://golang.org/doc/gopher/frontpage.png",
+	},
 }
 
 func TestDecoder(t *testing.T) {
@@ -116,27 +124,39 @@ func BenchmarkGuessingDecoderB64(b *testing.B) {
 
 var baddectests = []dectesto{
 	// hex
-	{HexDecodeURL, "test", "000",
-		"687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67", ""},
-	{HexDecodeURL, "test", "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3",
-		"000000000000000000000000000000000000000000000000000000000000000000000000000000000000", ""},
+	{
+		HexDecodeURL, "test", "000",
+		"687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67", "",
+	},
+	{
+		HexDecodeURL, "test", "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3",
+		"000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "",
+	},
 
 	// base64
-	{B64DecodeURL, "test", "000",
-		"aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n", ""},
-	{B64DecodeURL, "test", "D23vHLFHsOhPOcvdxeoQyAJTpvM",
-		"00000000000000000000000000000000000000000000000000000000", ""},
+	{
+		B64DecodeURL, "test", "000",
+		"aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n", "",
+	},
+	{
+		B64DecodeURL, "test", "D23vHLFHsOhPOcvdxeoQyAJTpvM",
+		"00000000000000000000000000000000000000000000000000000000", "",
+	},
 
 	// mixmatch
 	// hex
-	{HexDecodeURL, "test", "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3",
+	{
+		HexDecodeURL, "test", "0f6def1cb147b0e84f39cbddc5ea10c80253a6f3",
 		"aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n",
-		"http://golang.org/doc/gopher/frontpage.png"},
+		"http://golang.org/doc/gopher/frontpage.png",
+	},
 
 	// base64
-	{B64DecodeURL, "test", "D23vHLFHsOhPOcvdxeoQyAJTpvM",
+	{
+		B64DecodeURL, "test", "D23vHLFHsOhPOcvdxeoQyAJTpvM",
 		"687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67",
-		"http://golang.org/doc/gopher/frontpage.png"},
+		"http://golang.org/doc/gopher/frontpage.png",
+	},
 }
 
 func TestBadDecodes(t *testing.T) {

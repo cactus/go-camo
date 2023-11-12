@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2019 Eli Janssen
+// Copyright (c) 2012-2023 Eli Janssen
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
@@ -40,7 +40,6 @@ func TestTimeout(t *testing.T) {
 		r.Close = true
 		_, err := w.Write([]byte("ok"))
 		assert.Check(t, err)
-
 	}))
 	defer ts.Close()
 
@@ -132,7 +131,7 @@ func TestClientCancelEarly(t *testing.T) {
 	assert.Check(t, err)
 	conn.Close()
 	time.Sleep(100 * time.Millisecond)
-	//fmt.Printf("done\n")
+	// fmt.Printf("done\n")
 }
 
 func TestClientCancelLate(t *testing.T) {
@@ -210,7 +209,7 @@ func TestClientCancelLate(t *testing.T) {
 		}
 	}
 	conn.Close()
-	//fmt.Printf("done\n")
+	// fmt.Printf("done\n")
 }
 
 func TestServerEarlyEOF(t *testing.T) {

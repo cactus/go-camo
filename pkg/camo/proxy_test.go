@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2019 Eli Janssen
+// Copyright (c) 2012-2023 Eli Janssen
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
@@ -221,7 +221,7 @@ func TestVideoContentTypeAllowed(t *testing.T) {
 	// bump limit, try again (should succeed)
 	camoConfigWithVideo.MaxSize = 5000 * 1024
 	_, err = makeTestReq(testURL, 200, camoConfigWithVideo)
-	//fmt.Println(err)
+	// fmt.Println(err)
 	assert.Check(t, err)
 }
 

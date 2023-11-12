@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2019 Eli Janssen
+// Copyright (c) 2012-2023 Eli Janssen
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
@@ -53,7 +53,7 @@ func TestGlobPathChecker(t *testing.T) {
 		assert.Check(t, err)
 	}
 
-	//fmt.Println(gpc.RenderTree())
+	// fmt.Println(gpc.RenderTree())
 
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)
@@ -105,7 +105,7 @@ func TestGlobPathCheckerPathsMisc(t *testing.T) {
 		assert.Check(t, err)
 	}
 
-	//fmt.Println(gpc.RenderTree())
+	// fmt.Println(gpc.RenderTree())
 
 	for _, u := range testMatch {
 		assert.Check(t, gpc.CheckPath(u), fmt.Sprintf("should have matched: %s", u))
@@ -148,9 +148,7 @@ func BenchmarkGlobPathChecker(b *testing.B) {
 		assert.Check(b, err)
 	}
 
-	var (
-		testIters = 10000
-	)
+	testIters := 10000
 
 	// avoid inlining optimization
 	var x bool
