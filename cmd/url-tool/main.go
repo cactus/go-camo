@@ -16,6 +16,9 @@ import (
 	"github.com/alecthomas/kong"
 )
 
+// ServerVersion holds the server version string
+var ServerVersion = "no-version"
+
 // EncodeCommand holds command options for the encode command
 type EncodeCmd struct {
 	Base   string `name:"base" short:"b" enum:"hex,base64" default:"hex" help:"Encode/Decode base. One of: ${enum}"`
@@ -94,7 +97,7 @@ func main() {
 		kong.Name("url-tool"),
 		kong.Description("A simple way to work with signed go-camo URLs from the command line"),
 		kong.UsageOnError(),
-		kong.Vars{"version": "2.4.7"},
+		kong.Vars{"version": ServerVersion},
 	)
 	err := ctx.Run(&cli)
 	ctx.FatalIfErrorf(err)

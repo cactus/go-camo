@@ -3,8 +3,8 @@ module github.com/cactus/go-camo/v2
 go 1.19
 
 require (
+	github.com/alecthomas/kong v0.8.1
 	github.com/cactus/mlog v1.0.10
-	github.com/jessevdk/go-flags v1.5.0
 	github.com/prometheus/client_golang v1.17.0
 	github.com/prometheus/common v0.45.0
 	github.com/quic-go/quic-go v0.40.0
@@ -14,7 +14,6 @@ require (
 )
 
 require (
-	github.com/alecthomas/kong v0.8.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cactus/tai64 v1.0.2 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect

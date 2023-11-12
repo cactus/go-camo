@@ -20,12 +20,12 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/alecthomas/kong"
 	"github.com/cactus/go-camo/v2/pkg/camo"
 	"github.com/cactus/go-camo/v2/pkg/htrie"
 	"github.com/cactus/go-camo/v2/pkg/router"
 	"github.com/cactus/mlog"
 
-	flags "github.com/jessevdk/go-flags"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -148,63 +148,51 @@ func loadFilterList(fname string) ([]camo.FilterFunc, error) {
 	return filterFuncs, nil
 }
 
-func main() {
-	// command line flags
-	var opts struct {
-		HMACKey             string        `short:"k" long:"key" description:"HMAC key"`
-		AddHeaders          []string      `short:"H" long:"header" description:"Add additional header to each response. This option can be used multiple times to add multiple headers"`
-		BindAddress         string        `long:"listen" default:"0.0.0.0:8080" description:"Address:Port to bind to for HTTP"`
-		BindAddressSSL      string        `long:"ssl-listen" description:"Address:Port to bind to for HTTPS/SSL/TLS"`
-		BindSocket          string        `long:"socket-listen" description:"Path for unix domain socket to bind to for HTTP"`
-		EnableQuic          bool          `long:"quic" description:"Enable http3/quic. Binds to the same port number as ssl-listen but udp+quic."`
-		SSLKey              string        `long:"ssl-key" description:"ssl private key (key.pem) path"`
-		SSLCert             string        `long:"ssl-cert" description:"ssl cert (cert.pem) path"`
-		MaxSize             int64         `long:"max-size" description:"Max allowed response size (KB)"`
-		ReqTimeout          time.Duration `long:"timeout" default:"4s" description:"Upstream request timeout"`
-		MaxRedirects        int           `long:"max-redirects" default:"3" description:"Maximum number of redirects to follow"`
-		Metrics             bool          `long:"metrics" description:"Enable Prometheus compatible metrics endpoint"`
-		NoDebugVars         bool          `long:"no-debug-vars" description:"Disable the /debug/vars/ metrics endpoint. This option has no effects when the metrics are not enabled"`
-		NoLogTS             bool          `long:"no-log-ts" description:"Do not add a timestamp to logging"`
-		LogJson             bool          `long:"log-json" description:"Log in JSON format"`
-		DisableKeepAlivesFE bool          `long:"no-fk" description:"Disable frontend http keep-alive support"`
-		DisableKeepAlivesBE bool          `long:"no-bk" description:"Disable backend http keep-alive support"`
-		AllowContentVideo   bool          `long:"allow-content-video" description:"Additionally allow 'video/*' content"`
-		AllowContentAudio   bool          `long:"allow-content-audio" description:"Additionally allow 'audio/*' content"`
-		AllowCredentialURLs bool          `long:"allow-credential-urls" description:"Allow urls to contain user/pass credentials"`
-		FilterRuleset       string        `long:"filter-ruleset" description:"Text file containing filtering rules (one per line)"`
-		ServerName          string        `long:"server-name" default:"go-camo" description:"Value to use for the HTTP server field"`
-		ExposeServerVersion bool          `long:"expose-server-version" description:"Include the server version in the HTTP server response header"`
-		EnableXFwdFor       bool          `long:"enable-xfwd4" description:"Enable x-forwarded-for passthrough/generation"`
-		Verbose             bool          `short:"v" long:"verbose" description:"Show verbose (debug) log level output"`
-		Version             []bool        `short:"V" long:"version" description:"Print version and exit; specify twice to show license information"`
-	}
+type CLI struct {
+	HMACKey             string        `name:"key" short:"k" help:"HMAC key"`
+	AddHeaders          []string      `name:"header" short:"H" help:"Add additional header to each response. This option can be used multiple times to add multiple headers."`
+	BindAddress         string        `name:"listen" default:"0.0.0.0:8080" help:"Address:Port to bind to for HTTP"`
+	BindAddressSSL      string        `name:"ssl-listen" help:"Address:Port to bind to for HTTPS/SSL/TLS"`
+	BindSocket          string        `name:"socket-listen" help:"Path for unix domain socket to bind to for HTTP"`
+	EnableQuic          bool          `name:"quic" help:"Enable http3/quic. Binds to the same port number as ssl-listen but udp+quic."`
+	SSLKey              string        `name:"ssl-key" help:"ssl private key (key.pem) path"`
+	SSLCert             string        `name:"ssl-cert" help:"ssl cert (cert.pem) path"`
+	MaxSize             int64         `name:"max-size" help:"Max allowed response size (KB)"`
+	ReqTimeout          time.Duration `name:"timeout" default:"4s" help:"Upstream request timeout"`
+	MaxRedirects        int           `name:"max-redirects" default:"3" help:"Maximum number of redirects to follow"`
+	Metrics             bool          `name:"metrics" help:"Enable Prometheus compatible metrics endpoint"`
+	NoDebugVars         bool          `name:"no-debug-vars" help:"Disable the /debug/vars/ metrics endpoint. This option has no effects when the metrics are not enabled."`
+	NoLogTS             bool          `name:"no-log-ts" help:"Do not add a timestamp to logging"`
+	LogJson             bool          `name:"log-json" help:"Log in JSON format"`
+	DisableKeepAlivesFE bool          `name:"no-fk" help:"Disable frontend http keep-alive support"`
+	DisableKeepAlivesBE bool          `name:"no-bk" help:"Disable backend http keep-alive support"`
+	AllowContentVideo   bool          `name:"allow-content-video" help:"Additionally allow 'video/*' content"`
+	AllowContentAudio   bool          `name:"allow-content-audio" help:"Additionally allow 'audio/*' content"`
+	AllowCredentialURLs bool          `name:"allow-credential-urls" help:"Allow urls to contain user/pass credentials"`
+	FilterRuleset       string        `name:"filter-ruleset" help:"Text file containing filtering rules (one per line)"`
+	ServerName          string        `name:"server-name" default:"go-camo" help:"Value to use for the HTTP server field"`
+	ExposeServerVersion bool          `name:"expose-server-version" help:"Include the server version in the HTTP server response header"`
+	EnableXFwdFor       bool          `name:"enable-xfwd4" help:"Enable x-forwarded-for passthrough/generation"`
+	Verbose             bool          `name:"verbose" short:"v" help:"Show verbose (debug) log level output"`
+	Version             int           `name:"version" short:"V" type:"counter" help:"Print version and exit; specify twice to show license information."`
+}
 
-	// parse said flags
-	_, err := flags.Parse(&opts)
-	if err != nil {
-		if e, ok := err.(*flags.Error); ok {
-			if e.Type == flags.ErrHelp {
-				os.Exit(0)
-			}
-		}
-		os.Exit(1)
-	}
-
+func (cli *CLI) Run() {
 	// set the server name
-	ServerName := opts.ServerName
+	ServerName := cli.ServerName
 
 	// setup the server response field
-	ServerResponse := opts.ServerName
+	ServerResponse := cli.ServerName
 
 	// expand/override server response value if showing version is desired
-	if opts.ExposeServerVersion {
+	if cli.ExposeServerVersion {
 		ServerResponse = fmt.Sprintf("%s %s", ServerName, ServerVersion)
 	}
 
 	// setup -V version output
-	if len(opts.Version) > 0 {
+	if cli.Version > 0 {
 		fmt.Printf("%s %s (%s,%s-%s)\n", "go-camo", ServerVersion, runtime.Version(), runtime.Compiler, runtime.GOARCH)
-		if len(opts.Version) > 1 {
+		if cli.Version > 1 {
 			fmt.Printf("\n%s\n", strings.TrimSpace(licenseText))
 		}
 		os.Exit(0)
@@ -220,43 +208,44 @@ func main() {
 	}
 
 	// flags override env var
-	if opts.HMACKey != "" {
-		config.HMACKey = []byte(opts.HMACKey)
+	if cli.HMACKey != "" {
+		config.HMACKey = []byte(cli.HMACKey)
 	}
 
 	if len(config.HMACKey) == 0 {
 		mlog.Fatal("HMAC key required")
 	}
 
-	if opts.BindAddress == "" && opts.BindAddressSSL == "" && opts.BindSocket == "" {
+	if cli.BindAddress == "" && cli.BindAddressSSL == "" && cli.BindSocket == "" {
 		mlog.Fatal("One of listen or ssl-listen required")
 	}
 
-	if opts.BindAddressSSL != "" && opts.SSLKey == "" {
+	if cli.BindAddressSSL != "" && cli.SSLKey == "" {
 		mlog.Fatal("ssl-key is required when specifying ssl-listen")
 	}
-	if opts.BindAddressSSL != "" && opts.SSLCert == "" {
+	if cli.BindAddressSSL != "" && cli.SSLCert == "" {
 		mlog.Fatal("ssl-cert is required when specifying ssl-listen")
 	}
-	if opts.EnableQuic && opts.BindAddressSSL == "" {
+	if cli.EnableQuic && cli.BindAddressSSL == "" {
 		mlog.Fatal("ssl-listen is required when specifying quic")
 	}
 
 	// set keepalive options
-	config.DisableKeepAlivesBE = opts.DisableKeepAlivesBE
-	config.DisableKeepAlivesFE = opts.DisableKeepAlivesFE
+	config.DisableKeepAlivesBE = cli.DisableKeepAlivesBE
+	config.DisableKeepAlivesFE = cli.DisableKeepAlivesFE
 
 	// other options
-	config.EnableXFwdFor = opts.EnableXFwdFor
-	config.AllowCredentialURLs = opts.AllowCredentialURLs
+	config.EnableXFwdFor = cli.EnableXFwdFor
+	config.AllowCredentialURLs = cli.AllowCredentialURLs
 
 	// additional content types to allow
-	config.AllowContentVideo = opts.AllowContentVideo
-	config.AllowContentAudio = opts.AllowContentAudio
+	config.AllowContentVideo = cli.AllowContentVideo
+	config.AllowContentAudio = cli.AllowContentAudio
 
 	var filters []camo.FilterFunc
-	if opts.FilterRuleset != "" {
-		filters, err = loadFilterList(opts.FilterRuleset)
+	if cli.FilterRuleset != "" {
+		var err error
+		filters, err = loadFilterList(cli.FilterRuleset)
 		if err != nil {
 			mlog.Fatal("Could not read filter-ruleset", err)
 		}
@@ -269,7 +258,8 @@ func main() {
 		"Content-Security-Policy": "default-src 'none'; img-src data:; style-src 'unsafe-inline'",
 	}
 
-	for _, v := range opts.AddHeaders {
+	for _, v := range cli.AddHeaders {
+		fmt.Println(v)
 		s := strings.SplitN(v, ":", 2)
 		if len(s) != 2 {
 			mlog.Printf("ignoring bad header: '%s'", v)
@@ -288,27 +278,27 @@ func main() {
 
 	// now configure a standard logger
 	mlog.SetFlags(mlog.Lstd)
-	if opts.NoLogTS {
+	if cli.NoLogTS {
 		mlog.SetFlags(mlog.Flags() ^ mlog.Ltimestamp)
 	}
 
-	if opts.Verbose {
+	if cli.Verbose {
 		mlog.SetFlags(mlog.Flags() | mlog.Ldebug)
 		mlog.Debug("debug logging enabled")
 	}
 
-	if opts.LogJson {
+	if cli.LogJson {
 		mlog.SetEmitter(&mlog.FormatWriterJSON{})
 	}
 
 	// convert from KB to Bytes
-	config.MaxSize = opts.MaxSize * 1024
-	config.RequestTimeout = opts.ReqTimeout
-	config.MaxRedirects = opts.MaxRedirects
+	config.MaxSize = cli.MaxSize * 1024
+	config.RequestTimeout = cli.ReqTimeout
+	config.MaxRedirects = cli.MaxRedirects
 	config.ServerName = ServerName
 
 	// configure metrics collection in camo
-	if opts.Metrics {
+	if cli.Metrics {
 		config.CollectMetrics = true
 	}
 
@@ -326,7 +316,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	// configure router endpoint for rendering metrics
-	if opts.Metrics {
+	if cli.Metrics {
 		mlog.Printf("Enabling metrics at /metrics")
 		// Register a version info metric.
 		verOverride := os.Getenv("APP_INFO_VERSION")
@@ -349,7 +339,7 @@ func main() {
 		// exvar, as it auto-adds it to the default servemux. Since we want
 		// to avoid it being available that when metrics is not enabled, we add
 		// it in manually only if metrics IS enabled.
-		if !opts.NoDebugVars {
+		if !cli.NoDebugVars {
 			mux.Handle("/debug/vars", expvar.Handler())
 		}
 		mux.Handle("/metrics", promhttp.Handler())
@@ -361,24 +351,24 @@ func main() {
 	var tlsSrv *http.Server
 	var quicSrv *http3.Server
 
-	if opts.BindAddress != "" {
+	if cli.BindAddress != "" {
 		httpSrv = &http.Server{
-			Addr:        opts.BindAddress,
+			Addr:        cli.BindAddress,
 			ReadTimeout: 30 * time.Second,
 			Handler:     mux,
 		}
 	}
 
-	if opts.BindAddressSSL != "" {
+	if cli.BindAddressSSL != "" {
 		tlsSrv = &http.Server{
-			Addr:        opts.BindAddressSSL,
+			Addr:        cli.BindAddressSSL,
 			ReadTimeout: 30 * time.Second,
 			Handler:     mux,
 		}
 
-		if opts.EnableQuic {
+		if cli.EnableQuic {
 			quicSrv = &http3.Server{
-				Addr:    opts.BindAddressSSL,
+				Addr:    cli.BindAddressSSL,
 				Handler: mux,
 			}
 			// wrap default mux to set some default quic reference headers on tls responses
@@ -428,14 +418,14 @@ func main() {
 		close(idleConnsClosed)
 	}()
 
-	if opts.BindSocket != "" {
-		if _, err := os.Stat(opts.BindSocket); err == nil {
+	if cli.BindSocket != "" {
+		if _, err := os.Stat(cli.BindSocket); err == nil {
 			mlog.Fatal("Cannot bind to unix socket, file aready exists.")
 		}
 
-		mlog.Printf("Starting HTTP server on: unix:%s", opts.BindSocket)
+		mlog.Printf("Starting HTTP server on: unix:%s", cli.BindSocket)
 		go func() {
-			ln, err := net.Listen("unix", opts.BindSocket)
+			ln, err := net.Listen("unix", cli.BindSocket)
 			if err != nil {
 				mlog.Fatal("Error listening on unix socket", err)
 			}
@@ -447,7 +437,7 @@ func main() {
 	}
 
 	if httpSrv != nil {
-		mlog.Printf("Starting HTTP server on: tcp:%s", opts.BindAddress)
+		mlog.Printf("Starting HTTP server on: tcp:%s", cli.BindAddress)
 		go func() {
 			if err := httpSrv.ListenAndServe(); err != http.ErrServerClosed {
 				mlog.Fatal(err)
@@ -456,18 +446,18 @@ func main() {
 	}
 
 	if tlsSrv != nil {
-		mlog.Printf("Starting HTTP/TLS server on: tcp:%s", opts.BindAddressSSL)
+		mlog.Printf("Starting HTTP/TLS server on: tcp:%s", cli.BindAddressSSL)
 		go func() {
-			if err := tlsSrv.ListenAndServeTLS(opts.SSLCert, opts.SSLKey); err != http.ErrServerClosed {
+			if err := tlsSrv.ListenAndServeTLS(cli.SSLCert, cli.SSLKey); err != http.ErrServerClosed {
 				mlog.Fatal(err)
 			}
 		}()
 	}
 
 	if quicSrv != nil {
-		mlog.Printf("Starting HTTP3/QUIC server on: udp:%s", opts.BindAddressSSL)
+		mlog.Printf("Starting HTTP3/QUIC server on: udp:%s", cli.BindAddressSSL)
 		go func() {
-			if err := quicSrv.ListenAndServeTLS(opts.SSLCert, opts.SSLKey); err != http.ErrServerClosed {
+			if err := quicSrv.ListenAndServeTLS(cli.SSLCert, cli.SSLKey); err != http.ErrServerClosed {
 				mlog.Fatal(err)
 			}
 		}()
@@ -475,4 +465,15 @@ func main() {
 
 	// just block waiting for closure
 	<-idleConnsClosed
+}
+
+func main() {
+	cli := CLI{}
+	_ = kong.Parse(&cli,
+		kong.Name("go-camo"),
+		kong.Description("An image proxy that proxies non-secure images over SSL/TLS"),
+		kong.UsageOnError(),
+		kong.Vars{"version": ServerVersion},
+	)
+	cli.Run()
 }
