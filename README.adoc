@@ -24,7 +24,8 @@ endif::[]
 :link-heroku-buildpack-go: https://github.com/kr/heroku-buildpack-go
 :link-dns-rebinding: https://en.wikipedia.org/wiki/DNS_rebinding[dns rebinding]
 :link-ip6-special-addresses: https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
-:link-containers: https://hub.docker.com/r/cactus4docker/go-camo[containers]
+:link-docker-containers: https://hub.docker.com/r/cactus4docker/go-camo[docker hub]
+:link-github-containers: https://github.com/cactus/go-camo/pkgs/container/go-camo[github packages]
 :link-releases: https://github.com/cactus/go-camo/releases[binary releases]
 :link-mit-license: https://www.opensource.org/licenses/mit-license.php[MIT license]
 :link-mrsaints: https://github.com/MrSaints[MrSaints]
@@ -532,7 +533,7 @@ http://golang.org/doc/gopher/frontpage.png
 
 == Containers
 
-There are {link-containers} built automatically from version tags.
+There are containers built automatically from version tags, pushed to both {link-docker-containers} and {link-github-containers}.
 
 These containers are untested and provided only for those
 with specific containerization requirements.
