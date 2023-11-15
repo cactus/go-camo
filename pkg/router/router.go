@@ -11,9 +11,9 @@ import (
 
 // DumbRouter is a basic, special purpose, http router
 type DumbRouter struct {
-	ServerName  string
 	CamoHandler http.Handler
 	AddHeaders  map[string]string
+	ServerName  string
 }
 
 // SetHeaders sets the headers on the response

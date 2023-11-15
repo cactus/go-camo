@@ -30,10 +30,10 @@ import (
 
 // Config holds configuration data used when creating a Proxy with New.
 type Config struct {
-	// HMACKey is a byte slice to be used as the hmac key
-	HMACKey []byte
 	// Server name used in Headers and Via checks
 	ServerName string
+	// HMACKey is a byte slice to be used as the hmac key
+	HMACKey []byte
 	// MaxSize is the maximum valid image size response (in bytes).
 	MaxSize int64
 	// MaxRedirects is the maximum number of redirects to follow.

@@ -15,10 +15,10 @@ import (
 )
 
 type innerUpstreamProxyConfig struct {
-	addresses []net.IP
 	scheme    string
 	host      string
 	port      string
+	addresses []net.IP
 }
 
 func (ic *innerUpstreamProxyConfig) matchesIP(ip net.IP, port string) bool {
