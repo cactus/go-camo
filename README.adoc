@@ -297,6 +297,8 @@ Flags:
       --socket-listen=STRING     Path for unix domain socket to bind to for HTTP
       --quic                     Enable http3/quic. Binds to the same port number as
                                  ssl-listen but udp+quic.
+      --automaxprocs             Set GOMAXPROCS automatically to match Linux container CPU
+                                 quota/limits.
       --ssl-key=STRING           ssl private key (key.pem) path
       --ssl-cert=STRING          ssl cert (cert.pem) path
       --max-size=INT-64          Max allowed response size (KB)

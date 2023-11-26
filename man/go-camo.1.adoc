@@ -92,6 +92,9 @@ See __<<ADD_HEADERS>>__ for more info.
 *--quic*::
     Enable http3/quic. Binds to the same port number as _--ssl-listen_ but udp+quic.
 
+*--automaxprocs*::
+    Set GOMAXPROCS automatically to match Linux container CPU quota/limits.
+
 *--max-size*=<__SIZE__>::
     Max response size allowed in KB. Set to `0` to disable size restriction. +
     Default: `0`

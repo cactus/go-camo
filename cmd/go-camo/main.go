@@ -28,6 +28,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
 	"github.com/quic-go/quic-go/http3"
+	"go.uber.org/automaxprocs/maxprocs"
 )
 
 const metricNamespace = "camo"
@@ -72,6 +73,7 @@ type CLI struct {
 	BindAddressSSL      string        `name:"ssl-listen" help:"Address:Port to bind to for HTTPS/SSL/TLS"`
 	BindSocket          string        `name:"socket-listen" help:"Path for unix domain socket to bind to for HTTP"`
 	EnableQuic          bool          `name:"quic" help:"Enable http3/quic. Binds to the same port number as ssl-listen but udp+quic."`
+	AutoMaxProcs        bool          `name:"automaxprocs" help:"Set GOMAXPROCS automatically to match Linux container CPU quota/limits."`
 	SSLKey              string        `name:"ssl-key" help:"ssl private key (key.pem) path"`
 	SSLCert             string        `name:"ssl-cert" help:"ssl cert (cert.pem) path"`
 	MaxSize             int64         `name:"max-size" help:"Max allowed response size (KB)"`
@@ -202,6 +204,10 @@ func (cli *CLI) Run() {
 	if cli.Verbose {
 		mlog.SetFlags(mlog.Flags() | mlog.Ldebug)
 		mlog.Debug("debug logging enabled")
+	}
+
+	if cli.AutoMaxProcs {
+		maxprocs.Set(maxprocs.Logger(mlog.Infof))
 	}
 
 	if cli.LogJson {
