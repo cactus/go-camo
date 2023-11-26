@@ -207,7 +207,7 @@ func (cli *CLI) Run() {
 	}
 
 	if cli.AutoMaxProcs {
-		maxprocs.Set(maxprocs.Logger(mlog.Infof))
+		maxprocs.Set(maxprocs.Logger(mlog.Infof)) // #nosec G104
 	}
 
 	if cli.LogJson {
