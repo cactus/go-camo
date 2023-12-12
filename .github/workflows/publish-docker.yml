@@ -37,11 +37,17 @@ jobs:
 
       - name: Build Container
         if: success()
+        env:
+          DOCKER_BUILDKIT: 1
         run: |
           TAG=$(git describe --tags)
-          docker build -f examples/Dockerfile -t cactus4docker/go-camo:${TAG} .
-          # also tag as latest?
-          # docker tag cactus4docker/go-camo:${TAG} cactus4docker/go-camo:latest
+          GITHASH="$(git rev-parse HEAD)"
+          docker build \
+            --build-arg GITHASH=${GITHASH} \
+            --build-arg VERSION=${TAG} \
+            -f examples/Dockerfile \
+            -t cactus4docker/go-camo:${TAG} \
+            .
 
       - name: Publish Container
         if: success()

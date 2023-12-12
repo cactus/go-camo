@@ -8,6 +8,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  DOCKER_BUILDKIT: 1
 
 jobs:
   build:
@@ -43,7 +44,13 @@ jobs:
         if: success()
         run: |
           TAG=$(git describe --tags)
-          docker build -f examples/Dockerfile -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${TAG} .
+          GITHASH="$(git rev-parse HEAD)"
+          docker build \
+            --build-arg GITHASH=${GITHASH} \
+            --build-arg VERSION=${TAG} \
+            -f examples/Dockerfile \
+            -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${TAG} \
+            .
 
       - name: Publish Container
         if: success()
