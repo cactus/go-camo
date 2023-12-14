@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"net/http/pprof"
 	"os"
 	"os/signal"
 	"runtime"
@@ -82,6 +83,7 @@ type CLI struct {
 	Metrics             bool          `name:"metrics" help:"Enable Prometheus compatible metrics endpoint"`
 	NoDebugVars         bool          `name:"no-debug-vars" help:"Disable the /debug/vars/ metrics endpoint. This option has no effects when the metrics are not enabled."`
 	NoLogTS             bool          `name:"no-log-ts" help:"Do not add a timestamp to logging"`
+	Profile             bool          `name:"prof" help:"Enable go http profiler endpoint"`
 	LogJson             bool          `name:"log-json" help:"Log in JSON format"`
 	DisableKeepAlivesFE bool          `name:"no-fk" help:"Disable frontend http keep-alive support"`
 	DisableKeepAlivesBE bool          `name:"no-bk" help:"Disable backend http keep-alive support"`
@@ -266,6 +268,15 @@ func (cli *CLI) Run() {
 			mux.Handle("/debug/vars", expvar.Handler())
 		}
 		mux.Handle("/metrics", promhttp.Handler())
+	}
+
+	if cli.Profile {
+		mlog.Printf("Enabling cpu profile at /debug/pprof")
+		mux.HandleFunc("/debug/pprof/", pprof.Index)
+		// mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+		mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
+		// mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+		// mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
 	}
 
 	mux.Handle("/", router)
