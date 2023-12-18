@@ -2,7 +2,7 @@ name: "CodeQL"
 
 on:
   push:
-    branches: ['**']
+    branches: [master]
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [master]
@@ -13,6 +13,9 @@ jobs:
   analyse:
     name: Analyse
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
 
     steps:
     - name: Checkout repository
