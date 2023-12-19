@@ -18,8 +18,11 @@ toc::[]
 :link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
 
 == HEAD
+
+== v2.4.8 2023-12-19
 *   Add `--automaxprocs` flag to set GOMAXPROCS automatically to match Linux
     container CPU quota/limits.
+*   Update library dependencies.
 
 == v2.4.7 - 2023-11-13
 *   Add http3/quic server support. New flag `--quic`. Requires `--ssl-listen`.
