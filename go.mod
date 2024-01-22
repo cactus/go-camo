@@ -2,8 +2,6 @@ module github.com/cactus/go-camo/v2
 
 go 1.21
 
-toolchain go1.21.6
-
 require (
 	github.com/alecthomas/kong v0.8.1
 	github.com/cactus/mlog v1.0.10

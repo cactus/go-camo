@@ -18,6 +18,8 @@ toc::[]
 :link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
 
 == HEAD
+*   Minimum Go version now 1.21 due to quic-go dependency, due to better
+    cryto/tls support for QUIC in Go-1.21.
 
 == v2.4.8 2023-12-19
 *   Add `--automaxprocs` flag to set GOMAXPROCS automatically to match Linux
