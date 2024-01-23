@@ -33,17 +33,20 @@ export GOEXPERIMENT=loopvar
 
 define HELP_OUTPUT
 Available targets:
-  help                this help
+* help                this help (default target)
   clean               clean up
-  all                 build binaries and man pages
   check               run checks and validators
   test                run tests
   cover               run tests with cover output
   bench               run benchmarks
   build               build all binaries
   man                 build all man pages
-  tar                 build release tarball
-  cross-tar           cross compile and build release tarballs
+  all                 build binaries and man pages
+  tar                 build release tarball for host platform only
+  cross-tar           cross compile and build release tarballs for all platforms
+  release-sign        sign release tarballs with minisign
+  release             build and sign release
+  update-go-deps      updates go.mod and go.sum files
 endef
 export HELP_OUTPUT
 
