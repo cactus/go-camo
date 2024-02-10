@@ -10,7 +10,7 @@ require (
 	github.com/quic-go/quic-go v0.41.0
 	github.com/xlab/treeprint v1.2.0
 	go.uber.org/automaxprocs v1.5.3
-	golang.org/x/net v0.20.0
+	golang.org/x/net v0.21.0
 	gotest.tools/v3 v3.5.1
 )
 
