@@ -209,7 +209,13 @@ func (cli *CLI) Run() {
 	}
 
 	if cli.AutoMaxProcs {
-		maxprocs.Set(maxprocs.Logger(mlog.Infof)) // #nosec G104
+		// #nosec G104
+		maxprocs.Set(
+			maxprocs.Logger(mlog.Infof),
+			// uncomment once gomaxprocs has a new release, as this fixes
+			// https://github.com/uber-go/automaxprocs/issues/78 and similar.
+		// maxprocs.RoundQuotaFunc(func(v float64) int { return int(math.Ceil(v)) }),
+		)
 	}
 
 	if cli.LogJson {
