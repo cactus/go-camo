@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/kong v0.8.1
 	github.com/cactus/mlog v1.0.10
 	github.com/prometheus/client_golang v1.19.0
-	github.com/prometheus/common v0.48.0
+	github.com/prometheus/common v0.49.0
 	github.com/quic-go/quic-go v0.41.0
 	github.com/xlab/treeprint v1.2.0
 	go.uber.org/automaxprocs v1.5.3
