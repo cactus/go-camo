@@ -25,6 +25,7 @@ import (
 	"github.com/cactus/mlog"
 
 	"github.com/prometheus/client_golang/prometheus"
+	vcoll "github.com/prometheus/client_golang/prometheus/collectors/version"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
@@ -259,7 +260,7 @@ func (cli *CLI) Run() {
 		version.Revision = os.Getenv("APP_INFO_REVISION")
 		version.Branch = os.Getenv("APP_INFO_BRANCH")
 		version.BuildDate = os.Getenv("APP_INFO_BUILD_DATE")
-		prometheus.MustRegister(version.NewCollector(metricNamespace))
+		prometheus.MustRegister(vcoll.NewCollector(metricNamespace))
 
 		// Wrap the dumb router in instrumentation.
 		router = promhttp.InstrumentHandlerDuration(responseDuration, router)
