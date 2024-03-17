@@ -19,6 +19,9 @@ toc::[]
 
 == HEAD
 
+== v2.4.10 2024-03-17
+*   Update library dependencies.
+
 == v2.4.9 2024-02-16
 *   Minimum Go version now 1.21 due to quic-go dependency, due to better
     cryto/tls support for QUIC in Go-1.21.
