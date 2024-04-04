@@ -19,6 +19,10 @@ toc::[]
 
 == HEAD
 
+== v2.4.12 2024-04-03
+*   Update library dependencies.
+*   Build with Go-1.22.2
+
 == v2.4.10 2024-03-17
 *   Update library dependencies.
 
