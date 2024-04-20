@@ -82,7 +82,7 @@ build: setup
 
 test: setup
 	@echo "Running tests..."
-	@go test -count=1 -vet=off ${GOTEST_FLAGS} ./...
+	@go test -count=1 -cpu=4 -vet=off ${GOTEST_FLAGS} ./...
 
 bench: setup
 	@echo "Running benchmarks..."
