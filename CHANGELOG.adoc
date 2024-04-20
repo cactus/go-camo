@@ -19,7 +19,11 @@ toc::[]
 
 == HEAD
 
-== v2.4.12 2024-04-03
+== v2.4.12 2024-04-20
+*   Update library dependencies.
+*   Fix docker and github packages publishing issue.
+
+== v2.4.11 2024-04-03
 *   Update library dependencies.
 *   Build with Go-1.22.2
 
