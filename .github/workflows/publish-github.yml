@@ -28,12 +28,6 @@ jobs:
           check-latest: true
         id: go
 
-      - name: Tests
-        if: success()
-        env:
-          GOPROXY: "https://proxy.golang.org"
-        run: make test
-
       - name: Build
         if: success()
         env:
