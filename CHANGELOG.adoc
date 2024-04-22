@@ -19,6 +19,9 @@ toc::[]
 
 == HEAD
 
+== v2.4.13 2024-04-22
+*   Release tagged for arm64 docker building only.
+
 == v2.4.12 2024-04-20
 *   Update library dependencies.
 *   Fix docker and github packages publishing issue.
