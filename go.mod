@@ -7,7 +7,7 @@ require (
 	github.com/cactus/mlog v1.0.10
 	github.com/prometheus/client_golang v1.19.0
 	github.com/prometheus/common v0.53.0
-	github.com/quic-go/quic-go v0.42.0
+	github.com/quic-go/quic-go v0.43.0
 	github.com/xlab/treeprint v1.2.0
 	go.uber.org/automaxprocs v1.5.3
 	golang.org/x/net v0.24.0
@@ -18,10 +18,10 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cactus/tai64 v1.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
+	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
-	github.com/google/pprof v0.0.0-20240416155748-26353dc0451f // indirect
-	github.com/onsi/ginkgo/v2 v2.17.1 // indirect
+	github.com/google/pprof v0.0.0-20240424215950-a892ee059fd6 // indirect
+	github.com/onsi/ginkgo/v2 v2.17.2 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/procfs v0.14.0 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
