@@ -2,13 +2,12 @@ name: unit-tests
 on:
   workflow_dispatch:
   push:
-    branches: ['**']
+    branches: ["**"]
   pull_request:
     branches: [master]
 
 jobs:
-  build:
-    name: Build
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +19,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '>=1.22.0'
+          go-version: ">=1.22.0"
           check-latest: true
         id: go
 
@@ -38,5 +37,41 @@ jobs:
       - name: Tests
         env:
           GOPROXY: "https://proxy.golang.org"
+          CI: true
+        run: make test
+
+  test-qemu:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [arm64]
+
+    steps:
+      - name: Src Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ">=1.22.0"
+          check-latest: true
+        id: go
+
+      - name: Install QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Build
+        env:
+          GOPROXY: "https://proxy.golang.org"
+          GOARCH: ${{ matrix.arch }}
+        run: make build
+
+      - name: Tests
+        env:
+          GOPROXY: "https://proxy.golang.org"
+          GOARCH: ${{ matrix.arch }}
           CI: true
         run: make test
