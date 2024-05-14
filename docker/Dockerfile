@@ -6,6 +6,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY . ./
 ARG APP_VER
+ARG GITHASH
 RUN make build APP_VER="${APP_VER}" GITHASH="${GITHASH}"; rm -rf /root/.cache/
 
 FROM alpine:latest as run
