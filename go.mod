@@ -20,8 +20,8 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
-	github.com/google/pprof v0.0.0-20240509144519-723abb6459b7 // indirect
-	github.com/onsi/ginkgo/v2 v2.17.3 // indirect
+	github.com/google/pprof v0.0.0-20240521024322-9665fa269a30 // indirect
+	github.com/onsi/ginkgo/v2 v2.18.0 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/procfs v0.15.0 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
