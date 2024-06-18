@@ -302,6 +302,7 @@ Flags:
       --ssl-key=STRING           ssl private key (key.pem) path
       --ssl-cert=STRING          ssl cert (cert.pem) path
       --max-size=INT-64          Max allowed response size (KB)
+      --max-size-redirect        URL to redirect to when max-size is exceeded
       --timeout=4s               Upstream request timeout
       --max-redirects=3          Maximum number of redirects to follow
       --metrics                  Enable Prometheus compatible metrics endpoint
