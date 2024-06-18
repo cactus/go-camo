@@ -72,16 +72,16 @@ type CLI struct {
 	HMACKey             string        `name:"key" short:"k" help:"HMAC key"`
 	AddHeaders          []string      `name:"header" short:"H" help:"Add additional header to each response. This option can be used multiple times to add multiple headers."`
 	BindAddress         string        `name:"listen" default:"0.0.0.0:8080" help:"Address:Port to bind to for HTTP"`
-	BindAddressSSL      string        `name:"ssl-listen" help:"Address:Port to bind to for HTTPS/SSL/TLS"`
-	BindSocket          string        `name:"socket-listen" help:"Path for unix domain socket to bind to for HTTP"`
+	BindAddressSSL      string        `name:"ssl-listen" placeholder:"HOST_PORT" help:"Address:Port to bind to for HTTPS/SSL/TLS"`
+	BindSocket          string        `name:"socket-listen" placeholder:"PATH" help:"Path for unix domain socket to bind to for HTTP"`
 	EnableQuic          bool          `name:"quic" help:"Enable http3/quic. Binds to the same port number as ssl-listen but udp+quic."`
 	AutoMaxProcs        bool          `name:"automaxprocs" help:"Set GOMAXPROCS automatically to match Linux container CPU quota/limits."`
-	SSLKey              string        `name:"ssl-key" help:"ssl private key (key.pem) path"`
-	SSLCert             string        `name:"ssl-cert" help:"ssl cert (cert.pem) path"`
-	MaxSize             int64         `name:"max-size" help:"Max allowed response size (KB)"`
+	SSLKey              string        `name:"ssl-key" placeholder:"PATH" help:"ssl private key (key.pem) path"`
+	SSLCert             string        `name:"ssl-cert" placeholder:"PATH" help:"ssl cert (cert.pem) path"`
+	MaxSize             int64         `name:"max-size" placeholder:"INT" help:"Max allowed response size (KB)"`
 	ReqTimeout          time.Duration `name:"timeout" default:"4s" help:"Upstream request timeout"`
 	MaxRedirects        int           `name:"max-redirects" default:"3" help:"Maximum number of redirects to follow"`
-	MaxSizeRedirect     string        `name:"max-size-redirect" help:"URL to redirect when max-size is exceeded"`
+	MaxSizeRedirect     string        `name:"max-size-redirect" placeholder:"URL" help:"redirect to URL when max-size is exceeded"`
 	Metrics             bool          `name:"metrics" help:"Enable Prometheus compatible metrics endpoint"`
 	NoDebugVars         bool          `name:"no-debug-vars" help:"Disable the /debug/vars/ metrics endpoint. This option has no effects when the metrics are not enabled."`
 	NoLogTS             bool          `name:"no-log-ts" help:"Do not add a timestamp to logging"`
@@ -92,7 +92,7 @@ type CLI struct {
 	AllowContentVideo   bool          `name:"allow-content-video" help:"Additionally allow 'video/*' content"`
 	AllowContentAudio   bool          `name:"allow-content-audio" help:"Additionally allow 'audio/*' content"`
 	AllowCredentialURLs bool          `name:"allow-credential-urls" help:"Allow urls to contain user/pass credentials"`
-	FilterRuleset       string        `name:"filter-ruleset" help:"Text file containing filtering rules (one per line)"`
+	FilterRuleset       string        `name:"filter-ruleset" placeholder:"PATH" help:"Text file containing filtering rules (one per line)"`
 	ServerName          string        `name:"server-name" default:"go-camo" help:"Value to use for the HTTP server field"`
 	ExposeServerVersion bool          `name:"expose-server-version" help:"Include the server version in the HTTP server response header"`
 	EnableXFwdFor       bool          `name:"enable-xfwd4" help:"Enable x-forwarded-for passthrough/generation"`
