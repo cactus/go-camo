@@ -283,42 +283,46 @@ More generally, it is recommended to either:
 [source,text]
 ----
 $ go-camo -h
-Usage: go-camo
+Usage: go-camo [flags]
 
 An image proxy that proxies non-secure images over SSL/TLS
 
 Flags:
   -h, --help                     Show context-sensitive help.
   -k, --key=STRING               HMAC key
-  -H, --header=HEADER,...        Add additional header to each response. This option can
-                                 be used multiple times to add multiple headers.
+  -H, --header=HEADER,...        Add additional header to each response.
+                                 This option can be used multiple times to add
+                                 multiple headers.
       --listen="0.0.0.0:8080"    Address:Port to bind to for HTTP
-      --ssl-listen=STRING        Address:Port to bind to for HTTPS/SSL/TLS
-      --socket-listen=STRING     Path for unix domain socket to bind to for HTTP
-      --quic                     Enable http3/quic. Binds to the same port number as
-                                 ssl-listen but udp+quic.
-      --automaxprocs             Set GOMAXPROCS automatically to match Linux container CPU
-                                 quota/limits.
-      --ssl-key=STRING           ssl private key (key.pem) path
-      --ssl-cert=STRING          ssl cert (cert.pem) path
-      --max-size=INT-64          Max allowed response size (KB)
-      --max-size-redirect        URL to redirect to when max-size is exceeded
+      --ssl-listen=HOST_PORT     Address:Port to bind to for HTTPS/SSL/TLS
+      --socket-listen=PATH       Path for unix domain socket to bind to for HTTP
+      --quic                     Enable http3/quic. Binds to the same port
+                                 number as ssl-listen but udp+quic.
+      --automaxprocs             Set GOMAXPROCS automatically to match Linux
+                                 container CPU quota/limits.
+      --ssl-key=PATH             ssl private key (key.pem) path
+      --ssl-cert=PATH            ssl cert (cert.pem) path
+      --max-size=INT             Max allowed response size (KB)
       --timeout=4s               Upstream request timeout
       --max-redirects=3          Maximum number of redirects to follow
+      --max-size-redirect=URL    redirect to URL when max-size is exceeded
       --metrics                  Enable Prometheus compatible metrics endpoint
-      --no-debug-vars            Disable the /debug/vars/ metrics endpoint. This option has
-                                 no effects when the metrics are not enabled.
+      --no-debug-vars            Disable the /debug/vars/ metrics endpoint.
+                                 This option has no effects when the metrics are
+                                 not enabled.
       --no-log-ts                Do not add a timestamp to logging
+      --prof                     Enable go http profiler endpoint
       --log-json                 Log in JSON format
       --no-fk                    Disable frontend http keep-alive support
       --no-bk                    Disable backend http keep-alive support
       --allow-content-video      Additionally allow 'video/*' content
       --allow-content-audio      Additionally allow 'audio/*' content
       --allow-credential-urls    Allow urls to contain user/pass credentials
-      --filter-ruleset=STRING    Text file containing filtering rules (one per line)
+      --filter-ruleset=PATH      Text file containing filtering rules (one per
+                                 line)
       --server-name="go-camo"    Value to use for the HTTP server field
-      --expose-server-version    Include the server version in the HTTP server response
-                                 header
+      --expose-server-version    Include the server version in the HTTP server
+                                 response header
       --enable-xfwd4             Enable x-forwarded-for passthrough/generation
   -v, --verbose                  Show verbose (debug) log level output
   -V, --version                  Print version and exit; specify twice to show
