@@ -18,6 +18,8 @@ toc::[]
 :link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
 
 == HEAD
+*   Implement optional redirect when max-size is exceeded +
+    ref: link:https://github.com/cactus/go-camo/pull/80[#80]
 
 == v2.4.13 2024-04-22
 *   Release tagged for arm64 docker building only.

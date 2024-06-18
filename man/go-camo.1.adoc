@@ -99,6 +99,9 @@ See __<<ADD_HEADERS>>__ for more info.
     Max response size allowed in KB. Set to `0` to disable size restriction. +
     Default: `0`
 
+*--max-size-redirect*=<__URL__>::
+    URL to redirect to when max-size is exceeded.
+
 *--timeout*=<__TIME__>::
     Timeout value for upstream response. Format is "4s" where s means seconds. +
     Default: `4s`
