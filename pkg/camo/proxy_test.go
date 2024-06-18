@@ -214,7 +214,6 @@ func TestVideoContentTypeAllowed(t *testing.T) {
 	// bump limit, try again (should succeed)
 	camoConfigWithVideo.MaxSize = 5000 * 1024
 	_, err = makeTestReq(testURL, 200, camoConfigWithVideo)
-	// fmt.Println(err)
 	assert.Check(t, err)
 }
 
@@ -257,6 +256,30 @@ func TestCredetialURLsAllowed(t *testing.T) {
 
 	testURL := "http://user:pass@www.google.com/images/srpr/logo11w.png"
 	_, err := makeTestReq(testURL, 200, camoConfigWithCredentials)
+	assert.Check(t, err)
+}
+
+func TestMaxSizeRedirect(t *testing.T) {
+	t.Parallel()
+
+	camoConfigWithMaxSizeRedirect := Config{
+		HMACKey:           []byte("0x24FEEDFACEDEADBEEFCAFE"),
+		MaxSize:           1 * 1024,
+		RequestTimeout:    time.Duration(10) * time.Second,
+		MaxRedirects:      3,
+		MaxSizeRedirect:   "http://example.com/some-image.png",
+		ServerName:        "go-camo",
+		AllowContentVideo: true,
+	}
+
+	testURL := "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+
+	// try a range request (should fail, MaxSize is smaller than requested range)
+	req, err := makeReq(camoConfigWithMaxSizeRedirect, testURL)
+	assert.Check(t, err)
+	req.Header.Add("Range", "bytes=0-1025")
+	resp, err := processRequest(req, 302, camoConfigWithMaxSizeRedirect, nil)
+	assert.Check(t, is.Equal(resp.Header.Get("Location"), camoConfigWithMaxSizeRedirect.MaxSizeRedirect))
 	assert.Check(t, err)
 }
 
