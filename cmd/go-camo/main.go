@@ -81,7 +81,7 @@ type CLI struct {
 	MaxSize             int64         `name:"max-size" help:"Max allowed response size (KB)"`
 	ReqTimeout          time.Duration `name:"timeout" default:"4s" help:"Upstream request timeout"`
 	MaxRedirects        int           `name:"max-redirects" default:"3" help:"Maximum number of redirects to follow"`
-	MaxSizeRedirect     string        `long:"max-size-redirect" description:"URL to redirect when max-size is exceeded"`
+	MaxSizeRedirect     string        `name:"max-size-redirect" description:"URL to redirect when max-size is exceeded"`
 	Metrics             bool          `name:"metrics" help:"Enable Prometheus compatible metrics endpoint"`
 	NoDebugVars         bool          `name:"no-debug-vars" help:"Disable the /debug/vars/ metrics endpoint. This option has no effects when the metrics are not enabled."`
 	NoLogTS             bool          `name:"no-log-ts" help:"Do not add a timestamp to logging"`
@@ -228,7 +228,7 @@ func (cli *CLI) Run() {
 	config.MaxSize = cli.MaxSize * 1024
 	config.RequestTimeout = cli.ReqTimeout
 	config.MaxRedirects = cli.MaxRedirects
-        config.MaxSizeRedirect = cli.MaxSizeRedirect
+	config.MaxSizeRedirect = cli.MaxSizeRedirect
 	config.ServerName = ServerName
 
 	// configure metrics collection in camo
