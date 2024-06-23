@@ -7,7 +7,7 @@ require (
 	github.com/cactus/mlog v1.0.10
 	github.com/prometheus/client_golang v1.19.1
 	github.com/prometheus/common v0.54.0
-	github.com/quic-go/quic-go v0.45.0
+	github.com/quic-go/quic-go v0.45.1
 	github.com/xlab/treeprint v1.2.0
 	go.uber.org/automaxprocs v1.5.3
 	golang.org/x/net v0.26.0
