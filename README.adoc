@@ -416,6 +416,19 @@ by default, you could add this to the command line:
 ----
 --
 
+* `--allow-content-video` and `--allow-content-audio`
++
+--
+By default only `image/*` content-types are accepted and proxied, all other
+content-types are rejected.
+
+Add the `--allow-content-video` argument to addtionally allow `video/*` content
+types.
+
+Add the `--allow-content-audio` argument to addtionally allow `audio/*` content
+types.
+--
+
 == Upstream Http Proxying
 
 Care should be taken when using upstream http proxy support. go-camo has
