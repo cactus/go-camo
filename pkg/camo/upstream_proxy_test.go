@@ -61,6 +61,8 @@ func TestUpstreamProxyParsing(t *testing.T) {
 }
 
 func TestUpstreamProxyMatching(t *testing.T) {
+	t.Parallel()
+
 	uspc := &upstreamProxyConfig{
 		hasProxy: true,
 		httpProxy: &innerUpstreamProxyConfig{
@@ -74,70 +76,56 @@ func TestUpstreamProxyMatching(t *testing.T) {
 		},
 	}
 
-	// matches host
-	testElemsHost := []struct {
-		matchtype string
-		address   string
-		port      string
-		result    bool
-	}{
-		// host matches
-		{"host", "localhost", "80", true},
-		{"host", "localhost", "80", true},
-
-		{"host", "localhostx", "80", false},
-		{"host", "loopback", "80", false},
-		{"host", "localhost", "90", false},
-		{"host", "127.0.0.1", "80", false},
-		{"host", "::1", "80", false},
-		{"host", "127.0.0.1", "90", false},
-		{"host", "127.0.0.2", "80", false},
-		{"host", "::1", "90", false},
-		{"host", "::2", "80", false},
-
-		// ip matches
-		{"ip", "127.0.0.1", "80", true},
-		{"ip", "::1", "80", true},
-
-		{"ip", "127.0.0.2", "80", false},
-		{"ip", "127.0.0.1", "90", false},
-		{"ip", "::2", "80", false},
-		{"ip", "::1", "90", false},
-
-		// any matches
-		{"any", "127.0.0.1", "80", true},
-		{"any", "::1", "80", true},
-		{"any", "localhost", "80", true},
-
-		{"any", "loopback", "80", false},
-		{"any", "localhostx", "80", false},
-		{"any", "localhost", "90", false},
-		{"any", "127.0.0.2", "80", false},
-		{"any", "127.0.0.1", "90", false},
-		{"any", "1.1.1.1", "80", false},
-		{"any", "255.255.255.255", "80", false},
-		{"any", "::1", "90", false},
-	}
-
-	errMsg := func(a string, b string, c string, d bool) string {
-		return fmt.Sprintf("match-%s check failed (%s, %s, %t)", a, b, c, d)
-	}
-
-	for _, elem := range testElemsHost {
+	f := func(matchtype string, address string, port string, result bool) {
+		t.Helper()
 		var tRes bool
-		switch elem.matchtype {
+		switch matchtype {
 		case "ip":
-			tRes = uspc.matchesIP(net.ParseIP(elem.address), elem.port)
+			tRes = uspc.matchesIP(net.ParseIP(address), port)
 		case "host":
-			tRes = uspc.matchesHost(elem.address, elem.port)
+			tRes = uspc.matchesHost(address, port)
 		case "any":
-			tRes = uspc.matchesAny(elem.address, elem.port)
+			tRes = uspc.matchesAny(address, port)
 		default:
-			tRes = !elem.result
+			tRes = !result
 		}
-		assert.Check(
-			t, tRes == elem.result,
-			errMsg(elem.matchtype, elem.address, elem.port, elem.result),
-		)
+		assert.Check(t, tRes == result,
+			fmt.Sprintf("match-%s check failed (%s, %s, %t)",
+				matchtype, address, port, result))
 	}
+
+	// host matches
+	f("host", "localhost", "80", true)
+	f("host", "localhost", "80", true)
+	f("host", "localhostx", "80", false)
+	f("host", "loopback", "80", false)
+	f("host", "localhost", "90", false)
+	f("host", "127.0.0.1", "80", false)
+	f("host", "::1", "80", false)
+	f("host", "127.0.0.1", "90", false)
+	f("host", "127.0.0.2", "80", false)
+	f("host", "::1", "90", false)
+	f("host", "::2", "80", false)
+
+	// ip matches
+	f("ip", "127.0.0.1", "80", true)
+	f("ip", "::1", "80", true)
+
+	f("ip", "127.0.0.2", "80", false)
+	f("ip", "127.0.0.1", "90", false)
+	f("ip", "::2", "80", false)
+	f("ip", "::1", "90", false)
+
+	// any matches
+	f("any", "127.0.0.1", "80", true)
+	f("any", "::1", "80", true)
+	f("any", "localhost", "80", true)
+	f("any", "loopback", "80", false)
+	f("any", "localhostx", "80", false)
+	f("any", "localhost", "90", false)
+	f("any", "127.0.0.2", "80", false)
+	f("any", "127.0.0.1", "90", false)
+	f("any", "1.1.1.1", "80", false)
+	f("any", "255.255.255.255", "80", false)
+	f("any", "::1", "90", false)
 }

@@ -5,10 +5,12 @@
 package camo
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 
 	"github.com/cactus/go-camo/v2/pkg/camo/encoding"
@@ -99,4 +101,35 @@ func statusCodeAssert(t *testing.T, expected int, resp *http.Response) {
 		"Expected %d but got '%d' instead",
 		expected, resp.StatusCode,
 	)
+}
+
+type Tuple[A any, B any] struct {
+	a A
+	b B
+}
+
+func (r *Tuple[A, B]) UnmarshalJSON(p []byte) error {
+	var tmp []json.RawMessage
+	if err := json.Unmarshal(p, &tmp); err != nil {
+		return err
+	}
+	if err := json.Unmarshal(tmp[0], &r.a); err != nil {
+		return err
+	}
+
+	if reflect.TypeOf(&r.b) == reflect.TypeFor[*B]() {
+		var s string
+		if err := json.Unmarshal(tmp[1], &s); err != nil {
+			return err
+		}
+		if s != "" {
+			err := fmt.Errorf(s)
+			r.b = err.(B)
+		}
+	} else {
+		if err := json.Unmarshal(tmp[1], &r.b); err != nil {
+			return err
+		}
+	}
+	return nil
 }
