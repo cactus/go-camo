@@ -71,6 +71,9 @@ ${GOPATH}/bin/gosec:
 ${GOPATH}/bin/govulncheck:
 	go install golang.org/x/vuln/cmd/govulncheck@latest
 
+${GOPATH}/bin/nilness:
+	go install golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness@latest
+
 build: setup
 	@[ -d "${BUILDDIR}/bin" ] || mkdir -p "${BUILDDIR}/bin"
 	@echo "Building..."
@@ -102,6 +105,8 @@ check: setup setup-check
 	@${GOPATH}/bin/gosec -quiet ./...
 	@echo "... govulncheck ..."
 	@${GOPATH}/bin/govulncheck ./...
+	@echo "... nilness ..."
+	@nilness ./...
 
 .PHONY: update-go-deps
 update-go-deps:
