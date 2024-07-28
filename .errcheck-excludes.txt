@@ -1,0 +1,3 @@
+go.uber.org/automaxprocs/maxprocs.Set
+(*os.File).Close
+(*github.com/quic-go/quic-go/http3.Server).SetQUICHeaders

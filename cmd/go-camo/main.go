@@ -68,7 +68,7 @@ var (
 	)
 )
 
-type CLI struct {
+type CLI struct { // betteralign:ignore
 	HMACKey             string        `name:"key" short:"k" help:"HMAC key"`
 	AddHeaders          []string      `name:"header" short:"H" help:"Add additional header to each response. This option can be used multiple times to add multiple headers."`
 	BindAddress         string        `name:"listen" default:"0.0.0.0:8080" help:"Address:Port to bind to for HTTP"`

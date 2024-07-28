@@ -10,6 +10,7 @@ SIGN_KEY          ?= ${HOME}/.minisign/go-camo.key
 APP_NAME          := go-camo
 APP_VER           := $(shell git describe --always --tags|sed 's/^v//')
 GOPATH            := $(shell go env GOPATH)
+GOBIN             := ${CURDIR}/.tools
 VERSION_VAR       := main.ServerVersion
 
 # flags and build configuration
@@ -30,6 +31,9 @@ export GO111MODULE=on
 export CGO_ENABLED=0
 ## enable go 1.21 loopvar "experiment"
 export GOEXPERIMENT=loopvar
+export GOBIN
+export PATH := ${GOBIN}:${PATH}
+
 
 define HELP_OUTPUT
 Available targets:
@@ -58,21 +62,60 @@ help:
 clean:
 	@rm -rf "${BUILDDIR}"
 
-setup:
+## begin tools
 
-setup-check: ${GOPATH}/bin/staticcheck ${GOPATH}/bin/gosec ${GOPATH}/bin/govulncheck
+# bench tools
+${GOBIN}/benchstat:
+	go install golang.org/x/perf/cmd/benchstat@latest
 
-${GOPATH}/bin/staticcheck:
-	go install honnef.co/go/tools/cmd/staticcheck@latest
+BENCH_TOOLS := ${GOBIN}/benchstat
 
-${GOPATH}/bin/gosec:
+# check tools
+${GOBIN}/betteralign:
+	go install github.com/dkorunic/betteralign/cmd/betteralign@latest
+
+${GOBIN}/ineffassign:
+	go install github.com/gordonklaus/ineffassign@latest
+
+${GOBIN}/errcheck:
+	go install github.com/kisielk/errcheck@latest
+
+${GOBIN}/go-errorlint:
+	go install github.com/polyfloyd/go-errorlint@latest
+
+${GOBIN}/gosec:
 	go install github.com/securego/gosec/v2/cmd/gosec@latest
 
-${GOPATH}/bin/govulncheck:
+${GOBIN}/nilaway:
+	go install go.uber.org/nilaway/cmd/nilaway@latest
+
+${GOBIN}/deadcode:
+	go install golang.org/x/tools/cmd/deadcode@latest
+
+${GOBIN}/govulncheck:
 	go install golang.org/x/vuln/cmd/govulncheck@latest
 
-${GOPATH}/bin/nilness:
+${GOBIN}/staticcheck:
+	go install honnef.co/go/tools/cmd/staticcheck@latest
+
+${GOBIN}/nilness:
 	go install golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness@latest
+
+CHECK_TOOLS := ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
+CHECK_TOOLS += ${GOBIN}/errcheck ${GOBIN}/ineffassign ${GOBIN}/nilaway
+CHECK_TOOLS += ${GOBIN}/go-errorlint ${GOBIN}/deadcode ${GOBIN}/betteralign
+CHECK_TOOLS += ${GOBIN}/nilness
+
+## end tools
+
+.PHONY: setup-check
+setup-check: ${CHECK_TOOLS}
+
+.PHONY: setup-bench
+setup-bench: ${BENCH_TOOLS}
+
+.PHONY: setup
+setup:
 
 build: setup
 	@[ -d "${BUILDDIR}/bin" ] || mkdir -p "${BUILDDIR}/bin"
@@ -87,7 +130,7 @@ test: setup
 	@echo "Running tests..."
 	@go test -count=1 -cpu=4 -vet=off ${GOTEST_FLAGS} ./...
 
-bench: setup
+bench: setup setup-bench
 	@echo "Running benchmarks..."
 	@go test -bench="." -run="^$$" -test.benchmem=true ${GOTEST_BENCHFLAGS} ./...
 
@@ -98,15 +141,22 @@ cover: setup
 check: setup setup-check
 	@echo "Running checks and validators..."
 	@echo "... staticcheck ..."
-	@${GOPATH}/bin/staticcheck ./...
+	@${GOBIN}/staticcheck ./...
+	@echo "... errcheck ..."
+	@${GOBIN}/errcheck -ignoretests -exclude .errcheck-excludes.txt ./...
 	@echo "... go-vet ..."
 	@go vet ./...
-	@echo "... gosec ..."
-	@${GOPATH}/bin/gosec -quiet ./...
-	@echo "... govulncheck ..."
-	@${GOPATH}/bin/govulncheck ./...
 	@echo "... nilness ..."
-	@nilness ./...
+	@${GOBIN}/nilness ./...
+	@echo "... ineffassign ..."
+	@${GOBIN}/ineffassign ./...
+	@echo "... govulncheck ..."
+	@${GOBIN}/govulncheck ./...
+	@echo "... betteralign ..."
+	@${GOBIN}/betteralign ./...
+	@echo "... gosec ..."
+	@${GOBIN}/gosec -quiet -exclude-generated -exclude-dir=cmd/refidgen -exclude-dir=tools ./...
+
 
 .PHONY: update-go-deps
 update-go-deps:

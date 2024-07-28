@@ -80,7 +80,7 @@ func (cmd *DecodeCmd) Run(cli *CLI) error {
 	return nil
 }
 
-type CLI struct {
+type CLI struct { // betteralign:ignore
 	// global options
 	Version kong.VersionFlag `name:"version" short:"V" help:"Print version information and quit"`
 	HmacKey string           `name:"key" short:"k" help:"HMAC key"`

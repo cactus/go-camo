@@ -29,7 +29,7 @@ import (
 // as some may people parse these
 
 // Config holds configuration data used when creating a Proxy with New.
-type Config struct {
+type Config struct { // betteralign:ignore
 	// Server name used in Headers and Via checks
 	ServerName string
 	// HMACKey is a byte slice to be used as the hmac key
