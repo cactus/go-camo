@@ -42,6 +42,8 @@ type Config struct { // betteralign:ignore
 	MaxRedirects int
 	// Request timeout is a timeout for fetching upstream data.
 	RequestTimeout time.Duration
+	// IdleTimeout is the maximum amount of time to wait for the next request when keep-alive is enabled
+	IdleTimeout time.Duration
 	// Keepalive enable/disable
 	DisableKeepAlivesFE bool
 	DisableKeepAlivesBE bool

@@ -80,6 +80,7 @@ type CLI struct { // betteralign:ignore
 	SSLCert             string        `name:"ssl-cert" placeholder:"PATH" help:"ssl cert (cert.pem) path"`
 	MaxSize             int64         `name:"max-size" placeholder:"INT" help:"Max allowed response size (KB)"`
 	ReqTimeout          time.Duration `name:"timeout" default:"4s" help:"Upstream request timeout"`
+	IdleTimeout         time.Duration `name:"idletimeout" default:"60s" help:"Maximum amount of time to wait for the next request when keep-alive is enabled"`
 	MaxRedirects        int           `name:"max-redirects" default:"3" help:"Maximum number of redirects to follow"`
 	MaxSizeRedirect     string        `name:"max-size-redirect" placeholder:"URL" help:"redirect to URL when max-size is exceeded"`
 	Metrics             bool          `name:"metrics" help:"Enable Prometheus compatible metrics endpoint"`
@@ -157,13 +158,28 @@ func (cli *CLI) Run() {
 	config.DisableKeepAlivesBE = cli.DisableKeepAlivesBE
 	config.DisableKeepAlivesFE = cli.DisableKeepAlivesFE
 
-	// other options
-	config.EnableXFwdFor = cli.EnableXFwdFor
-	config.AllowCredentialURLs = cli.AllowCredentialURLs
+	// timeouts
+	config.RequestTimeout = cli.ReqTimeout
+	config.IdleTimeout = cli.IdleTimeout
+
+	// redirects
+	config.MaxRedirects = cli.MaxRedirects
+	config.MaxSizeRedirect = cli.MaxSizeRedirect
 
 	// additional content types to allow
 	config.AllowContentVideo = cli.AllowContentVideo
 	config.AllowContentAudio = cli.AllowContentAudio
+
+	// other options
+	config.EnableXFwdFor = cli.EnableXFwdFor
+	config.AllowCredentialURLs = cli.AllowCredentialURLs
+	config.MaxSize = cli.MaxSize * 1024 // convert from KB to Bytes
+	config.ServerName = ServerName
+
+	// configure metrics collection in camo
+	if cli.Metrics {
+		config.CollectMetrics = true
+	}
 
 	var filters []camo.FilterFunc
 	if cli.FilterRuleset != "" {
@@ -222,18 +238,6 @@ func (cli *CLI) Run() {
 
 	if cli.LogJson {
 		mlog.SetEmitter(&mlog.FormatWriterJSON{})
-	}
-
-	// convert from KB to Bytes
-	config.MaxSize = cli.MaxSize * 1024
-	config.RequestTimeout = cli.ReqTimeout
-	config.MaxRedirects = cli.MaxRedirects
-	config.MaxSizeRedirect = cli.MaxSizeRedirect
-	config.ServerName = ServerName
-
-	// configure metrics collection in camo
-	if cli.Metrics {
-		config.CollectMetrics = true
 	}
 
 	proxy, err := camo.NewWithFilters(config, filters)
@@ -298,6 +302,7 @@ func (cli *CLI) Run() {
 		httpSrv = &http.Server{
 			Addr:        cli.BindAddress,
 			ReadTimeout: 30 * time.Second,
+			IdleTimeout: config.IdleTimeout,
 			Handler:     mux,
 		}
 	}
@@ -306,13 +311,15 @@ func (cli *CLI) Run() {
 		tlsSrv = &http.Server{
 			Addr:        cli.BindAddressSSL,
 			ReadTimeout: 30 * time.Second,
+			IdleTimeout: config.IdleTimeout,
 			Handler:     mux,
 		}
 
 		if cli.EnableQuic {
 			quicSrv = &http3.Server{
-				Addr:    cli.BindAddressSSL,
-				Handler: mux,
+				Addr:        cli.BindAddressSSL,
+				IdleTimeout: config.IdleTimeout,
+				Handler:     mux,
 			}
 			// wrap default mux to set some default quic reference headers on tls responses
 			tlsSrv.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
