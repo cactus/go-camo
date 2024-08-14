@@ -6,6 +6,7 @@ package camo
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -123,7 +124,7 @@ func (r *Tuple[A, B]) UnmarshalJSON(p []byte) error {
 			return err
 		}
 		if s != "" {
-			err := fmt.Errorf(s)
+			err := errors.New(s)
 			r.b = err.(B)
 		}
 	} else {

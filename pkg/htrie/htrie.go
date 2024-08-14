@@ -252,7 +252,8 @@ func (dt *URLMatcher) walkFind(s string) []*URLMatcher {
 			continue
 		}
 
-		if curnode.subtrees == nil || len(curnode.subtrees) == 0 {
+		// len(nil) == 0, so no need to check twice
+		if len(curnode.subtrees) == 0 {
 			break
 		}
 

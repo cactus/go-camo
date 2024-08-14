@@ -29,6 +29,8 @@ CC_OUTPUT_TPL     := ${BUILDDIR}/bin/{{.Dir}}.{{.OS}}-{{.Arch}}
 # some exported vars (pre-configure go build behavior)
 export GO111MODULE=on
 export CGO_ENABLED=0
+# unsure toolchains are not automatically downloaded/upgraded
+export GOTOOLCHAIN=local
 ## enable go 1.21 loopvar "experiment"
 export GOEXPERIMENT=loopvar
 export GOBIN
