@@ -44,6 +44,8 @@ type Config struct { // betteralign:ignore
 	RequestTimeout time.Duration
 	// IdleTimeout is the maximum amount of time to wait for the next request when keep-alive is enabled
 	IdleTimeout time.Duration
+	// Maximum duration for reading the entire request, including the body.
+	ReadTimeout time.Duration
 	// Keepalive enable/disable
 	DisableKeepAlivesFE bool
 	DisableKeepAlivesBE bool

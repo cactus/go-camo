@@ -78,9 +78,10 @@ type CLI struct { // betteralign:ignore
 	AutoMaxProcs        bool          `name:"automaxprocs" help:"Set GOMAXPROCS automatically to match Linux container CPU quota/limits."`
 	SSLKey              string        `name:"ssl-key" placeholder:"PATH" help:"ssl private key (key.pem) path"`
 	SSLCert             string        `name:"ssl-cert" placeholder:"PATH" help:"ssl cert (cert.pem) path"`
-	MaxSize             int64         `name:"max-size" placeholder:"INT" help:"Max allowed response size (KB)"`
-	ReqTimeout          time.Duration `name:"timeout" default:"4s" help:"Upstream request timeout"`
-	IdleTimeout         time.Duration `name:"idletimeout" default:"60s" help:"Maximum amount of time to wait for the next request when keep-alive is enabled"`
+	MaxSize             int64         `name:"max-size" placeholder:"INT" help:"Max allowed response size, in KB"`
+	ReqTimeout          time.Duration `name:"timeout" default:"4s" help:"Upstream request timeout (backend)"`
+	IdleTimeout         time.Duration `name:"idletimeout" default:"60s" help:"Maximum amount of time to wait for the next request when keep-alive is enabled (frontend)"`
+	ReadTimeout         time.Duration `name:"readtimeout" default:"30s" help:"Maximum duration for reading the entire request, including the body (frontend)"`
 	MaxRedirects        int           `name:"max-redirects" default:"3" help:"Maximum number of redirects to follow"`
 	MaxSizeRedirect     string        `name:"max-size-redirect" placeholder:"URL" help:"redirect to URL when max-size is exceeded"`
 	Metrics             bool          `name:"metrics" help:"Enable Prometheus compatible metrics endpoint"`
@@ -88,8 +89,8 @@ type CLI struct { // betteralign:ignore
 	NoLogTS             bool          `name:"no-log-ts" help:"Do not add a timestamp to logging"`
 	Profile             bool          `name:"prof" help:"Enable go http profiler endpoint"`
 	LogJson             bool          `name:"log-json" help:"Log in JSON format"`
-	DisableKeepAlivesFE bool          `name:"no-fk" help:"Disable frontend http keep-alive support"`
-	DisableKeepAlivesBE bool          `name:"no-bk" help:"Disable backend http keep-alive support"`
+	DisableKeepAlivesFE bool          `name:"no-fk" help:"Disable frontend http keep-alive support (frontend)"`
+	DisableKeepAlivesBE bool          `name:"no-bk" help:"Disable backend http keep-alive support (backend)"`
 	AllowContentVideo   bool          `name:"allow-content-video" help:"Additionally allow 'video/*' content"`
 	AllowContentAudio   bool          `name:"allow-content-audio" help:"Additionally allow 'audio/*' content"`
 	AllowCredentialURLs bool          `name:"allow-credential-urls" help:"Allow urls to contain user/pass credentials"`
@@ -161,6 +162,7 @@ func (cli *CLI) Run() {
 	// timeouts
 	config.RequestTimeout = cli.ReqTimeout
 	config.IdleTimeout = cli.IdleTimeout
+	config.ReadTimeout = cli.ReadTimeout
 
 	// redirects
 	config.MaxRedirects = cli.MaxRedirects
@@ -301,7 +303,7 @@ func (cli *CLI) Run() {
 	if cli.BindAddress != "" {
 		httpSrv = &http.Server{
 			Addr:        cli.BindAddress,
-			ReadTimeout: 30 * time.Second,
+			ReadTimeout: config.ReadTimeout,
 			IdleTimeout: config.IdleTimeout,
 			Handler:     mux,
 		}
@@ -310,7 +312,7 @@ func (cli *CLI) Run() {
 	if cli.BindAddressSSL != "" {
 		tlsSrv = &http.Server{
 			Addr:        cli.BindAddressSSL,
-			ReadTimeout: 30 * time.Second,
+			ReadTimeout: config.ReadTimeout,
 			IdleTimeout: config.IdleTimeout,
 			Handler:     mux,
 		}

@@ -103,8 +103,18 @@ See __<<ADD_HEADERS>>__ for more info.
     URL to redirect to when max-size is exceeded.
 
 *--timeout*=<__TIME__>::
-    Timeout value for upstream response. Format is "4s" where s means seconds. +
+    Timeout value for upstream response. Format is "4s" where s means seconds
+    (backend). +
     Default: `4s`
+
+*--idletimeout*=<__TIME__>::
+    Maximum amount of time to wait for the next request when keep-alive is
+    enabled (frontend). +
+    Default: `60s`
+
+*--readtimeout*=<__TIME__>::
+    Maximum duration for reading the entire request, including the body (frontend). +
+    Default: `30s`
 
 *--max-redirects*::
     Maximum number of redirects to follow. +
@@ -134,10 +144,10 @@ See __<<METRICS>>__ for more info.
     Do not add a timestamp to logging output.
 
 *--no-fk*::
-    Disable frontend http keep-alive support.
+    Disable frontend http keep-alive support (frontend).
 
 *--no-bk*::
-    Disable backend http keep-alive support.
+    Disable backend http keep-alive support (backend).
 
 *--log-json*::
     Log in JSON format.
