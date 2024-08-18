@@ -147,7 +147,7 @@ Building requires:
 *   make
 *   posix compatible shell (sh)
 *   git
-*   go (latest version recommended. At least version >= 1.22)
+*   go (most recent version recommended)
 *   {link-asciidoctor} (for building man pages only)
 
 Building:

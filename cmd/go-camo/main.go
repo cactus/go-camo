@@ -80,7 +80,7 @@ type CLI struct { // betteralign:ignore
 	SSLCert             string        `name:"ssl-cert" placeholder:"PATH" help:"ssl cert (cert.pem) path"`
 	MaxSize             int64         `name:"max-size" placeholder:"INT" help:"Max allowed response size, in KB"`
 	ReqTimeout          time.Duration `name:"timeout" default:"4s" help:"Upstream request timeout (backend)"`
-	IdleTimeout         time.Duration `name:"idletimeout" default:"60s" help:"Maximum amount of time to wait for the next request when keep-alive is enabled (frontend)"`
+	IdleTimeout         time.Duration `name:"idletimeout" default:"30s" help:"Maximum amount of time to wait for the next request when keep-alive is enabled (frontend)"`
 	ReadTimeout         time.Duration `name:"readtimeout" default:"30s" help:"Maximum duration for reading the entire request, including the body (frontend)"`
 	MaxRedirects        int           `name:"max-redirects" default:"3" help:"Maximum number of redirects to follow"`
 	MaxSizeRedirect     string        `name:"max-size-redirect" placeholder:"URL" help:"redirect to URL when max-size is exceeded"`

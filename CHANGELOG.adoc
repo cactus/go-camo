@@ -23,11 +23,14 @@ toc::[]
     Default is 30s (same as previosly).
 *   Add CLI flag for configuring IdleTimeout, the maximum amount of time to wait
     for the next request when keep-alive is enabled (frontend). +
-    Default is 60 seconds.
-
-    Previously this value was not set, so it defaulted to the zero value, in
-    which case the ReadTimeout value (default 30s) was used internally by the go
-    http server.
+    Default is 30 seconds.
++
+[NOTE]
+--
+Previously this value was not set, so it defaulted to the zero value, in
+which case the ReadTimeout value (default 30s) was used internally by the go
+http server. The new default mirrors the old default.
+--
 
 == v2.5.1 2024-07-02
 *   Rebuild release with Go-1.22.5
