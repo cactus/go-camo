@@ -18,6 +18,8 @@ toc::[]
 :link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
 
 == HEAD
+
+== 2024-08-31
 *   Start building with Go-1.23.0
 *   Add CLI flag to expose ReadTimeout for tuning (frontend). +
     Default is 30s (same as previosly).
@@ -27,9 +29,9 @@ toc::[]
 +
 [NOTE]
 --
-Previously this value was not set, so it defaulted to the zero value, in
-which case the ReadTimeout value (default 30s) was used internally by the go
-http server. The new default mirrors the old default.
+Previously this value was not set, so it defaulted to the zero value,
+which resulted in the ReadTimeout value (default 30s) being used internally by
+the go http server. The new default mirrors this previous old default.
 --
 
 == v2.5.1 2024-07-02
