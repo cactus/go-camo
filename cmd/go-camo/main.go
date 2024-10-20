@@ -339,29 +339,31 @@ func (cli *CLI) Run() {
 		mlog.Info("Handling signal:", s)
 		mlog.Info("Starting graceful shutdown")
 
-		closeWait := 200 * time.Millisecond
+		closeWait := 300 * time.Millisecond
 
-		ctx, cancel := context.WithTimeout(context.Background(), closeWait)
-		// Even though ctx may be expired by then, it is good practice to call its
-		// cancellation function in any case. Failure to do so may keep the
-		// context and its parent alive longer than necessary.
-		defer cancel()
 		if httpSrv != nil {
+			ctx, cancel := context.WithTimeout(context.Background(), closeWait)
+			// Even though ctx may be expired by then, it is good practice to call its
+			// cancellation function in any case. Failure to do so may keep the
+			// context and its parent alive longer than necessary.
+			defer cancel()
 			if err := httpSrv.Shutdown(ctx); err != nil {
 				mlog.Info("Error gracefully shutting down HTTP server:", err)
 			}
 		}
 
-		ctx, cancel = context.WithTimeout(context.Background(), closeWait)
-		defer cancel()
 		if tlsSrv != nil {
+			ctx, cancel := context.WithTimeout(context.Background(), closeWait)
+			defer cancel()
 			if err := tlsSrv.Shutdown(ctx); err != nil {
 				mlog.Info("Error gracefully shutting down HTTP/TLS server:", err)
 			}
 		}
 
 		if quicSrv != nil {
-			if err := quicSrv.CloseGracefully(closeWait); err != nil {
+			ctx, cancel := context.WithTimeout(context.Background(), closeWait)
+			defer cancel()
+			if err := quicSrv.Shutdown(ctx); err != nil {
 				mlog.Info("Error gracefully shutting down HTTP3/QUIC server:", err)
 			}
 		}
