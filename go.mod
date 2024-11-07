@@ -3,7 +3,7 @@ module github.com/cactus/go-camo/v2
 go 1.23.1
 
 require (
-	github.com/alecthomas/kong v1.3.0
+	github.com/alecthomas/kong v1.4.0
 	github.com/cactus/mlog v1.0.10
 	github.com/prometheus/client_golang v1.20.5
 	github.com/prometheus/common v0.60.1
