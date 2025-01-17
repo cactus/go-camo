@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/kong v1.6.1
 	github.com/cactus/mlog v1.0.10
 	github.com/prometheus/client_golang v1.20.5
-	github.com/prometheus/common v0.61.0
+	github.com/prometheus/common v0.62.0
 	github.com/quic-go/quic-go v0.48.2
 	github.com/xlab/treeprint v1.2.0
 	go.uber.org/automaxprocs v1.6.0
@@ -35,5 +35,5 @@ require (
 	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/tools v0.29.0 // indirect
-	google.golang.org/protobuf v1.36.2 // indirect
+	google.golang.org/protobuf v1.36.3 // indirect
 )
