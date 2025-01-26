@@ -15,6 +15,7 @@ endif::[]
 :link-hmac: https://en.wikipedia.org/wiki/HMAC[HMAC]
 :link-hsts: https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security[HSTS]
 :link-asciidoctor: https://asciidoctor.org[asciidoctor]
+:link-scdoc: https://git.sr.ht/~sircmpwn/scdoc/[scdoc]
 :link-damontools: https://cr.yp.to/daemontools.html[daemontools]
 :link-runit: https://en.wikipedia.org/wiki/Runit[runit]
 :link-upstart: https://en.wikipedia.org/wiki/Upstart_(software)[upstart]
@@ -148,7 +149,7 @@ Building requires:
 *   posix compatible shell (sh)
 *   git
 *   go (most recent version recommended)
-*   {link-asciidoctor} (for building man pages only)
+*   {link-scdoc} (for building man pages only)
 
 Building:
 

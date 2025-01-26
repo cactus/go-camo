@@ -166,11 +166,11 @@ update-go-deps:
 	@go get -u all
 	@go mod tidy
 
-${BUILDDIR}/man/%: man/%.adoc
+${BUILDDIR}/man/%: man/%.scd
 	@[ -d "${BUILDDIR}/man" ] || mkdir -p "${BUILDDIR}/man"
-	@asciidoctor -b manpage -a release-version="${APP_VER}" -o $@ $<
+	@scdoc < $< > $@
 
-man: $(patsubst man/%.adoc,${BUILDDIR}/man/%,$(wildcard man/*.adoc))
+man: $(patsubst man/%.scd,${BUILDDIR}/man/%,$(wildcard man/*.scd))
 
 tar: all
 	@echo "Building tar..."
