@@ -337,7 +337,7 @@ A few notes about specific flags:
 --
 If a `filter-ruleset` file is defined,
 that file is read and each line is converted into a filter rule.
-See link:man/go-camo-filtering.5.adoc[`go-camo-filtering(5)`]
+See link:man/go-camo-filtering.5.scd[`go-camo-filtering(5)`]
 for more information regarding the format for the filter file itself.
 
 Regarding evaluation: The ruleset is NOT evaluated in-order.
