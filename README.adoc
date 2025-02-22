@@ -268,7 +268,7 @@ More generally, it is recommended to either:
     for addresses in deny-listed ranges (e.g. unbound's `private-address` functionality).
     This is also useful to help prevent dns rebinding in general.
 *   Use something like {link-smokescreen} as an upstream proxy to filter outgoing
-    requests.
+    requests (note caveats in <<Upstream Http Proxying>>).
 
 == Configuring
 
