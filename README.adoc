@@ -31,6 +31,7 @@ endif::[]
 :link-mit-license: https://www.opensource.org/licenses/mit-license.php[MIT license]
 :link-mrsaints: https://github.com/MrSaints[MrSaints]
 :link-arachnys-fork: https://github.com/arachnys/go-camo[fork]
+:link-smokescreen: https://github.com/stripe/smokescreen[smokescreen]
 
 image:https://img.shields.io/github/release/cactus/go-camo.svg[Current Release,link=http://github.com/cactus/go-camo/releases]
 image:https://img.shields.io/docker/image-size/cactus4docker/go-camo?label=container%20size[Container Image Size (latest by date),link=https://hub.docker.com/r/cactus4docker/go-camo]
@@ -266,6 +267,8 @@ More generally, it is recommended to either:
 *   Run a local resolver for go-camo that returns NXDOMAIN responses
     for addresses in deny-listed ranges (e.g. unbound's `private-address` functionality).
     This is also useful to help prevent dns rebinding in general.
+*   Use something like {link-smokescreen} as an upstream proxy to filter outgoing
+    requests.
 
 == Configuring
 
