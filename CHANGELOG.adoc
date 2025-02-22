@@ -18,7 +18,11 @@ toc::[]
 :link-proxy-from-env: https://golang.org/pkg/net/http/#ProxyFromEnvironment
 
 == HEAD
+
+== v2.6.2 2025-02-22
 *   Switch man-page generate to scdoc.
+*   Update dependencies
+*   Build with go-1.24
 
 == v2.6.1 2024-12-19
 *   Update dependencies
