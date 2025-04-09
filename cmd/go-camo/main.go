@@ -31,6 +31,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
 	"github.com/quic-go/quic-go/http3"
+	gomaxecs "github.com/rdforte/gomaxecs/maxprocs"
 	"go.uber.org/automaxprocs/maxprocs"
 )
 
@@ -230,11 +231,18 @@ func (cli *CLI) Run() {
 	}
 
 	if cli.AutoMaxProcs {
-		// #nosec G104
-		maxprocs.Set(
-			maxprocs.Logger(mlog.Infof),
-			maxprocs.RoundQuotaFunc(func(v float64) int { return int(math.Ceil(v)) }),
-		)
+		switch {
+		case gomaxecs.IsECS():
+			gomaxecs.Set(gomaxecs.WithLogger(func(str string, params ...any) {
+				mlog.Info(str, params)
+			}))
+		default:
+			// #nosec G104
+			maxprocs.Set(
+				maxprocs.Logger(mlog.Infof),
+				maxprocs.RoundQuotaFunc(func(v float64) int { return int(math.Ceil(v)) }),
+			)
+		}
 	}
 
 	if cli.LogJson {
