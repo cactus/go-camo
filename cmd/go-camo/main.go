@@ -233,6 +233,7 @@ func (cli *CLI) Run() {
 	if cli.AutoMaxProcs {
 		switch {
 		case gomaxecs.IsECS():
+			// #nosec G104
 			gomaxecs.Set(gomaxecs.WithLogger(func(str string, params ...any) {
 				mlog.Info(str, params)
 			}))
