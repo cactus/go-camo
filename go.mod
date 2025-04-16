@@ -8,6 +8,7 @@ require (
 	github.com/prometheus/client_golang v1.22.0
 	github.com/prometheus/common v0.63.0
 	github.com/quic-go/quic-go v0.50.1
+	github.com/rdforte/gomaxecs v1.1.1
 	github.com/xlab/treeprint v1.2.0
 	go.uber.org/automaxprocs v1.6.0
 	golang.org/x/net v0.39.0
