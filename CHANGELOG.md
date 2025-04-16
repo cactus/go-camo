@@ -1,5 +1,10 @@
 # HEAD
 
+- Support for ECS quota detection with automaxprocs  
+  ref: [\#83](https://github.com/cactus/go-camo/pull/83)
+
+- Update depencencies
+
 # v2.6.3 2025-04-01
 
 - Build with go-1.24.2
