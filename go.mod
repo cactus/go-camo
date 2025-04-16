@@ -1,6 +1,6 @@
 module github.com/cactus/go-camo/v2
 
-go 1.24
+go 1.24.0
 
 require (
 	github.com/alecthomas/kong v1.10.0
