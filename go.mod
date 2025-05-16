@@ -3,10 +3,10 @@ module github.com/cactus/go-camo/v2
 go 1.24.0
 
 require (
-	github.com/alecthomas/kong v1.10.0
+	github.com/alecthomas/kong v1.11.0
 	github.com/cactus/mlog v1.0.10
 	github.com/prometheus/client_golang v1.22.0
-	github.com/prometheus/common v0.63.0
+	github.com/prometheus/common v0.64.0
 	github.com/quic-go/quic-go v0.51.0
 	github.com/rdforte/gomaxecs v1.1.1
 	github.com/xlab/treeprint v1.2.0
