@@ -9,7 +9,6 @@ import (
 	"context"
 	"expvar"
 	"fmt"
-	"math"
 	"net"
 	"net/http"
 	"net/http/pprof"
@@ -32,7 +31,6 @@ import (
 	"github.com/prometheus/common/version"
 	"github.com/quic-go/quic-go/http3"
 	gomaxecs "github.com/rdforte/gomaxecs/maxprocs"
-	"go.uber.org/automaxprocs/maxprocs"
 )
 
 const metricNamespace = "camo"
@@ -230,20 +228,11 @@ func (cli *CLI) Run() {
 		mlog.Debug("debug logging enabled")
 	}
 
-	if cli.AutoMaxProcs {
-		switch {
-		case gomaxecs.IsECS():
-			// #nosec G104
-			gomaxecs.Set(gomaxecs.WithLogger(func(str string, params ...any) {
-				mlog.Info(str, params)
-			}))
-		default:
-			// #nosec G104
-			maxprocs.Set(
-				maxprocs.Logger(mlog.Infof),
-				maxprocs.RoundQuotaFunc(func(v float64) int { return int(math.Ceil(v)) }),
-			)
-		}
+	if cli.AutoMaxProcs && gomaxecs.IsECS() {
+		// #nosec G104
+		gomaxecs.Set(gomaxecs.WithLogger(func(str string, params ...any) {
+			mlog.Info(str, params)
+		}))
 	}
 
 	if cli.LogJson {

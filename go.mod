@@ -1,6 +1,6 @@
 module github.com/cactus/go-camo/v2
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/alecthomas/kong v1.12.1
@@ -10,7 +10,6 @@ require (
 	github.com/quic-go/quic-go v0.54.0
 	github.com/rdforte/gomaxecs v1.1.1
 	github.com/xlab/treeprint v1.2.0
-	go.uber.org/automaxprocs v1.6.0
 	golang.org/x/net v0.43.0
 	gotest.tools/v3 v3.5.2
 )
