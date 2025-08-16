@@ -15,7 +15,7 @@ Portions of this software utilize third party libraries:
     ├── github.com/prometheus/client_golang (Apache 2.0)
     ├── github.com/prometheus/common        (Apache 2.0)
     ├── github.com/quic-go/quic-go          (MIT license)
-    ├── go.uber.org/automaxprocs            (MIT license)
+    ├── github.com/rdforte/gomaxecs         (MIT license)
     └── golang.org/x/net                    (BSD license)
 
 *   Test/Build only dependencies:
