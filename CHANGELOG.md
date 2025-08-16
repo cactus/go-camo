@@ -1,5 +1,11 @@
 # HEAD
 
+# v2.6.5 2025-08-16
+
+- rebuild binaries with go-1.25
+- remove gomaxprocs dependencies, as this functionality now natively handled by
+  Go itself (as of go-1.25)
+
 # v2.6.4 2025-08-09
 
 - Support for ECS quota detection with automaxprocs  
