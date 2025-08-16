@@ -285,10 +285,10 @@ func TestMaxSizeRedirect(t *testing.T) {
 
 func TestSupplyAcceptIfNoneGiven(t *testing.T) {
 	t.Parallel()
-	testURL := "http://images.anandtech.com/doci/6673/OpenMoboAMD30_575px.png"
+	testURL := "https://picsum.photos/200/300"
 	req, err := makeReq(camoConfig, testURL)
-	req.Header.Del("Accept")
 	assert.Check(t, err)
+	req.Header.Del("Accept")
 	_, err = processRequest(req, 200, camoConfig, nil)
 	assert.Check(t, err)
 }
