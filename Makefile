@@ -82,6 +82,9 @@ ${GOBIN}/ineffassign:
 ${GOBIN}/errcheck:
 	go install github.com/kisielk/errcheck@latest
 
+${GOBIN}/errortype:
+	go install fillmore-labs.com/errortype@latest
+
 ${GOBIN}/go-errorlint:
 	go install github.com/polyfloyd/go-errorlint@latest
 
@@ -106,7 +109,7 @@ ${GOBIN}/nilness:
 CHECK_TOOLS := ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
 CHECK_TOOLS += ${GOBIN}/errcheck ${GOBIN}/ineffassign ${GOBIN}/nilaway
 CHECK_TOOLS += ${GOBIN}/go-errorlint ${GOBIN}/deadcode ${GOBIN}/betteralign
-CHECK_TOOLS += ${GOBIN}/nilness
+CHECK_TOOLS += ${GOBIN}/nilness ${GOBIN}/errortype
 
 ## end tools
 
@@ -146,6 +149,8 @@ check: setup setup-check
 	@${GOBIN}/staticcheck ./...
 	@echo "... errcheck ..."
 	@${GOBIN}/errcheck -ignoretests -exclude .errcheck-excludes.txt ./...
+	@echo "... errortype ..."
+	@${GOBIN}/errortype ./...
 	@echo "... go-vet ..."
 	@go vet ./...
 	@echo "... nilness ..."
