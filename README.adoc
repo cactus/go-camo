@@ -327,6 +327,7 @@ Flags:
       --filter-ruleset=PATH      Text file containing filtering rules (one per
                                  line)
       --server-name="go-camo"    Value to use for the HTTP server field
+      --user-agent="go-camo"     user-agent for outgoing requests
       --expose-server-version    Include the server version in the HTTP server
                                  response header
       --enable-xfwd4             Enable x-forwarded-for passthrough/generation

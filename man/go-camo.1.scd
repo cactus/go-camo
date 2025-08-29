@@ -148,6 +148,10 @@ For exmaple, if the HMAC key is provided on the command line, it will override
 	Value to use for the HTTP server field.++
 	Default: go-camo
 
+*--user-agent*=<_USER-AGENT_>
+	Value to use for the User-Agent http request header.++
+	Default: go-camo
+
 *--expose-server-version*
 	Include the server version in the HTTP server response header.
 
