@@ -27,12 +27,11 @@ CC_BUILD_ARCHES    = darwin/arm64 freebsd/amd64 linux/amd64 linux/arm64 windows/
 CC_OUTPUT_TPL     := ${BUILDDIR}/bin/{{.Dir}}.{{.OS}}-{{.Arch}}
 
 # some exported vars (pre-configure go build behavior)
-export GO111MODULE=on
 export CGO_ENABLED=0
 # unsure toolchains are not automatically downloaded/upgraded
 export GOTOOLCHAIN=local
-## enable go 1.21 loopvar "experiment"
-export GOEXPERIMENT=loopvar
+## enable go 1.25 GC "experiment"
+export GOEXPERIMENT=greenteagc
 export GOBIN
 export PATH := ${GOBIN}:${PATH}
 
