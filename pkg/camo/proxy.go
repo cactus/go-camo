@@ -576,7 +576,7 @@ func New(pc Config) (*Proxy, error) {
 		Timeout: pc.RequestTimeout,
 	}
 
-	acceptTypes := []string{"image/*"}
+	acceptTypes := []string{"image/*", "image/svg+xml"}
 	// add additional accept types, if appropriate
 	if pc.AllowContentVideo {
 		acceptTypes = append(acceptTypes, "video/*")
