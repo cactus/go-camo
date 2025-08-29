@@ -32,6 +32,8 @@ import (
 type Config struct { // betteralign:ignore
 	// Server name used in Headers and Via checks
 	ServerName string
+	// User Agent used in outbound request Headers
+	UserAgent string
 	// HMACKey is a byte slice to be used as the hmac key
 	HMACKey []byte
 	// MaxSize is the maximum valid image size response (in bytes).
@@ -163,8 +165,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// add/squash an accept header if the client didn't send one
 	nreq.Header.Set("Accept", p.acceptTypesString)
+	nreq.Header.Add("User-Agent", p.config.UserAgent)
 
-	nreq.Header.Add("User-Agent", p.config.ServerName)
+	// must be ServerName to avoid request loops, checked at the top of ServeHttp
 	nreq.Header.Add("Via", p.config.ServerName)
 
 	if mlog.HasDebug() {

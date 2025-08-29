@@ -96,6 +96,7 @@ type CLI struct { // betteralign:ignore
 	AllowCredentialURLs bool          `name:"allow-credential-urls" help:"Allow urls to contain user/pass credentials"`
 	FilterRuleset       string        `name:"filter-ruleset" placeholder:"PATH" help:"Text file containing filtering rules (one per line)"`
 	ServerName          string        `name:"server-name" default:"go-camo" help:"Value to use for the HTTP server field"`
+	UserAgent           string        `name:"user-agent" default:"go-camo" help:"user-agent for outgoing requests"`
 	ExposeServerVersion bool          `name:"expose-server-version" help:"Include the server version in the HTTP server response header"`
 	EnableXFwdFor       bool          `name:"enable-xfwd4" help:"Enable x-forwarded-for passthrough/generation"`
 	Verbose             bool          `name:"verbose" short:"v" help:"Show verbose (debug) log level output"`
@@ -177,6 +178,7 @@ func (cli *CLI) Run() {
 	config.AllowCredentialURLs = cli.AllowCredentialURLs
 	config.MaxSize = cli.MaxSize * 1024 // convert from KB to Bytes
 	config.ServerName = ServerName
+	config.UserAgent = cli.UserAgent
 
 	// configure metrics collection in camo
 	if cli.Metrics {
