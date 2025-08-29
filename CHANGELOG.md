@@ -1,5 +1,8 @@
 # HEAD
 
+- fix: add image/svg+xml to acceptTypes. (#84)
+- add ability to set user-agent, distinct from server-name
+
 # v2.6.5 2025-08-16
 
 - rebuild binaries with go-1.25
