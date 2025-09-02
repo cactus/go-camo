@@ -10,8 +10,8 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/dropwhile/assert"
 	"golang.org/x/net/http/httpproxy"
-	"gotest.tools/v3/assert"
 )
 
 func IPListToStringList(sliceList []net.IP) []string {
@@ -37,7 +37,7 @@ func TestUpstreamProxyParsing(t *testing.T) {
 	assert.Equal(t, uspc.httpProxy.scheme, "http")
 	assert.Equal(t, uspc.httpProxy.host, "127.0.0.1")
 	assert.Equal(t, uspc.httpProxy.port, "80")
-	assert.DeepEqual(
+	assert.Equal(
 		t,
 		uspc.httpProxy.addresses,
 		[]net.IP{
@@ -50,7 +50,7 @@ func TestUpstreamProxyParsing(t *testing.T) {
 
 	addresses := IPListToStringList(uspc.httpsProxy.addresses)
 	sort.Strings(addresses)
-	assert.DeepEqual(
+	assert.Equal(
 		t,
 		addresses,
 		[]string{
@@ -89,7 +89,7 @@ func TestUpstreamProxyMatching(t *testing.T) {
 		default:
 			tRes = !result
 		}
-		assert.Check(t, tRes == result,
+		assert.Equal(t, tRes, result,
 			fmt.Sprintf("match-%s check failed (%s, %s, %t)",
 				matchtype, address, port, result))
 	}

@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"gotest.tools/v3/assert"
+	"github.com/dropwhile/assert"
 )
 
 func TestHTrieCheckURL(t *testing.T) {
@@ -51,7 +51,7 @@ func TestHTrieCheckURL(t *testing.T) {
 	dt := NewURLMatcher()
 	for _, rule := range rules {
 		err := dt.AddRule(rule)
-		assert.Check(t, err)
+		assert.Nil(t, err)
 	}
 
 	// fmt.Println(dt.RenderTree())
@@ -59,14 +59,14 @@ func TestHTrieCheckURL(t *testing.T) {
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)
 		chk, err := dt.CheckURL(u)
-		assert.NilError(t, err)
-		assert.Check(t, chk, fmt.Sprintf("should have matched: %s", urlPathUnescape(u)))
+		assert.Nil(t, err)
+		assert.True(t, chk, fmt.Sprintf("should have matched: %s", urlPathUnescape(u)))
 	}
 	for _, u := range testNoMatch {
 		u, _ := url.Parse(u)
 		chk, err := dt.CheckURL(u)
-		assert.NilError(t, err)
-		assert.Check(t, !chk, fmt.Sprintf("should not have matched: %s", urlPathUnescape(u)))
+		assert.Nil(t, err)
+		assert.False(t, chk, fmt.Sprintf("should not have matched: %s", urlPathUnescape(u)))
 	}
 }
 
@@ -118,14 +118,14 @@ func TestHTrieCheckHostname(t *testing.T) {
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)
 		result, err := dt.CheckHostname(u.Hostname())
-		assert.NilError(t, err)
-		assert.Check(t, result, fmt.Sprintf("should have matched: %s", urlPathUnescape(u)))
+		assert.Nil(t, err)
+		assert.True(t, result, fmt.Sprintf("should have matched: %s", urlPathUnescape(u)))
 	}
 	for _, u := range testNoMatch {
 		u, _ := url.Parse(u)
 		result, err := dt.CheckHostname(u.Hostname())
-		assert.NilError(t, err)
-		assert.Check(t, !result, fmt.Sprintf("should not have matched: %s", urlPathUnescape(u)))
+		assert.Nil(t, err)
+		assert.False(t, result, fmt.Sprintf("should not have matched: %s", urlPathUnescape(u)))
 	}
 }
 
@@ -198,7 +198,7 @@ func BenchmarkHTrieMatch(b *testing.B) {
 	dt := NewURLMatcher()
 	for _, rule := range rules {
 		err := dt.AddRule(rule)
-		assert.Check(b, err)
+		assert.Nil(b, err)
 	}
 
 	parsed := make([]*url.URL, 0)
@@ -277,7 +277,7 @@ func BenchmarkHTrieMatchHostname(b *testing.B) {
 	dt := NewURLMatcher()
 	for _, rule := range rules {
 		err := dt.AddRule(rule)
-		assert.Check(b, err)
+		assert.Nil(b, err)
 	}
 
 	parsed := make([]string, 0)

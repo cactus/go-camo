@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"testing"
 
-	"gotest.tools/v3/assert"
+	"github.com/dropwhile/assert"
 )
 
 func TestGlobPathChecker(t *testing.T) {
@@ -50,20 +50,20 @@ func TestGlobPathChecker(t *testing.T) {
 	gpc := NewGlobPathChecker()
 	for _, rule := range rules {
 		err := gpc.AddRule(rule)
-		assert.Check(t, err)
+		assert.Nil(t, err)
 	}
 
 	// fmt.Println(gpc.RenderTree())
 
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)
-		assert.Check(t, gpc.CheckPath(u.EscapedPath()),
+		assert.True(t, gpc.CheckPath(u.EscapedPath()),
 			fmt.Sprintf("should have matched: %s", u))
 
 	}
 	for _, u := range testNoMatch {
 		u, _ := url.Parse(u)
-		assert.Check(t, !gpc.CheckPath(u.EscapedPath()), fmt.Sprintf("should NOT have matched: %s", u))
+		assert.False(t, gpc.CheckPath(u.EscapedPath()), fmt.Sprintf("should NOT have matched: %s", u))
 
 	}
 }
@@ -102,16 +102,16 @@ func TestGlobPathCheckerPathsMisc(t *testing.T) {
 	gpc := NewGlobPathChecker()
 	for _, rule := range rules {
 		err := gpc.AddRule(rule)
-		assert.Check(t, err)
+		assert.Nil(t, err)
 	}
 
 	// fmt.Println(gpc.RenderTree())
 
 	for _, u := range testMatch {
-		assert.Check(t, gpc.CheckPath(u), fmt.Sprintf("should have matched: %s", u))
+		assert.True(t, gpc.CheckPath(u), fmt.Sprintf("should have matched: %s", u))
 	}
 	for _, u := range testNoMatch {
-		assert.Check(t, !gpc.CheckPath(u), fmt.Sprintf("should NOT have matched: %s", u))
+		assert.False(t, gpc.CheckPath(u), fmt.Sprintf("should NOT have matched: %s", u))
 	}
 }
 
@@ -145,7 +145,7 @@ func BenchmarkGlobPathChecker(b *testing.B) {
 	gpc := NewGlobPathChecker()
 	for _, rule := range rules {
 		err := gpc.AddRule(rule)
-		assert.Check(b, err)
+		assert.Nil(b, err)
 	}
 
 	testIters := 10000

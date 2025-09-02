@@ -18,8 +18,7 @@ import (
 	"github.com/cactus/go-camo/v2/pkg/camo/encoding"
 	"github.com/cactus/go-camo/v2/pkg/router"
 	"github.com/cactus/mlog"
-	"gotest.tools/v3/assert"
-	is "gotest.tools/v3/assert/cmp"
+	"github.com/dropwhile/assert"
 )
 
 func TestTimeout(t *testing.T) {
@@ -39,12 +38,12 @@ func TestTimeout(t *testing.T) {
 		<-cc
 		r.Close = true
 		_, err := w.Write([]byte("ok"))
-		assert.Check(t, err)
+		assert.Nil(t, err)
 	}))
 	defer ts.Close()
 
 	req, err := makeReq(c, ts.URL)
-	assert.Check(t, err)
+	assert.Nil(t, err)
 
 	errc := make(chan error, 1)
 	go func() {
@@ -57,7 +56,7 @@ func TestTimeout(t *testing.T) {
 	case <-received:
 		select {
 		case e := <-errc:
-			assert.Check(t, e)
+			assert.Nil(t, e)
 			cc <- true
 		case <-time.After(1 * time.Second):
 			cc <- true
@@ -71,7 +70,7 @@ func TestTimeout(t *testing.T) {
 		default:
 		}
 		if err != nil {
-			assert.Check(t, err, "test didn't hit backend as expected")
+			assert.Nil(t, err, "test didn't hit backend as expected")
 		}
 		t.Errorf("test didn't hit backend as expected")
 	}
@@ -95,7 +94,7 @@ func TestClientCancelEarly(t *testing.T) {
 			w.Header().Set("Content-Type", "image/png")
 			w.Header().Set("Connection", "close")
 			flusher, ok := w.(http.Flusher)
-			assert.Check(t, ok)
+			assert.True(t, ok)
 			for i := 1; i <= 500; i++ {
 				_, err := fmt.Fprintf(w, "Chunk #%d\n", i)
 				// conn closed/broken pipe
@@ -110,7 +109,7 @@ func TestClientCancelEarly(t *testing.T) {
 	defer ts.Close()
 
 	camoServer, err := New(c)
-	assert.Check(t, err)
+	assert.Nil(t, err)
 	router := &router.DumbRouter{
 		ServerName:  c.ServerName,
 		CamoHandler: camoServer,
@@ -120,7 +119,7 @@ func TestClientCancelEarly(t *testing.T) {
 	defer tsCamo.Close()
 
 	conn, err := net.Dial("tcp", tsCamo.Listener.Addr().String())
-	assert.Check(t, err)
+	assert.Nil(t, err)
 	defer conn.Close()
 
 	req := []byte(fmt.Sprintf(
@@ -128,7 +127,7 @@ func TestClientCancelEarly(t *testing.T) {
 		encoding.B64EncodeURL(c.HMACKey, ts.URL+"/image.png"),
 	))
 	_, err = conn.Write(req)
-	assert.Check(t, err)
+	assert.Nil(t, err)
 	conn.Close()
 	time.Sleep(100 * time.Millisecond)
 	// fmt.Printf("done\n")
@@ -150,7 +149,7 @@ func TestClientCancelLate(t *testing.T) {
 			w.Header().Set("Content-Type", "image/png")
 			w.Header().Set("Connection", "close")
 			flusher, ok := w.(http.Flusher)
-			assert.Check(t, ok)
+			assert.True(t, ok)
 			for i := 1; i <= 500; i++ {
 				_, err := fmt.Fprintf(w, "Chunk #%d\n", i)
 				// conn closed/broken pipe
@@ -165,7 +164,7 @@ func TestClientCancelLate(t *testing.T) {
 	defer ts.Close()
 
 	camoServer, err := New(c)
-	assert.Check(t, err)
+	assert.Nil(t, err)
 	router := &router.DumbRouter{
 		ServerName:  c.ServerName,
 		CamoHandler: camoServer,
@@ -175,7 +174,7 @@ func TestClientCancelLate(t *testing.T) {
 	defer tsCamo.Close()
 
 	conn, err := net.Dial("tcp", tsCamo.Listener.Addr().String())
-	assert.Check(t, err)
+	assert.Nil(t, err)
 	defer conn.Close()
 
 	req := []byte(fmt.Sprintf(
@@ -183,13 +182,13 @@ func TestClientCancelLate(t *testing.T) {
 		encoding.B64EncodeURL(c.HMACKey, ts.URL+"/image.png"),
 	))
 	_, err = conn.Write(req)
-	assert.Check(t, err)
+	assert.Nil(t, err)
 
 	// partial read
 	cReader := bufio.NewReaderSize(conn, 32)
 	for {
 		data, err := cReader.ReadBytes('\n')
-		assert.Check(t, err)
+		assert.Nil(t, err)
 		if bytes.Contains(data, []byte("Chunk #2")) {
 			break
 		} else if bytes.Contains(data, []byte("404 Not Found")) {
@@ -200,7 +199,7 @@ func TestClientCancelLate(t *testing.T) {
 					mlog.Debug("got eof")
 					break
 				}
-				assert.Check(t, err)
+				assert.Nil(t, err)
 				mlog.Debugf("got: %s", string(d))
 			}
 			break
@@ -234,15 +233,15 @@ func TestServerEarlyEOF(t *testing.T) {
 	defer ts.Close()
 
 	req, err := makeReq(c, ts.URL)
-	assert.Check(t, err)
+	assert.Nil(t, err)
 	// response is a 200, not much we can do about that since we response
 	// streaming (chunked)...
 	resp, err := processRequest(req, 200, c, nil)
-	assert.Check(t, err)
+	assert.Nil(t, err)
 
 	body, err := io.ReadAll(resp.Body)
-	assert.Check(t, err)
-	assert.Check(t, is.Len(body, 0))
+	assert.Nil(t, err)
+	assert.Equal(t, len(body), 0)
 }
 
 func TestServerChunkTooBig(t *testing.T) {
@@ -261,7 +260,7 @@ func TestServerChunkTooBig(t *testing.T) {
 			w.Header().Set("Content-Type", "image/png")
 			w.Header().Set("Connection", "close")
 			flusher, ok := w.(http.Flusher)
-			assert.Check(t, ok)
+			assert.True(t, ok)
 			for i := 1; i <= 500; i++ {
 				// all done
 				if r.Context().Err() != nil {
@@ -270,7 +269,7 @@ func TestServerChunkTooBig(t *testing.T) {
 				}
 				_, err := fmt.Fprintf(w, "Chunk #%d\n", i)
 				if err != nil {
-					assert.Check(t, err)
+					assert.Nil(t, err)
 					break
 				}
 				flusher.Flush() // Trigger "chunked" encoding and send a chunk...
@@ -280,11 +279,11 @@ func TestServerChunkTooBig(t *testing.T) {
 	defer ts.Close()
 
 	req, err := makeReq(c, ts.URL)
-	assert.Check(t, err)
+	assert.Nil(t, err)
 	// response is a 200, not much we can do about that since we response
 	// streaming (chunked)...
 	resp, err := processRequest(req, 200, c, nil)
-	assert.Check(t, err)
+	assert.Nil(t, err)
 
 	// partial read
 	cReader := bufio.NewReaderSize(resp.Body, 100)
@@ -295,8 +294,8 @@ func TestServerChunkTooBig(t *testing.T) {
 		if err == io.EOF {
 			break
 		}
-		assert.Check(t, err)
+		assert.Nil(t, err)
 	}
 	// at least we should have only read the MaxSize amount...
-	assert.Check(t, is.Equal(total, 1024))
+	assert.Equal(t, total, 1024)
 }

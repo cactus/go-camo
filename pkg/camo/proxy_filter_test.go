@@ -10,8 +10,7 @@ import (
 	"net/url"
 	"testing"
 
-	"gotest.tools/v3/assert"
-	is "gotest.tools/v3/assert/cmp"
+	"github.com/dropwhile/assert"
 )
 
 func TestFilterListAcceptSimple(t *testing.T) {
@@ -26,10 +25,10 @@ func TestFilterListAcceptSimple(t *testing.T) {
 	}
 	testURL := "http://www.google.com/images/srpr/logo11w.png"
 	req, err := makeReq(camoConfig, testURL)
-	assert.Check(t, err)
+	assert.Nil(t, err)
 	_, err = processRequest(req, 200, camoConfig, filters)
-	assert.Check(t, err)
-	assert.Check(t, called, "filter func wasn't called")
+	assert.Nil(t, err)
+	assert.True(t, called, "filter func wasn't called")
 }
 
 func TestFilterListAcceptSimpleWithFilterError(t *testing.T) {
@@ -44,10 +43,10 @@ func TestFilterListAcceptSimpleWithFilterError(t *testing.T) {
 	}
 	testURL := "http://www.google.com/images/srpr/logo11w.png"
 	req, err := makeReq(camoConfig, testURL)
-	assert.Check(t, err)
+	assert.Nil(t, err)
 	_, err = processRequest(req, 404, camoConfig, filters)
-	assert.Check(t, err)
-	assert.Check(t, called, "filter func wasn't called")
+	assert.Nil(t, err)
+	assert.True(t, called, "filter func wasn't called")
 }
 
 func TestFilterListMatrixMultiples(t *testing.T) {
@@ -55,7 +54,7 @@ func TestFilterListMatrixMultiples(t *testing.T) {
 
 	testURL := "http://www.google.com/images/srpr/logo11w.png"
 	req, err := makeReq(camoConfig, testURL)
-	assert.Check(t, err)
+	assert.Nil(t, err)
 
 	type errResp []Tuple[bool, error]
 
@@ -79,10 +78,9 @@ func TestFilterListMatrixMultiples(t *testing.T) {
 			)
 		}
 		_, err = processRequest(req, respcode, camoConfig, filters)
-		assert.Check(t, err)
+		assert.Nil(t, err)
 		for i := range callMatrix {
-			assert.Check(t, is.Equal(
-				callMatrix[i], expectedCallMatrix[i]),
+			assert.Equal(t, callMatrix[i], expectedCallMatrix[i],
 				fmt.Sprintf(
 					"filter func called='%t'[%d] wanted '%t'",
 					callMatrix[i], i, expectedCallMatrix[i],
