@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/alecthomas/kong v1.12.1
 	github.com/cactus/mlog v1.0.10
-	github.com/dropwhile/assert v1.1.0
+	github.com/dropwhile/assert v1.2.0
 	github.com/prometheus/client_golang v1.23.2
 	github.com/prometheus/common v0.66.1
 	github.com/quic-go/quic-go v0.54.0
