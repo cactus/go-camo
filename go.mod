@@ -11,7 +11,7 @@ require (
 	github.com/quic-go/quic-go v0.54.0
 	github.com/rdforte/gomaxecs v1.1.1
 	github.com/xlab/treeprint v1.2.0
-	golang.org/x/net v0.43.0
+	golang.org/x/net v0.44.0
 )
 
 require (
@@ -30,7 +30,7 @@ require (
 	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/text v0.29.0 // indirect
-	golang.org/x/tools v0.36.0 // indirect
-	google.golang.org/protobuf v1.36.8 // indirect
+	golang.org/x/tools v0.37.0 // indirect
+	google.golang.org/protobuf v1.36.9 // indirect
 	gotest.tools/v3 v3.5.2 // indirect
 )
