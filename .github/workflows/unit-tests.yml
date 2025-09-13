@@ -23,6 +23,24 @@ jobs:
           check-latest: true
         id: go
 
+      - name: Cache Tools
+        uses: actions/cache@v4
+        with:
+          path: .cache/tools
+          key: ${{ runner.os }}-${{ runner.arch }}-tools-${{ hashFiles('tools/tools.conf') }}
+          restore-keys: |
+            ${{ runner.os }}-tools-
+
+      - name: Go mod cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-${{ runner.arch }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-go-
+
       - name: Build
         env:
           GOPROXY: "https://proxy.golang.org"
@@ -63,6 +81,16 @@ jobs:
       - name: Install QEMU
         uses: docker/setup-qemu-action@v3
 
+      - name: Go mod cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-${{ runner.arch }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-go-
+
       - name: Build
         env:
           GOPROXY: "https://proxy.golang.org"
@@ -75,4 +103,3 @@ jobs:
           GOARCH: ${{ matrix.arch }}
           CI: true
         run: make test GOTEST_RUNNER="go test"
-
