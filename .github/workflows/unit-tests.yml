@@ -73,7 +73,6 @@ jobs:
         env:
           GOPROXY: "https://proxy.golang.org"
           GOARCH: ${{ matrix.arch }}
-          GOTEST_RUNNER: "go test"
           CI: true
-        run: make test
+        run: make test GOTEST_RUNNER="go test"
 
