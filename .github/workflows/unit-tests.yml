@@ -30,7 +30,7 @@ jobs:
           path: .cache/tools
           key: ${{ runner.os }}-${{ runner.arch }}-tools-${{ hashFiles('tools/tools.conf') }}
           restore-keys: |
-            ${{ runner.os }}-tools-
+            ${{ runner.os }}-${{ runner.arch }}-tools-
 
       - name: Build
         env:
