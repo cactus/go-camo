@@ -20,6 +20,7 @@ VERSION_VAR       := main.ServerVersion
 # flags and build configuration
 GOBUILD_OPTIONS   := -trimpath
 GOTEST_FLAGS      := -cpu=1,2
+GOTESTSUM_FLAGS   :=
 GOTEST_BENCHFLAGS :=
 GOBUILD_DEPFLAGS  := -tags netgo
 GOBUILD_LDFLAGS   ?= -s -w
@@ -93,20 +94,20 @@ build: setup
 	@go build ${GOBUILD_FLAGS} -o "${BUILDDIR}/bin/url-tool" ./cmd/url-tool
 	@echo "done!"
 
-.PHONY: test
-test: setup
-	@echo "Running tests..."
-	@${TOOLEXE} gotestsum -- -count=1 -cpu=4 -vet=off ${GOTEST_FLAGS} ./...
-
 .PHONY: bench
 bench: setup setup-bench
 	@echo "Running benchmarks..."
 	@go test -bench="." -run="^$$" -test.benchmem=true ${GOTEST_BENCHFLAGS} ./...
 
+.PHONY: test
+test: setup
+	@echo "Running tests..."
+	@${TOOLEXE} gotestsum ${GOTESTSUM_FLAGS} -- -count=1 -vet=off ${GOTEST_FLAGS} ./...
+
 .PHONY: cover
 cover: setup
 	@echo "Running tests with coverage..."
-	@${TOOLEXE} gotestsum -- -count=1 vet=off -cpu=4 -cover ${GOTEST_FLAGS} ./...
+	@${TOOLEXE} gotestsum ${GOTESTSUM_FLAGS} -- -count=1 vet=off -cover ${GOTEST_FLAGS} ./...
 
 check: setup setup-check
 	@echo "Running checks and validators..."
