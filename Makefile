@@ -106,7 +106,7 @@ bench: setup setup-bench
 .PHONY: cover
 cover: setup
 	@echo "Running tests with coverage..."
-	@go test -vet=off -cover ${GOTEST_FLAGS} ./...
+	@${TOOLEXE} gotestsum -- -count=1 vet=off -cpu=4 -cover ${GOTEST_FLAGS} ./...
 
 check: setup setup-check
 	@echo "Running checks and validators..."
