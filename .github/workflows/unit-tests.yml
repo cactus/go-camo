@@ -23,6 +23,7 @@ jobs:
           check-latest: true
         id: go
 
+      - run: mkdir -p .cache/tools
       - name: Cache Tools
         uses: actions/cache@v4
         with:
@@ -30,16 +31,6 @@ jobs:
           key: ${{ runner.os }}-${{ runner.arch }}-tools-${{ hashFiles('tools/tools.conf') }}
           restore-keys: |
             ${{ runner.os }}-tools-
-
-      - name: Go mod cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-${{ runner.arch }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-go-
 
       - name: Build
         env:
@@ -80,16 +71,6 @@ jobs:
 
       - name: Install QEMU
         uses: docker/setup-qemu-action@v3
-
-      - name: Go mod cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-${{ runner.arch }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-go-
 
       - name: Build
         env:
