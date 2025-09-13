@@ -19,6 +19,7 @@ VERSION_VAR       := main.ServerVersion
 
 # flags and build configuration
 GOBUILD_OPTIONS   := -trimpath
+GOTEST_RUNNER     := gotestsum
 GOTEST_FLAGS      := -cpu=1,2
 GOTESTSUM_FLAGS   :=
 GOTEST_BENCHFLAGS :=
@@ -102,7 +103,11 @@ bench: setup setup-bench
 .PHONY: test
 test: setup
 	@echo "Running tests..."
-	@${TOOLEXE} gotestsum ${GOTESTSUM_FLAGS} -- -count=1 -vet=off ${GOTEST_FLAGS} ./...
+	@if [ "${GOTEST_RUNNER}" = "go test" ]; then\
+		go test -count=1 -vet=off ${GOTEST_FLAGS} ./...; \
+	 elif [ "${GOTEST_RUNNER}" = "gotestsum" ]; then \
+		${TOOLEXE} gotestsum ${GOTESTSUM_FLAGS} -- -count=1 -vet=off ${GOTEST_FLAGS} ./...; \
+	 fi
 
 .PHONY: cover
 cover: setup
