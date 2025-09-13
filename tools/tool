@@ -1,0 +1,64 @@
+#!/bin/sh
+TOOL_DIR="$(dirname "$0")"
+TOOLS_CONF="${TOOL_DIR}/tools.conf" 
+RD="$(realpath "$TOOL_DIR")"
+PD="$(dirname "$RD")"
+
+TOOL_NAME="${1}"
+shift
+
+GOBIN="${PD}/.cache/tools"
+export GOBIN
+
+check_install_tool() {
+    GOPKGREF=$(grep "^${1}:" "${TOOLS_CONF}" | awk -F: '{print $2}' | sed -E 's/^[[:space:]]*//;s/[[:space:]]*$//;')
+    if [ ! -e "${GOBIN}/${1}" ]; then
+        tmodver=$(grep "^${1}:" "${TOOLS_CONF}" | awk -F@ '{print $2}')
+        echo ".. installing ${1}@${tmodver}"
+        go install "${GOPKGREF}"
+    else
+        # check if moduel version is the same as file version
+        fmodpath=$(go version -m "${GOBIN}/${1}"|grep -E '^\s*mod' | awk '{print $2}')
+        fmodver=$(go version -m "${GOBIN}/${1}"|grep -E '^\s*mod' | awk '{print $3}')
+        tmodver=$(grep "^${1}:" "${TOOLS_CONF}" | awk -F@ '{print $2}')
+        lmodver=$(go list -m "${fmodpath}@${tmodver}" | awk '{print $2}')
+        if [ "$fmodver" != "$lmodver" ]; then
+            echo ".. updating ${1}: ${fmodver} -> ${lmodver}"
+            go install "${GOPKGREF}"
+        fi
+    fi
+}
+
+install_buf_tool_deps() {
+    grep -E "^protoc-gen.*:" "${TOOLS_CONF}" | \
+         awk -F: '{print $1}' | \
+         sed -E 's/^[[:space:]]*//;s/[[:space:]]*$//;' | \
+        while read x; do 
+            check_install_tool "$x"
+        done
+}
+
+if [ ! -d "$GOBIN" ]; then
+    mkdir -p "$GOBIN"
+fi
+
+if [ "${TOOL_NAME}" = "" ]; then
+    grep -v '^\s*#' "${TOOLS_CONF}" | grep -v '^\s*$'| awk -F: '{print $1}'| sort
+elif [ "${TOOL_NAME}" = "all" ]; then
+    grep -v '^\s*#' "${TOOLS_CONF}" | grep -v '^\s*$'| awk -F: '{print $1}' | while read x; do
+        check_install_tool "${x}"
+        # buf has some tool deps
+        if [ "${x}" = "buf" ]; then
+            install_buf_tool_deps
+        fi
+    done
+    #exec go tool
+else
+    check_install_tool "${TOOL_NAME}"
+    # buf has some tool deps
+    if [ "${TOOL_NAME}" = "buf" ]; then
+        install_buf_tool_deps
+    fi
+    exec "${GOBIN}/${TOOL_NAME}" "$@"
+    #exec go tool "${TOOL_NAME}" "$@"
+fi

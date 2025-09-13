@@ -1,6 +1,11 @@
 # environment
 BUILDDIR          := ${CURDIR}/build
+CACHEDIR          := ${CURDIR}/.cache
+TOOLBIN           := ${CURDIR}/tools
+TOOLEXE           := ${TOOLBIN}/tool
+GOBIN             := ${CACHEDIR}/tools
 TARBUILDDIR       := ${BUILDDIR}/tar
+
 ARCH              := $(shell go env GOHOSTARCH)
 OS                := $(shell go env GOHOSTOS)
 GOVER             := $(shell go version | awk '{print $$3}' | tr -d '.')
@@ -10,7 +15,6 @@ SIGN_KEY          ?= ${HOME}/.minisign/go-camo.key
 APP_NAME          := go-camo
 APP_VER           := $(shell git describe --always --tags|sed 's/^v//')
 GOPATH            := $(shell go env GOPATH)
-GOBIN             := ${CURDIR}/.tools
 VERSION_VAR       := main.ServerVersion
 
 # flags and build configuration
@@ -33,8 +37,9 @@ export GOTOOLCHAIN=local
 ## enable go 1.25 GC "experiment"
 export GOEXPERIMENT=greenteagc
 export GOBIN
-export PATH := ${GOBIN}:${PATH}
+export PATH := ${GOBIN}:${TOOLBIN}:${PATH}
 
+# help
 
 define HELP_OUTPUT
 Available targets:
@@ -55,62 +60,19 @@ Available targets:
 endef
 export HELP_OUTPUT
 
-.PHONY: help clean build test cover bench man man-copy all tar cross-tar setup-check
-
+.PHONY: help
 help:
 	@echo "$$HELP_OUTPUT"
 
+.PHONY: clean
 clean:
 	@rm -rf "${BUILDDIR}"
 
-## begin tools
+.PHONY: clean-cache
+clean-cache:
+	@rm -rf "${CACHEDIR}"
 
-# bench tools
-${GOBIN}/benchstat:
-	go install golang.org/x/perf/cmd/benchstat@latest
-
-BENCH_TOOLS := ${GOBIN}/benchstat
-
-# check tools
-${GOBIN}/betteralign:
-	go install github.com/dkorunic/betteralign/cmd/betteralign@latest
-
-${GOBIN}/ineffassign:
-	go install github.com/gordonklaus/ineffassign@latest
-
-${GOBIN}/errcheck:
-	go install github.com/kisielk/errcheck@latest
-
-${GOBIN}/errortype:
-	go install fillmore-labs.com/errortype@latest
-
-${GOBIN}/go-errorlint:
-	go install github.com/polyfloyd/go-errorlint@latest
-
-${GOBIN}/gosec:
-	go install github.com/securego/gosec/v2/cmd/gosec@latest
-
-${GOBIN}/nilaway:
-	go install go.uber.org/nilaway/cmd/nilaway@latest
-
-${GOBIN}/deadcode:
-	go install golang.org/x/tools/cmd/deadcode@latest
-
-${GOBIN}/govulncheck:
-	go install golang.org/x/vuln/cmd/govulncheck@latest
-
-${GOBIN}/staticcheck:
-	go install honnef.co/go/tools/cmd/staticcheck@latest
-
-${GOBIN}/nilness:
-	go install golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness@latest
-
-CHECK_TOOLS := ${GOBIN}/staticcheck ${GOBIN}/gosec ${GOBIN}/govulncheck
-CHECK_TOOLS += ${GOBIN}/errcheck ${GOBIN}/ineffassign ${GOBIN}/nilaway
-CHECK_TOOLS += ${GOBIN}/go-errorlint ${GOBIN}/deadcode ${GOBIN}/betteralign
-CHECK_TOOLS += ${GOBIN}/nilness ${GOBIN}/errortype
-
-## end tools
+# setup/build
 
 .PHONY: setup-check
 setup-check: ${CHECK_TOOLS}
@@ -121,6 +83,7 @@ setup-bench: ${BENCH_TOOLS}
 .PHONY: setup
 setup:
 
+.PHONY: build
 build: setup
 	@[ -d "${BUILDDIR}/bin" ] || mkdir -p "${BUILDDIR}/bin"
 	@echo "Building..."
@@ -130,14 +93,17 @@ build: setup
 	@go build ${GOBUILD_FLAGS} -o "${BUILDDIR}/bin/url-tool" ./cmd/url-tool
 	@echo "done!"
 
+.PHONY: test
 test: setup
 	@echo "Running tests..."
-	@go test -count=1 -cpu=4 -vet=off ${GOTEST_FLAGS} ./...
+	@${TOOLEXE} gotestsum -- -count=1 -cpu=4 -vet=off ${GOTEST_FLAGS} ./...
 
+.PHONY: bench
 bench: setup setup-bench
 	@echo "Running benchmarks..."
 	@go test -bench="." -run="^$$" -test.benchmem=true ${GOTEST_BENCHFLAGS} ./...
 
+.PHONY: cover
 cover: setup
 	@echo "Running tests with coverage..."
 	@go test -vet=off -cover ${GOTEST_FLAGS} ./...
@@ -145,23 +111,23 @@ cover: setup
 check: setup setup-check
 	@echo "Running checks and validators..."
 	@echo "... staticcheck ..."
-	@${GOBIN}/staticcheck ./...
+	@${TOOLEXE} staticcheck ./...
 	@echo "... errcheck ..."
-	@${GOBIN}/errcheck -ignoretests -exclude .errcheck-excludes.txt ./...
+	@${TOOLEXE} errcheck -ignoretests -exclude .errcheck-excludes.txt ./...
 	@echo "... errortype ..."
-	@${GOBIN}/errortype ./...
+	@${TOOLEXE} errortype ./...
 	@echo "... go-vet ..."
 	@go vet ./...
 	@echo "... nilness ..."
-	@${GOBIN}/nilness ./...
+	@${TOOLEXE} nilness ./...
 	@echo "... ineffassign ..."
-	@${GOBIN}/ineffassign ./...
+	@${TOOLEXE} ineffassign ./...
 	@echo "... govulncheck ..."
-	@${GOBIN}/govulncheck ./...
+	@${TOOLEXE} govulncheck ./...
 	@echo "... betteralign ..."
-	@${GOBIN}/betteralign ./...
+	@${TOOLEXE} betteralign ./...
 	@echo "... gosec ..."
-	@${GOBIN}/gosec -quiet -exclude-generated -exclude-dir=cmd/refidgen -exclude-dir=tools ./...
+	@${TOOLEXE} gosec -quiet -exclude-generated -exclude-dir=cmd/refidgen -exclude-dir=tools ./...
 
 
 .PHONY: update-go-deps
@@ -174,8 +140,10 @@ ${BUILDDIR}/man/%: man/%.scd
 	@[ -d "${BUILDDIR}/man" ] || mkdir -p "${BUILDDIR}/man"
 	@scdoc < $< > $@
 
+.PHONY: man
 man: $(patsubst man/%.scd,${BUILDDIR}/man/%,$(wildcard man/*.scd))
 
+.PHONY: tar
 tar: all
 	@echo "Building tar..."
 	@mkdir -p ${TARBUILDDIR}/${APP_NAME}-${APP_VER}/bin
@@ -186,6 +154,7 @@ tar: all
 	@tar -C ${TARBUILDDIR} -czf ${TARBUILDDIR}/${APP_NAME}-${APP_VER}.${GOVER}.${OS}-${ARCH}.tar.gz ${APP_NAME}-${APP_VER}
 	@rm -rf "${TARBUILDDIR}/${APP_NAME}-${APP_VER}"
 
+.PHONY: cross-tar
 cross-tar: man setup
 	@echo "Building (cross-compile: ${CC_BUILD_ARCHES})..."
 	@(for x in ${CC_BUILD_TARGETS}; do \
