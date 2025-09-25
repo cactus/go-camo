@@ -114,6 +114,7 @@ cover: setup
 	@echo "Running tests with coverage..."
 	@${TOOLEXE} gotestsum ${GOTESTSUM_FLAGS} -- -count=1 vet=off -cover ${GOTEST_FLAGS} ./...
 
+.PHONY: check
 check: setup setup-check
 	@echo "Running checks and validators..."
 	@echo "... staticcheck ..."
@@ -135,6 +136,11 @@ check: setup setup-check
 	@echo "... gosec ..."
 	@${TOOLEXE} gosec -quiet -exclude-generated -exclude-dir=cmd/refidgen -exclude-dir=tools ./...
 
+.PHONY: modernize
+modernize: setup setup-check
+	@echo "Running modernize..."
+	@echo "... modernize ..."
+	@${TOOLEXE} modernize -category=-rangeint -test ./...
 
 .PHONY: update-go-deps
 update-go-deps:
