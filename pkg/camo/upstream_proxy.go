@@ -34,8 +34,8 @@ func (ic *innerUpstreamProxyConfig) matchesIP(ip net.IP, port string) bool {
 		return false
 	}
 
-	for _, ipx := range ic.addresses {
-		if ip.Equal(ipx) {
+	for i := range ic.addresses {
+		if ip.Equal(ic.addresses[i]) {
 			return true
 		}
 	}

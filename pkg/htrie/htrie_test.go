@@ -140,8 +140,8 @@ func BenchmarkHTrieCreate(b *testing.B) {
 		"||*.hodor.example.net||/*/test.png",
 	}
 	var err error
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		for _, u := range urls {
 			err = dt.AddRule(u)
 			if err != nil {
@@ -160,8 +160,8 @@ func BenchmarkRegexCreate(b *testing.B) {
 
 	var r *regexp.Regexp
 	var err error
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		for _, u := range urls {
 			r, err = regexp.Compile(u)
 			if err != nil {

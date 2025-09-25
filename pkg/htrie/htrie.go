@@ -32,7 +32,7 @@ type URLMatcher struct {
 }
 
 var matchesPool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		// starting backing array size of 8
 		// that /seems/ like a pretty good initial value, without
 		// being too crazy, and has the nice property of being a powler of 2. ;)
