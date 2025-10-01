@@ -1,5 +1,7 @@
 # HEAD
 
+# v2.7.0 2025-10-01
+
 - fix: add image/svg+xml to acceptTypes. (#84)
 - add ability to set user-agent, distinct from server-name
 
