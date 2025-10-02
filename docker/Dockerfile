@@ -1,7 +1,6 @@
 FROM golang:alpine as builder
 RUN apk add --no-cache ca-certificates tzdata make git
 WORKDIR /workdir
-ENV GOEXPERIMENT=loopvar
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . ./
