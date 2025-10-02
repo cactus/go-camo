@@ -6,7 +6,7 @@ RUN go mod download
 COPY . ./
 ARG APP_VER
 ARG GITHASH
-RUN make build APP_VER="${APP_VER}" GITHASH="${GITHASH}"; rm -rf /root/.cache/
+RUN make build APP_VER="${APP_VER}" GITHASH="${GITHASH}"
 
 FROM alpine:latest as run
 RUN apk add --no-cache ca-certificates tzdata
