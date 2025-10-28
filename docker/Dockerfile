@@ -1,4 +1,4 @@
-FROM golang:alpine as builder
+FROM golang:alpine AS builder
 RUN apk add --no-cache ca-certificates tzdata make git
 WORKDIR /workdir
 COPY go.mod go.sum ./
@@ -8,7 +8,7 @@ ARG APP_VER
 ARG GITHASH
 RUN make build APP_VER="${APP_VER}" GITHASH="${GITHASH}"
 
-FROM alpine:latest as run
+FROM alpine:latest AS run
 RUN apk add --no-cache ca-certificates tzdata
 WORKDIR /app
 COPY --from=builder --link /workdir/build/bin/* /bin/

@@ -109,7 +109,7 @@ func (dt *URLMatcher) parseRule(rule string) ([]string, error) {
 			index++
 			continue
 		}
-		_, err := ruleset[index].WriteRune(r)
+		_, err := ruleset[index].WriteRune(r) // #nosec G602 - false positive
 		if err != nil {
 			return nil, err
 		}

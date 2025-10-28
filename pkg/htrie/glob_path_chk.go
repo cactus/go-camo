@@ -32,7 +32,7 @@ func (gpc *GlobPathChecker) parseRule(rule string) (string, string, error) {
 			index++
 			continue
 		}
-		_, err := ruleset[index].WriteRune(r)
+		_, err := ruleset[index].WriteRune(r) // #nosec G602 - false positive
 		if err != nil {
 			return "", "", err
 		}
