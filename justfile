@@ -171,7 +171,7 @@ bench +FLAGS='-vet=off':
 [group('tests')]
 test:
     just _banner ">> running tests"
-    gotestsum {{GOTESTSUM_FLAGS}} -- {{GOTEST_FLAGS}} ./...
+    {{tool_bin}} gotestsum {{GOTESTSUM_FLAGS}} -- {{GOTEST_FLAGS}} ./...
 
 # clean
 [group('build')]
