@@ -11,35 +11,34 @@ ifdef::env-github[]
 endif::[]
 
 // some links
-:link-atmos-camo: https://github.com/atmos/camo[camo]
-:link-hmac: https://en.wikipedia.org/wiki/HMAC[HMAC]
-:link-hsts: https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security[HSTS]
 :link-asciidoctor: https://asciidoctor.org[asciidoctor]
-:link-scdoc: https://git.sr.ht/~sircmpwn/scdoc/[scdoc]
-:link-damontools: https://cr.yp.to/daemontools.html[daemontools]
-:link-runit: https://en.wikipedia.org/wiki/Runit[runit]
-:link-upstart: https://en.wikipedia.org/wiki/Upstart_(software)[upstart]
-:link-launchd: https://en.wikipedia.org/wiki/Launchd[launchd]
-:link-systemd: https://www.freedesktop.org/wiki/Software/systemd/[systemd]
+:link-atmos-camo: https://github.com/atmos/camo[camo]
+:link-codeberg-mirror: https://codeberg.org/dropwhile/go-camo[codeberg-mirror]
 :link-daemontools-why: https://cr.yp.to/daemontools/faq/create.html#why[daemontools/why]
-:link-heroku-buildpack-go: https://github.com/kr/heroku-buildpack-go
+:link-damontools: https://cr.yp.to/daemontools.html[daemontools]
 :link-dns-rebinding: https://en.wikipedia.org/wiki/DNS_rebinding[dns rebinding]
-:link-ip6-special-addresses: https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
 :link-docker-containers: https://hub.docker.com/r/cactus4docker/go-camo[docker hub]
 :link-github-containers: https://github.com/cactus/go-camo/pkgs/container/go-camo[github packages]
-:link-releases: https://github.com/cactus/go-camo/releases[binary releases]
+:link-heroku-buildpack-go: https://github.com/kr/heroku-buildpack-go
+:link-hmac: https://en.wikipedia.org/wiki/HMAC[HMAC]
+:link-hsts: https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security[HSTS]
+:link-ip6-special-addresses: https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
+:link-just: https://github.com/casey/just[just]
+:link-launchd: https://en.wikipedia.org/wiki/Launchd[launchd]
 :link-mit-license: https://www.opensource.org/licenses/mit-license.php[MIT license]
 :link-mrsaints: https://github.com/MrSaints[MrSaints]
-:link-arachnys-fork: https://github.com/arachnys/go-camo[fork]
+:link-releases: https://github.com/cactus/go-camo/releases[binary releases]
+:link-runit: https://en.wikipedia.org/wiki/Runit[runit]
+:link-scdoc: https://git.sr.ht/~sircmpwn/scdoc/[scdoc]
 :link-smokescreen: https://github.com/stripe/smokescreen[smokescreen]
-:link-codeberg-mirror: https://codeberg.org/dropwhile/go-camo[codeberg-mirror]
+:link-systemd: https://www.freedesktop.org/wiki/Software/systemd/[systemd]
+:link-upstart: https://en.wikipedia.org/wiki/Upstart_(software)[upstart]
 
 image:https://img.shields.io/github/release/cactus/go-camo.svg[Current Release,link=http://github.com/cactus/go-camo/releases]
 image:https://img.shields.io/docker/image-size/cactus4docker/go-camo?label=container%20size[Container Image Size (latest by date),link=https://hub.docker.com/r/cactus4docker/go-camo]
 image:https://github.com/cactus/go-camo/workflows/unit-tests/badge.svg[BuildStatus]
 image:.github/img-readme-license.svg[License,link=https://github.com/cactus/go-camo/blob/master/LICENSE.md]
 image:https://img.shields.io/badge/codeberg-1890ff?label=mirror[mirror:codeberg,link=https://codeberg.org/dropwhile/go-camo]
-// image:https://circleci.com/gh/cactus/go-camo.svg?style=svg[CircleCI,link=https://circleci.com/gh/cactus/go-camo]
 
 ifdef::env-github[]
 [discrete]
@@ -148,7 +147,7 @@ Extract, and copy files to desired locations.
 
 Building requires:
 
-*   make
+*   {link-just} (command runner)
 *   posix compatible shell (sh)
 *   git
 *   go (most recent version recommended)
@@ -162,26 +161,61 @@ Building:
 $ git clone git@github.com:cactus/go-camo
 $ cd go-camo
 
-# show make targets
-$ make
-Available targets:
-  help                this help
-  clean               clean up
-  all                 build binaries and man pages
-  check               run checks and validators
-  test                run tests
-  cover               run tests with cover output
-  build               build all binaries
-  man                 build all man pages
-  tar                 build release tarball
-  cross-tar           cross compile and build release tarballs
+# show just command targets
+$ just
+Available recipes:
+    help                    # show the list of available commands
 
-# build all binaries (into ./bin/) and man pages (into ./man/)
-# strips debug symbols by default
-$ make all
+    [build]
+    build                   # build binaries
+    build-oci-image *FLAGS  # build container images
+    clean                   # clean
+    cross-build             # build cross compiled binaries
+    manpages                # build man pages
+
+    [checks]
+    check                   # run all ~checks:default checkers
+    check-optional          # run all ~checks:optional checkers
+
+    [hygiene]
+    modernize               # run modernize
+    update-go-deps          # update go.mod dependencies
+
+    [release]
+    cross-tar               # build cross compiled tarballs
+    release                 # build binaries tarball
+    release-sign            # build binaries tarball
+    tar                     # build binaries tarball
+
+    [tests]
+    bench +FLAGS='-vet=off' # run benchmarks
+    cover                   # run coverage analysis
+    test                    # run tests
+
+    [~checks:default]
+    betteralign             # run betteralign
+    errcheck                # run errcheck
+    errortype               # run errortype
+    gosec                   # run gosec
+    govulncheck             # run govulncheck
+    ineffassign             # run ineffassign
+    nilness                 # run nilness
+    staticcheck             # run staticcheck
+    vet                     # run go vet
+
+    [~checks:optional]
+    deadcode                # run deadcode (will have false positives)
+    errorlint               # run errorlint (will have false positives)
+    nilaway                 # run nilaway (will have false positives)
+ 
+# build all binaries (into ./bin/)
+$ just build
+
+# build man pages (into ./man/)
+$ just manpages
 
 # do not strip debug symbols
-$ make all GOBUILD_LDFLAGS=""
+$ env BUILD_LDFLAGS="" just build
 ----
 
 == Running
