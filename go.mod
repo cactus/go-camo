@@ -7,7 +7,7 @@ require (
 	github.com/cactus/mlog v1.0.10
 	github.com/dropwhile/assert v1.3.0
 	github.com/prometheus/client_golang v1.23.2
-	github.com/prometheus/common v0.67.1
+	github.com/prometheus/common v0.67.2
 	github.com/quic-go/quic-go v0.55.0
 	github.com/rdforte/gomaxecs v1.1.1
 	github.com/xlab/treeprint v1.2.0
