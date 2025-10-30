@@ -18,6 +18,7 @@ tool_bin   := clean(j_dir / "tools/tool")
 build_dir  := clean(j_dir / "build")
 cache_dir  := clean(j_dir / ".cache")
 tarout_dir := clean(build_dir / "tar")
+gotestsum_bin := which("gotestsum") || tool_bin + " gotestsum"
 
 # build specific vars
 APP_NAME         := env("APP_NAME", "go-camo")
@@ -171,7 +172,7 @@ bench +FLAGS='-vet=off':
 [group('tests')]
 test:
     just _banner ">> running tests"
-    {{tool_bin}} gotestsum {{GOTESTSUM_FLAGS}} -- {{GOTEST_FLAGS}} ./...
+    {{gotestsum_bin}} {{GOTESTSUM_FLAGS}} -- {{GOTEST_FLAGS}} ./...
 
 # clean
 [group('build')]
@@ -192,7 +193,7 @@ manpages: (_banner ">> building manual pages")
 [group('build')]
 build: (_banner ">> building binaries")
     #!/bin/sh
-    set -euo pipefail
+    set -eu
     APP_VER="{{ APP_VER }}"
     if [ "$APP_VER" = "" ]; then
         APP_VER="$(git describe --always --tags|sed 's/^v//')"
@@ -211,7 +212,7 @@ build: (_banner ">> building binaries")
 [group('release')]
 tar: manpages build (_banner ">> assembling tarball")
     #!/bin/sh
-    set -euo pipefail
+    set -eu
     APP_VER="{{ APP_VER }}"
     if [ "$APP_VER" = "" ]; then
         APP_VER="$(git describe --always --tags|sed 's/^v//')"
@@ -229,7 +230,7 @@ tar: manpages build (_banner ">> assembling tarball")
 [group('build')]
 cross-build: (_banner ">> building cc targets")
     #!/bin/sh
-    set -euo pipefail
+    set -eu
     APP_VER="{{ APP_VER }}"
     if [ "$APP_VER" = "" ]; then
         APP_VER="$(git describe --always --tags|sed 's/^v//')"
@@ -253,7 +254,7 @@ cross-build: (_banner ">> building cc targets")
 [group('release')]
 cross-tar: manpages cross-build (_banner ">> building cc tarballs")
     #!/bin/sh
-    set -euo pipefail
+    set -eu
     APP_VER="{{ APP_VER }}"
     if [ "$APP_VER" = "" ]; then
         APP_VER="$(git describe --always --tags|sed 's/^v//')"
@@ -281,7 +282,7 @@ cross-tar: manpages cross-build (_banner ">> building cc tarballs")
 [group('build')]
 build-oci-image *FLAGS: (_banner ">> building container images")
     #!/bin/sh
-    set -euo pipefail
+    set -eu
     GITHASH="{{ GITHASH }}"
     if [ "$GITHASH" = "" ]; then
         GITHASH="$(git rev-parse --short HEAD)"
@@ -302,7 +303,7 @@ build-oci-image *FLAGS: (_banner ">> building container images")
 [group('release')]
 release-sign: (_banner ">> signing release")
     #!/bin/sh
-    set -euo pipefail
+    set -eu
     APP_VER="{{ APP_VER }}"
     if [ "$APP_VER" = "" ]; then
         APP_VER="$(git describe --always --tags|sed 's/^v//')"

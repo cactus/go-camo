@@ -1,0 +1,8 @@
+[tools]
+just = "latest"
+go = "latest"
+"go:gotest.tools/gotestsum" = "latest"
+
+[settings]
+experimental = true
+fetch_remote_versions_timeout = "15s"
