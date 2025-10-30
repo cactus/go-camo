@@ -17,7 +17,7 @@ jobs:
           fetch-depth: 1
 
       - run: mkdir -p .cache/tools ~/go/pkg/mod ~/.cache/go-build
-      - name: Cache tools and Go
+      - name: Restore cached tools and go
         id: cache-tools-and-go-restore
         uses: actions/cache/restore@v4
         with:
@@ -49,7 +49,7 @@ jobs:
           CI: true
         run: just test
 
-      - name: always save tools and go cache
+      - name: Always save tools and go cache
         id: cache-tools-and-go-save
         if: always() && steps.cache-tools-and-go-restore.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
@@ -74,7 +74,7 @@ jobs:
           fetch-depth: 1
 
       - run: mkdir -p .cache/tools ~/go/pkg/mod ~/.cache/go-build
-      - name: Cache tools and Go
+      - name: Restore cached tools and go
         id: cache-tools-and-go-restore
         uses: actions/cache/restore@v4
         with:
@@ -106,7 +106,7 @@ jobs:
           CI: true
         run: just test
 
-      - name: always save tools and go cache
+      - name: Always save tools and go cache
         id: cache-tools-and-go-save
         if: always() && steps.cache-tools-and-go-restore.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
