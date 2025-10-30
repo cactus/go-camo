@@ -18,7 +18,8 @@ jobs:
 
       - run: mkdir -p .cache/tools ~/go/pkg/mod ~/.cache/go-build
       - name: Cache tools and Go
-        uses: actions/cache@v4
+        id: cache-tools-and-go-restore
+        uses: actions/cache/restore@v4
         with:
           path: |
             .cache/tools
@@ -48,6 +49,17 @@ jobs:
           CI: true
         run: just test
 
+      - name: always save tools and go cache
+        id: cache-tools-and-go-save
+        if: always() && steps.cache-tools-and-go-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.cache-tools-and-go-restore.outputs.cache-primary-key }}
+          path: |
+            .cache/tools
+            ~/.cache/go-build
+            ~/go/pkg/mod
+
   test-qemu:
     needs: test
     runs-on: ubuntu-latest
@@ -63,7 +75,8 @@ jobs:
 
       - run: mkdir -p .cache/tools ~/go/pkg/mod ~/.cache/go-build
       - name: Cache tools and Go
-        uses: actions/cache@v4
+        id: cache-tools-and-go-restore
+        uses: actions/cache/restore@v4
         with:
           path: |
             .cache/tools
@@ -92,3 +105,14 @@ jobs:
           GOARCH: ${{ matrix.arch }}
           CI: true
         run: just test
+
+      - name: always save tools and go cache
+        id: cache-tools-and-go-save
+        if: always() && steps.cache-tools-and-go-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.cache-tools-and-go-restore.outputs.cache-primary-key }}
+          path: |
+            .cache/tools
+            ~/.cache/go-build
+            ~/go/pkg/mod

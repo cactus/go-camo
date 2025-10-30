@@ -27,7 +27,8 @@ jobs:
 
       - run: mkdir -p .cache/tools ~/go/pkg/mod ~/.cache/go-build
       - name: Cache tools and Go
-        uses: actions/cache@v4
+        id: cache-tools-and-go-restore
+        uses: actions/cache/restore@v4
         with:
           path: |
             .cache/tools
@@ -54,3 +55,14 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
+
+      - name: always save tools and go cache
+        id: cache-tools-and-go-save
+        if: always() && steps.cache-tools-and-go-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.cache-tools-and-go-restore.outputs.cache-primary-key }}
+          path: |
+            .cache/tools
+            ~/.cache/go-build
+            ~/go/pkg/mod
