@@ -16,38 +16,37 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ">=1.24.0"
-          check-latest: true
-        id: go
-
-      - run: mkdir -p .cache/tools
-      - name: Cache Tools
+      - run: mkdir -p .cache/tools ~/go/pkg/mod ~/.cache/go-build
+      - name: Cache tools and Go
         uses: actions/cache@v4
         with:
-          path: .cache/tools
-          key: ${{ runner.os }}-${{ runner.arch }}-tools-${{ hashFiles('tools/tools.conf') }}
+          path: |
+            .cache/tools
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-${{ runner.arch }}-cache-${{ hashFiles('tools/tools.conf', '**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-tools-
+            ${{ runner.os }}-${{ runner.arch }}-cache-
+
+      - uses: jdx/mise-action@v3
+        with:
+          experimental: true
 
       - name: Build
         env:
           GOPROXY: "https://proxy.golang.org"
-        run: make build
+        run: just build
 
       - name: Check
         env:
           GOPROXY: "https://proxy.golang.org"
-        run: |
-          make check
+        run: just check
 
       - name: Tests
         env:
           GOPROXY: "https://proxy.golang.org"
           CI: true
-        run: make test
+        run: just test
 
   test-qemu:
     needs: test
@@ -62,12 +61,21 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
+      - run: mkdir -p .cache/tools ~/go/pkg/mod ~/.cache/go-build
+      - name: Cache tools and Go
+        uses: actions/cache@v4
         with:
-          go-version: ">=1.24.0"
-          check-latest: true
-        id: go
+          path: |
+            .cache/tools
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-${{ runner.arch }}-cache-${{ hashFiles('tools/tools.conf', '**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-cache-
+
+      - uses: jdx/mise-action@v3
+        with:
+          experimental: true
 
       - name: Install QEMU
         uses: docker/setup-qemu-action@v3
@@ -76,11 +84,11 @@ jobs:
         env:
           GOPROXY: "https://proxy.golang.org"
           GOARCH: ${{ matrix.arch }}
-        run: make build
+        run: just build
 
       - name: Tests
         env:
           GOPROXY: "https://proxy.golang.org"
           GOARCH: ${{ matrix.arch }}
           CI: true
-        run: make test GOTEST_RUNNER="go test"
+        run: just test
