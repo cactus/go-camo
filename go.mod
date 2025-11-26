@@ -8,7 +8,7 @@ require (
 	github.com/dropwhile/assert v1.3.0
 	github.com/prometheus/client_golang v1.23.2
 	github.com/prometheus/common v0.67.4
-	github.com/quic-go/quic-go v0.57.0
+	github.com/quic-go/quic-go v0.57.1
 	github.com/rdforte/gomaxecs v1.1.1
 	github.com/xlab/treeprint v1.2.0
 	golang.org/x/net v0.47.0
