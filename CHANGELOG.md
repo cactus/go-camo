@@ -1,9 +1,14 @@
 # HEAD
 
+# v2.7.2 2025-12-08
+
+- bump dependencies
+- build binaries with go-1.25.5
+
 # v2.7.1 2025-10-08
 
 - bump dependencies
-- rebuild binaries with go-1.25.2
+- build binaries with go-1.25.2
 
 # v2.7.0 2025-10-01
 
