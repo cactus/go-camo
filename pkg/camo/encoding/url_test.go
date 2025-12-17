@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/dropwhile/assert"
+	"codeberg.org/dropwhile/assert"
 )
 
 func TestEncoder(t *testing.T) {

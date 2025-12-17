@@ -16,7 +16,7 @@ import (
 
 	"github.com/cactus/go-camo/v2/pkg/camo/encoding"
 	"github.com/cactus/go-camo/v2/pkg/router"
-	"github.com/dropwhile/assert"
+	"codeberg.org/dropwhile/assert"
 )
 
 func makeReq(config Config, testURL string) (*http.Request, error) {

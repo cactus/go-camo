@@ -19,10 +19,10 @@ import (
 	"syscall"
 	"time"
 
+	"codeberg.org/dropwhile/mlog"
 	"github.com/alecthomas/kong"
 	"github.com/cactus/go-camo/v2/pkg/camo"
 	"github.com/cactus/go-camo/v2/pkg/router"
-	"github.com/cactus/mlog"
 
 	"github.com/prometheus/client_golang/prometheus"
 	vcoll "github.com/prometheus/client_golang/prometheus/collectors/version"

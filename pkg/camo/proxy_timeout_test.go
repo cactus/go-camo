@@ -15,10 +15,10 @@ import (
 	"testing"
 	"time"
 
+	"codeberg.org/dropwhile/assert"
+	"codeberg.org/dropwhile/mlog"
 	"github.com/cactus/go-camo/v2/pkg/camo/encoding"
 	"github.com/cactus/go-camo/v2/pkg/router"
-	"github.com/cactus/mlog"
-	"github.com/dropwhile/assert"
 )
 
 func TestTimeout(t *testing.T) {

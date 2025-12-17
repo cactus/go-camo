@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/dropwhile/assert"
+	"codeberg.org/dropwhile/assert"
 )
 
 func TestFilterListAcceptSimple(t *testing.T) {

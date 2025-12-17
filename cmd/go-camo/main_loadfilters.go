@@ -11,9 +11,9 @@ import (
 	"os"
 	"strings"
 
+	"codeberg.org/dropwhile/mlog"
 	"github.com/cactus/go-camo/v2/pkg/camo"
 	"github.com/cactus/go-camo/v2/pkg/htrie"
-	"github.com/cactus/mlog"
 )
 
 func loadFilterList(fname string) ([]camo.FilterFunc, error) {

@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dropwhile/assert"
+	"codeberg.org/dropwhile/assert"
 )
 
 func TestHTrieCheckURL(t *testing.T) {

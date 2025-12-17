@@ -10,7 +10,7 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/dropwhile/assert"
+	"codeberg.org/dropwhile/assert"
 	"golang.org/x/net/http/httpproxy"
 )
 

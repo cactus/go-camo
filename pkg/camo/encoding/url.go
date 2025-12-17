@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cactus/mlog"
+	"codeberg.org/dropwhile/mlog"
 )
 
 // DecoderFunc is a function type that defines a url decoder.

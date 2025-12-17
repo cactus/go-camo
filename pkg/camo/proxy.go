@@ -22,7 +22,7 @@ import (
 	"github.com/cactus/go-camo/v2/pkg/camo/encoding"
 	"github.com/cactus/go-camo/v2/pkg/htrie"
 
-	"github.com/cactus/mlog"
+	"codeberg.org/dropwhile/mlog"
 )
 
 //lint:file-ignore ST1005 Ignore string case error to maintain existing responses

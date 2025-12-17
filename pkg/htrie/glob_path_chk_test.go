@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/dropwhile/assert"
+	"codeberg.org/dropwhile/assert"
 )
 
 func TestGlobPathChecker(t *testing.T) {

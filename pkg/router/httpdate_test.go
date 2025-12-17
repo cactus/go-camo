@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cactus/mlog"
-	"github.com/dropwhile/assert"
+	"codeberg.org/dropwhile/assert"
+	"codeberg.org/dropwhile/mlog"
 )
 
 var logBuffer = &bytes.Buffer{}
