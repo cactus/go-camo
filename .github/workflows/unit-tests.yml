@@ -25,7 +25,7 @@ jobs:
             .cache/tools
             ~/.cache/go-build
             ~/go/pkg/mod
-          key: ${{ runner.os }}-${{ runner.arch }}-cache-${{ hashFiles('tools/tools.conf', '**/go.sum') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-cache-${{ hashFiles('tools/tools.conf', 'mise.lock', '**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-cache-
 
