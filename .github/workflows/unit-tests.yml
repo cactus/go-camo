@@ -33,11 +33,6 @@ jobs:
         with:
           experimental: true
       
-      - name: Update tools
-        env:
-          GOPROXY: "https://proxy.golang.org"
-        run: mise up && mise prune
-
       - name: Build
         env:
           GOPROXY: "https://proxy.golang.org"
