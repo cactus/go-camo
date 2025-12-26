@@ -27,8 +27,8 @@ jobs:
             ~/go/pkg/mod
           key: cache-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('mise.lock') }}-${{ hashFiles('tools/tools.conf', '**/go.sum') }}
           restore-keys: |
-            cache-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('mise.lock') }}
-            cache-${{ runner.os }}-${{ runner.arch }}
+            cache-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('mise.lock') }}-
+            cache-${{ runner.os }}-${{ runner.arch }}-
 
       - uses: jdx/mise-action@v3
         with:
