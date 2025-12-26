@@ -25,9 +25,10 @@ jobs:
             .cache/tools
             ~/.cache/go-build
             ~/go/pkg/mod
-          key: ${{ runner.os }}-${{ runner.arch }}-cache-${{ hashFiles('tools/tools.conf', 'mise.lock', '**/go.sum') }}
+          key: cache-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('mise.lock') }}-${{ hashFiles('tools/tools.conf', '**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-cache-
+            cache-${{ runner.os }}-${{ runner.arch }}-${ hashFiles('mise.lock') }}
+            cache-${{ runner.os }}-${{ runner.arch }}
 
       - uses: jdx/mise-action@v3
         with:
