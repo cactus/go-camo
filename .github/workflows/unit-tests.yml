@@ -32,6 +32,11 @@ jobs:
       - uses: jdx/mise-action@v3
         with:
           experimental: true
+      
+      - name: Update tools
+        env:
+          GOPROXY: "https://proxy.golang.org"
+        run: mise up
 
       - name: Build
         env:
