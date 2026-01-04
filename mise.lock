@@ -12,10 +12,10 @@ version = "1.13.0"
 backend = "go:gotest.tools/gotestsum"
 
 [[tools.just]]
-version = "1.45.0"
+version = "1.46.0"
 backend = "aqua:casey/just"
-"platforms.linux-arm64" = { checksum = "sha256:e9d629d3903ea2b6b2bbcb569e69d62bc80b0e6adcce280094c8ffb6dbdf83d2", url = "https://github.com/casey/just/releases/download/1.45.0/just-1.45.0-aarch64-unknown-linux-musl.tar.gz"}
-"platforms.linux-x64" = { checksum = "sha256:dc3f958aaf8c6506dd90426e9b03f86dd15e74a6467ee0e54929f750af3d9e49", url = "https://github.com/casey/just/releases/download/1.45.0/just-1.45.0-x86_64-unknown-linux-musl.tar.gz"}
-"platforms.macos-arm64" = { checksum = "sha256:5bcffd1e4b2b24f71a2acff52a604e9da03615679c0b3045a8c921c95cf1532c", url = "https://github.com/casey/just/releases/download/1.45.0/just-1.45.0-aarch64-apple-darwin.tar.gz"}
-"platforms.macos-x64" = { checksum = "sha256:913c4fdd5b15b9a74529ecec80d06eb21a2ff8936b2deebc69c0f4d495126553", url = "https://github.com/casey/just/releases/download/1.45.0/just-1.45.0-x86_64-apple-darwin.tar.gz"}
-"platforms.windows-x64" = { checksum = "sha256:cf5c1684de8b8c00b0edeac40f47a3fbba9df2830e2451dd9b26f99ec4d8b788", url = "https://github.com/casey/just/releases/download/1.45.0/just-1.45.0-x86_64-pc-windows-msvc.zip"}
+"platforms.linux-arm64" = { checksum = "sha256:b81970c8247fa64cfb30d2a3da0e487e4253f9f2d01865ed5e7d53cdc7b02188", url = "https://github.com/casey/just/releases/download/1.46.0/just-1.46.0-aarch64-unknown-linux-musl.tar.gz"}
+"platforms.linux-x64" = { checksum = "sha256:79966e6e353f535ee7d1c6221641bcc8e3381c55b0d0a6dc6e54b34f9db36eaa", url = "https://github.com/casey/just/releases/download/1.46.0/just-1.46.0-x86_64-unknown-linux-musl.tar.gz"}
+"platforms.macos-arm64" = { checksum = "sha256:438eaf6468a115aa7db93e501cc7e3272f453f6b7083be3863adfab546b23358", url = "https://github.com/casey/just/releases/download/1.46.0/just-1.46.0-aarch64-apple-darwin.tar.gz"}
+"platforms.macos-x64" = { checksum = "sha256:ec54dd60ac876261b7318f1852ef9c0319fede1e5a73c14f56d908a8edf595b8", url = "https://github.com/casey/just/releases/download/1.46.0/just-1.46.0-x86_64-apple-darwin.tar.gz"}
+"platforms.windows-x64" = { checksum = "sha256:f0acf3f8ccbcf360b481baae9cae4c921774c89d5d932012481d3e0bda78ab39", url = "https://github.com/casey/just/releases/download/1.46.0/just-1.46.0-x86_64-pc-windows-msvc.zip"}
