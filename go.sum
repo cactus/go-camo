@@ -54,6 +54,8 @@ github.com/quic-go/quic-go v0.59.0 h1:OLJkp1Mlm/aS7dpKgTc6cnpynnD2Xg7C1pwL6vy/SA
 github.com/quic-go/quic-go v0.59.0/go.mod h1:upnsH4Ju1YkqpLXC305eW3yDZ4NfnNbmQRCMWS58IKU=
 github.com/rdforte/gomaxecs v1.1.1 h1:Eq5WZN5jfR1wI7UkblWgOhjFo1j8ypCx+GWGjPmBGh8=
 github.com/rdforte/gomaxecs v1.1.1/go.mod h1:8agrawOmcvb+oBa6EnV2oADDtnDtkVx1Q0H/Ht7GiFc=
+github.com/rdforte/gomaxecs v1.1.2 h1:jrz0NWv6QNaC+sIDAORsSjTrkCvi+VLifm4U1SzGEwY=
+github.com/rdforte/gomaxecs v1.1.2/go.mod h1:fkqO+5Z+9uslcVo56c6+bNM2NbL0tfv+OCmE6E6GdtA=
 github.com/rogpeppe/go-internal v1.10.0 h1:TMyTOH3F/DB16zRVcYyreMH6GnZZrwQVAoYjRBZyWFQ=
 github.com/rogpeppe/go-internal v1.10.0/go.mod h1:UQnix2H7Ngw/k4C5ijL5+65zddjncjaFoBhdsK/akog=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

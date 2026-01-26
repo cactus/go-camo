@@ -155,6 +155,10 @@ update-go-deps:
     just _banner ">> updating go.mod dependencies"
     go get -u all
 
+# update dependencies
+[group('hygiene')]
+update-deps: update-go-deps
+
 
 # run coverage analysis
 [group('tests')]
