@@ -147,7 +147,7 @@ check-optional: nilaway deadcode errorlint
 [group('hygiene')]
 modernize:
     just _banner ">> running modernize"
-    {{ tool_bin }} modernize -category=-rangeint -test ./...
+    {{ tool_bin }} modernize -rangeint=false -test ./...
 
 # update go.mod dependencies
 [group('hygiene')]
