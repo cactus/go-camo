@@ -44,7 +44,7 @@ func b64encode(data []byte) string {
 
 func b64decode(str string) ([]byte, error) {
 	padChars := (4 - (len(str) % 4)) % 4
-	for i := 0; i < padChars; i++ {
+	for range padChars {
 		str = str + "="
 	}
 	decBytes, ok := base64.URLEncoding.DecodeString(str)

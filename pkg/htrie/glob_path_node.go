@@ -71,7 +71,7 @@ func (gpn *globPathNode) addPath(s string) error {
 	curnode := gpn
 	prevnode := curnode
 	mlen := len(s)
-	for i := 0; i < mlen; i++ {
+	for i := range mlen {
 		part := uint32(s[i])
 
 		// if icase, use lowercase letters for comparisons

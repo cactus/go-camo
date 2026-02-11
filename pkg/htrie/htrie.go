@@ -52,7 +52,7 @@ func putURLMatcherSlice(s *[]*URLMatcher) {
 
 func reverse(s []string) []string {
 	c := len(s) / 2
-	for i := 0; i < c; i++ {
+	for i := range c {
 		j := len(s) - i - 1
 		s[i], s[j] = s[j], s[i]
 	}

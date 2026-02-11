@@ -157,7 +157,7 @@ func BenchmarkGlobPathChecker(b *testing.B) {
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)
 		z := u.EscapedPath()
-		for i := 0; i < testIters; i++ {
+		for range testIters {
 			x = gpc.CheckPath(z)
 		}
 	}

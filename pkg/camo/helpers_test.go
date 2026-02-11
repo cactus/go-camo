@@ -14,9 +14,9 @@ import (
 	"reflect"
 	"testing"
 
+	"codeberg.org/dropwhile/assert"
 	"github.com/cactus/go-camo/v2/pkg/camo/encoding"
 	"github.com/cactus/go-camo/v2/pkg/router"
-	"codeberg.org/dropwhile/assert"
 )
 
 func makeReq(config Config, testURL string) (*http.Request, error) {
@@ -119,7 +119,7 @@ func (r *Tuple[A, B]) UnmarshalJSON(p []byte) error {
 		return err
 	}
 
-	if reflect.TypeOf(&r.b) == reflect.TypeFor[*B]() {
+	if reflect.TypeFor[*B]() == reflect.TypeFor[*B]() {
 		var s string
 		if err := json.Unmarshal(tmp[1], &s); err != nil {
 			return err

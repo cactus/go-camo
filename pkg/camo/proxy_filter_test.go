@@ -67,7 +67,7 @@ func TestFilterListMatrixMultiples(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		for i := 0; i < 3; i++ {
+		for i := range 3 {
 			filters = append(
 				filters, func(x int) FilterFunc {
 					return func(*url.URL) (bool, error) {

@@ -212,7 +212,7 @@ func BenchmarkHTrieMatch(b *testing.B) {
 	b.ResetTimer()
 
 	for _, u := range parsed {
-		for i := 0; i < testIters; i++ {
+		for range testIters {
 			x, _ = dt.CheckURL(u)
 		}
 	}
@@ -249,7 +249,7 @@ func BenchmarkRegexMatch(b *testing.B) {
 	b.ResetTimer()
 
 	for _, u := range testUrls {
-		for i := 0; i < testIters; i++ {
+		for range testIters {
 			// walk regexes in order. first match wins
 			for _, rx := range rexes {
 				if rx.MatchString(u) {
@@ -292,7 +292,7 @@ func BenchmarkHTrieMatchHostname(b *testing.B) {
 
 	b.Run("CheckHostname", func(b *testing.B) {
 		for _, u := range parsed {
-			for i := 0; i < testIters; i++ {
+			for range testIters {
 				x, _ = dt.CheckHostname(u)
 			}
 		}
@@ -300,7 +300,7 @@ func BenchmarkHTrieMatchHostname(b *testing.B) {
 
 	b.Run("CheckCleanHostname", func(b *testing.B) {
 		for _, u := range parsed {
-			for i := 0; i < testIters; i++ {
+			for range testIters {
 				x = dt.CheckCleanHostname(u)
 			}
 		}
