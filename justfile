@@ -153,6 +153,7 @@ modernize:
 [group('hygiene')]
 fix:
     just _banner ">> running go fix"
+    go fix -rangeint=false ./...
 
 # update go.mod dependencies
 [group('hygiene')]
