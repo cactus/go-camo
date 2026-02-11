@@ -156,10 +156,15 @@ update-go-deps:
     go get -u all
     go mod tidy
 
+# run 'go fix'
+[group('hygiene')]
+fix:
+    just _banner ">> running modernize"
+    go fix -rangeint=false ./...
+
 # update dependencies
 [group('hygiene')]
 update-deps: update-go-deps
-
 
 # run coverage analysis
 [group('tests')]
