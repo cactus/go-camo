@@ -149,18 +149,17 @@ modernize:
     just _banner ">> running modernize"
     {{ tool_bin }} modernize -rangeint=false -test ./...
 
+# run 'go fix'
+[group('hygiene')]
+fix:
+    just _banner ">> running go fix"
+
 # update go.mod dependencies
 [group('hygiene')]
 update-go-deps:
     just _banner ">> updating go.mod dependencies"
     go get -u all
     go mod tidy
-
-# run 'go fix'
-[group('hygiene')]
-fix:
-    just _banner ">> running modernize"
-    go fix -rangeint=false ./...
 
 # update dependencies
 [group('hygiene')]
