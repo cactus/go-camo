@@ -1,5 +1,13 @@
 # HEAD
 
+# v2.7.3 2026-02-15
+
+- bump dependencies
+- build binaries with go-1.26.0  
+  refs:  
+  * https://tip.golang.org/doc/go1.26
+  * https://antonz.org/go-1-26/
+
 # v2.7.2 2025-12-08
 
 - bump dependencies
