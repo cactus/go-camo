@@ -174,7 +174,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		mlog.Debugm("built outgoing request", httpReqToMlogMap(nreq))
 	}
 
-	resp, err := p.client.Do(nreq)
+	resp, err := p.client.Do(nreq) // #nosec G704
 
 	if resp != nil {
 		defer func() {
