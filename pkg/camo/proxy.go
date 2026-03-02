@@ -132,7 +132,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	nreq, err := http.NewRequestWithContext(req.Context(), req.Method, sURL, nil)
+	nreq, err := http.NewRequestWithContext(req.Context(), req.Method, sURL, nil) //#nosec G704
 	if err != nil {
 		if mlog.HasDebug() {
 			mlog.Debugx("could not create NewRequest", mlog.A("err", err))
