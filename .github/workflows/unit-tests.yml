@@ -12,14 +12,14 @@ jobs:
 
     steps:
       - name: Src Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 1
 
       - run: mkdir -p .cache/tools ~/go/pkg/mod ~/.cache/go-build
       - name: Restore cached tools and go
         id: cache-tools-and-go-restore
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: |
             .cache/tools
@@ -29,7 +29,7 @@ jobs:
           restore-keys: |
             cache-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('mise.lock') }}-
 
-      - uses: jdx/mise-action@v3
+      - uses: jdx/mise-action@c1ecc8f748cd28cdeabf76dab3cccde4ce692fe4 # v4.0.0
         with:
           experimental: true
       
@@ -52,7 +52,7 @@ jobs:
       - name: Always save tools and go cache
         id: cache-tools-and-go-save
         if: always() && steps.cache-tools-and-go-restore.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           key: ${{ steps.cache-tools-and-go-restore.outputs.cache-primary-key }}
           path: |
@@ -69,14 +69,14 @@ jobs:
 
     steps:
       - name: Src Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 1
 
       - run: mkdir -p .cache/tools ~/go/pkg/mod ~/.cache/go-build
       - name: Restore cached tools and go
         id: cache-tools-and-go-restore
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: |
             .cache/tools
@@ -86,12 +86,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-cache-
 
-      - uses: jdx/mise-action@v3
+      - uses: jdx/mise-action@c1ecc8f748cd28cdeabf76dab3cccde4ce692fe4 # v4.0.0
         with:
           experimental: true
 
       - name: Install QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
 
       - name: Build
         env:
@@ -109,7 +109,7 @@ jobs:
       - name: Always save tools and go cache
         id: cache-tools-and-go-save
         if: always() && steps.cache-tools-and-go-restore.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           key: ${{ steps.cache-tools-and-go-restore.outputs.cache-primary-key }}
           path: |
