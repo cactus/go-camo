@@ -37,33 +37,33 @@ version = "1.13.0"
 backend = "go:gotest.tools/gotestsum"
 
 [[tools.just]]
-version = "1.47.1"
+version = "1.48.0"
 backend = "aqua:casey/just"
 
 [tools.just."platforms.linux-arm64"]
-checksum = "sha256:e6321ac6d0499bfe849cf28869e34bffbee246b8d450ffbb9a6792aea3084f72"
-url = "https://github.com/casey/just/releases/download/1.47.1/just-1.47.1-aarch64-unknown-linux-musl.tar.gz"
+checksum = "sha256:3c28914f0059161bc263c41db0ed3f786866cfb9632d1ee7809f529c8f18835e"
+url = "https://github.com/casey/just/releases/download/1.48.0/just-1.48.0-aarch64-unknown-linux-musl.tar.gz"
 
 [tools.just."platforms.linux-arm64-musl"]
-checksum = "sha256:e6321ac6d0499bfe849cf28869e34bffbee246b8d450ffbb9a6792aea3084f72"
-url = "https://github.com/casey/just/releases/download/1.47.1/just-1.47.1-aarch64-unknown-linux-musl.tar.gz"
+checksum = "sha256:3c28914f0059161bc263c41db0ed3f786866cfb9632d1ee7809f529c8f18835e"
+url = "https://github.com/casey/just/releases/download/1.48.0/just-1.48.0-aarch64-unknown-linux-musl.tar.gz"
 
 [tools.just."platforms.linux-x64"]
-checksum = "sha256:3cb931ae25860f261ee373f32ede3b772ac91f14f588e4071576d3ffcf1a16fd"
-url = "https://github.com/casey/just/releases/download/1.47.1/just-1.47.1-x86_64-unknown-linux-musl.tar.gz"
+checksum = "sha256:a62e100de2922519ff3d6128f580837b4c0e197aa61a6fb448f43e50e7dd9b9b"
+url = "https://github.com/casey/just/releases/download/1.48.0/just-1.48.0-x86_64-unknown-linux-musl.tar.gz"
 
 [tools.just."platforms.linux-x64-musl"]
-checksum = "sha256:3cb931ae25860f261ee373f32ede3b772ac91f14f588e4071576d3ffcf1a16fd"
-url = "https://github.com/casey/just/releases/download/1.47.1/just-1.47.1-x86_64-unknown-linux-musl.tar.gz"
+checksum = "sha256:a62e100de2922519ff3d6128f580837b4c0e197aa61a6fb448f43e50e7dd9b9b"
+url = "https://github.com/casey/just/releases/download/1.48.0/just-1.48.0-x86_64-unknown-linux-musl.tar.gz"
 
 [tools.just."platforms.macos-arm64"]
-checksum = "sha256:630390f3cfe131f5153c336cb5d5e9714c49ff27bee38d090da0a5901fd660e5"
-url = "https://github.com/casey/just/releases/download/1.47.1/just-1.47.1-aarch64-apple-darwin.tar.gz"
+checksum = "sha256:507edd5cbe97e13f048f650e52ae6cf3fd6c7464b18abe64fb01eca1bd65f8a2"
+url = "https://github.com/casey/just/releases/download/1.48.0/just-1.48.0-aarch64-apple-darwin.tar.gz"
 
 [tools.just."platforms.macos-x64"]
-checksum = "sha256:9e0bd11c96f4947d0b8c52240e0a0cdfd6c93728d5912bb903c01b9c24b9a9ed"
-url = "https://github.com/casey/just/releases/download/1.47.1/just-1.47.1-x86_64-apple-darwin.tar.gz"
+checksum = "sha256:9c4a018665ede3167db8210a6c846e59b675ecce71a35d2f802035fbc9199627"
+url = "https://github.com/casey/just/releases/download/1.48.0/just-1.48.0-x86_64-apple-darwin.tar.gz"
 
 [tools.just."platforms.windows-x64"]
-checksum = "sha256:0f059a129049e4efaff5ff645182972edb07180248f769c5153a90765643bb7b"
-url = "https://github.com/casey/just/releases/download/1.47.1/just-1.47.1-x86_64-pc-windows-msvc.zip"
+checksum = "sha256:06000d1e1f97155c6dff316f20fad029aa70f69c4ecbe2fbe5b821d9bb79aef0"
+url = "https://github.com/casey/just/releases/download/1.48.0/just-1.48.0-x86_64-pc-windows-msvc.zip"
