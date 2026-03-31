@@ -19,7 +19,7 @@ jobs:
       - run: mkdir -p .cache/tools ~/go/pkg/mod ~/.cache/go-build
       - name: Restore cached tools and go
         id: cache-tools-and-go-restore
-        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             .cache/tools
@@ -29,7 +29,7 @@ jobs:
           restore-keys: |
             cache-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('mise.lock') }}-
 
-      - uses: jdx/mise-action@c1ecc8f748cd28cdeabf76dab3cccde4ce692fe4 # v4.0.0
+      - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
         with:
           experimental: true
       
@@ -52,7 +52,7 @@ jobs:
       - name: Always save tools and go cache
         id: cache-tools-and-go-save
         if: always() && steps.cache-tools-and-go-restore.outputs.cache-hit != 'true'
-        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           key: ${{ steps.cache-tools-and-go-restore.outputs.cache-primary-key }}
           path: |
@@ -76,7 +76,7 @@ jobs:
       - run: mkdir -p .cache/tools ~/go/pkg/mod ~/.cache/go-build
       - name: Restore cached tools and go
         id: cache-tools-and-go-restore
-        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             .cache/tools
@@ -86,7 +86,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-cache-
 
-      - uses: jdx/mise-action@c1ecc8f748cd28cdeabf76dab3cccde4ce692fe4 # v4.0.0
+      - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
         with:
           experimental: true
 
@@ -109,7 +109,7 @@ jobs:
       - name: Always save tools and go cache
         id: cache-tools-and-go-save
         if: always() && steps.cache-tools-and-go-restore.outputs.cache-hit != 'true'
-        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           key: ${{ steps.cache-tools-and-go-restore.outputs.cache-primary-key }}
           path: |
