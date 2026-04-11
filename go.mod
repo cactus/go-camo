@@ -11,7 +11,7 @@ require (
 	github.com/quic-go/quic-go v0.59.0
 	github.com/rdforte/gomaxecs v1.1.2
 	github.com/xlab/treeprint v1.2.0
-	golang.org/x/net v0.52.0
+	golang.org/x/net v0.53.0
 )
 
 require (
