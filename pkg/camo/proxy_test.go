@@ -184,14 +184,14 @@ func TestVideoContentTypeAllowed(t *testing.T) {
 		AllowContentVideo: true,
 	}
 
-	testURL := "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+	testURL := "https://www.w3schools.com/tags/mov_bbb.mp4"
 
 	// try a range request (should succeed, MaxSize is larger than requested range)
 	req, err := makeReq(camoConfigWithVideo, testURL)
 	assert.Nil(t, err)
 	req.Header.Add("Range", "bytes=0-10")
 	resp, err := processRequest(req, 206, camoConfigWithVideo, nil)
-	assert.Equal(t, resp.Header.Get("Content-Range"), "bytes 0-10/2299653")
+	assert.Equal(t, resp.Header.Get("Content-Range"), "bytes 0-10/788493")
 	assert.Nil(t, err)
 
 	// try a range request (should fail, MaxSize is smaller than requested range)
@@ -267,7 +267,7 @@ func TestMaxSizeRedirect(t *testing.T) {
 		AllowContentVideo: true,
 	}
 
-	testURL := "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+	testURL := "https://www.w3schools.com/tags/mov_bbb.mp4"
 
 	// try a range request (should fail, MaxSize is smaller than requested range)
 	req, err := makeReq(camoConfigWithMaxSizeRedirect, testURL)
@@ -290,7 +290,7 @@ func TestSupplyAcceptIfNoneGiven(t *testing.T) {
 
 func Test404OnVideo(t *testing.T) {
 	t.Parallel()
-	testURL := "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+	testURL := "https://www.w3schools.com/tags/mov_bbb.mp4"
 	_, err := makeTestReq(testURL, 400, camoConfig)
 	assert.Nil(t, err)
 }
