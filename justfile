@@ -164,9 +164,18 @@ update-go-deps:
     go get -u all
     go mod tidy
 
+# update mise dependencies
+[group('hygiene')]
+update-mise-deps:
+    just _banner ">> updating mise dependencies"
+    mise up -l
+    mise lock
+
 # update dependencies
 [group('hygiene')]
-update-deps: update-go-deps
+update-deps: 
+    just update-mise-deps
+    just update-go-deps
 
 # run coverage analysis
 [group('tests')]
