@@ -2,19 +2,24 @@ name: unit-tests
 on:
   workflow_dispatch:
   push:
-    branches: ["**"]
+    branches: ["master"]
   pull_request:
-    branches: [master]
+    branches: ["**"]
+
+permissions: {}
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Src Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 1
+          persist-credentials: false
 
       - run: mkdir -p .cache/tools ~/go/pkg/mod ~/.cache/go-build
       - name: Restore cached tools and go
@@ -63,6 +68,8 @@ jobs:
   test-qemu:
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         arch: [arm64]
@@ -72,6 +79,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 1
+          persist-credentials: false
 
       - run: mkdir -p .cache/tools ~/go/pkg/mod ~/.cache/go-build
       - name: Restore cached tools and go
