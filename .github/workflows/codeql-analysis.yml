@@ -9,11 +9,14 @@ on:
   schedule:
     - cron: "0 15 * * 4"
 
+permissions: {}
+
 jobs:
   analyse:
     name: Analyse
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       security-events: write
       actions: read
 
@@ -24,6 +27,7 @@ jobs:
           # We must fetch at least the immediate parents so that if this is
           # a pull request then we can checkout the head.
           fetch-depth: 2
+          persist-credentials: false
 
       - run: mkdir -p .cache/tools ~/go/pkg/mod ~/.cache/go-build
       - name: Restore cached tools and go
