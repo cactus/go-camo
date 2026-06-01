@@ -7,7 +7,7 @@ require (
 	codeberg.org/dropwhile/mlog v1.0.11
 	github.com/alecthomas/kong v1.15.0
 	github.com/prometheus/client_golang v1.23.2
-	github.com/prometheus/common v0.67.5
+	github.com/prometheus/common v0.68.0
 	github.com/quic-go/quic-go v0.59.1
 	github.com/rdforte/gomaxecs v1.1.2
 	github.com/xlab/treeprint v1.2.0
@@ -23,7 +23,6 @@ require (
 	github.com/prometheus/procfs v0.20.1 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	go.uber.org/mock v0.6.0 // indirect
-	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	golang.org/x/crypto v0.52.0 // indirect
 	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
