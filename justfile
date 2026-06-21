@@ -9,6 +9,8 @@ set unstable
 set ignore-comments
 # causes the evaluator to skip evaluating unused variables
 set lazy
+# Values may be lists of strings instead of strings
+set lists
 
 # import the user's justfile if it exists
 import? '~/.justfile'
