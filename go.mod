@@ -5,13 +5,13 @@ go 1.25.0
 require (
 	codeberg.org/dropwhile/assert v1.3.1
 	codeberg.org/dropwhile/mlog v1.0.11
-	github.com/alecthomas/kong v1.15.0
+	github.com/alecthomas/kong v1.16.0
 	github.com/prometheus/client_golang v1.23.2
-	github.com/prometheus/common v0.69.0
+	github.com/prometheus/common v0.70.0
 	github.com/quic-go/quic-go v0.60.0
 	github.com/rdforte/gomaxecs v1.1.2
 	github.com/xlab/treeprint v1.2.0
-	golang.org/x/net v0.56.0
+	golang.org/x/net v0.57.0
 )
 
 require (
