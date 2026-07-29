@@ -17,11 +17,11 @@ check_install_tool() {
         echo ".. installing ${1}@${tmodver}"
         go install "${GOPKGREF}"
     else
-        # check if moduel version is the same as file version
+        # check if tool module version is the same as file version
         fmodpath=$(go version -m "${GOBIN}/${1}"|grep -E '^\s*mod' | awk '{print $2}')
         fmodver=$(go version -m "${GOBIN}/${1}"|grep -E '^\s*mod' | awk '{print $3}')
         tmodver=$(grep "^${1}:" "${TOOLS_CONF}" | awk -F@ '{print $2}')
-        lmodver=$(go list -m "${fmodpath}@${tmodver}" | awk '{print $2}')
+        lmodver=$(go list -mod=readonly -m "${fmodpath}@${tmodver}" | awk '{print $2}')
         if [ "$fmodver" != "$lmodver" ]; then
             echo ".. updating ${1}: ${fmodver} -> ${lmodver}"
             go install "${GOPKGREF}"
