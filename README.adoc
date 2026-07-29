@@ -166,13 +166,13 @@ Building:
 $ git clone git@github.com:cactus/go-camo
 $ cd go-camo
 
-# build all binaries (into ./bin/)
+# build all binaries (into ./bin/), strip debug symbols
 $ just build
 
 # build man pages (into ./man/)
 $ just manpages
 
-# do not strip debug symbols
+# example of building without stripping debug symbols
 $ env BUILD_LDFLAGS="" just build
 ----
 
