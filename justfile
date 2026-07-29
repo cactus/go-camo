@@ -165,6 +165,7 @@ update-go-deps:
     just _banner ">> updating go.mod dependencies"
     go get -u all
     go mod tidy
+    go mod vendor
 
 # update mise dependencies
 [group('hygiene')]
