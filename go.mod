@@ -1,6 +1,6 @@
 module github.com/cactus/go-camo/v2
 
-go 1.25.0
+go 1.26.0
 
 require (
 	codeberg.org/dropwhile/assert v1.3.1
