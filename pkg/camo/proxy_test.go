@@ -428,7 +428,7 @@ func Test404OnLoopback(t *testing.T) {
 	skipIfCI(t)
 	t.Parallel()
 
-	testURL := "http://httpbin.org/redirect-to?status_code=302&url=http://test.vcap.me"
+	testURL := "http://httpbin.org/redirect-to?status_code=302&url=http://lvh.me"
 	req, err := makeReq(camoConfig, testURL)
 	assert.Nil(t, err)
 
