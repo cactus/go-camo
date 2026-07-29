@@ -1,4 +1,6 @@
 # HEAD
+- vendor go dependencies
+- drop treeprint from dependency (reimplemented basic version locally)
 
 # v2.7.5 2026-07-08
 - bump dependencies
