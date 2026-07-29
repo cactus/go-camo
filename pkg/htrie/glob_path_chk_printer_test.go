@@ -5,15 +5,14 @@
 package htrie
 
 import (
-	"github.com/xlab/treeprint"
+	"strings"
 )
 
 func (gpc *GlobPathChecker) RenderTree() string {
-	tree := treeprint.New()
-
-	c := tree.AddBranch("case")
-	gpc.csNode.printTree(c)
-	i := tree.AddBranch("icase")
-	gpc.ciNode.printTree(i)
-	return tree.String()
+	var out strings.Builder
+	out.WriteString("case\n")
+	out.WriteString(gpc.csNode.RenderTree())
+	out.WriteString("icase\n")
+	out.WriteString(gpc.ciNode.RenderTree())
+	return out.String()
 }

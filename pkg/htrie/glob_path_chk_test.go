@@ -31,6 +31,7 @@ func TestGlobPathChecker(t *testing.T) {
 		"http://bar.example.com/foo/TEST.png",
 		"http://example.org/foo/test.png",
 		"http://example.org/hodor/test.png",
+		"http://example.org/hodor/ütest.png",
 		"http://example.org/hodor/test.png.longer",
 		"http://example.org/hodor/bartholemew",
 		"http://example.org/hodor/bart/homer.png",
@@ -53,7 +54,7 @@ func TestGlobPathChecker(t *testing.T) {
 		assert.Nil(t, err)
 	}
 
-	// fmt.Println(gpc.RenderTree())
+	//fmt.Println(gpc.RenderTree())
 
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)

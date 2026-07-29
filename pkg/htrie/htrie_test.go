@@ -113,7 +113,7 @@ func TestHTrieCheckHostname(t *testing.T) {
 		}
 	}
 
-	// fmt.Println(dt.RenderTree())
+	//fmt.Println(dt.RenderTree())
 
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)

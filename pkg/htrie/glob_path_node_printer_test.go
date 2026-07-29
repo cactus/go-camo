@@ -5,25 +5,46 @@
 package htrie
 
 import (
+	"fmt"
+	"io"
 	"strings"
-
-	"github.com/xlab/treeprint"
 )
 
-func (gpn *globPathNode) printTree(stree treeprint.Tree) {
+func (gpn *globPathNode) printTree(out io.Writer, depth int, prefix string) {
+	subTreeCount := len(gpn.subtrees)
+	iter := 0
 	for i, x := range gpn.subtrees {
 		if x == nil {
 			continue
 		}
+		iter += 1
+
 		c := "*"
-		if i != 0 {
+		if i != 0 && i != 1 {
 			// we use uint32 for performance, and don't care about
 			// truncation at all here (just printing anyway), so
 			// just convert.
 			c = string(uint8(i))
 		}
 
-		subTree := stree.AddBranch(c)
+		subprefix := prefix
+		if subTreeCount > 1 {
+			if iter < subTreeCount {
+				subprefix += "├── "
+			} else {
+				subprefix += "└── "
+			}
+		} else {
+			subprefix += "└── "
+		}
+		fmt.Fprint(out, subprefix)
+		if before, ok := strings.CutSuffix(subprefix, "├── "); ok {
+			subprefix = before + "│   "
+		}
+		if before, ok := strings.CutSuffix(subprefix, "└── "); ok {
+			subprefix = before + "    "
+		}
+
 		meta := make([]string, 0)
 		if x.isGlob {
 			meta = append(meta, "glob")
@@ -34,31 +55,20 @@ func (gpn *globPathNode) printTree(stree treeprint.Tree) {
 		if x.canMatch {
 			meta = append(meta, "$")
 		}
-		if len(meta) > 0 {
-			subTree.SetMetaValue(strings.Join(meta, ","))
-		}
 
-		x.printTree(subTree)
+		fmt.Fprintf(out, "%s", c)
+
+		if len(meta) > 0 {
+			fmt.Fprintf(out, " [%s]", strings.Join(meta, ","))
+		}
+		fmt.Fprint(out, "\n")
+
+		x.printTree(out, depth+1, subprefix)
 	}
 }
 
 func (gpn *globPathNode) RenderTree() string {
-	tree := treeprint.New()
-
-	meta := make([]string, 0)
-	if gpn.isGlob {
-		meta = append(meta, "glob")
-	}
-	if gpn.hasGlobChild {
-		meta = append(meta, "glob-child")
-	}
-	if gpn.canMatch {
-		meta = append(meta, "$")
-	}
-	if len(meta) > 0 {
-		tree.SetMetaValue(strings.Join(meta, ","))
-	}
-
-	gpn.printTree(tree)
-	return tree.String()
+	var out strings.Builder
+	gpn.printTree(&out, 0, "")
+	return out.String()
 }
