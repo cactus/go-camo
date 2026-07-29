@@ -1,0 +1,13 @@
+fmt.Fprint
+fmt.Fprintf
+(*os.File).Close
+(*bufio.Writer).Flush
+(*sliceBuffer).WriteByte
+(github.com/cactus/mlog.byteSliceWriter).Write
+(github.com/cactus/mlog.byteSliceWriter).WriteByte
+(github.com/cactus/mlog.byteSliceWriter).WriteString
+(*github.com/cactus/mlog.sliceBuffer).Write
+(*github.com/cactus/mlog.sliceBuffer).WriteByte
+(*github.com/cactus/mlog.sliceBuffer).WriteString
+(*github.com/cactus/mlog.sliceBuffer).WriteTo
+(*github.com/cactus/mlog.discardSliceWriter).WriteByte
