@@ -19,7 +19,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/cactus/go-camo/v2/pkg/camo/encoding"
+	"github.com/cactus/go-camo/v2/pkg/encoding"
 	"github.com/cactus/go-camo/v2/pkg/htrie"
 
 	"codeberg.org/dropwhile/mlog"

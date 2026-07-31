@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/cactus/go-camo/v2/pkg/camo/encoding"
+	"github.com/cactus/go-camo/v2/pkg/encoding"
 
 	"github.com/alecthomas/kong"
 )
