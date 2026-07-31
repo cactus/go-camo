@@ -49,7 +49,7 @@ toc::[]
 
 == About
 
-image::.github/go-camo.png[title="silly image", caption=""]
+image::.github/go-camo.png[]
 
 go-camo is a go version of a https://github.com/atmos/camo[camo] server.
 
