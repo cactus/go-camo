@@ -15,6 +15,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
+	"runtime/debug"
 	"strings"
 	"syscall"
 	"time"
@@ -28,7 +29,6 @@ import (
 	vcoll "github.com/prometheus/client_golang/prometheus/collectors/version"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/prometheus/common/version"
 	"github.com/quic-go/quic-go/http3"
 	gomaxecs "github.com/rdforte/gomaxecs/maxprocs"
 )
@@ -257,16 +257,48 @@ func (cli *CLI) Run() {
 	// configure router endpoint for rendering metrics
 	if cli.Metrics {
 		mlog.Printf("Enabling metrics at /metrics")
-		// Register a version info metric.
-		verOverride := os.Getenv("APP_INFO_VERSION")
-		if verOverride != "" {
-			version.Version = verOverride
-		} else {
-			version.Version = ServerVersion
+
+		version := os.Getenv("APP_INFO_VERSION")
+		if version == "" {
+			version = ServerVersion
 		}
-		version.Revision = os.Getenv("APP_INFO_REVISION")
-		version.Branch = os.Getenv("APP_INFO_BRANCH")
-		version.BuildDate = os.Getenv("APP_INFO_BUILD_DATE")
+
+		revision := os.Getenv("APP_INFO_REVISION")
+		tags := ""
+		if buildInfo, ok := debug.ReadBuildInfo(); ok {
+			for _, v := range buildInfo.Settings {
+				if v.Key == "-tags" {
+					tags = v.Value
+				}
+				if v.Key == "vcs.revision" {
+					if revision == "" {
+						revision = v.Value
+					}
+				}
+			}
+		}
+
+		prometheus.MustRegister(prometheus.NewGaugeFunc(
+			prometheus.GaugeOpts{
+				Namespace: metricNamespace,
+				Name:      "build_info",
+				Help: fmt.Sprintf(
+					"A metric with a constant '1' value labeled by version, revision, branch, goversion from which %s was built, and the goos and goarch for the build.",
+					metricNamespace,
+				),
+				ConstLabels: prometheus.Labels{
+					"version":   version,
+					"revision":  os.Getenv("APP_INFO_REVISION"),
+					"branch":    os.Getenv("APP_INFO_BRANCH"),
+					"buildDate": os.Getenv("APP_INFO_BUILD_DATE"),
+					"goversion": runtime.Version(),
+					"goos":      runtime.GOOS,
+					"goarch":    runtime.GOARCH,
+					"tags":      tags,
+				},
+			},
+			func() float64 { return 1 },
+		))
 		prometheus.MustRegister(vcoll.NewCollector(metricNamespace))
 
 		// Wrap the dumb router in instrumentation.
@@ -422,7 +454,8 @@ func (cli *CLI) Run() {
 
 func main() {
 	cli := CLI{}
-	_ = kong.Parse(&cli,
+	_ = kong.Parse(
+		&cli,
 		kong.Name("go-camo"),
 		kong.Description("An image proxy that proxies non-secure images over SSL/TLS"),
 		kong.UsageOnError(),
