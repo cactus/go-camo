@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"codeberg.org/dropwhile/assert"
+	"github.com/cactus/go-camo/v2/pkg/assert"
 )
 
 func TestHTrieCheckURL(t *testing.T) {

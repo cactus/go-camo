@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"testing"
 
-	"codeberg.org/dropwhile/assert"
+	"github.com/cactus/go-camo/v2/pkg/assert"
 )
 
 func TestFilterListAcceptSimple(t *testing.T) {
@@ -80,7 +80,8 @@ func TestFilterListMatrixMultiples(t *testing.T) {
 		_, err = processRequest(req, respcode, camoConfig, filters)
 		assert.Nil(t, err)
 		for i := range callMatrix {
-			assert.Equal(t, callMatrix[i], expectedCallMatrix[i],
+			assert.Equal(
+				t, callMatrix[i], expectedCallMatrix[i],
 				fmt.Sprintf(
 					"filter func called='%t'[%d] wanted '%t'",
 					callMatrix[i], i, expectedCallMatrix[i],

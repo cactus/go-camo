@@ -3,6 +3,8 @@
 // license that can be found in the LICENSE file.
 //
 // Inspiration from https://github.com/nalgeon/be
+//
+// Imported from https://codeberg.org/dropwhile/assert
 
 package assert
 

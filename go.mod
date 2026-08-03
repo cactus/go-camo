@@ -3,7 +3,6 @@ module github.com/cactus/go-camo/v2
 go 1.26.0
 
 require (
-	codeberg.org/dropwhile/assert v1.3.1
 	codeberg.org/dropwhile/mlog v1.0.11
 	github.com/alecthomas/kong v1.16.0
 	github.com/prometheus/client_golang v1.24.1

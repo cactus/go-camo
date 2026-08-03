@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"testing"
 
-	"codeberg.org/dropwhile/assert"
+	"github.com/cactus/go-camo/v2/pkg/assert"
 )
 
 func TestEncoder(t *testing.T) {

@@ -14,7 +14,7 @@ import (
 	"reflect"
 	"testing"
 
-	"codeberg.org/dropwhile/assert"
+	"github.com/cactus/go-camo/v2/pkg/assert"
 	"github.com/cactus/go-camo/v2/pkg/encoding"
 	"github.com/cactus/go-camo/v2/pkg/router"
 )
@@ -80,8 +80,10 @@ func bodyAssert(t *testing.T, expected string, resp *http.Response) {
 	body, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
 	bodyString := string(body)
-	assert.Equal(t, expected, bodyString,
-		fmt.Sprintf("Expected 404 response body but got '%s' instead",
+	assert.Equal(
+		t, expected, bodyString,
+		fmt.Sprintf(
+			"Expected 404 response body but got '%s' instead",
 			bodyString,
 		),
 	)
@@ -89,7 +91,8 @@ func bodyAssert(t *testing.T, expected string, resp *http.Response) {
 
 func headerAssert(t *testing.T, expected, name string, resp *http.Response) {
 	t.Helper()
-	assert.Equal(t,
+	assert.Equal(
+		t,
 		expected, resp.Header.Get(name),
 		"Expected response header mismatch",
 	)
@@ -97,9 +100,11 @@ func headerAssert(t *testing.T, expected, name string, resp *http.Response) {
 
 func statusCodeAssert(t *testing.T, expected int, resp *http.Response) {
 	t.Helper()
-	assert.Equal(t,
+	assert.Equal(
+		t,
 		expected, resp.StatusCode,
-		fmt.Sprintf("Expected %d but got '%d' instead",
+		fmt.Sprintf(
+			"Expected %d but got '%d' instead",
 			expected, resp.StatusCode,
 		),
 	)

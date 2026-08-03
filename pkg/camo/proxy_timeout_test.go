@@ -15,8 +15,8 @@ import (
 	"testing"
 	"time"
 
-	"codeberg.org/dropwhile/assert"
 	"codeberg.org/dropwhile/mlog"
+	"github.com/cactus/go-camo/v2/pkg/assert"
 	"github.com/cactus/go-camo/v2/pkg/encoding"
 	"github.com/cactus/go-camo/v2/pkg/router"
 )
@@ -122,7 +122,8 @@ func TestClientCancelEarly(t *testing.T) {
 	assert.Nil(t, err)
 	defer conn.Close()
 
-	req := fmt.Appendf(nil,
+	req := fmt.Appendf(
+		nil,
 		"GET %s HTTP/1.1\r\nHost: foo.com\r\nConnection: close\r\n\r\n",
 		encoding.B64EncodeURL(c.HMACKey, ts.URL+"/image.png"),
 	)
@@ -177,7 +178,8 @@ func TestClientCancelLate(t *testing.T) {
 	assert.Nil(t, err)
 	defer conn.Close()
 
-	req := fmt.Appendf(nil,
+	req := fmt.Appendf(
+		nil,
 		"GET %s HTTP/1.1\r\nHost: foo.com\r\nConnection: close\r\n\r\n",
 		encoding.B64EncodeURL(c.HMACKey, ts.URL+"/image.png"),
 	)

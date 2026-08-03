@@ -10,7 +10,7 @@ import (
 	"sort"
 	"testing"
 
-	"codeberg.org/dropwhile/assert"
+	"github.com/cactus/go-camo/v2/pkg/assert"
 	"golang.org/x/net/http/httpproxy"
 )
 
