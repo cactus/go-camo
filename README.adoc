@@ -45,7 +45,7 @@ image::.github/go-camo.png["silly logo"]
 
 go-camo is a go version of a https://github.com/atmos/camo[camo] server.
 
-ifdef::env-github[]
+ifdef::env-github,no-header-footer[]
 [discrete]
 == Contents
 endif::[]
