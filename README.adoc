@@ -41,9 +41,6 @@ image:https://github.com/cactus/go-camo/workflows/unit-tests/badge.svg[BuildStat
 image:.github/img-readme-license.svg[License,link=https://github.com/cactus/go-camo/blob/master/LICENSE.md]
 image:https://img.shields.io/badge/codeberg-1890ff?label=mirror[mirror:codeberg,link=https://codeberg.org/dropwhile/go-camo]
 
-image::.github/go-camo.png["silly logo"]
-
-go-camo is a go version of a https://github.com/atmos/camo[camo] server.
 
 ifdef::env-github,no-header-footer[]
 [discrete]
@@ -53,8 +50,10 @@ toc::[]
 
 == About
 
-A camo server is a special type of image proxy
-that proxies non-secure images over SSL/TLS,
+image::.github/go-camo.png["silly logo"]
+
+A https://github.com/atmos/camo[camo] server is a special type of
+image proxy that proxies non-secure images over SSL/TLS,
 in order to prevent mixed content warnings on secure pages.
 The server works in conjunction with back-end code
 that rewrites image URLs and signs them with an {link-hmac}.
