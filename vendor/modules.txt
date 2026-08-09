@@ -4,7 +4,7 @@ codeberg.org/dropwhile/mlog
 # codeberg.org/dropwhile/tai64 v1.0.4
 ## explicit; go 1.16
 codeberg.org/dropwhile/tai64
-# github.com/alecthomas/kong v1.16.0
+# github.com/alecthomas/kong v1.16.1
 ## explicit; go 1.20
 github.com/alecthomas/kong
 # github.com/beorn7/perks v1.0.1

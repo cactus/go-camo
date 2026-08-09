@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	codeberg.org/dropwhile/mlog v1.0.11
-	github.com/alecthomas/kong v1.16.0
+	github.com/alecthomas/kong v1.16.1
 	github.com/prometheus/client_golang v1.24.1
 	github.com/quic-go/quic-go v0.61.0
 	github.com/rdforte/gomaxecs v1.1.2
