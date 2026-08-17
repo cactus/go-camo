@@ -171,7 +171,7 @@ update-go-deps:
 [group('hygiene')]
 update-mise-deps:
     just _banner ">> updating mise dependencies"
-    mise up -l
+    mise up -b
     mise lock
 
 # update dependencies
