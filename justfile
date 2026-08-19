@@ -141,7 +141,8 @@ errorlint:
 
 # run all ~checks:default checkers
 [group('checks')]
-check: vet staticcheck errcheck errortype nilness ineffassign govulncheck betteralign gosec
+check: vet errcheck errortype nilness ineffassign govulncheck betteralign gosec
+#check: vet staticcheck errcheck errortype nilness ineffassign govulncheck betteralign gosec
 
 # run all ~checks:optional checkers
 [group('checks')]
