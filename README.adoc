@@ -597,9 +597,9 @@ See xref:CHANGELOG.md[CHANGELOG].
 
 == Known Users and/or Recommendations
 
-* [Gitlab](https://docs.gitlab.com/security/asset_proxy/#installing-camo-server)
-* [Zulip](https://zulip.readthedocs.io/en/stable/production/securing-your-zulip-server.html#:~:text=Zulip%20supports%20using%20the%20go%2Dcamo%20image%20proxy%20to%20proxy%20content%20like%20inline%20image%20previews%2C%20that%20can%20be%20inserted%20into%20the%20Zulip%20message%20feed%20by%20other%20users.%20This%20ensures%20that%20clients%20do%20not%20make%20requests%20to%20external%20servers%20to%20fetch%20images%2C%20improving%20privacy.)
-* [Pypi](https://github.com/pypi/camo)
+* https://docs.gitlab.com/security/asset_proxy/#installing-camo-server[Gitlab]
+* https://zulip.readthedocs.io/en/stable/production/securing-your-zulip-server.html#:~:text=Zulip%20supports%20using%20the%20go%2Dcamo%20image%20proxy%20to%20proxy%20content%20like%20inline%20image%20previews%2C%20that%20can%20be%20inserted%20into%20the%20Zulip%20message%20feed%20by%20other%20users.%20This%20ensures%20that%20clients%20do%20not%20make%20requests%20to%20external%20servers%20to%20fetch%20images%2C%20improving%20privacy[Zulip]
+* https://github.com/pypi/camo[Pypi]
 
 == License
 
