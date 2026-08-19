@@ -69,7 +69,7 @@ var (
 )
 
 type CLI struct { // betteralign:ignore
-	HMACKey             string        `name:"key" short:"k" help:"HMAC key"`
+	HMACKey             string        `name:"key" short:"k" env:"GOCAMO_HMAC" help:"HMAC key"`
 	AddHeaders          []string      `name:"header" short:"H" help:"Add additional header to each response. This option can be used multiple times to add multiple headers."`
 	BindAddress         string        `name:"listen" default:"0.0.0.0:8080" help:"Address:Port to bind to for HTTP"`
 	BindAddressSSL      string        `name:"ssl-listen" placeholder:"HOST_PORT" help:"Address:Port to bind to for HTTPS/SSL/TLS"`
@@ -98,9 +98,9 @@ type CLI struct { // betteralign:ignore
 	ServerName          string        `name:"server-name" default:"go-camo" help:"Value to use for the HTTP server field"`
 	UserAgent           string        `name:"user-agent" default:"go-camo" help:"user-agent for outgoing requests"`
 	ExposeServerVersion bool          `name:"expose-server-version" help:"Include the server version in the HTTP server response header"`
-	EnableXFwdFor       bool          `name:"enable-xfwd4" help:"Enable x-forwarded-for passthrough/generation"`
+	EnableXFwdFor       bool          `name:"xfwd4" env:"GOCAMO_XFWD_FOR" help:"Enable x-forwarded-for passthrough/generation"`
 	Verbose             bool          `name:"verbose" short:"v" help:"Show verbose (debug) log level output"`
-	Version             int           `name:"version" short:"V" type:"counter" help:"Print version and exit; specify twice to show license information."`
+	Version             int           `name:"version" short:"V" type:"counter" env:"-" help:"Print version and exit; specify twice to show license information."`
 }
 
 func (cli *CLI) Run() {
@@ -129,15 +129,8 @@ func (cli *CLI) Run() {
 	mlog.SetFlags(0)
 
 	config := camo.Config{}
-	if hmacKey := os.Getenv("GOCAMO_HMAC"); hmacKey != "" {
-		config.HMACKey = []byte(hmacKey)
-	}
 
-	// flags override env var
-	if cli.HMACKey != "" {
-		config.HMACKey = []byte(cli.HMACKey)
-	}
-
+	config.HMACKey = []byte(cli.HMACKey)
 	if len(config.HMACKey) == 0 {
 		mlog.Fatal("HMAC key required")
 	}
@@ -181,43 +174,7 @@ func (cli *CLI) Run() {
 	config.UserAgent = cli.UserAgent
 
 	// configure metrics collection in camo
-	if cli.Metrics {
-		config.CollectMetrics = true
-	}
-
-	var filters []camo.FilterFunc
-	if cli.FilterRuleset != "" {
-		var err error
-		filters, err = loadFilterList(cli.FilterRuleset)
-		if err != nil {
-			mlog.Fatal("Could not read filter-ruleset", err)
-		}
-
-	}
-
-	AddHeaders := map[string]string{
-		"X-Content-Type-Options":  "nosniff",
-		"X-XSS-Protection":        "1; mode=block",
-		"Content-Security-Policy": "default-src 'none'; img-src data:; style-src 'unsafe-inline'",
-	}
-
-	for _, v := range cli.AddHeaders {
-		fmt.Println(v)
-		s := strings.SplitN(v, ":", 2)
-		if len(s) != 2 {
-			mlog.Printf("ignoring bad header: '%s'", v)
-			continue
-		}
-
-		s0 := strings.TrimSpace(s[0])
-		s1 := strings.TrimSpace(s[1])
-
-		if len(s0) == 0 || len(s1) == 0 {
-			mlog.Printf("ignoring bad header: '%s'", v)
-			continue
-		}
-		AddHeaders[s[0]] = s[1]
-	}
+	config.CollectMetrics = cli.Metrics
 
 	// now configure a standard logger
 	mlog.SetFlags(mlog.Lstd)
@@ -228,6 +185,39 @@ func (cli *CLI) Run() {
 	if cli.Verbose {
 		mlog.SetFlags(mlog.Flags() | mlog.Ldebug)
 		mlog.Debug("debug logging enabled")
+	}
+
+	var filters []camo.FilterFunc
+	if cli.FilterRuleset != "" {
+		var err error
+		filters, err = loadFilterList(cli.FilterRuleset)
+		if err != nil {
+			mlog.Fatal("Could not read filter-ruleset", err)
+		}
+	}
+
+	AddHeaders := map[string]string{
+		"X-Content-Type-Options":  "nosniff",
+		"X-XSS-Protection":        "1; mode=block",
+		"Content-Security-Policy": "default-src 'none'; img-src data:; style-src 'unsafe-inline'",
+	}
+
+	for _, v := range cli.AddHeaders {
+		mlog.Debugf("will add header -> '%s'", v)
+		s := strings.SplitN(v, ":", 2)
+		if len(s) != 2 {
+			mlog.Printf("ignoring bad header -> '%s'", v)
+			continue
+		}
+
+		s0 := strings.TrimSpace(s[0])
+		s1 := strings.TrimSpace(s[1])
+
+		if len(s0) == 0 || len(s1) == 0 {
+			mlog.Printf("ignoring bad header -> '%s'", v)
+			continue
+		}
+		AddHeaders[s[0]] = s[1]
 	}
 
 	if cli.AutoMaxProcs && gomaxecs.IsECS() {
@@ -459,6 +449,7 @@ func main() {
 		kong.Name("go-camo"),
 		kong.Description("An image proxy that proxies non-secure images over SSL/TLS"),
 		kong.UsageOnError(),
+		kong.DefaultEnvars("GOCAMO"),
 		kong.Vars{"version": ServerVersion},
 	)
 	cli.Run()

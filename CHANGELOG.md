@@ -3,6 +3,8 @@
 - When configuring a max-size, this will now also disable backend http keep-alives, to
   ensure that the connection can be closed before fully reading the response (prevents
   resource exhaustion).
+- add more comprehensive support for cli flags to be set via env vars, with names prefixed with `GOCAMO_`.
+  Use `--help` to see names.
 - vendor go dependencies
 - drop treeprint from dependency (reimplemented basic version locally)
 - include codeberg.org/dropwhile/assert in pkg dir directly, remove as mod dep
