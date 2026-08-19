@@ -25,7 +25,7 @@ type globPathNode struct {
 	//  BenchmarkUInt32     298597942    3.99 ns/op
 	//  BenchmarkUInt64     300239860    4.02 ns/op
 	//
-	// Since we would /want/ to use uint8 here, use uint32 instead
+	// While we would /want/ to use uint8 here, use uint32 instead
 	// Ugly and wasteful, but quite a bit faster for now...
 	//
 	// Further, using a map of uint32 is also slightly faster than using
