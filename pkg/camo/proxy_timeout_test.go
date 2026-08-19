@@ -108,7 +108,7 @@ func TestClientCancelEarly(t *testing.T) {
 	))
 	defer ts.Close()
 
-	camoServer, err := New(c)
+	camoServer, err := New(c, nil)
 	assert.Nil(t, err)
 	router := &router.DumbRouter{
 		ServerName:  c.ServerName,
@@ -164,7 +164,7 @@ func TestClientCancelLate(t *testing.T) {
 	))
 	defer ts.Close()
 
-	camoServer, err := New(c)
+	camoServer, err := New(c, nil)
 	assert.Nil(t, err)
 	router := &router.DumbRouter{
 		ServerName:  c.ServerName,

@@ -23,15 +23,7 @@ type innerUpstreamProxyConfig struct {
 }
 
 func (ic *innerUpstreamProxyConfig) matchesIP(ip net.IP, port string) bool {
-	if ic == nil {
-		return false
-	}
-
-	if ic.port != port {
-		return false
-	}
-
-	if len(ic.addresses) == 0 {
+	if ic == nil || ic.port != port || len(ic.addresses) == 0 {
 		return false
 	}
 
@@ -39,11 +31,7 @@ func (ic *innerUpstreamProxyConfig) matchesIP(ip net.IP, port string) bool {
 }
 
 func (ic *innerUpstreamProxyConfig) matchesHost(host string, port string) bool {
-	if ic == nil {
-		return false
-	}
-
-	if ic.port != port {
+	if ic == nil || ic.port != port {
 		return false
 	}
 

@@ -31,21 +31,9 @@ func makeReq(config Config, testURL string) (*http.Request, error) {
 }
 
 func processRequest(req *http.Request, status int, camoConfig Config, filters []FilterFunc) (*http.Response, error) {
-	var (
-		camoServer *Proxy
-		err        error
-	)
-
-	if len(filters) == 0 {
-		camoServer, err = New(camoConfig)
-		if err != nil {
-			return nil, fmt.Errorf("Error building Camo: %s", err.Error())
-		}
-	} else {
-		camoServer, err = NewWithFilters(camoConfig, filters)
-		if err != nil {
-			return nil, fmt.Errorf("Error building Camo: %s", err.Error())
-		}
+	camoServer, err := New(camoConfig, filters)
+	if err != nil {
+		return nil, fmt.Errorf("Error building Camo: %s", err.Error())
 	}
 
 	router := &router.DumbRouter{

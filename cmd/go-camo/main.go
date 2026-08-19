@@ -241,7 +241,7 @@ func (cli *CLI) Run() {
 		mlog.SetEmitter(&mlog.FormatWriterJSON{})
 	}
 
-	proxy, err := camo.NewWithFilters(config, filters)
+	proxy, err := camo.New(config, filters)
 	if err != nil {
 		mlog.Fatal("Error creating camo", err)
 	}

@@ -470,30 +470,11 @@ func (p *Proxy) copyHeaders(dst, src *http.Header, filter *map[string]bool) {
 	}
 }
 
-// NewWithFilters returns a new Proxy that utilises the passed in proxy filters.
-// filters are evaluated in order, and the first false response from a filter
-// function halts further evaluation and fails the request.
-func NewWithFilters(pc Config, filters []FilterFunc) (*Proxy, error) {
-	proxy, err := New(pc)
-	if err != nil {
-		return nil, err
-	}
-
-	filterFuncs := make([]FilterFunc, 0)
-	// check for nil entries, and copy the slice in case the original
-	// is mutated.
-	for _, filter := range filters {
-		if filter != nil {
-			filterFuncs = append(filterFuncs, filter)
-		}
-	}
-	proxy.filters = filterFuncs
-	proxy.filtersLen = len(filterFuncs)
-	return proxy, nil
-}
-
-// New returns a new Proxy. Returns an error if Proxy could not be constructed.
-func New(pc Config) (*Proxy, error) {
+// New returns a new Proxy, utilizing any passed in proxy filters.
+// If supplied, filters are evaluated in order, and the first filter failure (false result)
+// halts further evaluation and fails the request.
+// Returns an error if Proxy could not be constructed.
+func New(pc Config, filters []FilterFunc) (*Proxy, error) {
 	doFiltering := !pc.noIPFiltering
 
 	upstreamProxyConf := &upstreamProxyConfig{}
@@ -600,6 +581,19 @@ func New(pc Config) (*Proxy, error) {
 		acceptTypesString:   strings.Join(acceptTypes, ", "),
 		acceptTypesFilter:   acceptTypesFilter,
 		upstreamProxyConfig: upstreamProxyConf,
+	}
+
+	if len(filters) > 0 {
+		filterFuncs := make([]FilterFunc, 0)
+		// check for nil entries, and copy the slice in case the original
+		// is mutated.
+		for _, filter := range filters {
+			if filter != nil {
+				filterFuncs = append(filterFuncs, filter)
+			}
+		}
+		p.filters = filterFuncs
+		p.filtersLen = len(filterFuncs)
 	}
 
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {

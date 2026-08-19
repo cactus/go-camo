@@ -54,6 +54,7 @@ func HexDecodeURL(hmackey []byte, hexdig string, hexURL string) (string, error) 
 	if err != nil {
 		return "", fmt.Errorf("bad url decode")
 	}
+
 	macBytes, err := hex.DecodeString(hexdig)
 	if err != nil {
 		return "", fmt.Errorf("bad mac decode")
@@ -85,6 +86,7 @@ func B64DecodeURL(hmackey []byte, encdig string, encURL string) (string, error) 
 	if err != nil {
 		return "", fmt.Errorf("bad url decode")
 	}
+
 	macBytes, err := b64decode(encdig)
 	if err != nil {
 		return "", fmt.Errorf("bad mac decode")
