@@ -279,6 +279,13 @@ More generally, it is recommended to either:
     Either a complete URL or a `host[:port]`, in which case an HTTP scheme
     is assumed. See <<Upstream Http Proxying>> notes for more information.
 
+Additional environment vars are show as part of the `--help` output.
+
+Regarding *Environmen Vars* vs *OPTIONS* precedence: _OPTIONS_, if provided,
+override those defined in environment variables.++
+For exmaple, if the HMAC key is provided on the command line, it will override
+(if present), an HMAC key set in the environment var.
+
 === Command line flags
 
 [source,text]
@@ -290,45 +297,61 @@ An image proxy that proxies non-secure images over SSL/TLS
 
 Flags:
   -h, --help                     Show context-sensitive help.
-  -k, --key=STRING               HMAC key
-  -H, --header=HEADER,...        Add additional header to each response.
-                                 This option can be used multiple times to add
-                                 multiple headers.
-      --listen="0.0.0.0:8080"    Address:Port to bind to for HTTP
+  -k, --key=STRING               HMAC key ($GOCAMO_HMAC)
+  -H, --header=HEADER,...        Add additional header to each response. This option
+                                 can be used multiple times to add multiple headers
+                                 ($GOCAMO_HEADER).
+      --listen="0.0.0.0:8080"    Address:Port to bind to for HTTP ($GOCAMO_LISTEN)
       --ssl-listen=HOST_PORT     Address:Port to bind to for HTTPS/SSL/TLS
+                                 ($GOCAMO_SSL_LISTEN)
       --socket-listen=PATH       Path for unix domain socket to bind to for HTTP
-      --quic                     Enable http3/quic. Binds to the same port
-                                 number as ssl-listen but udp+quic.
-      --automaxprocs             Set GOMAXPROCS automatically to match Linux
-                                 container CPU quota/limits.
-      --ssl-key=PATH             ssl private key (key.pem) path
-      --ssl-cert=PATH            ssl cert (cert.pem) path
-      --max-size=INT             Max allowed response size (KB)
-      --timeout=4s               Upstream request timeout
+                                 ($GOCAMO_SOCKET_LISTEN)
+      --quic                     Enable http3/quic. Binds to the same port number as
+                                 ssl-listen but udp+quic ($GOCAMO_QUIC).
+      --automaxprocs             Set GOMAXPROCS automatically to match Linux container CPU
+                                 quota/limits ($GOCAMO_AUTOMAXPROCS).
+      --ssl-key=PATH             ssl private key (key.pem) path ($GOCAMO_SSL_KEY)
+      --ssl-cert=PATH            ssl cert (cert.pem) path ($GOCAMO_SSL_CERT)
+      --max-size=INT             Max allowed response size, in KB ($GOCAMO_MAX_SIZE)
+      --timeout=4s               Upstream request timeout (backend) ($GOCAMO_TIMEOUT)
+      --idletimeout=30s          Maximum amount of time to wait for the next request when
+                                 keep-alive is enabled (frontend) ($GOCAMO_IDLETIMEOUT)
+      --readtimeout=30s          Maximum duration for reading the entire request,
+                                 including the body (frontend) ($GOCAMO_READTIMEOUT)
       --max-redirects=3          Maximum number of redirects to follow
+                                 ($GOCAMO_MAX_REDIRECTS)
       --max-size-redirect=URL    redirect to URL when max-size is exceeded
+                                 ($GOCAMO_MAX_SIZE_REDIRECT)
       --metrics                  Enable Prometheus compatible metrics endpoint
-      --no-debug-vars            Disable the /debug/vars/ metrics endpoint.
-                                 This option has no effects when the metrics are
-                                 not enabled.
-      --no-log-ts                Do not add a timestamp to logging
-      --prof                     Enable go http profiler endpoint
-      --log-json                 Log in JSON format
-      --no-fk                    Disable frontend http keep-alive support
-      --no-bk                    Disable backend http keep-alive support
+                                 ($GOCAMO_METRICS)
+      --no-debug-vars            Disable the /debug/vars/ metrics endpoint. This option
+                                 has no effects when the metrics are not enabled
+                                 ($GOCAMO_NO_DEBUG_VARS).
+      --no-log-ts                Do not add a timestamp to logging ($GOCAMO_NO_LOG_TS)
+      --prof                     Enable go http profiler endpoint ($GOCAMO_PROF)
+      --log-json                 Log in JSON format ($GOCAMO_LOG_JSON)
+      --no-fk                    Disable frontend http keep-alive support (frontend)
+                                 ($GOCAMO_NO_FK)
+      --no-bk                    Disable backend http keep-alive support (backend)
+                                 ($GOCAMO_NO_BK)
       --allow-content-video      Additionally allow 'video/*' content
+                                 ($GOCAMO_ALLOW_CONTENT_VIDEO)
       --allow-content-audio      Additionally allow 'audio/*' content
+                                 ($GOCAMO_ALLOW_CONTENT_AUDIO)
       --allow-credential-urls    Allow urls to contain user/pass credentials
-      --filter-ruleset=PATH      Text file containing filtering rules (one per
-                                 line)
+                                 ($GOCAMO_ALLOW_CREDENTIAL_URLS)
+      --filter-ruleset=PATH      Text file containing filtering rules (one per line)
+                                 ($GOCAMO_FILTER_RULESET)
       --server-name="go-camo"    Value to use for the HTTP server field
-      --user-agent="go-camo"     user-agent for outgoing requests
-      --expose-server-version    Include the server version in the HTTP server
-                                 response header
-      --enable-xfwd4             Enable x-forwarded-for passthrough/generation
-  -v, --verbose                  Show verbose (debug) log level output
-  -V, --version                  Print version and exit; specify twice to show
-                                 license information.
+                                 ($GOCAMO_SERVER_NAME)
+      --user-agent="go-camo"     user-agent for outgoing requests ($GOCAMO_USER_AGENT)
+      --expose-server-version    Include the server version in the HTTP server response
+                                 header ($GOCAMO_EXPOSE_SERVER_VERSION)
+      --xfwd4                    Enable x-forwarded-for passthrough/generation
+                                 ($GOCAMO_XFWD_FOR)
+  -v, --verbose                  Show verbose (debug) log level output ($GOCAMO_VERBOSE)
+  -V, --version                  Print version and exit; specify twice to show license
+                                 information.
 ----
 
 A few notes about specific flags:
