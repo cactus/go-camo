@@ -27,11 +27,6 @@ func validateURL(hmackey *[]byte, macbytes *[]byte, urlbytes *[]byte) error {
 	mac.Write(*urlbytes) // #nosec G104 -- doesn't apply to hmac
 	macSum := mac.Sum(nil)
 
-	// ensure lengths are equal. if not, return false
-	if len(macSum) != len(*macbytes) {
-		return fmt.Errorf("mismatched length")
-	}
-
 	if subtle.ConstantTimeCompare(macSum, *macbytes) != 1 {
 		return fmt.Errorf("invalid mac")
 	}
