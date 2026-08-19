@@ -35,6 +35,8 @@ with an HMAC.
 
 	Either a complete URL, or a host[:port] (in which case the _http_ scheme is assumed).
 
+Additional environment vars are show as part of the `--help` output.
+
 Regarding *Environmen Vars* vs *OPTIONS* precedence: _OPTIONS_, if provided,
 override those defined in environment variables.++
 For exmaple, if the HMAC key is provided on the command line, it will override
