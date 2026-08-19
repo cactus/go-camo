@@ -37,6 +37,7 @@ type Config struct { // betteralign:ignore
 	// HMACKey is a byte slice to be used as the hmac key
 	HMACKey []byte
 	// MaxSize is the maximum valid image size response (in bytes).
+	// Setting a non-zero MaxSize will also automatically set DisableKeepAlivesBE to true.
 	MaxSize int64
 	// MaxSizeRedirect is the URL to redirect when MaxSize is exceeded.
 	MaxSizeRedirect string
@@ -549,6 +550,16 @@ func New(pc Config, filters []FilterFunc) (*Proxy, error) {
 		// some xml/svg can be compressed, but apparently some clients can
 		// exhibit weird behavior when those are compressed
 		DisableCompression: true,
+	}
+
+	// In go-1.27, http.Response.Body drains itself on Close.
+	// For HTTP/1, closing the body now reads and discards any unread content
+	// (the docs say, "up to a conservative limit") so that the connection can be reused.
+	// For most programs this is a transparent win; however, if configured for a max-size,
+	// we rely on early Close to abort a large download, so we need to set
+	// Transport.DisableKeepAlives to true so as to opt out of this behavior.
+	if pc.MaxSize > 0 {
+		tr.DisableKeepAlives = true
 	}
 
 	client := &http.Client{

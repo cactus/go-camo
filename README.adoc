@@ -370,6 +370,12 @@ or where rolling keys takes a while and/or is difficult.
 The `--max-size` value is defined in KB.
 Set to `0` to disable size restriction.
 The default is `0`.
+
+[NOTE]
+====
+As reading the full request body is required for http keep-alives to function correctly,
+if `max-size` is set nonzero, this will also automatically disable backend http keep-alives.
+====
 --
 
 * `--metrics`
