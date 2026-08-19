@@ -1,4 +1,8 @@
 # HEAD
+- upgrade go version to 1.27
+- When configuring a max-size, this will now also disable backend http keep-alives, to
+  ensure that the connection can be closed before fully reading the response (prevents
+  resource exhaustion).
 - vendor go dependencies
 - drop treeprint from dependency (reimplemented basic version locally)
 - include codeberg.org/dropwhile/assert in pkg dir directly, remove as mod dep
