@@ -69,38 +69,43 @@ var (
 )
 
 type CLI struct { // betteralign:ignore
-	HMACKey             string        `name:"key" short:"k" env:"GOCAMO_HMAC" help:"HMAC key"`
-	AddHeaders          []string      `name:"header" short:"H" help:"Add additional header to each response. This option can be used multiple times to add multiple headers."`
-	BindAddress         string        `name:"listen" default:"0.0.0.0:8080" help:"Address:Port to bind to for HTTP"`
-	BindAddressSSL      string        `name:"ssl-listen" placeholder:"HOST_PORT" help:"Address:Port to bind to for HTTPS/SSL/TLS"`
-	BindSocket          string        `name:"socket-listen" placeholder:"PATH" help:"Path for unix domain socket to bind to for HTTP"`
-	EnableQuic          bool          `name:"quic" help:"Enable http3/quic. Binds to the same port number as ssl-listen but udp+quic."`
-	AutoMaxProcs        bool          `name:"automaxprocs" help:"Set GOMAXPROCS automatically to match Linux container CPU quota/limits."`
-	SSLKey              string        `name:"ssl-key" placeholder:"PATH" help:"ssl private key (key.pem) path"`
-	SSLCert             string        `name:"ssl-cert" placeholder:"PATH" help:"ssl cert (cert.pem) path"`
-	MaxSize             int64         `name:"max-size" placeholder:"INT" help:"Max allowed response size, in KB"`
-	ReqTimeout          time.Duration `name:"timeout" default:"4s" help:"Upstream request timeout (backend)"`
-	IdleTimeout         time.Duration `name:"idletimeout" default:"30s" help:"Maximum amount of time to wait for the next request when keep-alive is enabled (frontend)"`
-	ReadTimeout         time.Duration `name:"readtimeout" default:"30s" help:"Maximum duration for reading the entire request, including the body (frontend)"`
-	MaxRedirects        int           `name:"max-redirects" default:"3" help:"Maximum number of redirects to follow"`
-	MaxSizeRedirect     string        `name:"max-size-redirect" placeholder:"URL" help:"redirect to URL when max-size is exceeded"`
-	Metrics             bool          `name:"metrics" help:"Enable Prometheus compatible metrics endpoint"`
-	NoDebugVars         bool          `name:"no-debug-vars" help:"Disable the /debug/vars/ metrics endpoint. This option has no effects when the metrics are not enabled."`
-	NoLogTS             bool          `name:"no-log-ts" help:"Do not add a timestamp to logging"`
-	Profile             bool          `name:"prof" help:"Enable go http profiler endpoint"`
-	LogJson             bool          `name:"log-json" help:"Log in JSON format"`
-	DisableKeepAlivesFE bool          `name:"no-fk" help:"Disable frontend http keep-alive support (frontend)"`
-	DisableKeepAlivesBE bool          `name:"no-bk" help:"Disable backend http keep-alive support (backend)"`
-	AllowContentVideo   bool          `name:"allow-content-video" help:"Additionally allow 'video/*' content"`
-	AllowContentAudio   bool          `name:"allow-content-audio" help:"Additionally allow 'audio/*' content"`
-	AllowCredentialURLs bool          `name:"allow-credential-urls" help:"Allow urls to contain user/pass credentials"`
-	FilterRuleset       string        `name:"filter-ruleset" placeholder:"PATH" help:"Text file containing filtering rules (one per line)"`
-	ServerName          string        `name:"server-name" default:"go-camo" help:"Value to use for the HTTP server field"`
-	UserAgent           string        `name:"user-agent" default:"go-camo" help:"user-agent for outgoing requests"`
-	ExposeServerVersion bool          `name:"expose-server-version" help:"Include the server version in the HTTP server response header"`
-	EnableXFwdFor       bool          `name:"xfwd4" env:"GOCAMO_XFWD_FOR" help:"Enable x-forwarded-for passthrough/generation"`
-	Verbose             bool          `name:"verbose" short:"v" help:"Show verbose (debug) log level output"`
-	Version             int           `name:"version" short:"V" type:"counter" env:"-" help:"Print version and exit; specify twice to show license information."`
+	HMACKey      string `name:"key" short:"k" group:"general" env:"GOCAMO_HMAC" help:"HMAC key"`
+	AutoMaxProcs bool   `name:"automaxprocs" group:"general" help:"Set GOMAXPROCS automatically to match Linux container CPU quota/limits."`
+
+	BindSocket     string `name:"socket-listen" placeholder:"PATH" group:"listeners" help:"Path for unix domain socket to bind to for HTTP"`
+	BindAddress    string `name:"listen" default:"0.0.0.0:8080" group:"listeners" help:"Address:Port to bind to for HTTP"`
+	BindAddressSSL string `name:"ssl-listen" placeholder:"HOST_PORT" group:"listeners" help:"Address:Port to bind to for HTTPS/SSL/TLS"`
+	EnableQuic     bool   `name:"quic" group:"listeners" help:"Enable http3/quic. Binds to the same port number as ssl-listen but udp+quic."`
+	SSLKey         string `name:"ssl-key" placeholder:"PATH" group:"listeners" help:"ssl private key (key.pem) path"`
+	SSLCert        string `name:"ssl-cert" placeholder:"PATH" group:"listeners" help:"ssl cert (cert.pem) path"`
+
+	MaxSize             int64         `name:"max-size" placeholder:"INT" group:"proxy" help:"Max allowed response size, in KB"`
+	MaxSizeRedirect     string        `name:"max-size-redirect" placeholder:"URL" group:"proxy" help:"redirect to URL when max-size is exceeded"`
+	MaxRedirects        int           `name:"max-redirects" default:"3" group:"proxy" help:"Maximum number of redirects to follow"`
+	EnableXFwdFor       bool          `name:"xfwd4" env:"GOCAMO_XFWD_FOR" group:"proxy" help:"Enable x-forwarded-for passthrough/generation"`
+	DisableKeepAlivesFE bool          `name:"no-fk" group:"proxy" help:"Disable frontend http keep-alive support (frontend)"`
+	DisableKeepAlivesBE bool          `name:"no-bk" group:"proxy" help:"Disable backend http keep-alive support (backend)"`
+	AllowContentVideo   bool          `name:"allow-content-video" group:"proxy" help:"Additionally allow 'video/*' content"`
+	AllowContentAudio   bool          `name:"allow-content-audio" group:"proxy" help:"Additionally allow 'audio/*' content"`
+	AllowCredentialURLs bool          `name:"allow-credential-urls" group:"proxy" help:"Allow urls to contain user/pass credentials"`
+	ReqTimeout          time.Duration `name:"timeout" default:"4s" group:"proxy" help:"Upstream request timeout (backend)"`
+	IdleTimeout         time.Duration `name:"idletimeout" default:"30s" group:"proxy" help:"Maximum amount of time to wait for the next request when keep-alive is enabled (frontend)"`
+	ReadTimeout         time.Duration `name:"readtimeout" default:"30s" group:"proxy" help:"Maximum duration for reading the entire request, including the body (frontend)"`
+	UserAgent           string        `name:"user-agent" default:"go-camo" group:"proxy" help:"user-agent for outgoing requests"`
+	AddHeaders          []string      `name:"header" short:"H" group:"response" help:"Add additional header to each response. This option can be used multiple times to add multiple headers."`
+	FilterRuleset       string        `name:"filter-ruleset" group:"proxy" placeholder:"PATH" help:"Text file containing filtering rules (one per line)"`
+
+	ServerName          string `name:"server-name" group:"response" default:"go-camo" help:"Value to use for the HTTP server field"`
+	ExposeServerVersion bool   `name:"expose-server-version" group:"response" help:"Include the server version in the HTTP server response header"`
+
+	Metrics     bool `name:"metrics" group:"logmetrics" help:"Enable Prometheus compatible metrics endpoint"`
+	NoDebugVars bool `name:"no-debug-vars" group:"logmetrics" help:"Disable the /debug/vars/ metrics endpoint. This option has no effects when the metrics are not enabled."`
+	NoLogTS     bool `name:"no-log-ts" group:"logmetrics" help:"Do not add a timestamp to logging"`
+	LogJson     bool `name:"log-json" group:"logmetrics" help:"Log in JSON format"`
+	Profile     bool `name:"prof" group:"logmetrics" help:"Enable go http profiler endpoint"`
+
+	Verbose bool `name:"verbose" short:"v" help:"Show verbose (debug) log level output"`
+	Version int  `name:"version" short:"V" type:"counter" env:"-" help:"Print version and exit; specify twice to show license information."`
 }
 
 func (cli *CLI) Run() {
@@ -450,6 +455,13 @@ func main() {
 		kong.Description("An image proxy that proxies non-secure images over SSL/TLS"),
 		kong.UsageOnError(),
 		kong.DefaultEnvars("GOCAMO"),
+		kong.Groups{
+			"general":    "Flags for general behavior",
+			"listeners":  "Flags for listeners",
+			"proxy":      "Flags for proxy behavior",
+			"response":   "Flags for responses",
+			"logmetrics": "Flags for logging and metrics",
+		},
 		kong.Vars{"version": ServerVersion},
 	)
 	cli.Run()
