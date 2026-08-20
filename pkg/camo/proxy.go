@@ -558,7 +558,8 @@ func New(pc Config, filters []FilterFunc) (*Proxy, error) {
 	// For most programs this is a transparent win; however, if configured for a max-size,
 	// we rely on early Close to abort a large download, so we need to set
 	// Transport.DisableKeepAlives to true so as to opt out of this behavior.
-	if pc.MaxSize > 0 {
+	if pc.MaxSize > 0 && !tr.DisableKeepAlives {
+		mlog.Info("max-size set, so disabling backend http keep-alives")
 		tr.DisableKeepAlives = true
 	}
 
