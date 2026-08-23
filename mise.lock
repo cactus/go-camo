@@ -32,9 +32,65 @@ url = "https://dl.google.com/go/go1.27.0.darwin-amd64.tar.gz"
 checksum = "sha256:f0c0a0d33ba94f4d2c5dbc887334ce678b21813504ddb3aafcb06e60a5a667c4"
 url = "https://dl.google.com/go/go1.27.0.windows-amd64.zip"
 
+[[tools."go:fillmore-labs.com/errortype"]]
+version = "0.0.11"
+backend = "go:fillmore-labs.com/errortype"
+
+[[tools."go:github.com/cortesi/modd/cmd/modd"]]
+version = "0.8.1"
+backend = "go:github.com/cortesi/modd/cmd/modd"
+
+[[tools."go:github.com/dkorunic/betteralign/cmd/betteralign"]]
+version = "0.15.0"
+backend = "go:github.com/dkorunic/betteralign/cmd/betteralign"
+
+[[tools."go:github.com/gordonklaus/ineffassign"]]
+version = "0.2.0"
+backend = "go:github.com/gordonklaus/ineffassign"
+
+[[tools."go:github.com/kisielk/errcheck"]]
+version = "1.20.0"
+backend = "go:github.com/kisielk/errcheck"
+
+[[tools."go:github.com/polyfloyd/go-errorlint"]]
+version = "1.8.0"
+backend = "go:github.com/polyfloyd/go-errorlint"
+
+[[tools."go:github.com/securego/gosec/v2/cmd/gosec"]]
+version = "2.28.0"
+backend = "go:github.com/securego/gosec/v2/cmd/gosec"
+
+[[tools."go:go.uber.org/nilaway/cmd/nilaway"]]
+version = "0.0.0-20260808063849-8649a03c818a"
+backend = "go:go.uber.org/nilaway/cmd/nilaway"
+
+[[tools."go:golang.org/x/perf/cmd/benchstat"]]
+version = "0.0.0-20260819171926-ebcb4798430d"
+backend = "go:golang.org/x/perf/cmd/benchstat"
+
+[[tools."go:golang.org/x/tools/cmd/deadcode"]]
+version = "0.49.0"
+backend = "go:golang.org/x/tools/cmd/deadcode"
+
+[[tools."go:golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness"]]
+version = "0.49.0"
+backend = "go:golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness"
+
+[[tools."go:golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize"]]
+version = "0.23.0"
+backend = "go:golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize"
+
+[[tools."go:golang.org/x/vuln/cmd/govulncheck"]]
+version = "1.7.0"
+backend = "go:golang.org/x/vuln/cmd/govulncheck"
+
 [[tools."go:gotest.tools/gotestsum"]]
 version = "1.13.0"
 backend = "go:gotest.tools/gotestsum"
+
+[[tools."go:honnef.co/go/tools/cmd/staticcheck"]]
+version = "0.8.1"
+backend = "go:honnef.co/go/tools/cmd/staticcheck"
 
 [[tools.just]]
 version = "1.58.0"

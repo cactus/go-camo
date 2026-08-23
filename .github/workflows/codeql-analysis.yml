@@ -29,16 +29,15 @@ jobs:
           fetch-depth: 2
           persist-credentials: false
 
-      - run: mkdir -p .cache/tools ~/go/pkg/mod ~/.cache/go-build
+      - run: mkdir -p ~/go/pkg/mod ~/.cache/go-build
       - name: Restore cached tools and go
         id: cache-tools-and-go-restore
         uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
-            .cache/tools
             ~/.cache/go-build
             ~/go/pkg/mod
-          key: ${{ runner.os }}-${{ runner.arch }}-cache-${{ hashFiles('tools/tools.conf', '**/go.sum') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-cache-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-cache-
 
@@ -67,6 +66,5 @@ jobs:
         with:
           key: ${{ steps.cache-tools-and-go-restore.outputs.cache-primary-key }}
           path: |
-            .cache/tools
             ~/.cache/go-build
             ~/go/pkg/mod

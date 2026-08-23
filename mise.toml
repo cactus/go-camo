@@ -1,7 +1,35 @@
 [tools]
 just = "latest"
 go = "latest"
+
+# test/bench tools
 "go:gotest.tools/gotestsum" = "latest"
+"go:golang.org/x/perf/cmd/benchstat" = "latest"
+
+# other tools
+"go:github.com/cortesi/modd/cmd/modd" = "latest"
+"go:golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize" = "latest"
+
+# generate tools
+#"go:github.com/reedom/convergen" = "latest"
+#"go:github.com/google/go-licenses" = "latest"
+#"go:github.com/vburenin/ifacemaker" = "latest"
+#"go:go.uber.org/mock/mockgen" = "latest"
+#"go:golang.org/x/tools/cmd/stringer" = "latest"
+
+# check tools
+"go:github.com/dkorunic/betteralign/cmd/betteralign" = "latest"
+"go:github.com/gordonklaus/ineffassign" = "latest"
+"go:github.com/kisielk/errcheck" = "latest"
+"go:fillmore-labs.com/errortype" = "latest"
+"go:github.com/polyfloyd/go-errorlint" = "latest"
+"go:github.com/securego/gosec/v2/cmd/gosec" = "latest"
+"go:go.uber.org/nilaway/cmd/nilaway" = "latest"
+"go:golang.org/x/tools/cmd/deadcode" = "latest"
+"go:golang.org/x/vuln/cmd/govulncheck" = "latest"
+"go:golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness" = "latest"
+"go:honnef.co/go/tools/cmd/staticcheck" = "latest"
+
 
 [settings]
 experimental = true
