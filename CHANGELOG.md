@@ -3,7 +3,7 @@
 # v3.0.0
 - When configuring a max-size, this will now also disable backend http keep-alives, to
   ensure that the connection can be closed before fully reading the response (prevents
-  resource exhaustion).  
+  resource exhaustion). As this could be an impactful behavior change, bump major version.  
   ref: [go-1.27 release notes](https://go.dev/doc/go1.27#:~:text=HTTP/1%20Response.Body,likely%20be%20beneficial.)
 - add more comprehensive support for cli flags to be set via env vars, with names prefixed with `GOCAMO_`.
   Use `--help` to see names.
