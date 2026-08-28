@@ -14,6 +14,9 @@
 - handle github.com/prometheus/common/version registration directly, remove as
   top level mod dep
 
+# v2.7.6 2026-08-27
+- add additional networks to default SSRF filters
+
 # v2.7.5 2026-07-08
 - bump dependencies
 - build binaries with go-1.26.5

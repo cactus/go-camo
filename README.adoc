@@ -242,6 +242,24 @@ The list of networks rejected includes...
 | `192.168.0.0/16`
 | rfc1918
 
+| `100.64.0.0/10`
+| rfc6598 cg-nat
+
+| `192.0.2.0/24`
+| rfc5737 (test-net-1)
+
+| `198.51.100.0/24`
+| rfc5737 (test-net-2)
+
+| `203.0.113.0/24`
+| rfc5737 (test-net-3)
+
+| `192.88.99.0/24`
+| rfc7526 (reserved 6to4)
+
+| `198.18.0.0/15`
+| rfc2544 (benchmarking addresses)
+
 | `::1/128`
 | ipv6 loopback
 
