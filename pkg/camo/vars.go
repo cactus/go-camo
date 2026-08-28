@@ -68,6 +68,16 @@ var rejectIPv4Networks = mustParseNetmasks(
 		"10.0.0.0/8",
 		"172.16.0.0/12",
 		"192.168.0.0/16",
+		// rfc6598 cg-nat
+		"100.64.0.0/10",
+		// rfc5737 (reserved for documentation)
+		"192.0.2.0/24",    // test-net-1
+		"198.51.100.0/24", // test-net-2
+		"203.0.113.0/24",  // test-net-3
+		// rfc7526 (reserved 6to4)
+		"192.88.99.0/24",
+		// rfc2544 (benchmarking addresses)
+		"198.18.0.0/15",
 	},
 )
 
