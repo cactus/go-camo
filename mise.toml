@@ -1,6 +1,6 @@
 [tools]
 just = "latest"
-go = "latest"
+go = "1.26.7"
 "go:gotest.tools/gotestsum" = "latest"
 
 [settings]
