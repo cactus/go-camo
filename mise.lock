@@ -57,7 +57,7 @@ version = "1.8.0"
 backend = "go:github.com/polyfloyd/go-errorlint"
 
 [[tools."go:github.com/securego/gosec/v2/cmd/gosec"]]
-version = "2.28.0"
+version = "2.29.0"
 backend = "go:github.com/securego/gosec/v2/cmd/gosec"
 
 [[tools."go:go.uber.org/nilaway/cmd/nilaway"]]
@@ -65,7 +65,7 @@ version = "0.0.0-20260808063849-8649a03c818a"
 backend = "go:go.uber.org/nilaway/cmd/nilaway"
 
 [[tools."go:golang.org/x/perf/cmd/benchstat"]]
-version = "0.0.0-20260819171926-ebcb4798430d"
+version = "0.0.0-20260825160852-19be9d8e6c70"
 backend = "go:golang.org/x/perf/cmd/benchstat"
 
 [[tools."go:golang.org/x/tools/cmd/deadcode"]]
