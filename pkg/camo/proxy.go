@@ -558,10 +558,18 @@ func New(pc Config, filters []FilterFunc) (*Proxy, error) {
 	// For most programs this is a transparent win; however, if configured for a max-size,
 	// we rely on early Close to abort a large download, so we need to set
 	// Transport.DisableKeepAlives to true so as to opt out of this behavior.
-	if pc.MaxSize > 0 && !tr.DisableKeepAlives {
-		mlog.Info("max-size set, so disabling backend http keep-alives")
-		tr.DisableKeepAlives = true
-	}
+	// NOTE: "conservative limit" is currently 256<<10 (256KB), and is claimed
+	// to be the approx size of a typical machine's TCP buffer, and is most
+	// likely already on the machine, so reading it is "cheap".
+	// As such, keep this code around but commented out for now, to keep the
+	// benefits of http-keep-alives for other connections, while reading a bit
+	// extra on the proxy-side for a connection we will need to close due to max-size.
+	/*
+		if pc.MaxSize > 0 && !tr.DisableKeepAlives {
+			mlog.Info("max-size set, so disabling backend http keep-alives")
+			tr.DisableKeepAlives = true
+		}
+	*/
 
 	client := &http.Client{
 		Transport: tr,
