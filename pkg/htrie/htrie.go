@@ -225,9 +225,9 @@ func (dt *URLMatcher) AddRule(rule string) error {
 	return nil
 }
 
-func (dt *URLMatcher) walkFind(s string) []*URLMatcher {
+func (dt *URLMatcher) walkFind(s string, matchList *[]*URLMatcher) *[]*URLMatcher {
 	// hostname should already be lowercase. avoid work by not doing it.
-	matches := *getURLMatcherSlice()
+	matches := *matchList
 	curnode := dt
 	slen := len(s)
 	// kind of weird ordering, because the root node isn't part of the search
@@ -283,7 +283,7 @@ func (dt *URLMatcher) walkFind(s string) []*URLMatcher {
 			matches = append(matches, curnode)
 		}
 	}
-	return matches
+	return &matches
 }
 
 // CheckURL checks a *url.URL against the URLMatcher.
@@ -298,7 +298,8 @@ func (dt *URLMatcher) CheckURL(u *url.URL) (bool, error) {
 		return false, fmt.Errorf("bad hostname: %w", err)
 	}
 
-	matches := dt.walkFind(hostname)
+	matches := *getURLMatcherSlice()
+	matches = *dt.walkFind(hostname, &matches)
 	defer putURLMatcherSlice(&matches)
 
 	// check for base domain matches first, to avoid path checking if possible
@@ -341,9 +342,11 @@ func (dt *URLMatcher) CheckHostname(hostname string) (bool, error) {
 // The supplied hostname must already be safe/cleaned, in a way
 // similar to IdnaLookupMap.
 func (dt *URLMatcher) CheckCleanHostname(hostname string) bool {
-	matches := dt.walkFind(hostname)
-	defer putURLMatcherSlice(&matches)
-	return len(matches) > 0
+	matches := getURLMatcherSlice()
+	matches = dt.walkFind(hostname, matches)
+	hasMatches := len(*matches) > 0
+	putURLMatcherSlice(matches)
+	return hasMatches
 }
 
 // NewURLMatcher returns a new URLMatcher
