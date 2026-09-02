@@ -5,8 +5,10 @@
 package camo
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -276,6 +278,96 @@ func TestMaxSizeRedirect(t *testing.T) {
 	resp, err := processRequest(req, 302, camoConfigWithMaxSizeRedirect, nil)
 	assert.Equal(t, resp.Header.Get("Location"), camoConfigWithMaxSizeRedirect.MaxSizeRedirect)
 	assert.Nil(t, err)
+}
+
+func TestMaxSizeBackendContentLength(t *testing.T) {
+	t.Parallel()
+
+	chunksCount := 100
+	chunkSizeBytes := 512
+	maxAllowedBytes := 1024 * 1
+
+	camoConfigWithMaxSize := Config{
+		HMACKey:           []byte("0x24FEEDFACEDEADBEEFCAFE"),
+		MaxSize:           int64(maxAllowedBytes),
+		RequestTimeout:    time.Duration(10) * time.Second,
+		ServerName:        "go-camo",
+		AllowContentVideo: true,
+		noIPFiltering:     true,
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Connection", "keep-alive")
+		w.Header().Set("Content-Type", "video/mp4")
+		w.Header().Set("x-content-type-options", "nosniff")
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", chunksCount*chunkSizeBytes))
+		for i := 1; i <= chunksCount; i++ {
+			w.Write(bytes.Repeat([]byte("x"), chunkSizeBytes))
+		}
+	}))
+	defer ts.Close()
+
+	// try a range request (should fail, MaxSize is smaller than requested range)
+	req, err := makeReq(camoConfigWithMaxSize, ts.URL)
+	assert.Nil(t, err)
+	resp, err := processRequest(req, 404, camoConfigWithMaxSize, nil)
+	assert.Nil(t, err)
+	b, err := io.ReadAll(resp.Body)
+	assert.Nil(t, err)
+	err = resp.Body.Close()
+	assert.Nil(t, err)
+	assert.True(t, len(b) < maxAllowedBytes)
+	assert.Equal(t, string(b), "Content length exceeded\n")
+}
+
+func TestMaxSizeBackendChunked(t *testing.T) {
+	t.Parallel()
+
+	chunksCount := 100
+	chunkSizeBytes := 1024
+	maxAllowedBytes := 1024 * 40
+
+	camoConfigWithMaxSize := Config{
+		HMACKey:           []byte("0x24FEEDFACEDEADBEEFCAFE"),
+		MaxSize:           int64(maxAllowedBytes),
+		RequestTimeout:    time.Duration(10) * time.Second,
+		ServerName:        "go-camo",
+		AllowContentVideo: true,
+		noIPFiltering:     true,
+		CollectMetrics:    true,
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		flusher, ok := w.(http.Flusher)
+		if !ok {
+			t.Error("failed to be a flusher")
+			http.NotFound(w, r)
+			return
+		}
+
+		w.Header().Set("Connection", "keep-alive")
+		w.Header().Set("Content-Type", "video/mp4")
+		w.WriteHeader(200)
+		for i := 1; i <= chunksCount; i++ {
+			w.Write(bytes.Repeat([]byte("x"), chunkSizeBytes))
+			flusher.Flush()
+		}
+	}))
+	defer ts.Close()
+
+	// try a range request (should fail, MaxSize is smaller than requested range)
+	req, err := makeReq(camoConfigWithMaxSize, ts.URL)
+	assert.Nil(t, err)
+	resp, err := processRequest(req, 200, camoConfigWithMaxSize, nil)
+	assert.Nil(t, err)
+	b, err := io.ReadAll(resp.Body)
+	assert.Nil(t, err)
+	err = resp.Body.Close()
+	assert.Nil(t, err)
+	assert.Equal(t, len(b), maxAllowedBytes)
+
+	// check trailer
+	// assert.Equal(t, resp.Trailer.Get("Camo-Chunked-Truncation"), "true")
 }
 
 func TestSupplyAcceptIfNoneGiven(t *testing.T) {

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"net/http"
 	"os"
 	"strings"
 	"sync"
@@ -15,8 +16,8 @@ import (
 )
 
 type LimitReadCloser struct {
-	io.ReadCloser
 	io.Reader
+	io.Closer
 }
 
 func (l *LimitReadCloser) Read(p []byte) (int, error) {
@@ -24,7 +25,34 @@ func (l *LimitReadCloser) Read(p []byte) (int, error) {
 }
 
 func NewLimitReadCloser(r io.ReadCloser, n int64) *LimitReadCloser {
-	return &LimitReadCloser{ReadCloser: r, Reader: io.LimitReader(r, n)}
+	return &LimitReadCloser{
+		Reader: io.LimitReader(r, n),
+		Closer: r,
+	}
+}
+
+type sizedChunkWriter struct {
+	flusher      http.Flusher
+	dst          io.Writer
+	flushCounter int
+	// mu sync.Mutex
+}
+
+func (scw *sizedChunkWriter) Write(p []byte) (n int, err error) {
+	//scw.mu.Lock()
+	//defer scw.mu.Unlock()
+
+	n, err = scw.dst.Write(p)
+	if err != nil {
+		return n, err
+	}
+
+	scw.flushCounter += n
+	if scw.flushCounter >= bufSize {
+		scw.flushCounter = 0
+		scw.flusher.Flush()
+	}
+	return
 }
 
 func isBrokenPipe(err error) bool {
@@ -110,13 +138,15 @@ func hostnameToIPs(hostname string) ([]net.IP, error) {
 	return nil, fmt.Errorf("no ips for hostname %s", hostname)
 }
 
+const bufSize = 32 * 1024
+
 var bufPool = sync.Pool{
 	New: func() any {
 		// note: 32 * 1024 is the size used by io.Copy by default.
 		// Seems like a good starting point, just with a bit less garbage
 		// (using a sync pool) to reduce some GC work.
 		// ref: https://golang.org/src/io/io.go?s=13136:13214#L391
-		buf := make([]byte, 32*1024)
+		buf := make([]byte, bufSize)
 		return &buf
 	},
 }

@@ -70,8 +70,8 @@ github.com/rdforte/gomaxecs/internal/task
 github.com/rdforte/gomaxecs/maxprocs
 # go.uber.org/mock v0.6.0
 ## explicit; go 1.23.0
-# golang.org/x/crypto v0.55.0
-## explicit; go 1.25.0
+# golang.org/x/crypto v0.56.0
+## explicit; go 1.26.0
 golang.org/x/crypto/chacha20
 golang.org/x/crypto/chacha20poly1305
 golang.org/x/crypto/internal/alias

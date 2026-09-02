@@ -336,7 +336,23 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	h := w.Header()
 	p.copyHeaders(&h, &resp.Header, &ValidRespHeaders)
 	// set content type based on parsed content type, not originally supplied
-	h.Set("content-type", responseContentType)
+	h.Set("Content-Type", responseContentType)
+
+	// If we are limiting max sizes, and we have a chunked response, we
+	// may end up truncating it. Add a trailer to identify this.
+	isChunked := false
+	if len(resp.TransferEncoding) > 0 && resp.TransferEncoding[0] == "chunked" {
+		h.Set("Transfer-Encoding", "chunked")
+		isChunked = true
+	}
+
+	/*
+		// add a trailer to determine if chunked transfer was truncated
+		if p.config.MaxSize > 0 && isChunked {
+			h.Set("Trailer", "Camo-Chunked-Truncation")
+		}
+	*/
+
 	w.WriteHeader(resp.StatusCode)
 
 	// get a []byte from bufpool, and put it back on defer
@@ -350,10 +366,23 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		bodyRC = NewLimitReadCloser(resp.Body, p.config.MaxSize)
 	}
 
+	var ow io.Writer = w
+	// if the upstream response is chunked, then create a chunked writer
+	// to chunk the response.
+	if isChunked {
+		flusher, ok := w.(http.Flusher)
+		if ok {
+			ow = &sizedChunkWriter{
+				dst:     w,
+				flusher: flusher,
+			}
+		}
+	}
+
 	// since this uses io.Copy/CopyBuffer from the respBody, it is streaming
 	// from the request to the response. This means it will nearly
 	// always end up with a chunked response.
-	written, err := io.CopyBuffer(w, bodyRC, buf)
+	written, err := io.CopyBuffer(ow, bodyRC, buf)
 	if err != nil {
 		if p.config.CollectMetrics {
 			responseFailed.Inc()
@@ -388,6 +417,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if p.config.MaxSize > 0 && written >= p.config.MaxSize {
+		//h.Set("Camo-Chunked-Truncation", "true")
+
 		if p.config.CollectMetrics {
 			responseTruncated.Inc()
 		}

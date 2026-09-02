@@ -53,8 +53,11 @@ var ValidRespHeaders = map[string]bool{
 	"Expires":          true,
 	"Last-Modified":    true,
 	// override in response with either nothing, or ServerNameVer
-	"Server":            false,
-	"Transfer-Encoding": true,
+	"Server": false,
+	// a hop-by-hop headers
+	"Transfer-Encoding": false,
+	"Trailer":           false,
+	"Upgrade":           false,
 }
 
 // networks to reject

@@ -12,6 +12,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"slices"
+	"strings"
 	"testing"
 
 	"github.com/cactus/go-camo/v2/pkg/assert"
@@ -45,6 +47,12 @@ func processRequest(req *http.Request, status int, camoConfig Config, filters []
 	record := httptest.NewRecorder()
 	router.ServeHTTP(record, req)
 	resp := record.Result()
+	te := resp.Header.Get("Transfer-Encoding")
+	if len(te) > 0 && len(resp.TransferEncoding) == 0 {
+		encodings := strings.Split(te, ",")
+		slices.Reverse(encodings)
+		resp.TransferEncoding = encodings
+	}
 	if got, want := resp.StatusCode, status; got != want {
 		return resp, fmt.Errorf("response code = %d, wanted %d", got, want)
 	}
