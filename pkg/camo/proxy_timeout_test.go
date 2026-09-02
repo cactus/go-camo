@@ -24,12 +24,12 @@ import (
 func TestTimeout(t *testing.T) {
 	t.Parallel()
 	c := Config{
-		HMACKey:        []byte("0x24FEEDFACEDEADBEEFCAFE"),
-		MaxSize:        5120 * 1024,
-		RequestTimeout: time.Duration(500) * time.Millisecond,
-		MaxRedirects:   3,
-		ServerName:     "go-camo",
-		noIPFiltering:  true,
+		HMACKey:          []byte("0x24FEEDFACEDEADBEEFCAFE"),
+		MaxSize:          5120 * 1024,
+		RequestTimeout:   time.Duration(500) * time.Millisecond,
+		MaxRedirects:     3,
+		ServerName:       "go-camo",
+		insecureTestMode: true,
 	}
 	cc := make(chan bool, 1)
 	received := make(chan bool)
@@ -81,12 +81,12 @@ func TestTimeout(t *testing.T) {
 func TestClientCancelEarly(t *testing.T) {
 	t.Parallel()
 	c := Config{
-		HMACKey:        []byte("0x24FEEDFACEDEADBEEFCAFE"),
-		MaxSize:        5120 * 1024,
-		RequestTimeout: time.Duration(500) * time.Millisecond,
-		MaxRedirects:   3,
-		ServerName:     "go-camo",
-		noIPFiltering:  true,
+		HMACKey:          []byte("0x24FEEDFACEDEADBEEFCAFE"),
+		MaxSize:          5120 * 1024,
+		RequestTimeout:   time.Duration(500) * time.Millisecond,
+		MaxRedirects:     3,
+		ServerName:       "go-camo",
+		insecureTestMode: true,
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(
@@ -137,12 +137,12 @@ func TestClientCancelEarly(t *testing.T) {
 func TestClientCancelLate(t *testing.T) {
 	t.Parallel()
 	c := Config{
-		HMACKey:        []byte("0x24FEEDFACEDEADBEEFCAFE"),
-		MaxSize:        5120 * 1024,
-		RequestTimeout: time.Duration(500) * time.Millisecond,
-		MaxRedirects:   3,
-		ServerName:     "go-camo",
-		noIPFiltering:  true,
+		HMACKey:          []byte("0x24FEEDFACEDEADBEEFCAFE"),
+		MaxSize:          5120 * 1024,
+		RequestTimeout:   time.Duration(500) * time.Millisecond,
+		MaxRedirects:     3,
+		ServerName:       "go-camo",
+		insecureTestMode: true,
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(
@@ -216,12 +216,12 @@ func TestClientCancelLate(t *testing.T) {
 func TestServerEarlyEOF(t *testing.T) {
 	t.Parallel()
 	c := Config{
-		HMACKey:        []byte("0x24FEEDFACEDEADBEEFCAFE"),
-		MaxSize:        5120 * 1024,
-		RequestTimeout: time.Duration(500) * time.Millisecond,
-		MaxRedirects:   3,
-		ServerName:     "go-camo",
-		noIPFiltering:  true,
+		HMACKey:          []byte("0x24FEEDFACEDEADBEEFCAFE"),
+		MaxSize:          5120 * 1024,
+		RequestTimeout:   time.Duration(500) * time.Millisecond,
+		MaxRedirects:     3,
+		ServerName:       "go-camo",
+		insecureTestMode: true,
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(
@@ -249,12 +249,12 @@ func TestServerEarlyEOF(t *testing.T) {
 func TestServerChunkTooBig(t *testing.T) {
 	t.Parallel()
 	c := Config{
-		HMACKey:        []byte("0x24FEEDFACEDEADBEEFCAFE"),
-		MaxSize:        1024,
-		RequestTimeout: time.Duration(500) * time.Millisecond,
-		MaxRedirects:   3,
-		ServerName:     "go-camo",
-		noIPFiltering:  true,
+		HMACKey:          []byte("0x24FEEDFACEDEADBEEFCAFE"),
+		MaxSize:          1024,
+		RequestTimeout:   time.Duration(500) * time.Millisecond,
+		MaxRedirects:     3,
+		ServerName:       "go-camo",
+		insecureTestMode: true,
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(

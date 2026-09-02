@@ -61,8 +61,8 @@ type Config struct { // betteralign:ignore
 	AllowCredentialURLs bool
 	// Whether to call/increment metrics
 	CollectMetrics bool
-	// no ip filtering (test mode)
-	noIPFiltering bool
+	// enable test mode {no ip filtering, chunked truncation http trailer}
+	insecureTestMode bool
 }
 
 // The FilterFunc type is a function that validates a *url.URL
@@ -346,12 +346,12 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		isChunked = true
 	}
 
-	/*
+	if p.config.insecureTestMode {
 		// add a trailer to determine if chunked transfer was truncated
 		if p.config.MaxSize > 0 && isChunked {
 			h.Set("Trailer", "Camo-Chunked-Truncation")
 		}
-	*/
+	}
 
 	w.WriteHeader(resp.StatusCode)
 
@@ -417,7 +417,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if p.config.MaxSize > 0 && written >= p.config.MaxSize {
-		//h.Set("Camo-Chunked-Truncation", "true")
+		if p.config.insecureTestMode {
+			h.Set("Camo-Chunked-Truncation", "true")
+		}
 
 		if p.config.CollectMetrics {
 			responseTruncated.Inc()
@@ -507,7 +509,10 @@ func (p *Proxy) copyHeaders(dst, src *http.Header, filter *map[string]bool) {
 // halts further evaluation and fails the request.
 // Returns an error if Proxy could not be constructed.
 func New(pc Config, filters []FilterFunc) (*Proxy, error) {
-	doFiltering := !pc.noIPFiltering
+	doFiltering := !pc.insecureTestMode
+	if !doFiltering {
+		mlog.Info("!!WARNING!! Proxy created in insecure test mode!")
+	}
 
 	upstreamProxyConf := &upstreamProxyConfig{}
 	upstreamProxyConf.init()

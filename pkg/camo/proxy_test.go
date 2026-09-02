@@ -142,13 +142,13 @@ func TestXForwardedFor(t *testing.T) {
 	t.Parallel()
 
 	camoConfigWithoutFwd4 := Config{
-		HMACKey:        []byte("0x24FEEDFACEDEADBEEFCAFE"),
-		MaxSize:        180 * 1024,
-		RequestTimeout: time.Duration(10) * time.Second,
-		MaxRedirects:   3,
-		ServerName:     "go-camo",
-		EnableXFwdFor:  true,
-		noIPFiltering:  true,
+		HMACKey:          []byte("0x24FEEDFACEDEADBEEFCAFE"),
+		MaxSize:          180 * 1024,
+		RequestTimeout:   time.Duration(10) * time.Second,
+		MaxRedirects:     3,
+		ServerName:       "go-camo",
+		EnableXFwdFor:    true,
+		insecureTestMode: true,
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -293,7 +293,7 @@ func TestMaxSizeBackendContentLength(t *testing.T) {
 		RequestTimeout:    time.Duration(10) * time.Second,
 		ServerName:        "go-camo",
 		AllowContentVideo: true,
-		noIPFiltering:     true,
+		insecureTestMode:  true,
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -333,7 +333,7 @@ func TestMaxSizeBackendChunked(t *testing.T) {
 		RequestTimeout:    time.Duration(10) * time.Second,
 		ServerName:        "go-camo",
 		AllowContentVideo: true,
-		noIPFiltering:     true,
+		insecureTestMode:  true,
 		CollectMetrics:    true,
 	}
 
@@ -367,7 +367,7 @@ func TestMaxSizeBackendChunked(t *testing.T) {
 	assert.Equal(t, len(b), maxAllowedBytes)
 
 	// check trailer
-	// assert.Equal(t, resp.Trailer.Get("Camo-Chunked-Truncation"), "true")
+	assert.Equal(t, resp.Trailer.Get("Camo-Chunked-Truncation"), "true")
 }
 
 func TestSupplyAcceptIfNoneGiven(t *testing.T) {
