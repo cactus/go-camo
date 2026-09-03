@@ -9,6 +9,8 @@
 - include codeberg.org/dropwhile/assert in pkg dir directly, remove as mod dep
 - handle github.com/prometheus/common/version registration directly, remove as
   top level mod dep
+- chunk responses when transfer-encoding=chunked
+- improve handling of range requests with regard to max-size limits
 
 # v2.7.6 2026-08-27
 - add additional networks to default SSRF filters
