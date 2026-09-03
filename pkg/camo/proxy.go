@@ -135,8 +135,10 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// if maxsize is enforced, check for range requests that are too large, or out of bounds
 	if p.config.MaxSize > 0 {
-		maxRangeByte := getMaxRangeByte(req.Header.Get("Range"))
-		if maxRangeByte > p.config.MaxSize {
+		if maxRangeByte, err := getMaxRangeByte(req.Header.Get("Range")); err != nil {
+			// could not make sense of the range request, so do not forward it.
+			req.Header.Del("Range")
+		} else if maxRangeByte > p.config.MaxSize {
 			if p.config.CollectMetrics {
 				contentLengthExceeded.Inc()
 			}

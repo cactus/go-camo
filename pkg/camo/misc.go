@@ -97,32 +97,83 @@ func mustParseNetmasks(networks []string) []*net.IPNet {
 	return nets
 }
 
-func getMaxRangeByte(rangeReq string) int64 {
+var rangePrefix = []byte("bytes=")
+
+func getMaxRangeByte(rangeReq string) (int64, error) {
 	// format: bytes=0-9,33,34-99
-	rangeReq = strings.Join(strings.Fields(rangeReq), "")
 
-	// malformed request
-	if len(rangeReq) <= 6 || rangeReq[5] != '=' {
-		return -1
+	if len(rangeReq) < 6 {
+		return -1, fmt.Errorf("improper format")
 	}
 
-	rr := rangeReq[6:]
-	maxSeen := int64(0)
-	for elem := range strings.FieldsFuncSeq(rr, func(r rune) bool {
-		return unicode.IsSpace(r) || r == ','
-	}) {
-		// skip negative offsets, as we don't know
-		// how long the request actually would be.
-		if len(elem) > 0 && elem[0] == '-' {
-			return -1
-		}
-		for part := range strings.SplitSeq(elem, "-") {
-			if n, err := strconv.ParseInt(part, 10, 64); err == nil {
-				maxSeen = max(maxSeen, n)
+	rr := []byte(rangeReq)
+	prefixIndex := 0
+	accum := make([]byte, 0, 10)
+	maxSeen := int64(-1)
+
+	for i := range rr {
+		if prefixIndex < 6 {
+			if rr[i] == rangePrefix[prefixIndex] {
+				prefixIndex += 1
+				continue
 			}
+			if rr[i] == ' ' {
+				continue
+			}
+			// improper format
+			return -1, fmt.Errorf("improper prefix")
+		}
+
+		switch {
+		case 47 < rr[i] && rr[i] < 58:
+			accum = append(accum, rr[i])
+			continue
+		case unicode.IsSpace(rune(rr[i])):
+			continue
+		case rr[i] == ',':
+			if len(accum) == 0 {
+				// empty value. malformed
+				return -1, fmt.Errorf("empty value before ','")
+			}
+
+			if n, err := strconv.ParseInt(string(accum), 10, 64); err == nil {
+				maxSeen = max(maxSeen, n)
+			} else {
+				fmt.Println(err)
+			}
+			accum = accum[:0]
+		case rr[i] == '-':
+			if len(accum) == 0 {
+				// skip negative offsets, as we don't know
+				// how long the request actually would be.
+				return -1, fmt.Errorf("empty value before '-'")
+			}
+
+			if n, err := strconv.ParseInt(string(accum), 10, 64); err == nil {
+				maxSeen = max(maxSeen, n)
+			} else {
+				// error converting to int
+				return -1, fmt.Errorf("error converting '%s' to int64", string(accum))
+			}
+			accum = accum[:0]
+		default:
+			// unknown char. improper format
+			return -1, fmt.Errorf("unknown char '%s'", string(rr[i]))
 		}
 	}
-	return maxSeen
+
+	if len(accum) > 0 {
+		if n, err := strconv.ParseInt(string(accum), 10, 64); err == nil {
+			maxSeen = max(maxSeen, n)
+		} else {
+			return -1, fmt.Errorf("error converting '%s' to int64", string(accum))
+		}
+	}
+
+	if maxSeen == -1 {
+		return -1, fmt.Errorf("no values after prefix")
+	}
+	return maxSeen, nil
 }
 
 func isRejectedIP(ip net.IP) bool {
