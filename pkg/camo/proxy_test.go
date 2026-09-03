@@ -196,11 +196,27 @@ func TestVideoContentTypeAllowed(t *testing.T) {
 	assert.Equal(t, resp.Header.Get("Content-Range"), "bytes 0-10/788493")
 	assert.Nil(t, err)
 
-	// try a range request (should fail, MaxSize is smaller than requested range)
+	// try a range request (should fail, MaxSize is smaller than requested range size)
 	camoConfigWithVideo.MaxSize = 1 * 1024
 	req, err = makeReq(camoConfigWithVideo, testURL)
 	assert.Nil(t, err)
 	req.Header.Add("Range", "bytes=0-1025")
+	_, err = processRequest(req, 404, camoConfigWithVideo, nil)
+	assert.Nil(t, err)
+
+	// try a range request (should fail, MaxSize is smaller than requested range start)
+	camoConfigWithVideo.MaxSize = 1 * 1024
+	req, err = makeReq(camoConfigWithVideo, testURL)
+	assert.Nil(t, err)
+	req.Header.Add("Range", "bytes=1025-1026")
+	_, err = processRequest(req, 404, camoConfigWithVideo, nil)
+	assert.Nil(t, err)
+
+	// try a range request (should fail, MaxSize is smaller than requested range start)
+	camoConfigWithVideo.MaxSize = 1 * 1024
+	req, err = makeReq(camoConfigWithVideo, testURL)
+	assert.Nil(t, err)
+	req.Header.Add("Range", "bytes=0-100,1026")
 	_, err = processRequest(req, 404, camoConfigWithVideo, nil)
 	assert.Nil(t, err)
 
@@ -338,24 +354,19 @@ func TestMaxSizeBackendChunked(t *testing.T) {
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		flusher, ok := w.(http.Flusher)
-		if !ok {
-			t.Error("failed to be a flusher")
-			http.NotFound(w, r)
-			return
-		}
+		rc := http.NewResponseController(w)
 
 		w.Header().Set("Connection", "keep-alive")
 		w.Header().Set("Content-Type", "video/mp4")
 		w.WriteHeader(200)
 		for i := 1; i <= chunksCount; i++ {
 			w.Write(bytes.Repeat([]byte("x"), chunkSizeBytes))
-			flusher.Flush()
+			rc.Flush()
 		}
 	}))
 	defer ts.Close()
 
-	// try a range request (should fail, MaxSize is smaller than requested range)
+	// try a chunked request (should succeed, but be truncated)
 	req, err := makeReq(camoConfigWithMaxSize, ts.URL)
 	assert.Nil(t, err)
 	resp, err := processRequest(req, 200, camoConfigWithMaxSize, nil)

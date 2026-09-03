@@ -10,9 +10,11 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
+	"unicode"
 )
 
 type LimitReadCloser struct {
@@ -93,6 +95,34 @@ func mustParseNetmasks(networks []string) []*net.IPNet {
 		nets = append(nets, ipnet)
 	}
 	return nets
+}
+
+func getMaxRangeByte(rangeReq string) int64 {
+	// format: bytes=0-9,33,34-99
+	rangeReq = strings.Join(strings.Fields(rangeReq), "")
+
+	// malformed request
+	if len(rangeReq) <= 6 || rangeReq[5] != '=' {
+		return -1
+	}
+
+	rr := rangeReq[6:]
+	maxSeen := int64(0)
+	for elem := range strings.FieldsFuncSeq(rr, func(r rune) bool {
+		return unicode.IsSpace(r) || r == ','
+	}) {
+		// skip negative offsets, as we don't know
+		// how long the request actually would be.
+		if len(elem) > 0 && elem[0] == '-' {
+			return -1
+		}
+		for part := range strings.SplitSeq(elem, "-") {
+			if n, err := strconv.ParseInt(part, 10, 64); err == nil {
+				maxSeen = max(maxSeen, n)
+			}
+		}
+	}
+	return maxSeen
 }
 
 func isRejectedIP(ip net.IP) bool {

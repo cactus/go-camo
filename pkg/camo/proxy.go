@@ -133,6 +133,25 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// if maxsize is enforced, check for range requests that are too large, or out of bounds
+	if p.config.MaxSize > 0 {
+		maxRangeByte := getMaxRangeByte(req.Header.Get("Range"))
+		if maxRangeByte > p.config.MaxSize {
+			if p.config.CollectMetrics {
+				contentLengthExceeded.Inc()
+			}
+			if mlog.HasDebug() {
+				mlog.Debugx("content length exceeded", mlog.A("url", sURL))
+			}
+			if p.config.MaxSizeRedirect != "" {
+				http.Redirect(w, req, p.config.MaxSizeRedirect, http.StatusFound)
+			} else {
+				http.Error(w, "Content length exceeded", http.StatusNotFound)
+			}
+			return
+		}
+	}
+
 	nreq, err := http.NewRequestWithContext(req.Context(), req.Method, sURL, nil) //#nosec G704
 	if err != nil {
 		if mlog.HasDebug() {
@@ -338,8 +357,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// set content type based on parsed content type, not originally supplied
 	h.Set("Content-Type", responseContentType)
 
-	// If we are limiting max sizes, and we have a chunked response, we
-	// may end up truncating it. Add a trailer to identify this.
+	// If we detect a chunked upstream response, try to do downstream chunking
+	// as well.
 	isChunked := false
 	if len(resp.TransferEncoding) > 0 && resp.TransferEncoding[0] == "chunked" {
 		h.Set("Transfer-Encoding", "chunked")
@@ -347,7 +366,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if p.config.insecureTestMode {
-		// add a trailer to determine if chunked transfer was truncated
+		// If we are limiting max sizes, and we have a chunked response, we
+		// may end up truncating it. Add a trailer to identify this.
 		if p.config.MaxSize > 0 && isChunked {
 			h.Set("Trailer", "Camo-Chunked-Truncation")
 		}
@@ -370,8 +390,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// if the upstream response is chunked, then create a chunked writer
 	// to chunk the response.
 	if isChunked {
-		flusher, ok := w.(http.Flusher)
-		if ok {
+		if flusher, ok := w.(http.Flusher); ok {
 			ow = &sizedChunkWriter{
 				dst:     w,
 				flusher: flusher,
