@@ -48,6 +48,8 @@ func processRequest(req *http.Request, status int, camoConfig Config, filters []
 	router.ServeHTTP(record, req)
 	resp := record.Result()
 	te := resp.Header.Get("Transfer-Encoding")
+	// recorder does not seem to set resp.TransferEncoding correctly,
+	// so if the response header is present, then set it.
 	if len(te) > 0 && len(resp.TransferEncoding) == 0 {
 		encodings := strings.Split(te, ",")
 		slices.Reverse(encodings)
