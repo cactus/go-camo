@@ -90,14 +90,14 @@ func mustParseNetmask(s string) *net.IPNet {
 
 func mustParseNetmasks(networks []string) []*net.IPNet {
 	nets := make([]*net.IPNet, 0)
-	for _, s := range networks {
-		ipnet := mustParseNetmask(s)
+	for i := range networks {
+		ipnet := mustParseNetmask(networks[i])
 		nets = append(nets, ipnet)
 	}
 	return nets
 }
 
-var rangePrefix = []byte("bytes=")
+const rangePrefix = "bytes="
 
 func getMaxRangeByte(rangeReq string) (int64, error) {
 	// format: bytes=0-9,33,34-99
@@ -106,18 +106,17 @@ func getMaxRangeByte(rangeReq string) (int64, error) {
 		return -1, fmt.Errorf("improper format")
 	}
 
-	rr := []byte(rangeReq)
 	prefixIndex := 0
 	accum := make([]byte, 0, 10)
 	maxSeen := int64(-1)
 
-	for i := range rr {
+	for i := range rangeReq {
 		if prefixIndex < 6 {
-			if rr[i] == rangePrefix[prefixIndex] {
+			if rangeReq[i] == rangePrefix[prefixIndex] {
 				prefixIndex += 1
 				continue
 			}
-			if rr[i] == ' ' {
+			if rangeReq[i] == ' ' {
 				continue
 			}
 			// improper format
@@ -125,48 +124,39 @@ func getMaxRangeByte(rangeReq string) (int64, error) {
 		}
 
 		switch {
-		case 47 < rr[i] && rr[i] < 58:
-			accum = append(accum, rr[i])
+		case 47 < rangeReq[i] && rangeReq[i] < 58:
+			accum = append(accum, rangeReq[i])
 			continue
-		case unicode.IsSpace(rune(rr[i])):
+		case unicode.IsSpace(rune(rangeReq[i])):
 			continue
-		case rr[i] == ',':
-			if len(accum) == 0 {
-				// empty value. malformed
-				return -1, fmt.Errorf("empty value before ','")
-			}
-
-			if n, err := strconv.ParseInt(string(accum), 10, 64); err == nil {
-				maxSeen = max(maxSeen, n)
-			} else {
-				fmt.Println(err)
-			}
-			accum = accum[:0]
-		case rr[i] == '-':
+		case rangeReq[i] == ',':
+			fallthrough
+		case rangeReq[i] == '-':
 			if len(accum) == 0 {
 				// skip negative offsets, as we don't know
 				// how long the request actually would be.
-				return -1, fmt.Errorf("empty value before '-'")
+				return -1, fmt.Errorf("empty value before '%s'", string(rangeReq[i]))
 			}
 
-			if n, err := strconv.ParseInt(string(accum), 10, 64); err == nil {
-				maxSeen = max(maxSeen, n)
-			} else {
+			if n, err := strconv.ParseInt(string(accum), 10, 64); err != nil {
 				// error converting to int
 				return -1, fmt.Errorf("error converting '%s' to int64", string(accum))
+			} else {
+				maxSeen = max(maxSeen, n)
 			}
 			accum = accum[:0]
 		default:
 			// unknown char. improper format
-			return -1, fmt.Errorf("unknown char '%s'", string(rr[i]))
+			return -1, fmt.Errorf("unknown char '%s'", string(rangeReq[i]))
 		}
 	}
 
+	// handle any trailing data in accum
 	if len(accum) > 0 {
-		if n, err := strconv.ParseInt(string(accum), 10, 64); err == nil {
-			maxSeen = max(maxSeen, n)
-		} else {
+		if n, err := strconv.ParseInt(string(accum), 10, 64); err != nil {
 			return -1, fmt.Errorf("error converting '%s' to int64", string(accum))
+		} else {
+			maxSeen = max(maxSeen, n)
 		}
 	}
 

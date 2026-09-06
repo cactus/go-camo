@@ -269,7 +269,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		mlog.Debugm("response from upstream", httpRespToMlogMap(resp))
 	}
 
-	// check for too large a response
+	// if limiting max-sizes, and if content-length header is supplied,
+	// then check for too large a response
 	if p.config.MaxSize > 0 && resp.ContentLength > p.config.MaxSize {
 		if p.config.CollectMetrics {
 			contentLengthExceeded.Inc()
@@ -408,7 +409,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		if p.config.CollectMetrics {
 			responseFailed.Inc()
 		}
-		if err == context.Canceled || errors.Is(err, context.Canceled) {
+		if errors.Is(err, context.Canceled) {
 			// client aborted/closed request, which is why copy failed to finish
 			if mlog.HasDebug() {
 				mlog.Debugx("client aborted request (late)", mlog.A("req", req))
@@ -441,7 +442,6 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		if p.config.insecureTestMode {
 			h.Set("Camo-Chunked-Truncation", "true")
 		}
-
 		if p.config.CollectMetrics {
 			responseTruncated.Inc()
 		}
@@ -460,7 +460,7 @@ func (p *Proxy) checkURL(reqURL *url.URL) error {
 	// ensure we have an http or https url
 	// (eg. no file:// or other)
 	scheme := reqURL.Scheme
-	if !(scheme == "http" || scheme == "https") {
+	if scheme != "http" && scheme != "https" {
 		return errors.New("Bad url scheme")
 	}
 
@@ -497,7 +497,7 @@ func (p *Proxy) checkURL(reqURL *url.URL) error {
 		}
 	}
 
-	// if using a proxy config, block directly url requests to the proxy
+	// if using a proxy config, block direct url requests to the proxy
 	if p.upstreamProxyConfig.hasProxy &&
 		p.upstreamProxyConfig.matchesAny(uHostname, reqURL.Port()) {
 		return errors.New("Rejected due to filter-ruleset")
@@ -516,11 +516,13 @@ func (p *Proxy) copyHeaders(dst, src *http.Header, filter *map[string]bool) {
 	}
 
 	for k, vv := range *src {
-		if x, ok := f[k]; filtering && (!ok || !x) {
-			continue
+		if filtering {
+			if x, ok := f[k]; !ok || !x {
+				continue
+			}
 		}
-		for _, v := range vv {
-			dst.Add(k, v)
+		for i := range vv {
+			dst.Add(k, vv[i])
 		}
 	}
 }
@@ -550,7 +552,7 @@ func New(pc Config, filters []FilterFunc) (*Proxy, error) {
 		// Moving the ip filtering here avoids that.
 		Control: func(network string, address string, conn syscall.RawConn) error {
 			// reject not tcp/tcp6 connection attempts
-			if !(network == "tcp4" || network == "tcp6") {
+			if network != "tcp4" && network != "tcp6" {
 				return fmt.Errorf("%s is not a safe network type: %w", network, ErrInvalidNetType)
 			}
 
@@ -568,8 +570,8 @@ func New(pc Config, filters []FilterFunc) (*Proxy, error) {
 					}
 				} else {
 					if ips, err := net.LookupIP(host); err == nil {
-						for _, ip := range ips {
-							if isRejectedIP(ip) && !upstreamProxyConf.matchesIP(ip, port) {
+						for i := range ips {
+							if isRejectedIP(ips[i]) && !upstreamProxyConf.matchesIP(ips[i], port) {
 								return ErrRejectIP
 							}
 						}
@@ -645,9 +647,8 @@ func New(pc Config, filters []FilterFunc) (*Proxy, error) {
 
 	// re-use the htrie glob path checker for accept types validation
 	acceptTypesFilter := htrie.NewGlobPathChecker()
-	for _, v := range acceptTypes {
-		err := acceptTypesFilter.AddRule("|i|" + v)
-		if err != nil {
+	for i := range acceptTypes {
+		if err := acceptTypesFilter.AddRule("|i|" + acceptTypes[i]); err != nil {
 			return nil, err
 		}
 	}
@@ -664,9 +665,9 @@ func New(pc Config, filters []FilterFunc) (*Proxy, error) {
 		filterFuncs := make([]FilterFunc, 0)
 		// check for nil entries, and copy the slice in case the original
 		// is mutated.
-		for _, filter := range filters {
-			if filter != nil {
-				filterFuncs = append(filterFuncs, filter)
+		for i := range filters {
+			if filters[i] != nil {
+				filterFuncs = append(filterFuncs, filters[i])
 			}
 		}
 		p.filters = filterFuncs
@@ -680,8 +681,7 @@ func New(pc Config, filters []FilterFunc) (*Proxy, error) {
 			}
 			return fmt.Errorf("Too many redirects: %w", ErrRedirect)
 		}
-		err := p.checkURL(req.URL)
-		if err != nil {
+		if err := p.checkURL(req.URL); err != nil {
 			if mlog.HasDebug() {
 				mlog.Debugx("Got bad redirect", mlog.A("url", req))
 			}
