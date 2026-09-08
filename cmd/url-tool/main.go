@@ -71,11 +71,21 @@ func (cmd *DecodeCmd) Run(cli *CLI) error {
 	if err != nil {
 		return err
 	}
-	comp := strings.SplitN(u.Path, "/", 3)
-	decURL, valid := encoding.DecodeURL(hmacKeyBytes, comp[1], comp[2])
+
+	if u.Path[0] != '/' {
+		return errors.New("path format is invalid")
+	}
+
+	encDig, encURL, found := strings.Cut(u.Path[1:], "/")
+	if !found {
+		return errors.New("path format is invalid")
+	}
+
+	decURL, valid := encoding.DecodeURL(hmacKeyBytes, encDig, encURL)
 	if !valid {
 		return errors.New("hmac is invalid")
 	}
+
 	fmt.Println(decURL)
 	return nil
 }
@@ -93,7 +103,8 @@ type CLI struct { // betteralign:ignore
 // #nosec G104
 func main() {
 	cli := CLI{}
-	ctx := kong.Parse(&cli,
+	ctx := kong.Parse(
+		&cli,
 		kong.Name("url-tool"),
 		kong.Description("A simple way to work with signed go-camo URLs from the command line"),
 		kong.UsageOnError(),

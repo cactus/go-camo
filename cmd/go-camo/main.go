@@ -209,20 +209,20 @@ func (cli *CLI) Run() {
 
 	for _, v := range cli.AddHeaders {
 		mlog.Debugf("will add header -> '%s'", v)
-		s := strings.SplitN(v, ":", 2)
-		if len(s) != 2 {
+		headerName, headerVal, found := strings.Cut(v, ":")
+		if !found {
 			mlog.Printf("ignoring bad header -> '%s'", v)
 			continue
 		}
 
-		s0 := strings.TrimSpace(s[0])
-		s1 := strings.TrimSpace(s[1])
+		headerName = strings.TrimSpace(headerName)
+		headerVal = strings.TrimSpace(headerVal)
 
-		if len(s0) == 0 || len(s1) == 0 {
+		if len(headerName) == 0 || len(headerVal) == 0 {
 			mlog.Printf("ignoring bad header -> '%s'", v)
 			continue
 		}
-		AddHeaders[s[0]] = s[1]
+		AddHeaders[headerName] = headerVal
 	}
 
 	if cli.AutoMaxProcs && gomaxecs.IsECS() {
