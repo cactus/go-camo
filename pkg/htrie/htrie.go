@@ -50,15 +50,6 @@ func putURLMatcherSlice(s *[]*URLMatcher) {
 	matchesPool.Put(s)
 }
 
-func reverse(s []string) []string {
-	c := len(s) / 2
-	for i := range c {
-		j := len(s) - i - 1
-		s[i], s[j] = s[j], s[i]
-	}
-	return s
-}
-
 func uniformLower(s, cutset string) string {
 	s = strings.TrimSpace(s)
 	if len(cutset) > 0 {
@@ -181,10 +172,10 @@ func (dt *URLMatcher) AddRule(rule string) error {
 	}
 
 	max := len(domainLabels)
-	revDomainLabels := reverse(domainLabels)
 	curdt := dt
-	for i, label := range revDomainLabels {
-		label = uniformLower(label, "")
+	// walk components in reverse order
+	for i := max - 1; i >= 0; i-- {
+		label := uniformLower(domainLabels[i], "")
 		if len(label) == 0 {
 			return fmt.Errorf("bad domain format: empty component")
 		}
@@ -194,7 +185,7 @@ func (dt *URLMatcher) AddRule(rule string) error {
 		}
 
 		if label == "*" {
-			if i != max-1 {
+			if i != 0 {
 				return fmt.Errorf("bad domain format: wildcard only allowed at end")
 			}
 
@@ -204,7 +195,7 @@ func (dt *URLMatcher) AddRule(rule string) error {
 
 		curdt = curdt.getOrNewSubTree(label)
 
-		if i == max-1 {
+		if i == 0 {
 			// hit the end of label
 			curdt.canMatch = true
 			if hasRules {
