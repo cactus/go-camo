@@ -195,7 +195,6 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	resp, err := p.client.Do(nreq) // #nosec G704
-
 	if resp != nil {
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
