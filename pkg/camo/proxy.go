@@ -96,13 +96,14 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// split path and get components
-	components := strings.Split(req.URL.Path, "/")
-	if len(components) < 3 {
+	// no need to consider first char, since router should ensure that.
+	// this also allows for the use of cut, which is faster than Split or SplitN,
+	// while also not heap allocatating.
+	sigHash, encodedURL, cutOk := strings.Cut(req.URL.Path[1:], "/")
+	if !cutOk {
 		http.Error(w, "Malformed request path", http.StatusNotFound)
 		return
 	}
-
-	sigHash, encodedURL := components[1], components[2]
 
 	if mlog.HasDebug() {
 		mlog.Debugm("client request", httpReqToMlogMap(req))
@@ -127,8 +128,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = p.checkURL(u)
-	if err != nil {
+	if err := p.checkURL(u); err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -168,10 +168,10 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// x-forwarded-for (if appropriate)
 	if p.config.EnableXFwdFor {
-		xfwd4 := req.Header.Get("X-Forwarded-For")
-		if xfwd4 == "" {
-			hostIP, _, err := net.SplitHostPort(req.RemoteAddr)
-			if err == nil {
+		if xfwd4 := req.Header.Get("X-Forwarded-For"); xfwd4 != "" {
+			nreq.Header.Add("X-Forwarded-For", xfwd4)
+		} else {
+			if hostIP, _, err := net.SplitHostPort(req.RemoteAddr); err == nil {
 				// add forwarded for header, as long as it isn't a private
 				// ip address (use isRejectedIP to get private filtering for free)
 				if ip := net.ParseIP(hostIP); ip != nil {
@@ -180,8 +180,6 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 					}
 				}
 			}
-		} else {
-			nreq.Header.Add("X-Forwarded-For", xfwd4)
 		}
 	}
 
@@ -309,7 +307,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		mediatype, param, err := mime.ParseMediaType(contentType)
 		if err != nil || !p.acceptTypesFilter.CheckPath(mediatype) {
 			if mlog.HasDebug() {
-				mlog.Debugx("Unsupported content-type returned", mlog.A("type", u))
+				mlog.Debugx("Unsupported content-type returned", mlog.A("type", contentType))
 			}
 			http.Error(w, "Unsupported content-type returned", http.StatusBadRequest)
 			return

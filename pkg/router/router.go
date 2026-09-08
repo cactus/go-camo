@@ -47,7 +47,10 @@ func (dr *DumbRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if strings.Count(r.URL.Path, "/") == 2 {
+	// Ever so slightly faster to check first char to ensure it is a slash,
+	// then check remaining string for remaining slash, than to just
+	// count the whole string.
+	if r.URL.Path[0] == '/' && strings.Count(r.URL.Path[1:], "/") == 1 {
 		dr.CamoHandler.ServeHTTP(w, r)
 		return
 	}
