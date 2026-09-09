@@ -18,12 +18,6 @@ type DumbRouter struct {
 	ServerName    string
 }
 
-// HealthCheckHandler is HTTP handler for confirming the backend service
-// is available from an external client, such as a load balancer.
-func (dr *DumbRouter) HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-}
-
 // ServeHTTP fulfills the http server interface
 func (dr *DumbRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// set some default headers
@@ -39,8 +33,9 @@ func (dr *DumbRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// just for healthchecks.
 	if r.URL.Path == "/healthcheck" {
-		dr.HealthCheckHandler(w, r)
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
