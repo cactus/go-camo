@@ -46,7 +46,7 @@ backend = "go:github.com/cortesi/modd/cmd/modd"
 specifiers = ["latest"]
 
 [[tools."go:github.com/dkorunic/betteralign/cmd/betteralign"]]
-version = "0.15.0"
+version = "0.15.1"
 backend = "go:github.com/dkorunic/betteralign/cmd/betteralign"
 specifiers = ["latest"]
 
@@ -71,22 +71,22 @@ backend = "go:github.com/securego/gosec/v2/cmd/gosec"
 specifiers = ["latest"]
 
 [[tools."go:go.uber.org/nilaway/cmd/nilaway"]]
-version = "0.0.0-20260808063849-8649a03c818a"
+version = "0.0.0-20260908133610-0783e0268443"
 backend = "go:go.uber.org/nilaway/cmd/nilaway"
 specifiers = ["latest"]
 
 [[tools."go:golang.org/x/perf/cmd/benchstat"]]
-version = "0.0.0-20260825160852-19be9d8e6c70"
+version = "0.0.0-20260908200009-22c9c6c9d4da"
 backend = "go:golang.org/x/perf/cmd/benchstat"
 specifiers = ["latest"]
 
 [[tools."go:golang.org/x/tools/cmd/deadcode"]]
-version = "0.49.0"
+version = "0.50.0"
 backend = "go:golang.org/x/tools/cmd/deadcode"
 specifiers = ["latest"]
 
 [[tools."go:golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness"]]
-version = "0.49.0"
+version = "0.50.0"
 backend = "go:golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness"
 specifiers = ["latest"]
 
@@ -96,7 +96,7 @@ backend = "go:golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize
 specifiers = ["latest"]
 
 [[tools."go:golang.org/x/vuln/cmd/govulncheck"]]
-version = "1.7.0"
+version = "1.8.0"
 backend = "go:golang.org/x/vuln/cmd/govulncheck"
 specifiers = ["latest"]
 

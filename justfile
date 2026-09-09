@@ -169,7 +169,7 @@ update-go-deps:
 [group('hygiene')]
 update-mise-deps:
     just _banner ">> updating mise dependencies"
-    mise up -b
+    mise up -b {{ if env("MIN_RELEASE_AGE", "") != "" { "--minimum-release-age " + env("MIN_RELEASE_AGE")} }}
     mise lock
 
 # update dependencies
