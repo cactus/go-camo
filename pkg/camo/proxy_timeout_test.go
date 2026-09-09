@@ -110,12 +110,9 @@ func TestClientCancelEarly(t *testing.T) {
 
 	camoServer, err := New(c, nil)
 	assert.Nil(t, err)
-	router := &router.DumbRouter{
-		ServerName:  c.ServerName,
-		CamoHandler: camoServer,
-	}
+	rtr := router.NewDumbRouter(c.ServerName, nil, camoServer)
 
-	tsCamo := httptest.NewServer(router)
+	tsCamo := httptest.NewServer(rtr)
 	defer tsCamo.Close()
 
 	conn, err := net.Dial("tcp", tsCamo.Listener.Addr().String())
@@ -166,12 +163,9 @@ func TestClientCancelLate(t *testing.T) {
 
 	camoServer, err := New(c, nil)
 	assert.Nil(t, err)
-	router := &router.DumbRouter{
-		ServerName:  c.ServerName,
-		CamoHandler: camoServer,
-	}
+	rtr := router.NewDumbRouter(c.ServerName, nil, camoServer)
 
-	tsCamo := httptest.NewServer(router)
+	tsCamo := httptest.NewServer(rtr)
 	defer tsCamo.Close()
 
 	conn, err := net.Dial("tcp", tsCamo.Listener.Addr().String())

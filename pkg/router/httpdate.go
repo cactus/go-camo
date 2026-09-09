@@ -47,5 +47,3 @@ func newiHTTPDate() *iHTTPDate {
 	})
 	return d
 }
-
-var formattedDate = newiHTTPDate()

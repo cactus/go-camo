@@ -241,12 +241,7 @@ func (cli *CLI) Run() {
 		mlog.Fatal("Error creating camo", err)
 	}
 
-	var router http.Handler = &router.DumbRouter{
-		ServerName:  ServerResponse,
-		AddHeaders:  AddHeaders,
-		CamoHandler: proxy,
-	}
-
+	var router http.Handler = router.NewDumbRouter(ServerResponse, AddHeaders, proxy)
 	mux := http.NewServeMux()
 
 	// configure router endpoint for rendering metrics

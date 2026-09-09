@@ -38,11 +38,11 @@ func processRequest(req *http.Request, status int, camoConfig Config, filters []
 		return nil, fmt.Errorf("Error building Camo: %s", err.Error())
 	}
 
-	router := &router.DumbRouter{
-		AddHeaders:  map[string]string{"X-Go-Camo": "test"},
-		ServerName:  camoConfig.ServerName,
-		CamoHandler: camoServer,
-	}
+	router := router.NewDumbRouter(
+		camoConfig.ServerName,
+		map[string]string{"X-Go-Camo": "test"},
+		camoServer,
+	)
 
 	record := httptest.NewRecorder()
 	router.ServeHTTP(record, req)

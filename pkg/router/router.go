@@ -5,15 +5,17 @@
 package router
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 )
 
 // DumbRouter is a basic, special purpose, http router
 type DumbRouter struct {
-	CamoHandler http.Handler
-	AddHeaders  map[string]string
-	ServerName  string
+	CamoHandler   http.Handler
+	dateGenerator fmt.Stringer
+	AddHeaders    map[string]string
+	ServerName    string
 }
 
 // SetHeaders sets the headers on the response
@@ -22,7 +24,7 @@ func (dr *DumbRouter) SetHeaders(w http.ResponseWriter) {
 	for k, v := range dr.AddHeaders {
 		h.Set(k, v)
 	}
-	h.Set("Date", formattedDate.String())
+	h.Set("Date", dr.dateGenerator.String())
 	h.Set("Server", dr.ServerName)
 }
 
@@ -56,4 +58,17 @@ func (dr *DumbRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Error(w, "404 Not Found", http.StatusNotFound)
+}
+
+func NewDumbRouter(
+	serverName string,
+	headers map[string]string,
+	camoHandler http.Handler,
+) *DumbRouter {
+	return &DumbRouter{
+		ServerName:    serverName,
+		AddHeaders:    headers,
+		CamoHandler:   camoHandler,
+		dateGenerator: newiHTTPDate(),
+	}
 }
