@@ -18,16 +18,6 @@ type DumbRouter struct {
 	ServerName    string
 }
 
-// SetHeaders sets the headers on the response
-func (dr *DumbRouter) SetHeaders(w http.ResponseWriter) {
-	h := w.Header()
-	for k, v := range dr.AddHeaders {
-		h.Set(k, v)
-	}
-	h.Set("Date", dr.dateGenerator.String())
-	h.Set("Server", dr.ServerName)
-}
-
 // HealthCheckHandler is HTTP handler for confirming the backend service
 // is available from an external client, such as a load balancer.
 func (dr *DumbRouter) HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +27,12 @@ func (dr *DumbRouter) HealthCheckHandler(w http.ResponseWriter, r *http.Request)
 // ServeHTTP fulfills the http server interface
 func (dr *DumbRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// set some default headers
-	dr.SetHeaders(w)
+	h := w.Header()
+	for k, v := range dr.AddHeaders {
+		h.Set(k, v)
+	}
+	h.Set("Date", dr.dateGenerator.String())
+	h.Set("Server", dr.ServerName)
 
 	if r.Method != "HEAD" && r.Method != "GET" {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
