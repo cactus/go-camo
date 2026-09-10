@@ -23,8 +23,8 @@ import (
 
 func makeReq(config Config, testURL string) (*http.Request, error) {
 	k := []byte(config.HMACKey)
-	hexURL := encoding.B64EncodeURL(k, testURL)
-	out := "http://example.com" + hexURL
+	hexDig, hexURL := encoding.B64EncodeURL(k, testURL)
+	out := "http://example.com" + "/" + hexDig + "/" + hexURL
 	req, err := http.NewRequest("GET", out, nil)
 	if err != nil {
 		return nil, fmt.Errorf("Error building req url '%s': %s", testURL, err.Error())

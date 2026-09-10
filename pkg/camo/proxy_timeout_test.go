@@ -119,10 +119,11 @@ func TestClientCancelEarly(t *testing.T) {
 	assert.Nil(t, err)
 	defer conn.Close()
 
+	encDigest, encURL := encoding.B64EncodeURL(c.HMACKey, ts.URL+"/image.png")
 	req := fmt.Appendf(
 		nil,
-		"GET %s HTTP/1.1\r\nHost: foo.com\r\nConnection: close\r\n\r\n",
-		encoding.B64EncodeURL(c.HMACKey, ts.URL+"/image.png"),
+		"GET /%s/%s HTTP/1.1\r\nHost: foo.com\r\nConnection: close\r\n\r\n",
+		encDigest, encURL,
 	)
 	_, err = conn.Write(req)
 	assert.Nil(t, err)
@@ -172,10 +173,11 @@ func TestClientCancelLate(t *testing.T) {
 	assert.Nil(t, err)
 	defer conn.Close()
 
+	encDig, encURL := encoding.B64EncodeURL(c.HMACKey, ts.URL+"/image.png")
 	req := fmt.Appendf(
 		nil,
-		"GET %s HTTP/1.1\r\nHost: foo.com\r\nConnection: close\r\n\r\n",
-		encoding.B64EncodeURL(c.HMACKey, ts.URL+"/image.png"),
+		"GET /%s/%s HTTP/1.1\r\nHost: foo.com\r\nConnection: close\r\n\r\n",
+		encDig, encURL,
 	)
 	_, err = conn.Write(req)
 	assert.Nil(t, err)

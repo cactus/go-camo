@@ -38,15 +38,16 @@ func (cmd *EncodeCmd) Run(cli *CLI) error {
 
 	hmacKeyBytes := []byte(cli.HmacKey)
 	var outURL string
+	var outDig string
 	switch cmd.Base {
 	case "base64":
-		outURL = encoding.B64EncodeURL(hmacKeyBytes, cmd.Url)
+		outDig, outURL = encoding.B64EncodeURL(hmacKeyBytes, cmd.Url)
 	case "hex":
-		outURL = encoding.HexEncodeURL(hmacKeyBytes, cmd.Url)
+		outDig, outURL = encoding.HexEncodeURL(hmacKeyBytes, cmd.Url)
 	default:
 		return errors.New("invalid base provided")
 	}
-	fmt.Println(strings.TrimRight(cmd.Prefix, "/") + outURL)
+	fmt.Printf("%s/%s/%s\n", strings.TrimRight(cmd.Prefix, "/"), outDig, outURL)
 	return nil
 }
 

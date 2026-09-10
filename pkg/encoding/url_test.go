@@ -5,7 +5,6 @@
 package encoding
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/cactus/go-camo/v2/pkg/assert"
@@ -18,8 +17,9 @@ func TestEncoder(t *testing.T) {
 		t.Helper()
 		hmacKey := []byte(hmac)
 		// test specific encoder
-		encodedURL := encoder(hmacKey, sURL)
-		assert.Equal(t, encodedURL, fmt.Sprintf("/%s/%s", edig, eURL), "encoded url does not match")
+		encodedDigest, encodedURL := encoder(hmacKey, sURL)
+		assert.Equal(t, encodedURL, eURL, "encoded url does not match")
+		assert.Equal(t, encodedDigest, edig, "encoded digest does not match")
 	}
 
 	// hex

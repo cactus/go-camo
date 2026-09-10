@@ -11,16 +11,17 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"strings"
 
 	"codeberg.org/dropwhile/mlog"
 )
+
+var b64Encoder = base64.RawURLEncoding
 
 // DecoderFunc is a function type that defines a url decoder.
 type DecoderFunc func([]byte, string, string) (string, error)
 
 // EncoderFunc is a function type that defines a url encoder.
-type EncoderFunc func([]byte, string) string
+type EncoderFunc func([]byte, string) (string, string)
 
 func validateURL(hmackey *[]byte, macbytes *[]byte, urlbytes *[]byte) error {
 	mac := hmac.New(sha1.New, *hmackey)
@@ -33,17 +34,26 @@ func validateURL(hmackey *[]byte, macbytes *[]byte, urlbytes *[]byte) error {
 	return nil
 }
 
-func b64encode(data []byte) string {
-	return strings.TrimRight(base64.URLEncoding.EncodeToString(data), "=")
+// HexEncodeURL takes an HMAC key and a url, and returns url
+// path partial consisitent of signature and encoded url.
+func HexEncodeURL(hmacKey []byte, oURL string) (string, string) {
+	oBytes := []byte(oURL)
+	mac := hmac.New(sha1.New, hmacKey)
+	mac.Write(oBytes) // #nosec G104 -- doesn't apply to hmac
+	macSum := hex.EncodeToString(mac.Sum(nil))
+	encodedURL := hex.EncodeToString(oBytes)
+	return macSum, encodedURL
 }
 
-func b64decode(str string) ([]byte, error) {
-	padChars := (4 - (len(str) % 4)) % 4
-	for range padChars {
-		str = str + "="
-	}
-	decBytes, ok := base64.URLEncoding.DecodeString(str)
-	return decBytes, ok
+// B64EncodeURL takes an HMAC key and a url, and returns url
+// path partial consisitent of signature and encoded url.
+func B64EncodeURL(hmacKey []byte, oURL string) (string, string) {
+	oBytes := []byte(oURL)
+	mac := hmac.New(sha1.New, hmacKey)
+	mac.Write(oBytes) // #nosec G104 -- doesn't apply to hmac
+	macSum := b64Encoder.EncodeToString(mac.Sum(nil))
+	encodedURL := b64Encoder.EncodeToString(oBytes)
+	return macSum, encodedURL
 }
 
 // HexDecodeURL ensures the url is properly verified via HMAC, and then
@@ -66,28 +76,16 @@ func HexDecodeURL(hmackey []byte, hexdig string, hexURL string) (string, error) 
 	return string(urlBytes), nil
 }
 
-// HexEncodeURL takes an HMAC key and a url, and returns url
-// path partial consisitent of signature and encoded url.
-func HexEncodeURL(hmacKey []byte, oURL string) string {
-	oBytes := []byte(oURL)
-	mac := hmac.New(sha1.New, hmacKey)
-	mac.Write(oBytes) // #nosec G104 -- doesn't apply to hmac
-	macSum := hex.EncodeToString(mac.Sum(nil))
-	encodedURL := hex.EncodeToString(oBytes)
-	hexURL := "/" + macSum + "/" + encodedURL
-	return hexURL
-}
-
 // B64DecodeURL ensures the url is properly verified via HMAC, and then
 // unencodes the url, returning the url (if valid) and whether the
 // HMAC was verified.
 func B64DecodeURL(hmackey []byte, encdig string, encURL string) (string, error) {
-	urlBytes, err := b64decode(encURL)
+	urlBytes, err := b64Encoder.DecodeString(encURL)
 	if err != nil {
 		return "", fmt.Errorf("bad url decode")
 	}
 
-	macBytes, err := b64decode(encdig)
+	macBytes, err := b64Encoder.DecodeString(encdig)
 	if err != nil {
 		return "", fmt.Errorf("bad mac decode")
 	}
@@ -96,18 +94,6 @@ func B64DecodeURL(hmackey []byte, encdig string, encURL string) (string, error) 
 		return "", fmt.Errorf("invalid signature: %s", err)
 	}
 	return string(urlBytes), nil
-}
-
-// B64EncodeURL takes an HMAC key and a url, and returns url
-// path partial consisitent of signature and encoded url.
-func B64EncodeURL(hmacKey []byte, oURL string) string {
-	oBytes := []byte(oURL)
-	mac := hmac.New(sha1.New, hmacKey)
-	mac.Write(oBytes) // #nosec G104 -- doesn't apply to hmac
-	macSum := b64encode(mac.Sum(nil))
-	encodedURL := b64encode(oBytes)
-	encURL := "/" + macSum + "/" + encodedURL
-	return encURL
 }
 
 // DecodeURL ensures the url is properly verified via HMAC, and then
