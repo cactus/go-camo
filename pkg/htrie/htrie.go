@@ -59,10 +59,6 @@ func uniformLower(s, cutset string) string {
 	return s
 }
 
-func CleanHostname(s string) (string, error) {
-	return idna.Lookup.ToASCII(strings.ToLower(strings.TrimSpace(s)))
-}
-
 func (dt *URLMatcher) getOrNewSubTree(s string) *URLMatcher {
 	subdt, ok := dt.subtrees[s]
 	if !ok {
@@ -216,9 +212,9 @@ func (dt *URLMatcher) AddRule(rule string) error {
 	return nil
 }
 
-func (dt *URLMatcher) walkFind(s string, matchList *[]*URLMatcher) *[]*URLMatcher {
+func (dt *URLMatcher) getMatches(s string) *[]*URLMatcher {
+	matches := *getURLMatcherSlice()
 	// hostname should already be lowercase. avoid work by not doing it.
-	matches := *matchList
 	curnode := dt
 	slen := len(s)
 	// kind of weird ordering, because the root node isn't part of the search
@@ -289,8 +285,7 @@ func (dt *URLMatcher) CheckURL(u *url.URL) (bool, error) {
 		return false, fmt.Errorf("bad hostname: %w", err)
 	}
 
-	matches := *getURLMatcherSlice()
-	matches = *dt.walkFind(hostname, &matches)
+	matches := *dt.getMatches(hostname)
 	defer putURLMatcherSlice(&matches)
 
 	// check for base domain matches first, to avoid path checking if possible
@@ -301,7 +296,7 @@ func (dt *URLMatcher) CheckURL(u *url.URL) (bool, error) {
 		}
 	}
 
-	// no luck, so try path rules this time
+	// no luck, so try path rules next
 	for _, match := range matches {
 		// anything match.hasRules _shouldn't_ be nil, so this check is
 		// likely superfluous... but retained for extra safety in case
@@ -333,8 +328,7 @@ func (dt *URLMatcher) CheckHostname(hostname string) (bool, error) {
 // The supplied hostname must already be safe/cleaned, in a way
 // similar to IdnaLookupMap.
 func (dt *URLMatcher) CheckCleanHostname(hostname string) bool {
-	matches := getURLMatcherSlice()
-	matches = dt.walkFind(hostname, matches)
+	matches := dt.getMatches(hostname)
 	hasMatches := len(*matches) > 0
 	putURLMatcherSlice(matches)
 	return hasMatches
@@ -349,13 +343,11 @@ func NewURLMatcher() *URLMatcher {
 
 // NewURLMatcherWithRules returns a new URLMatcher initialized with rules.
 func NewURLMatcherWithRules(rules []string) (*URLMatcher, error) {
-	dt := &URLMatcher{
-		subtrees: make(map[string]*URLMatcher),
-	}
+	dt := NewURLMatcher()
 	for _, rule := range rules {
 		err := dt.AddRule(rule)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error adding rule ('%s'): %s", rule, err)
 		}
 	}
 	return dt, nil
@@ -365,14 +357,13 @@ func NewURLMatcherWithRules(rules []string) (*URLMatcher, error) {
 // of the rules is invalid or cannot be parsed.
 // It simplifies safe initialization of global variables.
 func MustNewURLMatcherWithRules(rules []string) *URLMatcher {
-	dt := &URLMatcher{
-		subtrees: make(map[string]*URLMatcher),
-	}
-	for _, rule := range rules {
-		err := dt.AddRule(rule)
-		if err != nil {
-			panic(`htrie: URLMatcher.AddRule(` + rule + `): ` + err.Error())
-		}
+	dt, err := NewURLMatcherWithRules(rules)
+	if err != nil {
+		panic(err.Error())
 	}
 	return dt
+}
+
+func CleanHostname(s string) (string, error) {
+	return idna.Lookup.ToASCII(strings.ToLower(strings.TrimSpace(s)))
 }
