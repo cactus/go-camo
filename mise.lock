@@ -71,7 +71,7 @@ backend = "go:github.com/securego/gosec/v2/cmd/gosec"
 specifiers = ["latest"]
 
 [[tools."go:go.uber.org/nilaway/cmd/nilaway"]]
-version = "0.0.0-20260908133610-0783e0268443"
+version = "0.0.0-20260910170248-571480214735"
 backend = "go:go.uber.org/nilaway/cmd/nilaway"
 specifiers = ["latest"]
 
