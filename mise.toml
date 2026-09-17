@@ -33,4 +33,4 @@ go = "latest"
 
 [settings]
 experimental = true
-fetch_remote_versions_timeout = "15s"
+fetch_remote_versions_timeout = "10s"
