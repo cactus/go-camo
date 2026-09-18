@@ -97,7 +97,7 @@ func (gpc *GlobPathChecker) AddRule(rule string) error {
 	}
 
 	escapedURL := u.EscapedPath()
-	// note: `*` may or may not have been escaped, dependig on go url parsing
+	// note: `*` may or may not have been escaped, depending on go url parsing
 	// internals. for example, if the following evals to true:
 	//    validEncodedPath(u.RawPath) and unescape(u.RawPath) == u.Path
 	// ref: https://golang.org/src/net/url/url.go?s=20096:20130#704

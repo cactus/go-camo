@@ -35,7 +35,7 @@ func validateURL(hmackey *[]byte, macbytes *[]byte, urlbytes *[]byte) error {
 }
 
 // HexEncodeURL takes an HMAC key and a url, and returns url
-// path partial consisitent of signature and encoded url.
+// path partial consistent of signature and encoded url.
 func HexEncodeURL(hmacKey []byte, oURL string) (string, string) {
 	oBytes := []byte(oURL)
 	mac := hmac.New(sha1.New, hmacKey)
@@ -46,7 +46,7 @@ func HexEncodeURL(hmacKey []byte, oURL string) (string, string) {
 }
 
 // B64EncodeURL takes an HMAC key and a url, and returns url
-// path partial consisitent of signature and encoded url.
+// path partial consistent of signature and encoded url.
 func B64EncodeURL(hmacKey []byte, oURL string) (string, string) {
 	oBytes := []byte(oURL)
 	mac := hmac.New(sha1.New, hmacKey)
