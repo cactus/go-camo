@@ -39,7 +39,7 @@ var (
 			Namespace: MetricNamespace,
 			Subsystem: MetricSubsystem,
 			Name:      "reponses_truncated_total",
-			Help:      "The number of responess that were too large to send.",
+			Help:      "The number of responses that were too large to send.",
 		},
 	)
 )
