@@ -31,28 +31,37 @@ func NewLimitReadCloser(r io.ReadCloser, n int64) *LimitReadCloser {
 	}
 }
 
-type sizedChunkWriter struct {
-	flusher      http.Flusher
-	dst          io.Writer
-	flushCounter int
-	// mu sync.Mutex
+type WriteFlusher interface {
+	io.Writer
+	http.Flusher
 }
 
-func (scw *sizedChunkWriter) Write(p []byte) (n int, err error) {
-	//scw.mu.Lock()
-	//defer scw.mu.Unlock()
+type sizedFlushingChunkWriter struct {
+	dst         WriteFlusher
+	flushSize   int
+	byteCounter int
+}
 
+func (scw *sizedFlushingChunkWriter) Write(p []byte) (n int, err error) {
 	n, err = scw.dst.Write(p)
 	if err != nil {
 		return n, err
 	}
 
-	scw.flushCounter += n
-	if scw.flushCounter >= bufSize {
-		scw.flushCounter = 0
-		scw.flusher.Flush()
+	scw.byteCounter += n
+	if scw.byteCounter >= scw.flushSize {
+		scw.byteCounter = 0
+		scw.dst.Flush()
 	}
 	return
+}
+
+func newSizedFlushingChunkWriter(dst WriteFlusher, flushSize int) *sizedFlushingChunkWriter {
+	scw := &sizedFlushingChunkWriter{
+		dst:       dst,
+		flushSize: flushSize,
+	}
+	return scw
 }
 
 func isBrokenPipe(err error) bool {

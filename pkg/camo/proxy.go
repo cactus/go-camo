@@ -390,11 +390,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// if the upstream response is chunked, then create a chunked writer
 	// to chunk the response.
 	if isChunked {
-		if flusher, ok := w.(http.Flusher); ok {
-			ow = &sizedChunkWriter{
-				dst:     w,
-				flusher: flusher,
-			}
+		if writeFlusher, ok := w.(WriteFlusher); ok {
+			ow = newSizedFlushingChunkWriter(writeFlusher, bufSize)
 		}
 	}
 
