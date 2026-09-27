@@ -1,6 +1,6 @@
 module github.com/cactus/go-camo/v2
 
-go 1.26.0
+go 1.27.1
 
 require (
 	codeberg.org/dropwhile/mlog v1.0.11
