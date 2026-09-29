@@ -1,4 +1,4 @@
-# codeberg.org/dropwhile/mlog v1.0.12
+# codeberg.org/dropwhile/mlog v1.0.13
 ## explicit; go 1.27.0
 codeberg.org/dropwhile/mlog
 # codeberg.org/dropwhile/tai64 v1.0.4

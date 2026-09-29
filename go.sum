@@ -1,7 +1,7 @@
-codeberg.org/dropwhile/go-droplibs v1.0.0 h1:MzjpcBqXzolQEPZhJcWnhbYRN7H2YVyvvoDYz2hO6oE=
-codeberg.org/dropwhile/go-droplibs v1.0.0/go.mod h1:UXgRoUGgpiTxU+aaCYLHswC1qc8+5QYQm5AByE9Y1Hw=
-codeberg.org/dropwhile/mlog v1.0.12 h1:RVbwbPmwJ24RojxlEs+nSJOPyUMj1L560rBUqN+tiHw=
-codeberg.org/dropwhile/mlog v1.0.12/go.mod h1:vZcEsDdj+UJrxyHutpHHuzHom2KW6pT2tv3LX6AS9OU=
+codeberg.org/dropwhile/go-droplibs v1.0.1 h1:BqPzu+te+KWwXSS2AC8OhLP+C7tzLUcozCL0GTS4Ne0=
+codeberg.org/dropwhile/go-droplibs v1.0.1/go.mod h1:UXgRoUGgpiTxU+aaCYLHswC1qc8+5QYQm5AByE9Y1Hw=
+codeberg.org/dropwhile/mlog v1.0.13 h1:7MZhKJN8iZtpNebshJRBxEiteDBedv165zVINs4kRNs=
+codeberg.org/dropwhile/mlog v1.0.13/go.mod h1:+t+A7entmLVr4D1ejSqG+Fkxfp51nQZJjrakeh2keXc=
 codeberg.org/dropwhile/tai64 v1.0.4 h1:jphQI9nAGH6LfNDYoO63yDCn3nHt43Ux/V//NoK55SY=
 codeberg.org/dropwhile/tai64 v1.0.4/go.mod h1:1tUIp8wxr3sjhFhbbnnnwIcvVXt383YPhjgCzUPRwu0=
 github.com/alecthomas/assert/v2 v2.11.0 h1:2Q9r3ki8+JYXvGsDyBXwH3LcJ+WK5D0gc5E8vS6K3D0=
@@ -60,5 +60,3 @@ golang.org/x/text v0.42.0 h1:JbOZXgfeCPU9gacVtYliJqOhD+zhrEqK4LfdpmlUZqI=
 golang.org/x/text v0.42.0/go.mod h1:ojzP1Z+2QtioaF8DTtO8K5q7JWVVYwZKenzujK0Zd0E=
 google.golang.org/protobuf v1.36.12 h1:pJOKDDOyeXErUroCihFAd5LQuwXBSpVnKGrj5o/fwxc=
 google.golang.org/protobuf v1.36.12/go.mod h1:HTf+CrKn2C3g5S8VImy6tdcUvCska2kB7j23XfzDpco=
-gotest.tools/v3 v3.5.2 h1:7koQfIKdy+I8UTetycgUqXWSDwpgv193Ka+qRsmBY8Q=
-gotest.tools/v3 v3.5.2/go.mod h1:LtdLGcnqToBH83WByAAi/wiwSFCArdFIUV/xxN4pcjA=

@@ -3,7 +3,7 @@ module github.com/cactus/go-camo/v2
 go 1.27.1
 
 require (
-	codeberg.org/dropwhile/mlog v1.0.12
+	codeberg.org/dropwhile/mlog v1.0.13
 	github.com/alecthomas/kong v1.16.1
 	github.com/prometheus/client_golang v1.24.1
 	github.com/quic-go/quic-go v0.63.0
