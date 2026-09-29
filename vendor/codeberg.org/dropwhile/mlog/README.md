@@ -1,10 +1,8 @@
 mlog
 ====
-
-[![Build Status](https://codeberg.org/dropwhile/mlog/workflows/unit-tests/badge.svg)](https://codeberg.org/dropwhile/mlog/actions)
+[![Build Status](https://codeberg.org/dropwhile/mlog/badges/workflows/unit-tests.yml/badge.svg)](https://codeberg.org/dropwhile/mlog/actions)
 [![GoDoc](https://godoc.org/codeberg.org/dropwhile/mlog?status.png)](https://godoc.org/codeberg.org/dropwhile/mlog)
-[![Go Report Card](https://goreportcard.com/badge/cactus/mlog)](https://goreportcard.com/report/cactus/mlog)
-[![License](https://img.shields.io/github/license/cactus/mlog.svg)](https://codeberg.org/dropwhile/mlog/blob/master/LICENSE.md)
+[![Go Report Card](https://goreportcard.com/badge/codeberg.org/dropwhile/mlog)](https://goreportcard.com/report/codeberg.org/dropwhile/mlog)
 
 ## About
 
