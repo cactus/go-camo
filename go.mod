@@ -3,7 +3,7 @@ module github.com/cactus/go-camo/v2
 go 1.27.1
 
 require (
-	codeberg.org/dropwhile/mlog v1.0.13
+	codeberg.org/dropwhile/mlog v1.0.14
 	github.com/alecthomas/kong v1.16.1
 	github.com/prometheus/client_golang v1.24.1
 	github.com/quic-go/quic-go v0.63.0
@@ -12,7 +12,7 @@ require (
 )
 
 require (
-	codeberg.org/dropwhile/tai64 v1.0.4 // indirect
+	codeberg.org/dropwhile/go-droplibs v1.0.2 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
