@@ -3,7 +3,7 @@ package mlog
 import (
 	"time"
 
-	"codeberg.org/dropwhile/tai64"
+	"codeberg.org/dropwhile/go-droplibs/tai64"
 )
 
 func writeTime(sb intSliceWriter, t *time.Time) {

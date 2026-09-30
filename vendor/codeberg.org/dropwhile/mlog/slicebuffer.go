@@ -20,7 +20,7 @@ func newSliceBufferPool() *sliceBufferPool {
 }
 
 func (sp *sliceBufferPool) Get() *sliceBuffer {
-	return (sp.Pool.Get()).(*sliceBuffer)
+	return sp.Pool.Get().(*sliceBuffer)
 }
 
 func (sp *sliceBufferPool) Put(c *sliceBuffer) {
@@ -53,11 +53,11 @@ func (sb *sliceBuffer) AppendIntWidth(i int, wid int) {
 	digits := 0
 	for i >= 10 {
 		q := i / 10
-		sb.data = append(sb.data, byte('0'+i-q*10))
+		sb.data = append(sb.data, byte('0'+i-q*10)) // #nosec G115 / false positive
 		i = q
 		digits++
 	}
-	sb.data = append(sb.data, byte('0'+i))
+	sb.data = append(sb.data, byte('0'+i)) // #nosec G115 / false positive
 	digits++
 
 	for j := wid - digits; j > 0; j-- {

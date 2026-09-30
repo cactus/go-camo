@@ -1,9 +1,9 @@
-# codeberg.org/dropwhile/mlog v1.0.13
+# codeberg.org/dropwhile/go-droplibs v1.0.3
+## explicit; go 1.27.0
+codeberg.org/dropwhile/go-droplibs/tai64
+# codeberg.org/dropwhile/mlog v1.0.14
 ## explicit; go 1.27.0
 codeberg.org/dropwhile/mlog
-# codeberg.org/dropwhile/tai64 v1.0.4
-## explicit; go 1.16
-codeberg.org/dropwhile/tai64
 # github.com/alecthomas/kong v1.16.1
 ## explicit; go 1.20
 github.com/alecthomas/kong

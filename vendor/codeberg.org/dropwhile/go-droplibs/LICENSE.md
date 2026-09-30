@@ -1,4 +1,4 @@
-Copyright (c) 2012-2019 Eli Janssen
+Copyright (c) 2015-2026 Eli Janssen
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
