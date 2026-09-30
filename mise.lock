@@ -35,6 +35,11 @@ url = "https://dl.google.com/go/go1.27.1.darwin-amd64.tar.gz"
 checksum = "sha256:a3911b5e0e1b1053f25ed0675f4c1c6aad1e2bfcf253df2b9be4caabd2edd95d"
 url = "https://dl.google.com/go/go1.27.1.windows-amd64.zip"
 
+[[tools."go:codeberg.org/polyfloyd/go-errorlint"]]
+version = "1.9.0"
+backend = "go:codeberg.org/polyfloyd/go-errorlint"
+specifiers = ["latest"]
+
 [[tools."go:fillmore-labs.com/errortype"]]
 version = "0.0.11"
 backend = "go:fillmore-labs.com/errortype"
@@ -58,11 +63,6 @@ specifiers = ["latest"]
 [[tools."go:github.com/kisielk/errcheck"]]
 version = "1.20.0"
 backend = "go:github.com/kisielk/errcheck"
-specifiers = ["latest"]
-
-[[tools."go:github.com/polyfloyd/go-errorlint"]]
-version = "1.8.0"
-backend = "go:github.com/polyfloyd/go-errorlint"
 specifiers = ["latest"]
 
 [[tools."go:github.com/securego/gosec/v2/cmd/gosec"]]
