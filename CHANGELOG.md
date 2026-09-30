@@ -6,7 +6,6 @@
 - upgrade go version to 1.27
 - vendor go dependencies
 - drop treeprint from dependency (reimplemented basic version locally)
-- include codeberg.org/dropwhile/assert in pkg dir directly, remove as mod dep
 - handle github.com/prometheus/common/version registration directly, remove as
   top level mod dep
 - chunk responses when transfer-encoding=chunked

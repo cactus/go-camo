@@ -15,8 +15,8 @@ import (
 	"testing"
 	"time"
 
-	"codeberg.org/dropwhile/mlog"
-	"github.com/cactus/go-camo/v2/pkg/assert"
+	"codeberg.org/dropwhile/go-droplibs/assert"
+	"codeberg.org/dropwhile/go-droplibs/mlog"
 	"github.com/cactus/go-camo/v2/pkg/encoding"
 	"github.com/cactus/go-camo/v2/pkg/router"
 )

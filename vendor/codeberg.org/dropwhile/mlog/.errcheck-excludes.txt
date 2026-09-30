@@ -1,8 +1,0 @@
-(codeberg.org/dropwhile/mlog.byteSliceWriter).WriteByte
-(codeberg.org/dropwhile/mlog.byteSliceWriter).WriteString
-(codeberg.org/dropwhile/mlog.byteSliceWriter).Write
-(*codeberg.org/dropwhile/mlog.sliceBuffer).WriteString
-(*codeberg.org/dropwhile/mlog.sliceBuffer).WriteByte
-(*codeberg.org/dropwhile/mlog.sliceBuffer).Write
-(*codeberg.org/dropwhile/mlog.sliceBuffer).WriteTo
-fmt.Fprint

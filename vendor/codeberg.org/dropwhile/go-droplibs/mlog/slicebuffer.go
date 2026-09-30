@@ -13,7 +13,7 @@ type sliceBufferPool struct {
 
 func newSliceBufferPool() *sliceBufferPool {
 	return &sliceBufferPool{
-		&sync.Pool{New: func() interface{} {
+		&sync.Pool{New: func() any {
 			return &sliceBuffer{make([]byte, 0, 1024)}
 		}},
 	}

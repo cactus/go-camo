@@ -12,7 +12,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"codeberg.org/dropwhile/mlog"
+	"codeberg.org/dropwhile/go-droplibs/mlog"
 )
 
 var b64Encoder = base64.RawURLEncoding

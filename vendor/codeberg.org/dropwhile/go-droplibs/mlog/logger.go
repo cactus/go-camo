@@ -142,32 +142,32 @@ func (l *Logger) Panicm(message string, v Map) {
 
 // Debugf formats and conditionally logs message at level="debug".
 // If the Logger does not have the Ldebug flag, nothing is logged.
-func (l *Logger) Debugf(format string, v ...interface{}) {
+func (l *Logger) Debugf(format string, v ...any) {
 	if l.HasDebug() {
 		l.Emit(-1, fmt.Sprintf(format, v...), nil)
 	}
 }
 
 // Infof formats and logs message at level="info".
-func (l *Logger) Infof(format string, v ...interface{}) {
+func (l *Logger) Infof(format string, v ...any) {
 	l.Emit(0, fmt.Sprintf(format, v...), nil)
 }
 
 // Printf formats and logs message at level="info".
-func (l *Logger) Printf(format string, v ...interface{}) {
+func (l *Logger) Printf(format string, v ...any) {
 	l.Emit(0, fmt.Sprintf(format, v...), nil)
 }
 
 // Fatalf formats and logs message at level="fatal", then calls
 // os.Exit(1)
-func (l *Logger) Fatalf(format string, v ...interface{}) {
+func (l *Logger) Fatalf(format string, v ...any) {
 	l.Emit(1, fmt.Sprintf(format, v...), nil)
 	os.Exit(1)
 }
 
 // Panicf formats and logs message at level="fatal", then calls
 // panic().
-func (l *Logger) Panicf(format string, v ...interface{}) {
+func (l *Logger) Panicf(format string, v ...any) {
 	s := fmt.Sprintf(format, v...)
 	l.Emit(1, s, nil)
 	panic(s)
@@ -175,32 +175,32 @@ func (l *Logger) Panicf(format string, v ...interface{}) {
 
 // Debug conditionally logs message at level="debug".
 // If the Logger does not have the Ldebug flag, nothing is logged.
-func (l *Logger) Debug(v ...interface{}) {
+func (l *Logger) Debug(v ...any) {
 	if l.HasDebug() {
 		l.Emit(-1, fmt.Sprint(v...), nil)
 	}
 }
 
 // Info logs message at level="info".
-func (l *Logger) Info(v ...interface{}) {
+func (l *Logger) Info(v ...any) {
 	l.Emit(0, fmt.Sprint(v...), nil)
 }
 
 // Print logs message at level="info".
-func (l *Logger) Print(v ...interface{}) {
+func (l *Logger) Print(v ...any) {
 	l.Emit(0, fmt.Sprint(v...), nil)
 }
 
 // Fatal logs message at level="fatal", then calls
 // os.Exit(1)
-func (l *Logger) Fatal(v ...interface{}) {
+func (l *Logger) Fatal(v ...any) {
 	l.Emit(1, fmt.Sprint(v...), nil)
 	os.Exit(1)
 }
 
 // Panic logs message at level="fatal", then calls
 // panic().
-func (l *Logger) Panic(v ...interface{}) {
+func (l *Logger) Panic(v ...any) {
 	s := fmt.Sprint(v...)
 	l.Emit(1, s, nil)
 	panic(s)

@@ -9,7 +9,7 @@ package camo
 import (
 	"net/http"
 
-	"codeberg.org/dropwhile/mlog"
+	"codeberg.org/dropwhile/go-droplibs/mlog"
 )
 
 func httpReqToMlogMap(req *http.Request) mlog.Map {

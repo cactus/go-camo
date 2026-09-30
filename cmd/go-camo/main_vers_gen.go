@@ -10,13 +10,10 @@ https://github.com/cactus/go-camo
 
 Portions of this software utilize third party libraries:
 *   Runtime dependencies:
-    ├── codeberg.org/dropwhile/mlog         (MIT license)
+    ├── codeberg.org/dropwhile/go-droplibs  (ISC license)
     ├── github.com/alecthomas/kong          (MIT license)
     ├── github.com/prometheus/client_golang (Apache 2.0)
     ├── github.com/quic-go/quic-go          (MIT license)
     ├── github.com/rdforte/gomaxecs         (MIT license)
     └── golang.org/x/net                    (BSD license)
-
-*   Test/Build only dependencies:
-    └── codeberg.org/dropwhile/assert       (MIT license)
 `

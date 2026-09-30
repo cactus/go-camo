@@ -16,7 +16,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/cactus/go-camo/v2/pkg/assert"
+	"codeberg.org/dropwhile/go-droplibs/assert"
 	"github.com/cactus/go-camo/v2/pkg/encoding"
 	"github.com/cactus/go-camo/v2/pkg/router"
 )

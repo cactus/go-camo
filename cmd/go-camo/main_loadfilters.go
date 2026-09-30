@@ -11,7 +11,7 @@ import (
 	"os"
 	"strings"
 
-	"codeberg.org/dropwhile/mlog"
+	"codeberg.org/dropwhile/go-droplibs/mlog"
 	"github.com/cactus/go-camo/v2/pkg/camo"
 	"github.com/cactus/go-camo/v2/pkg/htrie"
 )

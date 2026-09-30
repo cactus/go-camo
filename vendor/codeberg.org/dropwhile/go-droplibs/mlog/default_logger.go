@@ -94,62 +94,62 @@ func Panicm(message string, v Map) {
 }
 
 // Debugf logs to the default Logger. See Logger.Debugf
-func Debugf(format string, v ...interface{}) {
+func Debugf(format string, v ...any) {
 	if DefaultLogger.HasDebug() {
 		DefaultLogger.Emit(-1, fmt.Sprintf(format, v...), nil)
 	}
 }
 
 // Infof logs to the default Logger. See Logger.Infof
-func Infof(format string, v ...interface{}) {
+func Infof(format string, v ...any) {
 	DefaultLogger.Emit(0, fmt.Sprintf(format, v...), nil)
 }
 
 // Printf logs to the default Logger. See Logger.Printf
-func Printf(format string, v ...interface{}) {
+func Printf(format string, v ...any) {
 	DefaultLogger.Emit(0, fmt.Sprintf(format, v...), nil)
 }
 
 // Fatalf logs to the default Logger. See Logger.Fatalf
-func Fatalf(format string, v ...interface{}) {
+func Fatalf(format string, v ...any) {
 	DefaultLogger.Emit(1, fmt.Sprintf(format, v...), nil)
 	os.Exit(1)
 }
 
 // Panicf is equivalent to Printf() followed by a call to panic().
 // See Logger.Panicf
-func Panicf(format string, v ...interface{}) {
+func Panicf(format string, v ...any) {
 	s := fmt.Sprintf(format, v...)
 	DefaultLogger.Emit(1, s, nil)
 	panic(s)
 }
 
 // Debug logs to the default Logger. See Logger.Debug
-func Debug(v ...interface{}) {
+func Debug(v ...any) {
 	if DefaultLogger.HasDebug() {
 		DefaultLogger.Emit(-1, fmt.Sprint(v...), nil)
 	}
 }
 
 // Info logs to the default Logger. See Logger.Info
-func Info(v ...interface{}) {
+func Info(v ...any) {
 	DefaultLogger.Emit(0, fmt.Sprint(v...), nil)
 }
 
 // Print logs to the default Logger. See Logger.Print
-func Print(v ...interface{}) {
+func Print(v ...any) {
 	DefaultLogger.Emit(0, fmt.Sprint(v...), nil)
 }
 
 // Fatal logs to the default Logger. See Logger.Fatal
-func Fatal(v ...interface{}) {
+func Fatal(v ...any) {
 	DefaultLogger.Emit(1, fmt.Sprint(v...), nil)
 	os.Exit(1)
 }
 
 // Panic is equivalent to Print() followed by a call to panic().
 // See Logger.Panic
-func Panic(v ...interface{}) {
+func Panic(v ...any) {
 	s := fmt.Sprint(v...)
 	DefaultLogger.Emit(1, s, nil)
 	panic(s)

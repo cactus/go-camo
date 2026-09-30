@@ -9,7 +9,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"codeberg.org/dropwhile/mlog"
+	"codeberg.org/dropwhile/go-droplibs/mlog"
 )
 
 const timeFormat = "Mon, 02 Jan 2006 15:04:05 GMT"

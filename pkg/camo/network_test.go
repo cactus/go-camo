@@ -7,7 +7,7 @@ package camo
 import (
 	"testing"
 
-	"github.com/cactus/go-camo/v2/pkg/assert"
+	"codeberg.org/dropwhile/go-droplibs/assert"
 )
 
 func Test_getMaxRangeByte(t *testing.T) {

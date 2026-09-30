@@ -11,7 +11,7 @@ import (
 
 // Map is a key value element used to pass
 // data to the Logger functions.
-type Map map[string]interface{}
+type Map map[string]any
 
 // Keys returns an unsorted list of keys in the Map as a []string.
 func (m Map) Keys() []string {

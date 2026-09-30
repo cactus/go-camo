@@ -6,12 +6,12 @@ package mlog
 
 import "fmt"
 
-type Attr struct {
+type Attr struct { // betteralign:ignore
 	Key   string
-	Value interface{}
+	Value any
 }
 
-func A(key string, value interface{}) *Attr {
+func A(key string, value any) *Attr {
 	return &Attr{key, value}
 }
 
@@ -32,7 +32,7 @@ func (attr *Attr) writeBuf(w byteSliceWriter) {
 	b := buf.Bytes()
 	blen := buf.Len()
 	p := 0
-	for i := 0; i < blen; i++ {
+	for i := range blen {
 		switch b[i] {
 		case '"':
 			w.Write(b[p:i])

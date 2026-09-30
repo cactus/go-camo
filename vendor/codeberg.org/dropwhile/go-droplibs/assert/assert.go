@@ -1,10 +1,8 @@
-// Copyright (c) 2025 Eli Janssen
-// Use of this source code is governed by an MIT-style
+// Copyright (c) 2015-2026 Eli Janssen
+// Use of this source code is governed by an ISC-style
 // license that can be found in the LICENSE file.
 //
 // Inspiration from https://github.com/nalgeon/be
-//
-// Imported from https://codeberg.org/dropwhile/assert
 
 package assert
 
@@ -22,6 +20,7 @@ type TestingT interface {
 	Errorf(format string, args ...any)
 	Fatal(args ...any)
 	Fatalf(format string, args ...any)
+	Cleanup(func())
 }
 
 type helperT interface {

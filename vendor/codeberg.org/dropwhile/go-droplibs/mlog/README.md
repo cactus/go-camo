@@ -1,8 +1,7 @@
 mlog
 ====
-[![Build Status](https://codeberg.org/dropwhile/mlog/badges/workflows/unit-tests.yml/badge.svg)](https://codeberg.org/dropwhile/mlog/actions)
-[![GoDoc](https://godoc.org/codeberg.org/dropwhile/mlog?status.png)](https://godoc.org/codeberg.org/dropwhile/mlog)
-[![Go Report Card](https://goreportcard.com/badge/codeberg.org/dropwhile/mlog)](https://goreportcard.com/report/codeberg.org/dropwhile/mlog)
+
+[![GoDoc](https://godoc.org/codeberg.org/dropwhile/go-droplibs/mlog?status.png)](https://godoc.org/codeberg.org/dropwhile/go-droplibs/mlog)
 
 ## About
 
@@ -42,7 +41,7 @@ For more info, check out the [docs][3].
 import (
     "bytes"
 
-    "codeberg.org/dropwhile/mlog"
+    "codeberg.org/dropwhile/go-droplibs/mlog"
 )
 
 func main() {
@@ -54,7 +53,7 @@ func main() {
     })
 
     thing := mlog.Map(
-        map[string]interface{}{
+        map[string]any{
             "what‽":       "yup",
             "this-works?": "as long as it is a mlog.Map",
         },
@@ -112,4 +111,3 @@ Released under the [ISC license][2]. See `LICENSE.md` file for details.
 
 [1]: http://dave.cheney.net/2015/11/05/lets-talk-about-logging
 [2]: https://choosealicense.com/licenses/isc/
-[3]: https://godoc.org/codeberg.org/dropwhile/mlog

@@ -1,7 +1,5 @@
-codeberg.org/dropwhile/go-droplibs v1.0.3 h1:XAkq1mApegbhoq3YbYfuYtze9cgcXFA8EkKx1oKOTQo=
-codeberg.org/dropwhile/go-droplibs v1.0.3/go.mod h1:UXgRoUGgpiTxU+aaCYLHswC1qc8+5QYQm5AByE9Y1Hw=
-codeberg.org/dropwhile/mlog v1.0.14 h1:zFccCzLqQ0f2rohexYa1zY524U34IugkFIzMOtwXJX8=
-codeberg.org/dropwhile/mlog v1.0.14/go.mod h1:Ib/smfXA2e2FG/SwCvUxYV7zADNg1dpzrvhYek+popo=
+codeberg.org/dropwhile/go-droplibs v1.0.4 h1:4+F6x2E6pur87daIZZ/ox1ktzHioSvQ5cjwWp6IiZok=
+codeberg.org/dropwhile/go-droplibs v1.0.4/go.mod h1:UXgRoUGgpiTxU+aaCYLHswC1qc8+5QYQm5AByE9Y1Hw=
 github.com/alecthomas/assert/v2 v2.11.0 h1:2Q9r3ki8+JYXvGsDyBXwH3LcJ+WK5D0gc5E8vS6K3D0=
 github.com/alecthomas/assert/v2 v2.11.0/go.mod h1:Bze95FyfUr7x34QZrjL+XP+0qgp/zg8yS+TtBj1WA3k=
 github.com/alecthomas/kong v1.16.1 h1:ixhCt93XkJ98kGposQ54+bl0IK6XwqB40AsMynU7Z8E=

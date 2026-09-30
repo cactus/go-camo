@@ -20,7 +20,7 @@ import (
 	"syscall"
 	"time"
 
-	"codeberg.org/dropwhile/mlog"
+	"codeberg.org/dropwhile/go-droplibs/mlog"
 	"github.com/alecthomas/kong"
 	"github.com/cactus/go-camo/v2/pkg/camo"
 	"github.com/cactus/go-camo/v2/pkg/router"
