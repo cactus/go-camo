@@ -76,12 +76,12 @@ backend = "go:go.uber.org/nilaway/cmd/nilaway"
 specifiers = ["latest"]
 
 [[tools."go:golang.org/x/perf/cmd/benchstat"]]
-version = "0.0.0-20260908200009-22c9c6c9d4da"
+version = "0.0.0-20260929162123-406019bb8b68"
 backend = "go:golang.org/x/perf/cmd/benchstat"
 specifiers = ["latest"]
 
 [[tools."go:golang.org/x/tools/cmd/deadcode"]]
-version = "0.50.0"
+version = "0.51.0"
 backend = "go:golang.org/x/tools/cmd/deadcode"
 specifiers = ["latest"]
 
