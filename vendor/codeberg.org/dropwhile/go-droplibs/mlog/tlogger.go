@@ -1,5 +1,5 @@
-// Copyright (c) 2012-2016 Eli Janssen
-// Use of this source code is governed by an MIT-style
+// Copyright (c) 2012-2026 Eli Janssen
+// Use of this source code is governed by an ISC-style
 // license that can be found in the LICENSE file.
 //
 // some parts from: https://brandur.org/t-parallel

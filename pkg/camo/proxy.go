@@ -23,6 +23,7 @@ import (
 	"github.com/cactus/go-camo/v2/pkg/htrie"
 
 	"codeberg.org/dropwhile/go-droplibs/mlog"
+	"codeberg.org/dropwhile/go-droplibs/strx"
 )
 
 //lint:file-ignore ST1005 Ignore string case error to maintain existing responses
@@ -80,6 +81,8 @@ type Proxy struct {
 	filters             []FilterFunc
 	filtersLen          int
 }
+
+var timeoutErrorStrings = []string{"timeout", "Client.Timeout"}
 
 // ServerHTTP handles the client request, validates the request is validly
 // HMAC signed, filters based on the Allow list, and then proxies
@@ -251,7 +254,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		// this is a bit janky, but some of these errors don't support
 		// the newer error semantics yet...
 		switch errString := err.Error(); {
-		case containsOneOf(errString, "timeout", "Client.Timeout"):
+		case strx.ContainsOneOf(errString, timeoutErrorStrings):
 			http.Error(w, "Error Fetching Resource", http.StatusGatewayTimeout)
 		case strings.Contains(errString, "use of closed"):
 			http.Error(w, "Error Fetching Resource", http.StatusBadGateway)

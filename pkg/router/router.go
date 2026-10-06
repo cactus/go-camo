@@ -8,7 +8,11 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"codeberg.org/dropwhile/go-droplibs/chrono"
 )
+
+const httpTimeFormat = "Mon, 02 Jan 2006 15:04:05 GMT"
 
 // DumbRouter is a basic, special purpose, http router
 type DumbRouter struct {
@@ -59,6 +63,6 @@ func NewDumbRouter(
 		ServerName:    serverName,
 		AddHeaders:    headers,
 		CamoHandler:   camoHandler,
-		dateGenerator: newiHTTPDate(),
+		dateGenerator: chrono.NewTimeNowString(httpTimeFormat),
 	}
 }
