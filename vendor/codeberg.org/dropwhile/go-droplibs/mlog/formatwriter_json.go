@@ -1,5 +1,5 @@
 // Copyright (c) 2012-2026 Eli Janssen
-// Use of this source code is governed by an ISC-style
+// Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
 package mlog
@@ -19,7 +19,7 @@ const hex = "0123456789abcdef"
 //	{"time": "2016-04-29T20:49:12Z", "level": "I", "msg": "this is a log"}
 type FormatWriterJSON struct{}
 
-// Emit constructs and formats a json log line (with optional extra Attrs), then writes it to logger
+// EmitAttrs constructs and formats a json log line (with optional extra Attrs), then writes it to logger
 func (j *FormatWriterJSON) EmitAttrs(logger *Logger, level int, message string, extra ...*Attr) {
 	sb := bufPool.Get()
 	defer bufPool.Put(sb)

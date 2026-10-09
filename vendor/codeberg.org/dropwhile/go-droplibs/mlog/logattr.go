@@ -1,16 +1,18 @@
 // Copyright (c) 2012-2026 Eli Janssen
-// Use of this source code is governed by an ISC-style
+// Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
 package mlog
 
 import "fmt"
 
+// Attr defines a Key/Value pair
 type Attr struct { // betteralign:ignore
 	Key   string
 	Value any
 }
 
+// A turns a key and a value into an *Attr
 func A(key string, value any) *Attr {
 	return &Attr{key, value}
 }

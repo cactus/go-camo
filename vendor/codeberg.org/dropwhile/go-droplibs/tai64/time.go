@@ -1,7 +1,8 @@
 // Copyright (c) 2015-2026 Eli Janssen
-// Use of this source code is governed by an ISC-style
+// Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
+// Package tai64 formats and parses TAI64 and TAI64N timestamps
 package tai64
 
 //go:generate go run ./tools/generate.go -pkg $GOPACKAGE -output offsets.go
@@ -26,10 +27,9 @@ func GetOffsetUnix(utime int64) int64 {
 	for i := tia64nSize - 1; i >= 0; i-- {
 		if utime < tia64nDifferences[i].utime {
 			continue
-		} else {
-			offset = tia64nDifferences[i].offset
-			break
 		}
+		offset = tia64nDifferences[i].offset
+		break
 	}
 	return offset
 }
@@ -50,10 +50,9 @@ func getInvOffsetTai64(ttime int64) int64 {
 		t := tia64nDifferences[i]
 		if ttime < t.ttime {
 			continue
-		} else {
-			offset = t.offset
-			break
 		}
+		offset = t.offset
+		break
 	}
 	return offset
 }

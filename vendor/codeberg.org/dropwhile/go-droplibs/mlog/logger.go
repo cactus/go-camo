@@ -1,5 +1,5 @@
 // Copyright (c) 2012-2026 Eli Janssen
-// Use of this source code is governed by an ISC-style
+// Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
 package mlog
@@ -47,7 +47,7 @@ func (l *Logger) Emit(level int, message string, extra Map) {
 	l.e.Emit(l, level, message, extra)
 }
 
-// Emit invokes the FormatWriter and logs the event.
+// EmitAttrs invokes the FormatWriter and logs the event.
 func (l *Logger) EmitAttrs(level int, message string, extra ...*Attr) {
 	l.e.EmitAttrs(l, level, message, extra...)
 }

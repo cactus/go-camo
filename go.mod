@@ -3,12 +3,12 @@ module github.com/cactus/go-camo/v2
 go 1.27.1
 
 require (
-	codeberg.org/dropwhile/go-droplibs v1.0.6
+	codeberg.org/dropwhile/go-droplibs v1.0.7
 	github.com/alecthomas/kong v1.16.1
 	github.com/prometheus/client_golang v1.25.0
 	github.com/quic-go/quic-go v0.63.0
 	github.com/rdforte/gomaxecs v1.1.2
-	golang.org/x/net v0.60.0
+	golang.org/x/net v0.61.0
 )
 
 require (
@@ -20,8 +20,8 @@ require (
 	github.com/prometheus/procfs v0.22.0 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	go.uber.org/mock v0.6.0 // indirect
-	golang.org/x/crypto v0.57.0 // indirect
-	golang.org/x/sys v0.48.0 // indirect
-	golang.org/x/text v0.42.0 // indirect
+	golang.org/x/crypto v0.58.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 )

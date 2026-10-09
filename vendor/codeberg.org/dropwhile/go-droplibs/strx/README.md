@@ -39,8 +39,8 @@ true
 
 ## License
 
-Released under the [ISC license][2]. See `LICENSE.md` file for details.
+Released under a [MIT license][2]. See `LICENSE.md` file for details.
 
 
 [1]: https://cr.yp.to/libtai/tai64.html
-[2]: https://choosealicense.com/licenses/isc/
+[2]: https://choosealicense.com/licenses/mit/

@@ -51,7 +51,7 @@ backend = "go:github.com/cortesi/modd/cmd/modd"
 specifiers = ["latest"]
 
 [[tools."go:github.com/dkorunic/betteralign/cmd/betteralign"]]
-version = "0.15.1"
+version = "0.15.2"
 backend = "go:github.com/dkorunic/betteralign/cmd/betteralign"
 specifiers = ["latest"]
 

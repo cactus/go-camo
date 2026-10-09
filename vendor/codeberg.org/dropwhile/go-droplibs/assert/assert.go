@@ -1,9 +1,10 @@
 // Copyright (c) 2015-2026 Eli Janssen
-// Use of this source code is governed by an ISC-style
+// Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 //
 // Inspiration from https://github.com/nalgeon/be
 
+// Package assert is a minimal Go test package.
 package assert
 
 import (
@@ -31,6 +32,7 @@ type equaler[T any] interface {
 	Equal(T) bool
 }
 
+// True fails assertion if got is false.
 func True(t TestingT, got bool, msg ...string) {
 	if ht, ok := t.(helperT); ok {
 		ht.Helper()
@@ -41,6 +43,7 @@ func True(t TestingT, got bool, msg ...string) {
 	}
 }
 
+// False fails assertion if got is true.
 func False(t TestingT, got bool, msg ...string) {
 	if ht, ok := t.(helperT); ok {
 		ht.Helper()
@@ -51,6 +54,7 @@ func False(t TestingT, got bool, msg ...string) {
 	}
 }
 
+// Equal fails assertion if got and want are not equal.
 func Equal[T any](t TestingT, got, want T, msg ...string) {
 	if ht, ok := t.(helperT); ok {
 		ht.Helper()
@@ -61,6 +65,7 @@ func Equal[T any](t TestingT, got, want T, msg ...string) {
 	}
 }
 
+// NotEqual fails assertion if got and want are equal.
 func NotEqual[T any](t TestingT, got, want T, msg ...string) {
 	if ht, ok := t.(helperT); ok {
 		ht.Helper()
@@ -71,6 +76,7 @@ func NotEqual[T any](t TestingT, got, want T, msg ...string) {
 	}
 }
 
+// Nil fails assertion if got is not nil.
 func Nil(t TestingT, got any, msg ...string) {
 	if ht, ok := t.(helperT); ok {
 		ht.Helper()
@@ -81,6 +87,7 @@ func Nil(t TestingT, got any, msg ...string) {
 	}
 }
 
+// NotNil fails assertion if got is nil.
 func NotNil(t TestingT, got any, msg ...string) {
 	if ht, ok := t.(helperT); ok {
 		ht.Helper()
@@ -91,6 +98,28 @@ func NotNil(t TestingT, got any, msg ...string) {
 	}
 }
 
+// Error fails assertion if got and want are not "error similar".
+// want can be one of: nil, a string, an error, or an interface.
+//
+// Some examples...
+//
+// assert that an error value matches (string match)
+//
+//	assert.Error(t, err, "my bad error")
+//
+// assert error value matches (error match)
+//
+//	assert.Error(t, err, err2)
+//
+// assert that an error value matches, which
+// works with wrapped errors, using errors.Is under the hood
+//
+//	wrappedErr := fmt.Errorf("wrapped: %w", err)
+//	assert.Error(t, err, wrappedErr)
+//
+// can also check for error type, using errors.As under the hood
+//
+//	assert.Error(t, err, reflect.TypeFor[*fs.PathError]())
 func Error(t TestingT, got error, want any, msg ...string) {
 	if ht, ok := t.(helperT); ok {
 		ht.Helper()
@@ -123,6 +152,11 @@ func Error(t TestingT, got error, want any, msg ...string) {
 	}
 }
 
+// MatchesRegex asserts that the string matches the regex pattern.
+//
+// Example
+//
+//	assert.MatchesRegexp(t, "abc123d", `abc[123]+$`)
 func MatchesRegex(t TestingT, got, pattern string, msg ...string) {
 	if ht, ok := t.(helperT); ok {
 		ht.Helper()

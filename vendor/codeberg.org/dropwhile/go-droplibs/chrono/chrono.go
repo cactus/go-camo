@@ -1,7 +1,8 @@
 // Copyright (c) 2015-2026 Eli Janssen
-// Use of this source code is governed by an ISC-style
+// Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
+// Package chrono provides a unix epoch time structure that is updated in 1 second intervals
 package chrono
 
 import (

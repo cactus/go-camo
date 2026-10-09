@@ -110,7 +110,7 @@ govulncheck:
 [group('~checks:default')]
 betteralign:
     just _banner ">> running betteralign"
-    -betteralign ./...
+    betteralign ./...
 
 # run gosec
 [group('~checks:default')]

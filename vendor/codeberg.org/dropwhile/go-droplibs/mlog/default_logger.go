@@ -1,5 +1,5 @@
 // Copyright (c) 2012-2026 Eli Janssen
-// Use of this source code is governed by an ISC-style
+// Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
 package mlog
@@ -13,6 +13,7 @@ import (
 // DefaultLogger is the default package level Logger
 var DefaultLogger = New(os.Stderr, Lstd)
 
+// SetOutput sets the output to the supplied io.Writer
 func SetOutput(writer io.Writer) {
 	DefaultLogger.SetOutput(writer)
 }

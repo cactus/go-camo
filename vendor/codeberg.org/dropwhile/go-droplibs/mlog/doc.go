@@ -1,5 +1,5 @@
 // Copyright (c) 2012-2026 Eli Janssen
-// Use of this source code is governed by an ISC-style
+// Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
 /*

@@ -1,5 +1,5 @@
 // Copyright (c) 2012-2026 Eli Janssen
-// Use of this source code is governed by an ISC-style
+// Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 //
 // some parts from: https://brandur.org/t-parallel
@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-// TestoingLogWriter is an adapter between mlog and Go's testing package,
+// TestingLogWriter is an adapter between mlog and Go's testing package,
 // which lets us send all output to `t.Log` so that it's correctly
 // collated with the test that emitted it. This helps especially when
 // using parallel testing where output would otherwise be interleaved

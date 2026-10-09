@@ -1,5 +1,5 @@
 // Copyright (c) 2012-2026 Eli Janssen
-// Use of this source code is governed by an ISC-style
+// Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
 package mlog
@@ -20,12 +20,12 @@ func writeTime(sb intSliceWriter, t *time.Time) {
 
 	sb.WriteByte('T')
 
-	hour, min, sec := t.Clock()
-	sb.AppendIntWidth(hour, 2)
+	thour, tmin, tsec := t.Clock()
+	sb.AppendIntWidth(thour, 2)
 	sb.WriteByte(':')
-	sb.AppendIntWidth(min, 2)
+	sb.AppendIntWidth(tmin, 2)
 	sb.WriteByte(':')
-	sb.AppendIntWidth(sec, 2)
+	sb.AppendIntWidth(tsec, 2)
 
 	sb.WriteByte('.')
 	sb.AppendIntWidth(t.Nanosecond(), 9)

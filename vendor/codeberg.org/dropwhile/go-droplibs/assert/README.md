@@ -36,18 +36,18 @@ func TestSomething(t *testing.T) {
     // output => got: <nil>; expected non-nil
 
     // assert that an error value matches (string match)
-    assert.ErrorIs(t, err, "my bad error")
+    assert.Error(t, err, "my bad error")
     // output => got: "oops"; want: "my bad error";
 
-    assert.ErrorIs(t, nil, err)  // assert error value matches (error match)
+    assert.Error(t, err, nil)  // assert error value matches (error match)
     // output => got: <nil>; want: errType(oops);
 
     wrappedErr := fmt.Errorf("wrapped: %w", err)
-    assert.ErrorIs(t, nil, wrappedErr) // works with wrapped errors, using errors.Is under the hood
+    assert.Error(t, err, wrappedErr) // works with wrapped errors, using errors.Is under the hood
     // output => got: <nil>; want: *fmt.wrapError(wrapped: oops)
 
     // can also check for error type, using errors.As under the hood
-    assert.ErrorIs(t, nil, reflect.TypeFor[*fs.PathError]())
+    assert.Error(t, err, reflect.TypeFor[*fs.PathError]())
     // output => got: <nil>; want: *fs.PathError
 
     // assert boolean true

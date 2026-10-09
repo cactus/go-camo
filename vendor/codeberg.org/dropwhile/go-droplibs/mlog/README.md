@@ -107,7 +107,7 @@ exit status 1
 
 ## License
 
-Released under the [ISC license][2]. See `LICENSE.md` file for details.
+Released under a [MIT license][2]. See `LICENSE.md` file for details.
 
 [1]: http://dave.cheney.net/2015/11/05/lets-talk-about-logging
-[2]: https://choosealicense.com/licenses/isc/
+[2]: https://choosealicense.com/licenses/mit/
