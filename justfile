@@ -65,13 +65,19 @@ vet:
 [group('~checks:default')]
 staticcheck:
     just _banner ">> running staticcheck"
-    staticcheck ./...
+    -staticcheck ./...
+
+# run revive
+[group('~checks:default')]
+revive:
+    just _banner ">> running revive"
+    revive -exclude ./tai64/tools ./...
 
 # run errcheck
 [group('~checks:default')]
 errcheck:
     just _banner ">> running errcheck"
-    errcheck \
+    -errcheck \
       -ignoretests \
       -exclude .errcheck-excludes.txt \
       ./...

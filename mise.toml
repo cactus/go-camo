@@ -29,6 +29,7 @@ go = "latest"
 "go:golang.org/x/vuln/cmd/govulncheck" = "latest"
 "go:golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness" = "latest"
 "go:honnef.co/go/tools/cmd/staticcheck" = "latest"
+"go:github.com/mgechev/revive" = "latest"
 
 
 [settings]

@@ -65,6 +65,11 @@ version = "1.20.0"
 backend = "go:github.com/kisielk/errcheck"
 specifiers = ["latest"]
 
+[[tools."go:github.com/mgechev/revive"]]
+version = "1.17.1"
+backend = "go:github.com/mgechev/revive"
+specifiers = ["latest"]
+
 [[tools."go:github.com/securego/gosec/v2/cmd/gosec"]]
 version = "2.29.0"
 backend = "go:github.com/securego/gosec/v2/cmd/gosec"
