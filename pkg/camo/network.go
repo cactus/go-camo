@@ -145,12 +145,12 @@ func getMaxRangeByte(rangeReq string) (int64, error) {
 				return -1, fmt.Errorf("empty value before '%s'", string(rangeReq[i]))
 			}
 
-			if n, err := strconv.ParseInt(string(accum), 10, 64); err != nil {
+			n, err := strconv.ParseInt(string(accum), 10, 64)
+			if err != nil {
 				// error converting to int
 				return -1, fmt.Errorf("error converting '%s' to int64", string(accum))
-			} else {
-				maxSeen = max(maxSeen, n)
 			}
+			maxSeen = max(maxSeen, n)
 			accum = accum[:0]
 		default:
 			// unknown char. improper format
@@ -160,11 +160,11 @@ func getMaxRangeByte(rangeReq string) (int64, error) {
 
 	// handle any trailing data in accum
 	if len(accum) > 0 {
-		if n, err := strconv.ParseInt(string(accum), 10, 64); err != nil {
+		n, err := strconv.ParseInt(string(accum), 10, 64)
+		if err != nil {
 			return -1, fmt.Errorf("error converting '%s' to int64", string(accum))
-		} else {
-			maxSeen = max(maxSeen, n)
 		}
+		maxSeen = max(maxSeen, n)
 	}
 
 	if maxSeen == -1 {
@@ -197,12 +197,13 @@ func isRejectedIP(ip net.IP) bool {
 }
 
 func hostnameToIPs(hostname string) ([]net.IP, error) {
-	if ip := net.ParseIP(hostname); ip != nil {
+	ip := net.ParseIP(hostname)
+	if ip != nil {
 		return []net.IP{ip}, nil
-	} else {
-		if ips, err := net.LookupIP(hostname); err == nil {
-			return ips, nil
-		}
+	}
+
+	if ips, err := net.LookupIP(hostname); err == nil {
+		return ips, nil
 	}
 	return nil, fmt.Errorf("no ips for hostname %s", hostname)
 }

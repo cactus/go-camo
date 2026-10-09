@@ -201,9 +201,8 @@ func TestClientCancelLate(t *testing.T) {
 				mlog.Debugf("got: %s", string(d))
 			}
 			break
-		} else {
-			mlog.Debugf("data: %s", string(data))
 		}
+		mlog.Debugf("data: %s", string(data))
 	}
 	conn.Close()
 	// fmt.Printf("done\n")

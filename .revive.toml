@@ -1,0 +1,62 @@
+ignore-generated-header = true
+severity = "error"
+confidence = 0.8
+error-code = 1
+warning-code = 0
+
+[rule.add-constant]
+disabled = true
+[rule.atomic]
+[rule.blank-imports]
+[rule.bool-literal-in-expr]
+[rule.comment-spacings]
+[rule.confusing-naming]
+[rule.constant-logical-expr]
+[rule.context-as-argument]
+[rule.context-keys-type]
+[rule.datarace]
+[rule.defer]
+[rule.dot-imports]
+[rule.duplicated-imports]
+[rule.empty-block]
+[rule.epoch-naming]
+[rule.error-naming]
+[rule.error-return]
+[rule.error-strings]
+[rule.errorf]
+[rule.exported]
+disabled = true
+[rule.forbidden-call-in-wg-go]
+[rule.identical-branches]
+[rule.identical-ifelseif-branches]
+[rule.identical-ifelseif-conditions]
+[rule.identical-switch-conditions]
+[rule.if-return]
+[rule.increment-decrement]
+disabled = true
+[rule.indent-error-flow]
+[rule.inefficient-map-lookup]
+[rule.marshal-receiver]
+[rule.multiline-if-init]
+[rule.optimize-operands-order]
+[rule.package-comments]
+disabled = true
+[rule.range]
+[rule.receiver-naming]
+[rule.redefines-builtin-id]
+[rule.superfluous-else]
+[rule.string-of-int]
+[rule.time-naming]
+[rule.unexported-return]
+[rule.unnecessary-if]
+[rule.unnecessary-stmt]
+[rule.unreachable-code]
+[rule.unused-parameter]
+arguments = [{ allow-regex = "^(b|r|conn|_)" }]
+[rule.use-any]
+[rule.use-waitgroup-go]
+[rule.useless-break]
+[rule.useless-fallthrough]
+[rule.var-declaration]
+disabled = true
+[rule.var-naming]

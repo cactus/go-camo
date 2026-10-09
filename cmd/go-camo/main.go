@@ -101,7 +101,7 @@ type CLI struct { // betteralign:ignore
 	Metrics     bool `name:"metrics" group:"logmetrics" help:"Enable Prometheus compatible metrics endpoint"`
 	NoDebugVars bool `name:"no-debug-vars" group:"logmetrics" help:"Disable the /debug/vars/ metrics endpoint. This option has no effects when the metrics are not enabled."`
 	NoLogTS     bool `name:"no-log-ts" group:"logmetrics" help:"Do not add a timestamp to logging"`
-	LogJson     bool `name:"log-json" group:"logmetrics" help:"Log in JSON format"`
+	LogJSON     bool `name:"log-json" group:"logmetrics" help:"Log in JSON format"`
 	Profile     bool `name:"prof" group:"logmetrics" help:"Enable go http profiler endpoint"`
 
 	Verbose bool `name:"verbose" short:"v" help:"Show verbose (debug) log level output"`
@@ -232,7 +232,7 @@ func (cli *CLI) Run() {
 		}))
 	}
 
-	if cli.LogJson {
+	if cli.LogJSON {
 		mlog.SetEmitter(&mlog.FormatWriterJSON{})
 	}
 

@@ -167,10 +167,10 @@ func (dt *URLMatcher) AddRule(rule string) error {
 		return fmt.Errorf("bad domain format: no domain specified")
 	}
 
-	max := len(domainLabels)
+	maxLen := len(domainLabels)
 	curdt := dt
 	// walk components in reverse order
-	for i := max - 1; i >= 0; i-- {
+	for i := maxLen - 1; i >= 0; i-- {
 		label := uniformLower(domainLabels[i], "")
 		if len(label) == 0 {
 			return fmt.Errorf("bad domain format: empty component")
@@ -324,7 +324,7 @@ func (dt *URLMatcher) CheckHostname(hostname string) (bool, error) {
 	return dt.CheckCleanHostname(hostname), nil
 }
 
-// CheckHostnameClean checks the supplied hostname (as a string).
+// CheckCleanHostname checks the supplied hostname (as a string).
 // The supplied hostname must already be safe/cleaned, in a way
 // similar to IdnaLookupMap.
 func (dt *URLMatcher) CheckCleanHostname(hostname string) bool {

@@ -113,26 +113,26 @@ type Tuple[A any, B any] struct {
 	b B
 }
 
-func (r *Tuple[A, B]) UnmarshalJSON(p []byte) error {
+func (t *Tuple[A, B]) UnmarshalJSON(p []byte) error {
 	var tmp []json.RawMessage
 	if err := json.Unmarshal(p, &tmp); err != nil {
 		return err
 	}
-	if err := json.Unmarshal(tmp[0], &r.a); err != nil {
+	if err := json.Unmarshal(tmp[0], &t.a); err != nil {
 		return err
 	}
 
-	if reflect.TypeFor[*B]() == reflect.TypeFor[*B]() {
+	if reflect.TypeFor[B]() == reflect.TypeFor[error]() {
 		var s string
 		if err := json.Unmarshal(tmp[1], &s); err != nil {
 			return err
 		}
 		if s != "" {
 			err := errors.New(s)
-			r.b = err.(B)
+			t.b = err.(B)
 		}
 	} else {
-		if err := json.Unmarshal(tmp[1], &r.b); err != nil {
+		if err := json.Unmarshal(tmp[1], &t.b); err != nil {
 			return err
 		}
 	}

@@ -23,7 +23,7 @@ var ServerVersion = "no-version"
 type EncodeCmd struct {
 	Base   string `name:"base" short:"b" enum:"hex,base64" default:"hex" help:"Encode/Decode base. One of: ${enum}"`
 	Prefix string `name:"prefix" short:"p" default:"" help:"Optional url prefix used by encode output"`
-	Url    string `arg:"" name:"URL" help:"URL to encode"`
+	URL    string `arg:"" name:"URL" help:"URL to encode"`
 }
 
 // Execute runs the encode command
@@ -32,7 +32,7 @@ func (cmd *EncodeCmd) Run(cli *CLI) error {
 		return errors.New("empty HMAC")
 	}
 
-	if len(cmd.Url) == 0 {
+	if len(cmd.URL) == 0 {
 		return errors.New("no url argument provided")
 	}
 
@@ -41,9 +41,9 @@ func (cmd *EncodeCmd) Run(cli *CLI) error {
 	var outDig string
 	switch cmd.Base {
 	case "base64":
-		outDig, outURL = encoding.B64EncodeURL(hmacKeyBytes, cmd.Url)
+		outDig, outURL = encoding.B64EncodeURL(hmacKeyBytes, cmd.URL)
 	case "hex":
-		outDig, outURL = encoding.HexEncodeURL(hmacKeyBytes, cmd.Url)
+		outDig, outURL = encoding.HexEncodeURL(hmacKeyBytes, cmd.URL)
 	default:
 		return errors.New("invalid base provided")
 	}
@@ -53,7 +53,7 @@ func (cmd *EncodeCmd) Run(cli *CLI) error {
 
 // DecodeCommand holds command options for the decode command
 type DecodeCmd struct {
-	Url string `arg:"" name:"URL" help:"URL to decode"`
+	URL string `arg:"" name:"URL" help:"URL to decode"`
 }
 
 // Execute runs the decode command
@@ -62,13 +62,13 @@ func (cmd *DecodeCmd) Run(cli *CLI) error {
 		return errors.New("empty HMAC")
 	}
 
-	if len(cmd.Url) == 0 {
+	if len(cmd.URL) == 0 {
 		return errors.New("no url argument provided")
 	}
 
 	hmacKeyBytes := []byte(cli.HmacKey)
 
-	u, err := url.Parse(cmd.Url)
+	u, err := url.Parse(cmd.URL)
 	if err != nil {
 		return err
 	}

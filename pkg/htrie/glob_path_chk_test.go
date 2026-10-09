@@ -54,7 +54,7 @@ func TestGlobPathChecker(t *testing.T) {
 		assert.Nil(t, err)
 	}
 
-	//fmt.Println(gpc.RenderTree())
+	// fmt.Println(gpc.RenderTree())
 
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)

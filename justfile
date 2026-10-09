@@ -71,7 +71,7 @@ staticcheck:
 [group('~checks:default')]
 revive:
     just _banner ">> running revive"
-    revive -exclude ./tai64/tools ./...
+    revive -config .revive.toml -formatter friendly ./...
 
 # run errcheck
 [group('~checks:default')]
@@ -110,7 +110,7 @@ govulncheck:
 [group('~checks:default')]
 betteralign:
     just _banner ">> running betteralign"
-    betteralign ./...
+    -betteralign ./...
 
 # run gosec
 [group('~checks:default')]
@@ -175,7 +175,7 @@ update-go-deps:
 [group('hygiene')]
 update-mise-deps:
     just _banner ">> updating mise dependencies"
-    mise up -b {{ if env("MIN_RELEASE_AGE", "") != "" { "--minimum-release-age " + env("MIN_RELEASE_AGE")} }}
+    mise up -b {{ if env("MIN_RELEASE_AGE", "") != "" { "--minimum-release-age " + env("MIN_RELEASE_AGE") } }}
     mise lock
 
 # update dependencies
