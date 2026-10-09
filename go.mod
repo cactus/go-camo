@@ -5,10 +5,10 @@ go 1.27.1
 require (
 	codeberg.org/dropwhile/go-droplibs v1.0.6
 	github.com/alecthomas/kong v1.16.1
-	github.com/prometheus/client_golang v1.24.1
+	github.com/prometheus/client_golang v1.25.0
 	github.com/quic-go/quic-go v0.63.0
 	github.com/rdforte/gomaxecs v1.1.2
-	golang.org/x/net v0.59.0
+	golang.org/x/net v0.60.0
 )
 
 require (
