@@ -51,7 +51,7 @@ backend = "go:github.com/cortesi/modd/cmd/modd"
 specifiers = ["latest"]
 
 [[tools."go:github.com/dkorunic/betteralign/cmd/betteralign"]]
-version = "0.15.2"
+version = "0.15.3"
 backend = "go:github.com/dkorunic/betteralign/cmd/betteralign"
 specifiers = ["latest"]
 
@@ -61,7 +61,7 @@ backend = "go:github.com/gordonklaus/ineffassign"
 specifiers = ["latest"]
 
 [[tools."go:github.com/kisielk/errcheck"]]
-version = "1.20.0"
+version = "1.30.0"
 backend = "go:github.com/kisielk/errcheck"
 specifiers = ["latest"]
 
@@ -81,12 +81,12 @@ backend = "go:go.uber.org/nilaway/cmd/nilaway"
 specifiers = ["latest"]
 
 [[tools."go:golang.org/x/perf/cmd/benchstat"]]
-version = "0.0.0-20260929162123-406019bb8b68"
+version = "0.0.0-20261009192801-be2c69fb417e"
 backend = "go:golang.org/x/perf/cmd/benchstat"
 specifiers = ["latest"]
 
 [[tools."go:golang.org/x/tools/cmd/deadcode"]]
-version = "0.51.0"
+version = "0.52.0"
 backend = "go:golang.org/x/tools/cmd/deadcode"
 specifiers = ["latest"]
 
