@@ -267,7 +267,7 @@ func newGlobPathNode(icase bool) *globPathNode {
 	// since there are quite a few possible slots, let's use a map for now...
 	// web searches say a map is faster in go above a certain size. benchmark later...
 	//
-	// for now, since realloc cost is paid at creation, and we want to RSS size
+	// for now, since realloc cost is paid at creation, and we want to minimize RSS size
 	// and since we only /really/ care about lookup costs, just start with 0 initial
 	// map size and let it grow as needed
 	return &globPathNode{
