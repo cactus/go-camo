@@ -101,7 +101,7 @@ backend = "go:golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize
 specifiers = ["latest"]
 
 [[tools."go:golang.org/x/vuln/cmd/govulncheck"]]
-version = "1.8.0"
+version = "1.9.0"
 backend = "go:golang.org/x/vuln/cmd/govulncheck"
 specifiers = ["latest"]
 
