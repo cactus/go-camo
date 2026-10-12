@@ -111,7 +111,7 @@ backend = "go:gotest.tools/gotestsum"
 specifiers = ["latest"]
 
 [[tools."go:honnef.co/go/tools/cmd/staticcheck"]]
-version = "0.8.1"
+version = "0.8.2"
 backend = "go:honnef.co/go/tools/cmd/staticcheck"
 specifiers = ["latest"]
 

@@ -65,7 +65,7 @@ vet:
 [group('~checks:default')]
 staticcheck:
     just _banner ">> running staticcheck"
-    -staticcheck ./...
+    staticcheck ./...
 
 # run revive
 [group('~checks:default')]
