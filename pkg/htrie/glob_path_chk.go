@@ -133,18 +133,18 @@ func (gpc *GlobPathChecker) AddRule(rule string) error {
 
 // CheckPath checks the supplied path (as a string).
 // Note: CheckPathString requires that the url path component is already escaped,
-// in a similar way to `(*url.URL).EscapePath()`.
-func (gpc *GlobPathChecker) CheckPath(url string) bool {
-	url = strings.TrimSpace(url)
-	ulen := len(url)
+// and normalized, in a similar way to `(*url.URL).JoinPath().EscapePath()`.
+func (gpc *GlobPathChecker) CheckPath(urlPath string) bool {
+	urlPath = strings.TrimSpace(urlPath)
+	ulen := len(urlPath)
 
 	// if we have a case sensitive checker, check that one first
-	if gpc.csNode != nil && gpc.csNode.checkPath(url, 0, ulen) {
+	if gpc.csNode != nil && gpc.csNode.checkPath(urlPath, 0, ulen) {
 		return true
 	}
 
 	// if we have a case insensitive checker, check that one next
-	if gpc.ciNode != nil && gpc.ciNode.checkPath(url, 0, ulen) {
+	if gpc.ciNode != nil && gpc.ciNode.checkPath(urlPath, 0, ulen) {
 		return true
 	}
 
@@ -155,4 +155,22 @@ func (gpc *GlobPathChecker) CheckPath(url string) bool {
 // NewGlobPathChecker returns a new GlobPathChecker
 func NewGlobPathChecker() *GlobPathChecker {
 	return &GlobPathChecker{}
+}
+
+var escapedSlashReplacer = strings.NewReplacer(
+	"%2F", "/",
+	"%2f", "/",
+)
+
+func CleanPath(u *url.URL) string {
+	if len(u.Path) > 0 {
+		// JoinPath handles normalization:
+		//  /bar//foo/x -> /bar/foo/x
+		//  /bar/./foo/x -> /bar/foo/x
+		//  /bar/../foo/x -> /foo/x
+		u = u.JoinPath()
+		// also replace %2F with / in path segments
+		u.RawPath = escapedSlashReplacer.Replace(u.EscapedPath())
+	}
+	return u.EscapedPath()
 }

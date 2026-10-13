@@ -58,13 +58,54 @@ func TestGlobPathChecker(t *testing.T) {
 
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)
-		assert.True(t, gpc.CheckPath(u.EscapedPath()),
+		assert.True(t, gpc.CheckPath(CleanPath(u)),
 			fmt.Sprintf("should have matched: %s", u))
 
 	}
 	for _, u := range testNoMatch {
 		u, _ := url.Parse(u)
-		assert.False(t, gpc.CheckPath(u.EscapedPath()), fmt.Sprintf("should NOT have matched: %s", u))
+		assert.False(t, gpc.CheckPath(CleanPath(u)), fmt.Sprintf("should NOT have matched: %s", u))
+
+	}
+}
+
+func TestGlobPathCheckerEscapes(t *testing.T) {
+	t.Parallel()
+
+	rules := []string{
+		"|i|/images/private/secret.png",
+	}
+
+	testMatch := []string{
+		"http://example.net/images/private/secret.png",
+		"http://example.net/images/private//secret.png",
+		"http://example.net/images/private/./secret.png",
+		"http://example.net/images/private/secret.png?",
+		"http://example.net/images/private%2Fsecret.png",
+		"http://example.net/images/private%2fsecret.png",
+	}
+
+	testNoMatch := []string{
+		"http://example.net/images/private/../public/public.png",
+	}
+
+	gpc := NewGlobPathChecker()
+	for _, rule := range rules {
+		err := gpc.AddRule(rule)
+		assert.Nil(t, err)
+	}
+
+	// fmt.Println(gpc.RenderTree())
+
+	for _, u := range testMatch {
+		u, _ := url.Parse(u)
+		assert.True(t, gpc.CheckPath(CleanPath(u)),
+			fmt.Sprintf("should have matched: %s", u))
+
+	}
+	for _, u := range testNoMatch {
+		u, _ := url.Parse(u)
+		assert.False(t, gpc.CheckPath(CleanPath(u)), fmt.Sprintf("should NOT have matched: %s", u))
 
 	}
 }

@@ -304,7 +304,7 @@ func (dt *URLMatcher) CheckURL(u *url.URL) (bool, error) {
 		if match.pathChecker == nil {
 			continue
 		}
-		if match.pathChecker.CheckPath(u.EscapedPath()) {
+		if match.pathChecker.CheckPath(CleanPath(u)) {
 			return true, nil
 		}
 	}
@@ -365,5 +365,8 @@ func MustNewURLMatcherWithRules(rules []string) *URLMatcher {
 }
 
 func CleanHostname(s string) (string, error) {
-	return idna.Lookup.ToASCII(strings.ToLower(strings.TrimSpace(s)))
+	s = strings.TrimSpace(s)
+	s = strings.ToLower(s)
+	s = strings.TrimRight(s, ".")
+	return idna.Lookup.ToASCII(s)
 }

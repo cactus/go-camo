@@ -11,6 +11,9 @@
 - chunk responses when transfer-encoding=chunked
 - improve handling of range requests with regard to max-size limits
 
+# v2.7.7 2026-10-12
+- resolve some issues with filter rule path matching ([GHSA-mrqh-r4rw-vqwv](https://github.com/cactus/go-camo/security/advisories/GHSA-mrqh-r4rw-vqwv))
+
 # v2.7.6 2026-08-27
 - add additional networks to default SSRF filters
 
