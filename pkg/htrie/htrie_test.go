@@ -24,6 +24,7 @@ func TestHTrieCheckURL(t *testing.T) {
 		"||foo.example.net||/",
 		"||bar.example.net|i|*/test.png",
 		"||bar.example.net|i|*/test.png.extra",
+		"||baz.example.net|i|/images/private/secret.png",
 		"||bücher.example.net||",
 	}
 
@@ -37,6 +38,11 @@ func TestHTrieCheckURL(t *testing.T) {
 		"http://bar.example.net/foo/test.png.extra",
 		"http://bücher.example.net/",
 		"http://xn--bcher-kva.example.net/",
+		"http://baz.example.net/images/private/secret.png",
+		"http://baz.example.net/images/private//secret.png",
+		"http://baz.example.net/images/private%2Fsecret.png",
+		"http://baz.example.net/images/private/./secret.png",
+		"http://baz.example.net/images/private/secret.png?",
 	}
 
 	testNoMatch := []string{
@@ -46,6 +52,7 @@ func TestHTrieCheckURL(t *testing.T) {
 		"http://bar.example.org/foo/testx.png",
 		"http://bar.example.net/foo/test.png.ex",
 		"http://bücher.example.com/",
+		"http://baz.example.net/images/private/../public/public.png",
 	}
 
 	dt := NewURLMatcher()
@@ -83,6 +90,7 @@ func TestHTrieCheckHostname(t *testing.T) {
 		"|s|localhost||",
 		"|s|localdomain||",
 		"||bücher.example.net||",
+		"||bar.example.com||",
 	}
 
 	testMatch := []string{
@@ -93,6 +101,7 @@ func TestHTrieCheckHostname(t *testing.T) {
 		"http://foo.localdomain/foo/test.png",
 		"http://bar.foo.localdomain/foo/test.png",
 		"http://bücher.example.net/",
+		"http://bar.example.com./",
 		"http://xn--bcher-kva.example.net/",
 	}
 
@@ -127,6 +136,22 @@ func TestHTrieCheckHostname(t *testing.T) {
 		assert.Nil(t, err)
 		assert.False(t, result, fmt.Sprintf("should not have matched: %s", urlPathUnescape(u)))
 	}
+}
+
+func TestHTrieCheckBadRules(t *testing.T) {
+	t.Parallel()
+
+	f := func(rule string, expectedErr any) {
+		t.Helper()
+
+		dt := NewURLMatcher()
+		err := dt.AddRule(rule)
+		assert.Error(t, err, expectedErr)
+	}
+
+	f("|s|||", "no domain specified")
+	f("|s|*.||", "empty component")
+	f("|s|.||", "no domain specified")
 }
 
 func BenchmarkHTrieCreate(b *testing.B) {

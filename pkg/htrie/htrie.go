@@ -68,10 +68,6 @@ func uniformLower(s, cutset string) string {
 	return s
 }
 
-func CleanHostname(s string) (string, error) {
-	return idna.Lookup.ToASCII(strings.ToLower(strings.TrimSpace(s)))
-}
-
 func (dt *URLMatcher) getOrNewSubTree(s string) *URLMatcher {
 	subdt, ok := dt.subtrees[s]
 	if !ok {
@@ -317,7 +313,7 @@ func (dt *URLMatcher) CheckURL(u *url.URL) (bool, error) {
 		if match.pathChecker == nil {
 			continue
 		}
-		if match.pathChecker.CheckPath(u.EscapedPath()) {
+		if match.pathChecker.CheckPath(CleanPath(u)) {
 			return true, nil
 		}
 	}
@@ -381,4 +377,11 @@ func MustNewURLMatcherWithRules(rules []string) *URLMatcher {
 		}
 	}
 	return dt
+}
+
+func CleanHostname(s string) (string, error) {
+	s = strings.TrimSpace(s)
+	s = strings.ToLower(s)
+	s = strings.TrimRight(s, ".")
+	return idna.Lookup.ToASCII(s)
 }
