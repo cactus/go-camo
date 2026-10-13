@@ -420,6 +420,7 @@ func Test404URLWithoutHTTPHost(t *testing.T) {
 }
 
 func Test404ImageLargerThan5MB(t *testing.T) {
+	t.Skip("upstream server currently seems broken")
 	t.Parallel()
 	testURL := "https://apod.nasa.gov/apod/image/0505/larryslookout_spirit_big.jpg"
 	_, err := makeTestReq(testURL, 404, camoConfig)
