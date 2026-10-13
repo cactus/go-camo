@@ -131,7 +131,7 @@ func Error(t TestingT, got error, want any, msg ...string) {
 			t.Fatalf("unexpected error: %s;%s", got, formatMsg(msg...))
 		}
 	case string:
-		if !strings.Contains(got.Error(), w) {
+		if got == nil || !strings.Contains(got.Error(), w) {
 			t.Fatalf("got: %q; want: %q;%s", got, want, formatMsg(msg...))
 		}
 	case error:

@@ -49,9 +49,9 @@ func writeTime(sb intSliceWriter, t *time.Time) {
 
 func writeTimeTAI64N(sb intSliceWriter, t *time.Time) {
 	tu := t.UTC()
-	tux := tu.Unix()
-	offset := tai64.GetOffsetUnix(tux)
+	tuSec := tu.Unix()
+	offset := tai64.GetOffsetUnix(tuSec)
 	sb.WriteString("@4")
-	sb.AppendIntWidthHex(tux+offset, 15)
+	sb.AppendIntWidthHex(tuSec+offset, 15)
 	sb.AppendIntWidthHex(int64(tu.Nanosecond()), 8)
 }

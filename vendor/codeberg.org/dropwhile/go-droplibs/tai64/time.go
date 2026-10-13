@@ -61,23 +61,23 @@ func getInvOffsetTai64(ttime int64) int64 {
 // returns a string TAI64N timestamps
 func FormatNano(t time.Time) string {
 	t = t.UTC()
-	u := t.Unix()
+	uSec := t.Unix()
 
-	if u < 0 {
-		return fmt.Sprintf("@%016x%08x", epochTai64+u, t.Nanosecond())
+	if uSec < 0 {
+		return fmt.Sprintf("@%016x%08x", epochTai64+uSec, t.Nanosecond())
 	}
-	return fmt.Sprintf("@4%015x%08x", u+GetOffsetUnix(u), t.Nanosecond())
+	return fmt.Sprintf("@4%015x%08x", uSec+GetOffsetUnix(uSec), t.Nanosecond())
 }
 
 // Format formats a time.Time as a TAI64 timestamp
 // returns a string TAI64 timestamps
 func Format(t time.Time) string {
-	u := t.UTC().Unix()
+	uSec := t.UTC().Unix()
 
-	if u < 0 {
-		return fmt.Sprintf("@%016x", epochTai64+u)
+	if uSec < 0 {
+		return fmt.Sprintf("@%016x", epochTai64+uSec)
 	}
-	return fmt.Sprintf("@4%015x", u+GetOffsetUnix(u))
+	return fmt.Sprintf("@4%015x", uSec+GetOffsetUnix(uSec))
 }
 
 // Parse parses a TAI64 or TAI64N timestamp
