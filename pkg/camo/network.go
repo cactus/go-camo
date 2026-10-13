@@ -9,9 +9,7 @@ import (
 	"io"
 	"net"
 	"net/http"
-	"os"
 	"strconv"
-	"syscall"
 	"unicode"
 )
 
@@ -62,29 +60,6 @@ func newSizedFlushingChunkWriter(dst WriteFlusher, flushSize int) *sizedFlushing
 		flushSize: flushSize,
 	}
 	return scw
-}
-
-func isBrokenPipe(err error) bool {
-	if opErr, ok := err.(*net.OpError); ok {
-		// >= go1.6
-		if syscallErr, ok := opErr.Err.(*os.SyscallError); ok {
-			switch syscallErr.Err {
-			case syscall.EPIPE, syscall.ECONNRESET:
-				return true
-			default:
-				return false
-			}
-		}
-
-		// older go
-		switch opErr.Err {
-		case syscall.EPIPE, syscall.ECONNRESET:
-			return true
-		default:
-			return false
-		}
-	}
-	return false
 }
 
 func mustParseNetmask(s string) *net.IPNet {

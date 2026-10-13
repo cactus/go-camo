@@ -423,7 +423,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		}
 
 		// only log broken pipe errors at debug level
-		if isBrokenPipe(err) {
+		if errors.Is(err, syscall.ECONNRESET) || errors.Is(err, syscall.EPIPE) {
 			if mlog.HasDebug() {
 				mlog.Debugx("error writing response", mlog.A("err", err), mlog.A("req", req))
 			}

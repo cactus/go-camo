@@ -7,6 +7,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"expvar"
 	"fmt"
 	"net"
@@ -423,7 +424,7 @@ func (cli *CLI) Run() {
 	if tlsSrv != nil {
 		mlog.Printf("Starting HTTP/TLS server on: tcp:%s", cli.BindAddressSSL)
 		go func() {
-			if err := tlsSrv.ListenAndServeTLS(cli.SSLCert, cli.SSLKey); err != http.ErrServerClosed {
+			if err := tlsSrv.ListenAndServeTLS(cli.SSLCert, cli.SSLKey); !errors.Is(err, http.ErrServerClosed) {
 				mlog.Fatal(err)
 			}
 		}()
@@ -432,7 +433,7 @@ func (cli *CLI) Run() {
 	if quicSrv != nil {
 		mlog.Printf("Starting HTTP3/QUIC server on: udp:%s", cli.BindAddressSSL)
 		go func() {
-			if err := quicSrv.ListenAndServeTLS(cli.SSLCert, cli.SSLKey); err != http.ErrServerClosed {
+			if err := quicSrv.ListenAndServeTLS(cli.SSLCert, cli.SSLKey); !errors.Is(err, http.ErrServerClosed) {
 				mlog.Fatal(err)
 			}
 		}()
