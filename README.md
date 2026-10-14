@@ -4,7 +4,7 @@
 [![Container Image Size][container-size]][container-image]
 ![BuildStatus][build-status-badge]
 [![License][license-image]][license-file]
-[![mirror:codeberg][mirror-image]](mirror-link)
+[![mirror:codeberg][mirror-image]][mirror-link]
 
 ## About
 
