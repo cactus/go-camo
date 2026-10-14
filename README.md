@@ -496,6 +496,7 @@ Released under the [MIT license](https://www.opensource.org/licenses/mit-license
 [license-image]: .github/img-readme-license.svg
 [logo-img]: .github/go-camo.png
 [mirror-image]: https://img.shields.io/badge/codeberg-1890ff?label=mirror
+[mirror-link]: https://codeberg.org/dropwhile/go-camo
 [mise]: https://mise.jdx.dev
 [pypi-fork]: https://github.com/pypi/camo
 [rel-image]: https://img.shields.io/github/release/cactus/go-camo.svg
