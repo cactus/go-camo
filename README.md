@@ -6,6 +6,30 @@
 [![License][license-image]][license-file]
 [![mirror:codeberg][mirror-image]][mirror-link]
 
+<!-- omit in toc -->
+## Table of Contents
+
+- [About](#about)
+- [How it works](#how-it-works)
+- [Differences from Camo](#differences-from-camo)
+- [Installing pre-built binaries](#installing-pre-built-binaries)
+- [Building](#building)
+- [Running](#running)
+- [Running on Heroku](#running-on-heroku)
+- [Securing an installation](#securing-an-installation)
+- [Configuring](#configuring)
+  - [Environment Vars](#environment-vars)
+  - [Command line flags](#command-line-flags)
+- [Upstream Http Proxying](#upstream-http-proxying)
+- [Monitoring](#monitoring)
+  - [Metrics](#metrics)
+- [Additional tools](#additional-tools)
+  - [url-tool](#url-tool)
+- [Containers](#containers)
+- [Changelog](#changelog)
+- [Known Users and/or Recommendations](#known-users-andor-recommendations)
+- [License](#license)
+
 ## About
 
 !["silly logo"][logo-img]
