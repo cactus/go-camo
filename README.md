@@ -486,7 +486,7 @@ There are containers built automatically from version tags, pushed to both [dock
 
 These containers are untested and provided only for those
 with specific containerization requirements.\
-When in doubt, prefer the statically compiled [binary releases](binary-releases), unless you specifically need a container.
+When in doubt, prefer the statically compiled [binary releases][releases], unless you specifically need a container.
 
 ## Changelog
 
@@ -501,6 +501,7 @@ See [CHANGELOG](CHANGELOG.md).
 ## License
 
 Released under the [MIT license](https://www.opensource.org/licenses/mit-license.php). See [LICENSE](#LICENSE.md) file for details.
+
 
 [build-status-badge]: https://github.com/cactus/go-camo/workflows/unit-tests/badge.svg
 [container-image]: https://hub.docker.com/r/cactus4docker/go-camo
