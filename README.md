@@ -1,0 +1,508 @@
+# go-camo
+
+[![Current Release][rel-image]][releases]
+[![Container Image Size][container-size]][container-image]
+![BuildStatus][build-status-badge]
+[![License][license-image]][license-file]
+[![mirror:codeberg][mirror-image]](mirror-link)
+
+## About
+
+!["silly logo"][logo-img]
+
+A [camo](https://github.com/atmos/camo) server is a special type of image proxy that proxies non-secure images over SSL/TLS, in order to prevent mixed content warnings on secure pages. The server works in conjunction with back-end code that rewrites image URLs and signs them with an [HMAC][hmac].
+
+go-camo is an implementation of such a server.
+
+## How it works
+
+The general steps are as follows:
+
+*   A client requests a page from the web app.
+*   The original URL in the content is parsed.
+*   An HMAC signature of the URL is generated.
+*   The URL and hmac are encoded.
+*   The encoded URL and hmac are placed into the expected format,
+    creating the signed URL.
+*   The signed URL replaces the original image URL.
+*   The web app returns the content to the client.
+*   The client requests the signed URL from Go-Camo.
+*   Go-Camo validates the HMAC, decodes the URL,
+    then requests the content from the origin server and streams it to the client.
+
+```text
+  +----------+           request            +-------------+
+  |          |----------------------------->|             |
+  |          |                              |             |
+  |          |                              |   web-app   |
+  |          | img src=https://go-camo/url  |             |
+  |          |<-----------------------------|             |
+  |          |                              +-------------+
+  |  client  |
+  |          |     https://go-camo/url      +-------------+ http://some/img
+  |          |----------------------------->|             |--------------->
+  |          |                              |             |
+  |          |                              |   go-camo   |
+  |          |           img data           |             |    img data
+  |          |<-----------------------------|             |<---------------
+  |          |                              +-------------+
+  +----------+
+```
+
+Go-Camo supports both hex and base64 encoded urls at the same time.
+
+| encoding | tradeoffs                                 |
+| -------- | ----------------------------------------- |
+| hex      | longer, case insensitive, slightly faster |
+| base64   | shorter, case sensitive, slightly slower  |
+
+Benchmark results with go1.12.7:
+
+```text
+BenchmarkHexEncoder-4                1000000          1364 ns/op
+BenchmarkB64Encoder-4                1000000          1447 ns/op
+BenchmarkHexDecoder-4                1000000          1312 ns/op
+BenchmarkB64Decoder-4                1000000          1379 ns/op
+```
+
+For examples of url generation, see the [examples](examples/) directory.
+
+While Go-Camo will support proxying HTTPS images as well, for performance reasons you may choose to filter HTTPS requests out from proxying, and let the client simply fetch those as they are.\
+The linked code examples do this.
+
+Note that it is recommended to front Go-Camo with a CDN when possible.
+
+## Differences from Camo
+
+*   Go-Camo supports 'Path Format' url format only.
+    Camo’s "Query String Format" is not supported.
+*   Go-Camo supports some optional "allow/deny" origin filters.
+*   Go-Camo supports client http keep-alives.
+*   Go-Camo provides native SSL support.
+*   Go-Camo provides native HTTP/2 support
+*   Go-Camo supports using more than one os thread (via GOMAXPROCS) without the need of multiple instances or additional proxying.
+*   Go-Camo builds to a static binary.
+    This makes deploying to large numbers of servers a snap.
+*   Go-Camo supports both Hex and Base64 urls.
+    Base64 urls are smaller, but case sensitive.
+*   Go-Camo supports HTTP HEAD requests.
+*   Go-Camo allows custom default headers to be added --
+    useful for things like adding [HSTS][hsts] headers.
+
+## Installing pre-built binaries
+
+Download the tarball appropriate for your OS/ARCH from [binary releases][releases].\
+Extract, and copy files to desired locations.
+
+## Building
+
+Required tools:
+
+*   posix compatible shell (sh)
+*   git
+*   go (most recent version recommended)
+*   [just][just] (command runner)
+*   [scdoc][scdoc] (for building man pages only)
+
+Optional tools:
+
+*   [mise][mise] (tool version manager)
+
+Building:
+
+```shell
+# first clone the repo
+$ git clone git@github.com:cactus/go-camo
+$ cd go-camo
+
+# build all binaries (into ./bin/), strip debug symbols
+$ just build
+
+# build man pages (into ./man/)
+$ just manpages
+
+# example of building without stripping debug symbols
+$ env BUILD_LDFLAGS="" just build
+```
+
+## Running
+
+```shell
+$ go-camo -k "somekey"
+# run the gc less frequently (a bit better performance, uses more memory)
+$ env GOGC=300 go-camo -k "somekey"
+```
+
+Go-Camo does not daemonize on its own. For production usage, it is recommended to launch in a process supervisor, and drop privileges as appropriate.
+
+Examples of supervisors include:
+[daemontools][daemontools], [runit][runit], [upstart][upstart], [launchd][launchd], [systemd][systemd], and many more.
+
+For the reasoning behind lack of daemonization, see [daemontools/why][daemontools-why].\
+In addition, the code is much simpler because of it.
+
+## Running on Heroku
+
+In order to use this on Heroku with the provided Procfile, you need to:
+
+*   Create an app specifying using [heroku-buildpack-go][heroku-buildpack-go]
+*   Set `GOCAMO_HMAC` to the key you are using
+
+## Securing an installation
+
+go-camo will generally do what you tell it to with regard to fetching signed urls.\
+There is some limited support for trying to prevent [dns rebinding][dns-rebinding] attacks.
+
+go-camo will attempt to reject any address matching an rfc1918 network block, or a private scope ipv6 address, be it in the url or via resulting hostname resolution.
+
+Please note, however, that this does not provide protection for a network that uses public address space (ipv4 or ipv6), or some of the [more exotic][exotic-ipv6] ipv6 addresses.
+
+The list of networks rejected includes...
+
+| Network           | Description                      |
+| ----------------- | -------------------------------- |
+| `127.0.0.0/8`     | loopback                         |
+| `169.254.0.0/16`  | ipv4 link local                  |
+| `10.0.0.0/8`      | rfc1918                          |
+| `172.16.0.0/12`   | rfc1918                          |
+| `192.168.0.0/16`  | rfc1918                          |
+| `100.64.0.0/10`   | rfc6598 cg-nat                   |
+| `192.0.2.0/24`    | rfc5737 (test-net-1)             |
+| `198.51.100.0/24` | rfc5737 (test-net-2)             |
+| `203.0.113.0/24`  | rfc5737 (test-net-3)             |
+| `192.88.99.0/24`  | rfc7526 (reserved 6to4)          |
+| `198.18.0.0/15`   | rfc2544 (benchmarking addresses) |
+| `::1/128`         | ipv6 loopback                    |
+| `fe80::/10`       | ipv6 link local                  |
+| `fec0::/10`       | deprecated ipv6 site-local       |
+| `fc00::/7`        | ipv6 ULA                         |
+| `::ffff:0:0/96`   | IPv4-mapped IPv6 address         |
+
+More generally, it is recommended to either:
+
+*   Run go-camo on an isolated instance (physical, vlans, firewall rules, etc).
+
+*   Run a local resolver for go-camo that returns NXDOMAIN responses for addresses in deny-listed ranges (e.g. unbound’s `private-address` functionality).\
+    This is also useful to help prevent dns rebinding in general.
+
+*   Use something like [smokescreen][smokescreen] as an upstream proxy to filter outgoing requests (note caveats in [Upstream Http Proxying](#upstream-http-proxying)).
+
+## Configuring
+
+### Environment Vars
+
+*   `GOCAMO_HMAC` - HMAC key to use.
+
+*   `HTTPS_PROXY` - Configure an outbound proxy for HTTPS requests.\
+    Either a complete URL or a `host[:port]`, in which case an HTTP scheme
+    is assumed.\
+    See [Upstream Http Proxying](#upstream-http-proxying) notes for more information.
+
+*   `HTTP_PROXY` - Configure an outbound proxy for HTTP requests.\
+    Either a complete URL or a `host[:port]`, in which case an HTTP scheme
+    is assumed.\
+    See [Upstream Http Proxying](#upstream-http-proxying) notes for more information.
+
+Additional environment vars are show as part of the `--help` output.
+
+Regarding environmen vars vs OPTIONS precedence: OPTIONS, if provided,
+override those defined in environment variables.\
+For exmaple, if the HMAC key is provided on the command line, it will override
+(if present), an HMAC key set in the environment var.
+
+### Command line flags
+
+```text
+$ go-camo -h
+Usage: go-camo [flags]
+
+An image proxy that proxies non-secure images over SSL/TLS
+
+Flags:
+  -h, --help       Show context-sensitive help.
+  -v, --verbose    Show verbose (debug) log level output ($GOCAMO_VERBOSE)
+  -V, --version    Print version and exit; specify twice to show license
+                   information.
+
+Flags for general behavior
+  -k, --key=STRING      HMAC key ($GOCAMO_HMAC)
+      --automaxprocs    Set GOMAXPROCS automatically to match Linux container
+                        CPU quota/limits ($GOCAMO_AUTOMAXPROCS).
+
+Flags for listeners
+  --socket-listen=PATH       Path for unix domain socket to bind to for HTTP
+                             ($GOCAMO_SOCKET_LISTEN)
+  --listen="0.0.0.0:8080"    Address:Port to bind to for HTTP ($GOCAMO_LISTEN)
+  --ssl-listen=HOST_PORT     Address:Port to bind to for HTTPS/SSL/TLS
+                             ($GOCAMO_SSL_LISTEN)
+  --quic                     Enable http3/quic. Binds to the same port number as
+                             ssl-listen but udp+quic ($GOCAMO_QUIC).
+  --ssl-key=PATH             ssl private key (key.pem) path ($GOCAMO_SSL_KEY)
+  --ssl-cert=PATH            ssl cert (cert.pem) path ($GOCAMO_SSL_CERT)
+
+Flags for proxy behavior
+  --max-size=INT             Max allowed response size, in KB ($GOCAMO_MAX_SIZE)
+  --max-size-redirect=URL    redirect to URL when max-size is exceeded
+                             ($GOCAMO_MAX_SIZE_REDIRECT)
+  --max-redirects=3          Maximum number of redirects to follow
+                             ($GOCAMO_MAX_REDIRECTS)
+  --xfwd4                    Enable x-forwarded-for passthrough/generation
+                             ($GOCAMO_XFWD_FOR)
+  --no-fk                    Disable frontend http keep-alive support (frontend)
+                             ($GOCAMO_NO_FK)
+  --no-bk                    Disable backend http keep-alive support (backend)
+                             ($GOCAMO_NO_BK)
+  --allow-content-video      Additionally allow 'video/*' content
+                             ($GOCAMO_ALLOW_CONTENT_VIDEO)
+  --allow-content-audio      Additionally allow 'audio/*' content
+                             ($GOCAMO_ALLOW_CONTENT_AUDIO)
+  --allow-credential-urls    Allow urls to contain user/pass credentials
+                             ($GOCAMO_ALLOW_CREDENTIAL_URLS)
+  --timeout=4s               Upstream request timeout (backend)
+                             ($GOCAMO_TIMEOUT)
+  --idletimeout=30s          Maximum amount of time to wait for the next
+                             request when keep-alive is enabled (frontend)
+                             ($GOCAMO_IDLETIMEOUT)
+  --readtimeout=30s          Maximum duration for reading the entire request,
+                             including the body (frontend) ($GOCAMO_READTIMEOUT)
+  --user-agent="go-camo"     user-agent for outgoing requests
+                             ($GOCAMO_USER_AGENT)
+  --filter-ruleset=PATH      Text file containing filtering rules (one per line)
+                             ($GOCAMO_FILTER_RULESET)
+
+Flags for responses
+  -H, --header=HEADER,...        Add additional header to each response.
+                                 This option can be used multiple times to add
+                                 multiple headers ($GOCAMO_HEADER).
+      --server-name="go-camo"    Value to use for the HTTP server field
+                                 ($GOCAMO_SERVER_NAME)
+      --expose-server-version    Include the server version in the HTTP server
+                                 response header ($GOCAMO_EXPOSE_SERVER_VERSION)
+
+Flags for logging and metrics
+  --metrics          Enable Prometheus compatible metrics endpoint
+                     ($GOCAMO_METRICS)
+  --no-debug-vars    Disable the /debug/vars/ metrics endpoint. This option
+                     has no effects when the metrics are not enabled
+                     ($GOCAMO_NO_DEBUG_VARS).
+  --no-log-ts        Do not add a timestamp to logging ($GOCAMO_NO_LOG_TS)
+  --log-json         Log in JSON format ($GOCAMO_LOG_JSON)
+  --prof             Enable go http profiler endpoint ($GOCAMO_PROF)
+```
+
+A few notes about specific flags:
+
+*   `--filter-ruleset`
+
+    If a `filter-ruleset` file is defined, that file is read and each line is converted into a filter rule.\
+    See [`go-camo-filtering(5)`](man/go-camo-filtering.5.scd) for more information regarding the format for the filter file itself.
+
+    Regarding evaluation: The ruleset is NOT evaluated in-order. The rules process in two phases: "allow rule phase" where the allow rules are evaluated, and the "deny rule phase" where the deny rules are evaluated. First match in each phase "wins" that phase.
+
+    In the "allow phase", an origin request must match at least one allow rule. The first rule to match "wins" and the request moves on to the next phase. If there are no allow rules supplied, this phase is skipped.
+
+    In the deny rule phase, any rule that matches results in a rejection.
+    The first match "wins" and the request is failed.
+    If there are no deny rules supplied, this phase is skipped.
+
+    > [!NOTE]
+    > It is always preferable to do filtering at the point of URL generation and signing. The
+    > `filter-ruleset` functionality (both allow and deny) is supplied predominantly as a fallback
+    > safety measure, for cases where you have previously generated a URL and you need a quick temporary
+    > fix, or where rolling keys takes a while and/or is difficult.
+
+*   `--max-size`
+
+    The `--max-size` value is defined in KB.\
+    Set to `0` to disable size restriction.\
+    The default is `0`.
+
+*   `--metrics`
+
+    If the `metrics` flag is provided, then the service will expose a Prometheus `/metrics` endpoint and a `/debug/vars` endpoint from the go `expvar` package.
+
+*   `--no-debug-vars`
+
+    If the `no-debug-vars` flag is provided along with the `metrics` flag, the
+    `/debug/vars` endpoint is removed.
+
+*   `-k`, `--key`
+
+    If the HMAC key is provided on the command line, it will override (if present), an HMAC key set in the environment var.
+
+*   `-H, --header`
+
+    Additional default headers (sent on every response) can also be set.
+    This argument may be specified many times.
+
+    The list of default headers sent are:
+
+    ```text
+    X-Content-Type-Options: nosniff
+    X-XSS-Protection: 1; mode=block
+    Content-Security-Policy: default-src 'none'; img-src data:; style-src 'unsafe-inline'
+    ```
+
+    As an example, if you wanted to return a `Strict-Transport-Security` header
+    by default, you could add this to the command line:
+
+    ```text
+    -H "Strict-Transport-Security: max-age=16070400"
+    ```
+
+*   `--allow-content-video` and `--allow-content-audio`
+
+    By default only `image/*` content-types are accepted and proxied, all other
+    content-types are rejected.
+
+    Add the `--allow-content-video` argument to addtionally allow `video/*` content types.
+
+    Add the `--allow-content-audio` argument to addtionally allow `audio/*` content types.
+
+## Upstream Http Proxying
+
+Care should be taken when using upstream http proxy support. go-camo has
+several protections against SSRF vectors, for example:
+
+*   Checking http redirect chains against rfc1918 addresses.
+*   Limits to maximum number of redirects.
+*   Protection against self-redirect loops.
+*   Various other protections.
+
+The use of an upstream http proxy may subvert several of these protections, as
+go-camo will be required to offload certain operations to the upstream http proxy.
+
+Some examples (list is not exhaustive):
+
+*   The upstream http proxy itself may be responsible for following redirects (depending on configuration). As such, go-camo may not have visibility into the redirect chain. This could result in resource exhaustion (redirect loops), or SSRF (redirects to internal URLs).
+
+*   The upstream http proxy itself will be responsible for connecting to external servers, and would need to be configured for any request size limits. While go-camo would still limit request sizes based on its own configuration, the upstream http proxy may still fetch the content before handoff.
+
+*   There may be other chances for "configuration confusion" -- where two services are configured together in such a way, that introduces issues not possible when operating standalone.
+
+Proper configuration of the upstream http proxy may mitigate these issues.\
+Test your configurations and monitor carefully!
+
+## Monitoring
+
+### Metrics
+
+When the `--metrics` flag is used, the service will expose a Prometheus-compatible `/metrics` endpoint. This can be used by monitoring systems to gather data.
+
+The endpoint includes all of the default `go_` and `process_`.\
+In addition, a number of custom metrics are provided:
+
+| Name                                     | Type      | Help                                                             |
+| ---------------------------------------- | --------- | ---------------------------------------------------------------- |
+| camo_response_duration_seconds           | Histogram | A histogram of latencies for proxy responses.                    |
+| camo_response_size_bytes                 | Histogram | A histogram of sizes for proxy responses.                        |
+| camo_proxy_content_length_exceeded_total | Counter   | The number of requests where the content length was exceeded.    |
+| camo_proxy_reponses_failed_total         | Counter   | The number of responses that failed to send to the client.       |
+| camo_proxy_reponses_truncated_total      | Counter   | The number of responses that were too large to send.             |
+| camo_responses_total                     | Counter   | Total HTTP requests processed by the go-camo, excluding scrapes. |
+
+It also includes a `camo_build_info` metric that exposes the version.
+In addition, you can expose some extra data to metrics via env vars, if desired:
+
+*   Revision via `APP_INFO_REVISION`
+*   Branch via `APP_INFO_BRANCH`
+*   BuildDate via `APP_INFO_BUILD_DATE`
+*   You can also override the version by setting `APP_INFO_VERSION`
+
+A `/debug/vars` endpoint is also included with `--metrics` by default.\
+This endpoint returns memstats and some additional data. This endpoint can be
+disabled by additionally supplying the `--no-debug-vars` flag.
+
+## Additional tools
+
+Go-Camo includes a couple of additional tools.
+
+### url-tool
+
+The `url-tool` utility provides a simple way to generate signed URLs from the command line.
+
+```text
+$ url-tool -h
+Usage:
+  url-tool [OPTIONS] <decode | encode>
+
+Application Options:
+  -k, --key=    HMAC key
+  -p, --prefix= Optional URL prefix used by encode output
+
+Help Options:
+  -h, --help    Show this help message
+
+Available commands:
+  decode  Decode a URL and print result
+  encode  Encode a URL and print result
+```
+
+Example usage:
+
+```text
+# hex
+$ url-tool -k "test" encode -p "https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
+https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67
+
+$ url-tool -k "test" decode "https://img.example.org/0f6def1cb147b0e84f39cbddc5ea10c80253a6f3/687474703a2f2f676f6c616e672e6f72672f646f632f676f706865722f66726f6e74706167652e706e67"
+http://golang.org/doc/gopher/frontpage.png
+
+# base64
+$ url-tool -k "test" encode -b base64 -p "https://img.example.org" "http://golang.org/doc/gopher/frontpage.png"
+https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n
+
+$ url-tool -k "test" decode "https://img.example.org/D23vHLFHsOhPOcvdxeoQyAJTpvM/aHR0cDovL2dvbGFuZy5vcmcvZG9jL2dvcGhlci9mcm9udHBhZ2UucG5n"
+http://golang.org/doc/gopher/frontpage.png
+```
+
+## Containers
+
+There are containers built automatically from version tags, pushed to both [docker hub][container-image] and [github packages][github-pkgs].
+
+These containers are untested and provided only for those
+with specific containerization requirements.\
+When in doubt, prefer the statically compiled [binary releases](binary-releases), unless you specifically need a container.
+
+## Changelog
+
+See [CHANGELOG](#CHANGELOG.md).
+
+## Known Users and/or Recommendations
+
+* [Gitlab][gitlab-recommend]
+* [Zulip][zupli-recommend]
+* [Pypi][pypi-fork]
+
+## License
+
+Released under the [MIT license](https://www.opensource.org/licenses/mit-license.php). See [LICENSE](#LICENSE.md) file for details.
+
+[build-status-badge]: https://github.com/cactus/go-camo/workflows/unit-tests/badge.svg
+[container-image]: https://hub.docker.com/r/cactus4docker/go-camo
+[container-size]: https://img.shields.io/docker/image-size/cactus4docker/go-camo?label=container%20size
+[daemontools-why]: https://cr.yp.to/daemontools/faq/create.html#why
+[daemontools]: https://cr.yp.to/daemontools.html
+[dns-rebinding]: https://en.wikipedia.org/wiki/DNS_rebinding
+[exotic-ipv6]: https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
+[github-pkgs]: https://github.com/cactus/go-camo/pkgs/container/go-camo
+[gitlab-recommend]: https://docs.gitlab.com/security/asset_proxy/#installing-camo-server
+[heroku-buildpack-go]: https://github.com/kr/heroku-buildpack-go
+[hmac]: https://en.wikipedia.org/wiki/HMAC
+[hsts]: https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
+[just]: https://github.com/casey/just
+[launchd]: https://en.wikipedia.org/wiki/Launchd
+[license-file]: https://github.com/cactus/go-camo/blob/master/LICENSE.md
+[license-image]: .github/img-readme-license.svg
+[logo-img]: .github/go-camo.png
+[mirror-image]: https://img.shields.io/badge/codeberg-1890ff?label=mirror
+[mise]: https://mise.jdx.dev
+[pypi-fork]: https://github.com/pypi/camo
+[rel-image]: https://img.shields.io/github/release/cactus/go-camo.svg
+[releases]: http://github.com/cactus/go-camo/releases
+[runit]: https://en.wikipedia.org/wiki/Runit
+[scdoc]: https://git.sr.ht/~sircmpwn/scdoc/
+[smokescreen]: https://github.com/stripe/smokescreen
+[systemd]: https://www.freedesktop.org/wiki/Software/systemd/
+[upstart]: https://en.wikipedia.org/wiki/Upstart_(software)
+[zupli-recommend]: https://zulip.readthedocs.io/en/stable/production/securing-your-zulip-server.html#:~:text=Zulip%20supports%20using%20the%20go%2Dcamo%20image%20proxy%20to%20proxy%20content%20like%20inline%20image%20previews%2C%20that%20can%20be%20inserted%20into%20the%20Zulip%20message%20feed%20by%20other%20users.%20This%20ensures%20that%20clients%20do%20not%20make%20requests%20to%20external%20servers%20to%20fetch%20images%2C%20improving%20privacy
