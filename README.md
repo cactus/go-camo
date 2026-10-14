@@ -490,7 +490,7 @@ When in doubt, prefer the statically compiled [binary releases](binary-releases)
 
 ## Changelog
 
-See [CHANGELOG](#CHANGELOG.md).
+See [CHANGELOG](CHANGELOG.md).
 
 ## Known Users and/or Recommendations
 
