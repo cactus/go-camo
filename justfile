@@ -151,12 +151,6 @@ check: vet staticcheck revive errcheck errortype nilness ineffassign govulncheck
 [group('checks')]
 check-optional: nilaway deadcode errorlint
 
-# run modernize
-[group('hygiene')]
-modernize:
-    just _banner ">> running modernize"
-    modernize -rangeint=false -test ./...
-
 # run 'go fix'
 [group('hygiene')]
 fix:

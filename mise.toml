@@ -8,7 +8,6 @@ go = "latest"
 
 # other tools
 "go:github.com/cortesi/modd/cmd/modd" = "latest"
-"go:golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize" = "latest"
 
 # generate tools
 #"go:github.com/reedom/convergen" = "latest"
