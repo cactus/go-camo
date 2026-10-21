@@ -1,61 +1,62 @@
 # HEAD
 
-# v3.0.0 - unreleased
+# v3.0 - unreleased
 
--   add more comprehensive support for cli flags to be set via env vars, with names prefixed with `GOCAMO_`. Use `--help` to see names.
--   upgrade go version to 1.27
--   vendor go dependencies
--   drop treeprint from dependency (reimplemented basic version locally)
--   handle github.com/prometheus/common/version registration directly, remove as top level mod dep
--   chunk responses when transfer-encoding=chunked
--   improve handling of range requests with regard to max-size limits
+-   Add more comprehensive support for cli flags to be set via env vars, with names prefixed with `GOCAMO_`. Use `--help` to see names.
+-   Upgrade go version to 1.27
+-   Vendor go dependencies
+-   Drop treeprint from dependency (reimplemented basic version locally)
+-   Handle github.com/prometheus/common/version registration directly, remove as top level mod dep
+-   Chunk responses when transfer-encoding=chunked
+-   Improve handling of range requests with regard to max-size limits
+-   Interfaces have been stable for years. Drop 3rd dot from versioning.
 
 # v2.7.7 2026-10-12
 
--   resolve some issues with filter rule path matching
+-   Resolve some issues with filter rule path matching
     ([GHSA-mrqh-r4rw-vqwv](https://github.com/cactus/go-camo/security/advisories/GHSA-mrqh-r4rw-vqwv))
 
 # v2.7.6 2026-08-27
 
--   add additional networks to default SSRF filters
+-   Add additional networks to default SSRF filters
 
 # v2.7.5 2026-07-08
 
--   bump dependencies
--   build binaries with go-1.26.5
+-   Bump dependencies
+-   Build binaries with go-1.26.5
 
 # v2.7.4 2026-04-25
 
--   bump dependencies
--   build binaries with go-1.26.2
+-   Bump dependencies
+-   Build binaries with go-1.26.2
 
 # v2.7.3 2026-02-15
 
--   bump dependencies
--   build binaries with go-1.26.0\
+-   Bump dependencies
+-   Build binaries with go-1.26.0\
     refs:
     *   https://tip.golang.org/doc/go1.26
     *   https://antonz.org/go-1-26/
 
 # v2.7.2 2025-12-08
 
--   bump dependencies
--   build binaries with go-1.25.5
+-   Bump dependencies
+-   Build binaries with go-1.25.5
 
 # v2.7.1 2025-10-08
 
--   bump dependencies
--   build binaries with go-1.25.2
+-   Bump dependencies
+-   Build binaries with go-1.25.2
 
 # v2.7.0 2025-10-01
 
--   fix: add image/svg+xml to acceptTypes. (#84)
--   add ability to set user-agent, distinct from server-name
+-   Fix: add image/svg+xml to acceptTypes. (#84)
+-   Add ability to set user-agent, distinct from server-name
 
 # v2.6.5 2025-08-16
 
--   rebuild binaries with go-1.25
--   remove gomaxprocs dependencies, as this functionality now natively handled by Go itself (as of go-1.25)
+-   Rebuild binaries with go-1.25
+-   Remove gomaxprocs dependencies, as this functionality now natively handled by Go itself (as of go-1.25)
 
 # v2.6.4 2025-08-09
 
