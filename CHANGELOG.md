@@ -1,6 +1,6 @@
 # HEAD
 
-# v3.0 - unreleased
+# v3.0 - 2026-10-22
 
 -   Add more comprehensive support for cli flags to be set via env vars, with names prefixed with `GOCAMO_`. Use `--help` to see names.
 -   Upgrade go version to 1.27
