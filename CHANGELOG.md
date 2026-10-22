@@ -11,26 +11,26 @@
 -   Improve handling of range requests with regard to max-size limits
 -   Interfaces have been stable for years. Drop 3rd dot from versioning.
 
-# v2.7.7 2026-10-12
+# v2.7.7 - 2026-10-12
 
 -   Resolve some issues with filter rule path matching
     ([GHSA-mrqh-r4rw-vqwv](https://github.com/cactus/go-camo/security/advisories/GHSA-mrqh-r4rw-vqwv))
 
-# v2.7.6 2026-08-27
+# v2.7.6 - 2026-08-27
 
 -   Add additional networks to default SSRF filters
 
-# v2.7.5 2026-07-08
+# v2.7.5 - 2026-07-08
 
 -   Bump dependencies
 -   Build binaries with go-1.26.5
 
-# v2.7.4 2026-04-25
+# v2.7.4 - 2026-04-25
 
 -   Bump dependencies
 -   Build binaries with go-1.26.2
 
-# v2.7.3 2026-02-15
+# v2.7.3 - 2026-02-15
 
 -   Bump dependencies
 -   Build binaries with go-1.26.0\
@@ -38,49 +38,49 @@
     *   https://tip.golang.org/doc/go1.26
     *   https://antonz.org/go-1-26/
 
-# v2.7.2 2025-12-08
+# v2.7.2 - 2025-12-08
 
 -   Bump dependencies
 -   Build binaries with go-1.25.5
 
-# v2.7.1 2025-10-08
+# v2.7.1 - 2025-10-08
 
 -   Bump dependencies
 -   Build binaries with go-1.25.2
 
-# v2.7.0 2025-10-01
+# v2.7.0 - 2025-10-01
 
 -   Fix: add image/svg+xml to acceptTypes. (#84)
 -   Add ability to set user-agent, distinct from server-name
 
-# v2.6.5 2025-08-16
+# v2.6.5 - 2025-08-16
 
 -   Rebuild binaries with go-1.25
 -   Remove gomaxprocs dependencies, as this functionality now natively handled by Go itself (as of go-1.25)
 
-# v2.6.4 2025-08-09
+# v2.6.4 - 2025-08-09
 
 -   Support for ECS quota detection with automaxprocs\
     ref: [\#83](https://github.com/cactus/go-camo/pull/83)
 
 -   Update depencencies
 
-# v2.6.3 2025-04-01
+# v2.6.3 - 2025-04-01
 
 -   Build with go-1.24.2
 -   Update depencencies
 
-# v2.6.2 2025-02-22
+# v2.6.2 - 2025-02-22
 
 -   Switch man-page generate to scdoc.
 -   Update dependencies
 -   Build with go-1.24
 
-# v2.6.1 2024-12-19
+# v2.6.1 - 2024-12-19
 
 -   Update dependencies
 
-# v2.6.0 2024-08-31
+# v2.6.0 - 2024-08-31
 
 -   Start building with Go-1.23.0
 
@@ -97,40 +97,40 @@
     > internally by the go http server. The new default mirrors this
     > previous old default.
 
-# v2.5.1 2024-07-02
+# v2.5.1 - 2024-07-02
 
 -   Rebuild release with Go-1.22.5
 
-# v2.5.0 2024-06-27
+# v2.5.0 - 2024-06-27
 
 -   Implement optional redirect when max-size is exceeded\
     ref: [\#80](https://github.com/cactus/go-camo/pull/80)
 
-# v2.4.13 2024-04-22
+# v2.4.13 - 2024-04-22
 
 -   Release tagged for arm64 docker building only.
 
-# v2.4.12 2024-04-20
+# v2.4.12 - 2024-04-20
 
 -   Update library dependencies.
 -   Fix docker and github packages publishing issue.
 
-# v2.4.11 2024-04-03
+# v2.4.11 - 2024-04-03
 
 -   Update library dependencies.
 -   Build with Go-1.22.2
 
-# v2.4.10 2024-03-17
+# v2.4.10 - 2024-03-17
 
 -   Update library dependencies.
 
-# v2.4.9 2024-02-16
+# v2.4.9 - 2024-02-16
 
 -   Minimum Go version now 1.21 due to quic-go dependency, due to better
     cryto/tls support for QUIC in Go-1.21.
 -   Update library dependencies.
 
-# v2.4.8 2023-12-19
+# v2.4.8 - 2023-12-19
 
 -   Add `--automaxprocs` flag to set GOMAXPROCS automatically to match
     Linux container CPU quota/limits.
