@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
-	"sync"
 
 	"golang.org/x/net/idna"
 )
@@ -29,34 +28,6 @@ type URLMatcher struct {
 	hasWildChild bool
 	canMatch     bool
 	hasRules     bool
-}
-
-var matchesPool = sync.Pool{
-	New: func() any {
-		// starting backing array size of 8
-		// that /seems/ like a pretty good initial value, without
-		// being too crazy, and has the nice property of being a powler of 2. ;)
-		matches := make([]*URLMatcher, 0, 8)
-		return &matches
-	},
-}
-
-func getURLMatcherSlice() *[]*URLMatcher {
-	return matchesPool.Get().(*[]*URLMatcher)
-}
-
-func putURLMatcherSlice(s *[]*URLMatcher) {
-	*s = (*s)[0:0]
-	matchesPool.Put(s)
-}
-
-func uniformLower(s, cutset string) string {
-	s = strings.TrimSpace(s)
-	if len(cutset) > 0 {
-		s = strings.Trim(s, cutset)
-	}
-	s = strings.ToLower(s)
-	return s
 }
 
 func (dt *URLMatcher) getOrNewSubTree(s string) *URLMatcher {
@@ -80,34 +51,6 @@ func (dt *URLMatcher) addPathRule(urlparts string) error {
 	return dt.pathChecker.AddRule(urlparts)
 }
 
-func (dt *URLMatcher) parseRule(rule string) ([]string, error) {
-	if strings.Count(rule, "|") > 4 {
-		rule = strings.TrimRight(rule, "|")
-	}
-	if strings.Count(rule, "|") != 4 {
-		return nil, fmt.Errorf("bad rule format: %s", rule)
-	}
-
-	ruleset := make([]strings.Builder, 4)
-	index := 0
-	// start after first `|`
-	for _, r := range rule[1:] {
-		if r == '|' {
-			index++
-			continue
-		}
-		_, err := ruleset[index].WriteRune(r) // #nosec G602 - false positive
-		if err != nil {
-			return nil, err
-		}
-	}
-	parts := make([]string, 4)
-	for i, sb := range ruleset {
-		parts[i] = strings.TrimSpace(sb.String())
-	}
-	return parts, nil
-}
-
 // AddRule adds a match rule to the URLMatcher node.
 func (dt *URLMatcher) AddRule(rule string) error {
 	// expected format: |s|example.com|i|/some/subdir/*
@@ -119,7 +62,7 @@ func (dt *URLMatcher) AddRule(rule string) error {
 		dt.subtrees = make(map[string]*URLMatcher)
 	}
 
-	ruleParts, err := dt.parseRule(rule)
+	ruleParts, err := parseRule(rule)
 	if err != nil {
 		return err
 	}
@@ -213,7 +156,7 @@ func (dt *URLMatcher) AddRule(rule string) error {
 }
 
 func (dt *URLMatcher) getMatches(s string) *[]*URLMatcher {
-	matches := *getURLMatcherSlice()
+	matches := getMatchesPoolElem()
 	// hostname should already be lowercase. avoid work by not doing it.
 	curnode := dt
 	slen := len(s)
@@ -255,22 +198,25 @@ func (dt *URLMatcher) getMatches(s string) *[]*URLMatcher {
 
 		// got a match, and it is a wild type, so add to match list
 		if curnode.isWild {
-			matches = append(matches, curnode)
+			*matches = append(*matches, curnode)
+			continue
 		}
 
 		// not at a domain terminus, and there is a wildcard label,
 		// so add child to match (if exists)
 		if i > 0 && curnode.hasWildChild {
 			if x, ok := curnode.subtrees["*"]; ok {
-				matches = append(matches, x)
+				*matches = append(*matches, x)
 			}
+			continue
 		}
+
 		// hit the end, and we can match at this level
 		if i == 0 && curnode.canMatch {
-			matches = append(matches, curnode)
+			*matches = append(*matches, curnode)
 		}
 	}
-	return &matches
+	return matches
 }
 
 // CheckURL checks a *url.URL against the URLMatcher.
@@ -285,11 +231,11 @@ func (dt *URLMatcher) CheckURL(u *url.URL) (bool, error) {
 		return false, fmt.Errorf("bad hostname: %w", err)
 	}
 
-	matches := *dt.getMatches(hostname)
-	defer putURLMatcherSlice(&matches)
+	matches := dt.getMatches(hostname)
+	defer putMatchesPoolElem(matches)
 
 	// check for base domain matches first, to avoid path checking if possible
-	for _, match := range matches {
+	for _, match := range *matches {
 		// we can shortcut lookups only if the match has no associated url rules
 		if !match.hasRules {
 			return true, nil
@@ -297,7 +243,7 @@ func (dt *URLMatcher) CheckURL(u *url.URL) (bool, error) {
 	}
 
 	// no luck, so try path rules next
-	for _, match := range matches {
+	for _, match := range *matches {
 		// anything match.hasRules _shouldn't_ be nil, so this check is
 		// likely superfluous... but retained for extra safety in case
 		// the api changes at some point
@@ -330,7 +276,7 @@ func (dt *URLMatcher) CheckHostname(hostname string) (bool, error) {
 func (dt *URLMatcher) CheckCleanHostname(hostname string) bool {
 	matches := dt.getMatches(hostname)
 	hasMatches := len(*matches) > 0
-	putURLMatcherSlice(matches)
+	putMatchesPoolElem(matches)
 	return hasMatches
 }
 
@@ -369,4 +315,41 @@ func CleanHostname(s string) (string, error) {
 	s = strings.ToLower(s)
 	s = strings.TrimRight(s, ".")
 	return idna.Lookup.ToASCII(s)
+}
+
+func parseRule(rule string) ([]string, error) {
+	if strings.Count(rule, "|") > 4 {
+		rule = strings.TrimRight(rule, "|")
+	}
+	if strings.Count(rule, "|") != 4 {
+		return nil, fmt.Errorf("bad rule format: %s", rule)
+	}
+
+	ruleset := make([]strings.Builder, 4)
+	index := 0
+	// start after first `|`
+	for _, r := range rule[1:] {
+		if r == '|' {
+			index++
+			continue
+		}
+		_, err := ruleset[index].WriteRune(r) // #nosec G602 - false positive
+		if err != nil {
+			return nil, err
+		}
+	}
+	parts := make([]string, 4)
+	for i, sb := range ruleset {
+		parts[i] = strings.TrimSpace(sb.String())
+	}
+	return parts, nil
+}
+
+func uniformLower(s, cutset string) string {
+	s = strings.TrimSpace(s)
+	if len(cutset) > 0 {
+		s = strings.Trim(s, cutset)
+	}
+	s = strings.ToLower(s)
+	return s
 }
