@@ -1,5 +1,7 @@
 # HEAD
 
+# v3.1 - 2026-10-22
+
 -   Fix startup panic with `--metrics` by removing duplicate build-info registration.
 
 # v3.0 - 2026-10-22
