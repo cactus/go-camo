@@ -1,5 +1,7 @@
 # HEAD
 
+-   Fix startup panic with `--metrics` by removing duplicate build-info registration.
+
 # v3.0 - 2026-10-22
 
 -   Add more comprehensive support for cli flags to be set via env vars, with names prefixed with `GOCAMO_`. Use `--help` to see names.

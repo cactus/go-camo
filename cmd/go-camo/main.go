@@ -27,7 +27,6 @@ import (
 	"github.com/cactus/go-camo/v2/pkg/router"
 
 	"github.com/prometheus/client_golang/prometheus"
-	vcoll "github.com/prometheus/client_golang/prometheus/collectors/version"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/quic-go/quic-go/http3"
@@ -290,7 +289,6 @@ func (cli *CLI) Run() {
 			},
 			func() float64 { return 1 },
 		))
-		prometheus.MustRegister(vcoll.NewCollector(metricNamespace))
 
 		// Wrap the dumb router in instrumentation.
 		router = promhttp.InstrumentHandlerDuration(responseDuration, router)
