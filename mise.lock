@@ -71,7 +71,7 @@ backend = "go:github.com/mgechev/revive"
 specifiers = ["latest"]
 
 [[tools."go:github.com/securego/gosec/v2/cmd/gosec"]]
-version = "2.29.0"
+version = "2.30.0"
 backend = "go:github.com/securego/gosec/v2/cmd/gosec"
 specifiers = ["latest"]
 
