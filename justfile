@@ -17,21 +17,22 @@ import? '~/.justfile'
 import? '~/justfile'
 
 # import split up files
-import '.just.d/banner.just'
 import '.just.d/build.just'
 import '.just.d/check.just'
 import '.just.d/hygiene.just'
 import '.just.d/test.just'
 
-
-# export some just-global env vars
+# some justfile global exports
 export GOPRIVATE := "github.com/dropwhile/go-camo"
-# pre-configure go build behavior
-export CGO_ENABLED := "0"
 # unsure toolchains are not automatically downloaded/upgraded
 export GOTOOLCHAIN := "local"
+# disable cgo
+export CGO_ENABLED := "0"
 
 # show the list of available commands
 [default]
 help:
     just --list --justfile {{ justfile() }}
+
+_banner *ARGS:
+    printf '{{ YELLOW }}[%s] %-72s{{ NORMAL }}\n' "$(date +%H:%M:%S)" "{{ ARGS }}"
