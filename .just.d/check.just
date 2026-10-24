@@ -1,7 +1,6 @@
 # run go vet
 [group('~checks:default')]
-vet:
-    just _banner ">> running go vet"
+vet: (_banner ">> running go vet")
     #go vet $(go list ./... | grep -v "github.com/dropwhile/???")
     go vet ./...
 
