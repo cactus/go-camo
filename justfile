@@ -201,7 +201,7 @@ test:
 clean: (_banner ">> cleaning build dir")
     rm -rf "{{ build_dir }}"
 
-# build man pages
+# build: manpages
 [group('build')]
 manpages: (_banner ">> building manual pages")
     [ -d "{{ build_dir }}/man" ] || mkdir -p "{{ build_dir }}/man"
@@ -211,7 +211,7 @@ manpages: (_banner ">> building manual pages")
         scdoc < $file > "{{ build_dir }}/man/${fname}"; \
     done
 
-# build binaries
+# build: binaries for current architecture
 [group('build')]
 build: (_banner ">> building binaries")
     #!/bin/sh
@@ -229,7 +229,7 @@ build: (_banner ">> building binaries")
           -o "{{ build_dir }}/bin/${x}" ./cmd/${x};
     done
 
-# build binaries tarball
+# build: binaries for current architecture; manpages; assemble tarball
 [group('release')]
 tar: manpages build (_banner ">> assembling tarball")
     #!/bin/sh
@@ -247,7 +247,7 @@ tar: manpages build (_banner ">> assembling tarball")
       {{ APP_NAME }}-${APP_VER}/
     rm -rf "${OUTDIR}"
 
-# build cross compiled binaries
+# build: cross compiled binaries
 [group('build')]
 cross-build: (_banner ">> building cc targets")
     #!/bin/sh
@@ -271,7 +271,7 @@ cross-build: (_banner ">> building cc targets")
         done
     done
 
-# build cross compiled tarballs
+# build: cross compile binaries; manpages; assemble tarballs
 [group('release')]
 cross-tar: manpages cross-build (_banner ">> building cc tarballs")
     #!/bin/sh
@@ -299,7 +299,7 @@ cross-tar: manpages cross-build (_banner ">> building cc tarballs")
         rm -rf "{{ tarout_dir }}/${XDIR}/"
     done
 
-# build container images
+# build: container images
 [group('build')]
 build-oci-image *FLAGS: (_banner ">> building container images")
     #!/bin/sh
@@ -320,7 +320,7 @@ build-oci-image *FLAGS: (_banner ">> building container images")
       -f docker/Dockerfile \
       .
 
-# build binaries tarball
+# sign release tarballs
 [group('release')]
 release-sign: (_banner ">> signing release")
     #!/bin/sh
@@ -337,6 +337,6 @@ release-sign: (_banner ">> signing release")
           -x SHA256.sig -m SHA256; \
     )
 
-# build binaries tarball
+# build: cross compile binaries; assemble tarballs; sign tarballs
 [group('release')]
 release: cross-tar release-sign
