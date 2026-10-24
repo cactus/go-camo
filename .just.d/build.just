@@ -20,7 +20,7 @@ ARCH := `go env GOHOSTARCH`
 # export some build specific env vars
 export VERSION_VAR := "main.ServerVersion"
 
-# clean
+# clean build directory
 [group('build')]
 clean: (_banner ">> cleaning build dir")
     rm -rf "{{ build_dir }}"

@@ -1,22 +1,18 @@
-
 # run 'go fix'
 [group('hygiene')]
-fix:
-    just _banner ">> running go fix"
+fix: (_banner ">> running go fix")
     go fix -rangeint=false ./...
 
 # update go.mod dependencies
 [group('hygiene')]
-update-go-deps:
-    just _banner ">> updating go.mod dependencies"
+update-go-deps: (_banner ">> updating go.mod dependencies")
     go get -u all
     go mod tidy
     go mod vendor
 
 # update mise dependencies
 [group('hygiene')]
-update-mise-deps:
-    just _banner ">> updating mise dependencies"
+update-mise-deps: (_banner ">> updating mise dependencies")
     mise up -b
     mise lock
 
