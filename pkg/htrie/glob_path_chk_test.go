@@ -27,46 +27,47 @@ func TestGlobPathChecker(t *testing.T) {
 		"||/yalp*llab/img.png",
 	}
 
-	testMatch := []string{
-		"http://bar.example.com/foo/TEST.png",
-		"http://example.org/foo/test.png",
-		"http://example.org/hodor/test.png",
-		"http://example.org/hodor/ütest.png",
-		"http://example.org/hodor/test.png.longer",
-		"http://example.org/hodor/bartholemew",
-		"http://example.org/hodor/bart/homer.png",
-		"http://example.net/nothing/to/see/here",
-		"http://example.net/i/can/see/it/in/the/clouds/file.png",
-		"http://example.org/play/base/ball/img.png",
-		"http://example.org/yalp/base/llab/img.png",
-		"http://example.org/yalpllab/img.png",
-	}
-
-	testNoMatch := []string{
-		"http://bar.example.com/foo/testx.png",
-		"http://example.net/something/to/see/here/file.png",
-		"http://example.org/hodor/test.png.long",
-	}
-
 	gpc := NewGlobPathChecker()
 	for _, rule := range rules {
 		err := gpc.AddRule(rule)
 		assert.Nil(t, err)
 	}
 
+	f := func(s string, expected bool) {
+		t.Helper()
+		u, _ := url.Parse(s)
+		msg := "should NOT match"
+		if expected {
+			msg = "should match"
+		}
+		assert.Equal(
+			t,
+			gpc.CheckPath(CleanPath(u)),
+			expected,
+			fmt.Sprintf("%s: %s", msg, s),
+		)
+	}
+
 	// fmt.Println(gpc.RenderTree())
 
-	for _, u := range testMatch {
-		u, _ := url.Parse(u)
-		assert.True(t, gpc.CheckPath(CleanPath(u)),
-			fmt.Sprintf("should have matched: %s", u))
+	// test match
+	f("http://bar.example.com/foo/TEST.png", true)
+	f("http://example.org/foo/test.png", true)
+	f("http://example.org/hodor/test.png", true)
+	f("http://example.org/hodor/ütest.png", true)
+	f("http://example.org/hodor/test.png.longer", true)
+	f("http://example.org/hodor/bartholemew", true)
+	f("http://example.org/hodor/bart/homer.png", true)
+	f("http://example.net/nothing/to/see/here", true)
+	f("http://example.net/i/can/see/it/in/the/clouds/file.png", true)
+	f("http://example.org/play/base/ball/img.png", true)
+	f("http://example.org/yalp/base/llab/img.png", true)
+	f("http://example.org/yalpllab/img.png", true)
 
-	}
-	for _, u := range testNoMatch {
-		u, _ := url.Parse(u)
-		assert.False(t, gpc.CheckPath(CleanPath(u)), fmt.Sprintf("should NOT have matched: %s", u))
-
-	}
+	// test no match
+	f("http://bar.example.com/foo/testx.png", false)
+	f("http://example.net/something/to/see/here/file.png", false)
+	f("http://example.org/hodor/test.png.long", false)
 }
 
 func TestGlobPathCheckerEscapes(t *testing.T) {
@@ -76,38 +77,39 @@ func TestGlobPathCheckerEscapes(t *testing.T) {
 		"|i|/images/private/secret.png",
 	}
 
-	testMatch := []string{
-		"http://example.net/images/private/secret.png",
-		"http://example.net/images/private//secret.png",
-		"http://example.net/images/private/./secret.png",
-		"http://example.net/images/private/secret.png?",
-		"http://example.net/images/private%2Fsecret.png",
-		"http://example.net/images/private%2fsecret.png",
-	}
-
-	testNoMatch := []string{
-		"http://example.net/images/private/../public/public.png",
-	}
-
 	gpc := NewGlobPathChecker()
 	for _, rule := range rules {
 		err := gpc.AddRule(rule)
 		assert.Nil(t, err)
 	}
 
+	f := func(s string, expected bool) {
+		t.Helper()
+		u, _ := url.Parse(s)
+		msg := "should NOT match"
+		if expected {
+			msg = "should match"
+		}
+		assert.Equal(
+			t,
+			gpc.CheckPath(CleanPath(u)),
+			expected,
+			fmt.Sprintf("%s: %s", msg, s),
+		)
+	}
+
 	// fmt.Println(gpc.RenderTree())
 
-	for _, u := range testMatch {
-		u, _ := url.Parse(u)
-		assert.True(t, gpc.CheckPath(CleanPath(u)),
-			fmt.Sprintf("should have matched: %s", u))
+	// test match
+	f("http://example.net/images/private/secret.png", true)
+	f("http://example.net/images/private//secret.png", true)
+	f("http://example.net/images/private/./secret.png", true)
+	f("http://example.net/images/private/secret.png?", true)
+	f("http://example.net/images/private%2Fsecret.png", true)
+	f("http://example.net/images/private%2fsecret.png", true)
 
-	}
-	for _, u := range testNoMatch {
-		u, _ := url.Parse(u)
-		assert.False(t, gpc.CheckPath(CleanPath(u)), fmt.Sprintf("should NOT have matched: %s", u))
-
-	}
+	// test no match
+	f("http://example.net/images/private/../public/public.png", false)
 }
 
 func TestGlobPathCheckerPathsMisc(t *testing.T) {
@@ -120,41 +122,46 @@ func TestGlobPathCheckerPathsMisc(t *testing.T) {
 		"||pickle/dill+brine",
 	}
 
-	testMatch := []string{
-		"image/png",
-		"video/mp4",
-		"audio/ogg",
-		"pickle/dill+brine",
-	}
-
-	testNoMatch := []string{
-		"imagex/png",
-		"/imagex/png",
-		"ximage/png",
-		"\nximage/png",
-		"ximage/png\n",
-		"VIDEO/mp4",
-		"xVIDEO/mp4",
-		"AUDIO/ogg",
-		"xAUDIO/ogg",
-		"pickle/dill+briney",
-		"pickley/dilly+brine",
-	}
-
 	gpc := NewGlobPathChecker()
 	for _, rule := range rules {
 		err := gpc.AddRule(rule)
 		assert.Nil(t, err)
 	}
 
+	f := func(s string, expected bool) {
+		t.Helper()
+		msg := "should NOT match"
+		if expected {
+			msg = "should match"
+		}
+		assert.Equal(
+			t,
+			gpc.CheckPath(s),
+			expected,
+			fmt.Sprintf("%s: %s", msg, s),
+		)
+	}
+
 	// fmt.Println(gpc.RenderTree())
 
-	for _, u := range testMatch {
-		assert.True(t, gpc.CheckPath(u), fmt.Sprintf("should have matched: %s", u))
-	}
-	for _, u := range testNoMatch {
-		assert.False(t, gpc.CheckPath(u), fmt.Sprintf("should NOT have matched: %s", u))
-	}
+	// test match
+	f("image/png", true)
+	f("video/mp4", true)
+	f("audio/ogg", true)
+	f("pickle/dill+brine", true)
+
+	// test no match
+	f("imagex/png", false)
+	f("/imagex/png", false)
+	f("ximage/png", false)
+	f("\nximage/png", false)
+	f("ximage/png\n", false)
+	f("VIDEO/mp4", false)
+	f("xVIDEO/mp4", false)
+	f("AUDIO/ogg", false)
+	f("xAUDIO/ogg", false)
+	f("pickle/dill+briney", false)
+	f("pickley/dilly+brine", false)
 }
 
 func BenchmarkGlobPathChecker(b *testing.B) {
@@ -190,18 +197,19 @@ func BenchmarkGlobPathChecker(b *testing.B) {
 		assert.Nil(b, err)
 	}
 
-	testIters := 10000
-
-	// avoid inlining optimization
-	var x bool
-	b.ResetTimer()
-
+	preparsedTestMatch := make([]string, 0, len(testMatch))
 	for _, u := range testMatch {
 		u, _ := url.Parse(u)
 		z := u.EscapedPath()
-		for range testIters {
+		preparsedTestMatch = append(preparsedTestMatch, z)
+	}
+
+	for b.Loop() {
+		// avoid inlining optimization
+		var x bool
+		for _, z := range preparsedTestMatch {
 			x = gpc.CheckPath(z)
 		}
+		_ = x
 	}
-	_ = x
 }
