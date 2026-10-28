@@ -8,11 +8,12 @@
 package assert
 
 import (
-	"bytes"
 	"errors"
 	"reflect"
 	"regexp"
 	"strings"
+
+	"codeberg.org/dropwhile/go-droplibs/internal/asserty"
 )
 
 // TestingT is the subset of [testing.T] (see also [testing.TB]) used by the assert package.
@@ -24,77 +25,72 @@ type TestingT interface {
 	Cleanup(func())
 }
 
-type helperT interface {
-	Helper()
-}
-
-type equaler[T any] interface {
-	Equal(T) bool
-}
+// Assert is an alias for True
+var Assert = True
 
 // True fails assertion if got is false.
 func True(t TestingT, got bool, msg ...string) {
-	if ht, ok := t.(helperT); ok {
+	if ht, ok := t.(asserty.HelperT); ok {
 		ht.Helper()
 	}
 
 	if !got {
-		t.Fatalf("got: false; want: true;%s", formatMsg(msg...))
+		t.Fatalf("got: %t; want: %t;%s", got, true, asserty.FormatMsg(msg...))
 	}
 }
 
 // False fails assertion if got is true.
 func False(t TestingT, got bool, msg ...string) {
-	if ht, ok := t.(helperT); ok {
+	if ht, ok := t.(asserty.HelperT); ok {
 		ht.Helper()
 	}
 
 	if got {
-		t.Fatalf("got: true; want: false;%s", formatMsg(msg...))
+		t.Fatalf("got: %t; want: %t;%s", got, false, asserty.FormatMsg(msg...))
 	}
 }
 
 // Equal fails assertion if got and want are not equal.
 func Equal[T any](t TestingT, got, want T, msg ...string) {
-	if ht, ok := t.(helperT); ok {
+	if ht, ok := t.(asserty.HelperT); ok {
 		ht.Helper()
 	}
 
-	if !isEqual(got, want) {
-		t.Fatalf("got: %#v; want: %#v;%s", got, want, formatMsg(msg...))
+	if !asserty.IsEqual(got, want) {
+		t.Fatalf("got: %#v; want: %#v;%s", got, want, asserty.FormatMsg(msg...))
 	}
 }
 
 // NotEqual fails assertion if got and want are equal.
 func NotEqual[T any](t TestingT, got, want T, msg ...string) {
-	if ht, ok := t.(helperT); ok {
+	if ht, ok := t.(asserty.HelperT); ok {
 		ht.Helper()
 	}
 
-	if isEqual(got, want) {
-		t.Fatalf("got: %#v; expected values to be different;%s", got, formatMsg(msg...))
+	if asserty.IsEqual(got, want) {
+		t.Fatalf("got: %#v; expected values to be different;%s", got, asserty.FormatMsg(msg...))
 	}
 }
 
 // Nil fails assertion if got is not nil.
 func Nil(t TestingT, got any, msg ...string) {
-	if ht, ok := t.(helperT); ok {
+	if ht, ok := t.(asserty.HelperT); ok {
 		ht.Helper()
 	}
 
-	if !isNil(got) {
-		t.Fatalf("got: %#v; want: <nil>;%s", got, formatMsg(msg...))
+	if !asserty.IsNil(got) {
+		t.Fatalf("got: %#v; want: <nil>;%s", got, asserty.FormatMsg(msg...))
 	}
 }
 
 // NotNil fails assertion if got is nil.
 func NotNil(t TestingT, got any, msg ...string) {
-	if ht, ok := t.(helperT); ok {
+	if ht, ok := t.(asserty.HelperT); ok {
 		ht.Helper()
 	}
 
-	if isNil(got) {
-		t.Fatalf("got: <nil>; expected non-nil;%s", formatMsg(msg...))
+	if asserty.IsNil(got) {
+		t.Fatalf("got: <nil>; expected non-nil;%s", asserty.FormatMsg(msg...))
 	}
 }
 
@@ -121,31 +117,31 @@ func NotNil(t TestingT, got any, msg ...string) {
 //
 //	assert.Error(t, err, reflect.TypeFor[*fs.PathError]())
 func Error(t TestingT, got error, want any, msg ...string) {
-	if ht, ok := t.(helperT); ok {
+	if ht, ok := t.(asserty.HelperT); ok {
 		ht.Helper()
 	}
 
 	switch w := want.(type) {
 	case nil:
 		if got != nil {
-			t.Fatalf("unexpected error: %s;%s", got, formatMsg(msg...))
+			t.Fatalf("unexpected error: %s;%s", got, asserty.FormatMsg(msg...))
 		}
 	case string:
 		if got == nil || !strings.Contains(got.Error(), w) {
-			t.Fatalf("got: %q; want: %q;%s", got, want, formatMsg(msg...))
+			t.Fatalf("got: %q; want: %q;%s", got, want, asserty.FormatMsg(msg...))
 		}
 	case error:
 		if !errors.Is(got, w) {
-			if isNil(got) {
-				t.Fatalf("got: <nil>; want: %T(%v);%s", w, w, formatMsg(msg...))
+			if asserty.IsNil(got) {
+				t.Fatalf("got: <nil>; want: %T(%v);%s", w, w, asserty.FormatMsg(msg...))
 			} else {
-				t.Fatalf("got: %T(%v); want: %T(%v);%s", got, got, w, w, formatMsg(msg...))
+				t.Fatalf("got: %T(%v); want: %T(%v);%s", got, got, w, w, asserty.FormatMsg(msg...))
 			}
 		}
 	case reflect.Type:
 		target := reflect.New(w).Interface()
 		if !errors.As(got, target) {
-			t.Fatalf("got: %T; want: %v;%s", got, w, formatMsg(msg...))
+			t.Fatalf("got: %T; want: %v;%s", got, w, asserty.FormatMsg(msg...))
 		}
 	default:
 		t.Fatalf("unsupported want type: %T", want)
@@ -158,57 +154,13 @@ func Error(t TestingT, got error, want any, msg ...string) {
 //
 //	assert.MatchesRegexp(t, "abc123d", `abc[123]+$`)
 func MatchesRegex(t TestingT, got, pattern string, msg ...string) {
-	if ht, ok := t.(helperT); ok {
+	if ht, ok := t.(asserty.HelperT); ok {
 		ht.Helper()
 	}
 
 	if matched, err := regexp.MatchString(pattern, got); err != nil {
 		t.Fatalf("unable to parse regexp pattern %s: %s", pattern, err.Error())
 	} else if !matched {
-		t.Fatalf("got: %q; want to match %q;%s", got, pattern, formatMsg(msg...))
+		t.Fatalf("got: %q; want to match %q;%s", got, pattern, asserty.FormatMsg(msg...))
 	}
-}
-
-func isEqual[T any](got, want T) bool {
-	if isNil(got) && isNil(want) {
-		return true
-	}
-
-	if equalable, ok := any(got).(equaler[T]); ok {
-		return equalable.Equal(want)
-	}
-
-	// Special case for byte slices.
-	if aBytes, ok := any(got).([]byte); ok {
-		bBytes := any(want).([]byte)
-		return bytes.Equal(aBytes, bBytes)
-	}
-
-	// Fallback to reflective comparison.
-	return reflect.DeepEqual(got, want)
-}
-
-func isNil(v any) bool {
-	if v == nil {
-		return true
-	}
-
-	rv := reflect.ValueOf(v)
-	switch rv.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
-		return rv.IsNil()
-	}
-	return false
-}
-
-func formatMsg(msg ...string) string {
-	if len(msg) == 0 {
-		return ""
-	}
-
-	if len(msg[0]) == 0 {
-		return ""
-	}
-
-	return " " + strings.Join(msg, "; ")
 }

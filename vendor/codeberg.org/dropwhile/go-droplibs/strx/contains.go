@@ -8,6 +8,9 @@ package strx
 import "strings"
 
 // ContainsOneOf reports whether one (or more) of any of the supplied substrs is within s.
+//
+//	ContainsOneOf("a bear, a cat, and a dog", []string{"bear", "ox", "lion"})
+//	// true, string contains "bear"
 func ContainsOneOf(s string, substrs []string) bool {
 	for i := range substrs {
 		if strings.Contains(s, substrs[i]) {

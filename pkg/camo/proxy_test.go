@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"codeberg.org/dropwhile/go-droplibs/assert"
+	"codeberg.org/dropwhile/go-droplibs/asserthttp"
 	"codeberg.org/dropwhile/go-droplibs/mlog"
 )
 
@@ -42,10 +43,10 @@ func TestNotFound(t *testing.T) {
 
 	resp, err := processRequest(req, 404, camoConfig, nil)
 	assert.Nil(t, err)
-	statusCodeAssert(t, 404, resp)
-	bodyAssert(t, "404 Not Found\n", resp)
-	headerAssert(t, "test", "X-Go-Camo", resp)
-	headerAssert(t, "go-camo", "Server", resp)
+	asserthttp.StatusCode(t, resp, 404)
+	asserthttp.Body(t, resp, "404 Not Found\n")
+	asserthttp.Header(t, resp, "X-Go-Camo", "test")
+	asserthttp.Header(t, resp, "Server", "go-camo")
 }
 
 func TestSimpleValidImageURL(t *testing.T) {
@@ -53,8 +54,8 @@ func TestSimpleValidImageURL(t *testing.T) {
 	testURL := "http://www.google.com/images/srpr/logo11w.png"
 	resp, err := makeTestReq(testURL, 200, camoConfig)
 	assert.Nil(t, err)
-	headerAssert(t, "test", "X-Go-Camo", resp)
-	headerAssert(t, "go-camo", "Server", resp)
+	asserthttp.Header(t, resp, "X-Go-Camo", "test")
+	asserthttp.Header(t, resp, "Server", "go-camo")
 }
 
 func TestChunkedImageFile(t *testing.T) {
@@ -112,7 +113,7 @@ func TestContentTypeParams(t *testing.T) {
 	resp, err := makeTestReq(testURL, 200, camoConfig)
 
 	assert.Nil(t, err)
-	headerAssert(t, "image/svg+xml; charset=UTF-8", "content-type", resp)
+	asserthttp.Header(t, resp, "content-type", "image/svg+xml; charset=UTF-8")
 }
 
 func TestBadContentTypeSmuggle(t *testing.T) {
@@ -166,12 +167,12 @@ func TestXForwardedFor(t *testing.T) {
 
 	resp, err := processRequest(req, 200, camoConfigWithoutFwd4, nil)
 	assert.Nil(t, err)
-	bodyAssert(t, "2.2.2.2, 1.1.1.1", resp)
+	asserthttp.Body(t, resp, "2.2.2.2, 1.1.1.1")
 
 	camoConfigWithoutFwd4.EnableXFwdFor = false
 	resp, err = processRequest(req, 200, camoConfigWithoutFwd4, nil)
 	assert.Nil(t, err)
-	bodyAssert(t, "", resp)
+	asserthttp.Body(t, resp, "")
 }
 
 func TestVideoContentTypeAllowed(t *testing.T) {
@@ -483,7 +484,7 @@ func Test404OnLocalhost(t *testing.T) {
 	testURL := "http://localhost/foo.cgi"
 	resp, err := makeTestReq(testURL, 404, camoConfig)
 	assert.Nil(t, err)
-	bodyAssert(t, "Bad url host\n", resp)
+	asserthttp.Body(t, resp, "Bad url host\n")
 }
 
 func Test404OnLocalhostWithPort(t *testing.T) {
@@ -491,7 +492,7 @@ func Test404OnLocalhostWithPort(t *testing.T) {
 	testURL := "http://localhost:80/foo.cgi"
 	resp, err := makeTestReq(testURL, 404, camoConfig)
 	assert.Nil(t, err)
-	bodyAssert(t, "Bad url host\n", resp)
+	asserthttp.Body(t, resp, "Bad url host\n")
 }
 
 func Test404OnRedirectWithLocalhostTarget(t *testing.T) {
@@ -499,7 +500,7 @@ func Test404OnRedirectWithLocalhostTarget(t *testing.T) {
 	testURL := "http://httpbin.org/redirect-to?status_code=302&url=http://localhost/some.png"
 	resp, err := makeTestReq(testURL, 404, camoConfig)
 	assert.Nil(t, err)
-	bodyAssert(t, "Error Fetching Resource\n", resp)
+	asserthttp.Body(t, resp, "Error Fetching Resource\n")
 }
 
 func Test404OnRedirectWithLoopbackIP(t *testing.T) {
@@ -507,7 +508,7 @@ func Test404OnRedirectWithLoopbackIP(t *testing.T) {
 	testURL := "http://httpbin.org/redirect-to?status_code=302&url=http://127.0.0.100/some.png"
 	resp, err := makeTestReq(testURL, 404, camoConfig)
 	assert.Nil(t, err)
-	bodyAssert(t, "Error Fetching Resource\n", resp)
+	asserthttp.Body(t, resp, "Error Fetching Resource\n")
 }
 
 func Test404OnRedirectWithLoopbackIPwCreds(t *testing.T) {
@@ -515,7 +516,7 @@ func Test404OnRedirectWithLoopbackIPwCreds(t *testing.T) {
 	testURL := "http://httpbin.org/redirect-to?status_code=302&url=http://user:pass@127.0.0.100/some.png"
 	resp, err := makeTestReq(testURL, 404, camoConfig)
 	assert.Nil(t, err)
-	bodyAssert(t, "Error Fetching Resource\n", resp)
+	asserthttp.Body(t, resp, "Error Fetching Resource\n")
 }
 
 // Test will always pass if dns relay implements dns rebind prevention
@@ -538,7 +539,7 @@ func Test404OnLoopback(t *testing.T) {
 
 	resp, err := processRequest(req, 404, camoConfig, nil)
 	assert.Nil(t, err)
-	bodyAssert(t, "Error Fetching Resource\n", resp)
+	asserthttp.Body(t, resp, "Error Fetching Resource\n")
 }
 
 func TestMain(m *testing.M) {

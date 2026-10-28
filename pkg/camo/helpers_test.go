@@ -8,15 +8,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"slices"
 	"strings"
-	"testing"
 
-	"codeberg.org/dropwhile/go-droplibs/assert"
 	"github.com/cactus/go-camo/v2/pkg/encoding"
 	"github.com/cactus/go-camo/v2/pkg/router"
 )
@@ -71,41 +68,6 @@ func makeTestReq(testURL string, status int, config Config) (*http.Response, err
 		return result, err
 	}
 	return result, nil
-}
-
-func bodyAssert(t *testing.T, expected string, resp *http.Response) {
-	t.Helper()
-	body, err := io.ReadAll(resp.Body)
-	assert.Nil(t, err)
-	bodyString := string(body)
-	assert.Equal(
-		t, expected, bodyString,
-		fmt.Sprintf(
-			"Expected 404 response body but got '%s' instead",
-			bodyString,
-		),
-	)
-}
-
-func headerAssert(t *testing.T, expected, name string, resp *http.Response) {
-	t.Helper()
-	assert.Equal(
-		t,
-		expected, resp.Header.Get(name),
-		"Expected response header mismatch",
-	)
-}
-
-func statusCodeAssert(t *testing.T, expected int, resp *http.Response) {
-	t.Helper()
-	assert.Equal(
-		t,
-		expected, resp.StatusCode,
-		fmt.Sprintf(
-			"Expected %d but got '%d' instead",
-			expected, resp.StatusCode,
-		),
-	)
 }
 
 type Tuple[A any, B any] struct {
