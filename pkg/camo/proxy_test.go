@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
@@ -81,36 +80,57 @@ func TestStrangeFormatRedirects(t *testing.T) {
 
 func TestRedirectsWithPathOnly(t *testing.T) {
 	t.Parallel()
-	testURL := "http://httpbin.org/redirect-to?status_code=302&url=%2Fredirect-to%3Furl%3Dhttp%3A%2F%2Fwww.google.com%2Fimages%2Fsrpr%2Flogo11w.png%26status_code%3D302"
-	_, err := makeTestReq(testURL, 200, camoConfig)
+
+	config, ts := newLoopbackTestServer(camoConfig)
+	defer ts.Close()
+
+	testURL := ts.URL + "/redirect-to?status_code=302&url=%2Fredirect-to%3Furl%3Dhttp%3A%2F%2Fwww.google.com%2Fimages%2Fsrpr%2Flogo11w.png%26status_code%3D302"
+
+	_, err := makeTestReq(testURL, 200, config)
 	assert.Nil(t, err)
 }
 
 func TestFollowPermRedirects(t *testing.T) {
 	t.Parallel()
-	testURL := "http://httpbin.org/redirect-to?status_code=301&url=http://www.google.com/images/srpr/logo11w.png"
-	_, err := makeTestReq(testURL, 200, camoConfig)
+
+	config, ts := newLoopbackTestServer(camoConfig)
+	defer ts.Close()
+
+	testURL := ts.URL + "/redirect-to?status_code=301&url=http://www.google.com/images/srpr/logo11w.png"
+	_, err := makeTestReq(testURL, 200, config)
 	assert.Nil(t, err)
 }
 
 func TestFollowTempRedirects(t *testing.T) {
 	t.Parallel()
-	testURL := "http://httpbin.org/redirect-to?status_code=302&url=http://www.google.com/images/srpr/logo11w.png"
-	_, err := makeTestReq(testURL, 200, camoConfig)
+
+	config, ts := newLoopbackTestServer(camoConfig)
+	defer ts.Close()
+
+	testURL := ts.URL + "/redirect-to?status_code=302&url=http://www.google.com/images/srpr/logo11w.png"
+	_, err := makeTestReq(testURL, 200, config)
 	assert.Nil(t, err)
 }
 
 func TestBadContentType(t *testing.T) {
 	t.Parallel()
-	testURL := "http://httpbin.org/response-headers?Content-Type=what"
-	_, err := makeTestReq(testURL, 400, camoConfig)
+
+	config, ts := newLoopbackTestServer(camoConfig)
+	defer ts.Close()
+
+	testURL := ts.URL + "/response-headers?Content-Type=what"
+	_, err := makeTestReq(testURL, 400, config)
 	assert.Nil(t, err)
 }
 
 func TestContentTypeParams(t *testing.T) {
 	t.Parallel()
-	testURL := "http://httpbin.org/response-headers?Content-Type=image/svg%2Bxml;charset=UTF-8"
-	resp, err := makeTestReq(testURL, 200, camoConfig)
+
+	config, ts := newLoopbackTestServer(camoConfig)
+	defer ts.Close()
+
+	testURL := ts.URL + "/response-headers?Content-Type=image/svg%2Bxml;charset=UTF-8"
+	resp, err := makeTestReq(testURL, 200, config)
 
 	assert.Nil(t, err)
 	asserthttp.Header(t, resp, "content-type", "image/svg+xml; charset=UTF-8")
@@ -118,24 +138,28 @@ func TestContentTypeParams(t *testing.T) {
 
 func TestBadContentTypeSmuggle(t *testing.T) {
 	t.Parallel()
-	testURL := "http://httpbin.org/response-headers?Content-Type=image/png,%20text/html;%20charset%3DUTF-8"
-	_, err := makeTestReq(testURL, 400, camoConfig)
+
+	config, ts := newLoopbackTestServer(camoConfig)
+	defer ts.Close()
+
+	testURL := ts.URL + "/response-headers?Content-Type=image/png,%20text/html;%20charset%3DUTF-8"
+	_, err := makeTestReq(testURL, 400, config)
 	assert.Nil(t, err)
 
-	testURL = "http://httpbin.org/response-headers?Content-Type=image/png,text/html;%20charset%3DUTF-8"
-	_, err = makeTestReq(testURL, 400, camoConfig)
+	testURL = ts.URL + "/response-headers?Content-Type=image/png,text/html;%20charset%3DUTF-8"
+	_, err = makeTestReq(testURL, 400, config)
 	assert.Nil(t, err)
 
-	testURL = "http://httpbin.org/response-headers?Content-Type=image/png%20text/html"
-	_, err = makeTestReq(testURL, 400, camoConfig)
+	testURL = ts.URL + "/response-headers?Content-Type=image/png%20text/html"
+	_, err = makeTestReq(testURL, 400, config)
 	assert.Nil(t, err)
 
-	testURL = "http://httpbin.org/response-headers?Content-Type=image/png%;text/html"
-	_, err = makeTestReq(testURL, 400, camoConfig)
+	testURL = ts.URL + "/response-headers?Content-Type=image/png%;text/html"
+	_, err = makeTestReq(testURL, 400, config)
 	assert.Nil(t, err)
 
-	testURL = "http://httpbin.org/response-headers?Content-Type=image/png;%20charset%3DUTF-8;text/html"
-	_, err = makeTestReq(testURL, 400, camoConfig)
+	testURL = ts.URL + "/response-headers?Content-Type=image/png;%20charset%3DUTF-8;text/html"
+	_, err = makeTestReq(testURL, 400, config)
 	assert.Nil(t, err)
 }
 
@@ -143,34 +167,36 @@ func TestXForwardedFor(t *testing.T) {
 	t.Parallel()
 
 	camoConfigWithoutFwd4 := Config{
-		HMACKey:          []byte("0x24FEEDFACEDEADBEEFCAFE"),
-		MaxSize:          180 * 1024,
-		RequestTimeout:   time.Duration(10) * time.Second,
-		MaxRedirects:     3,
-		ServerName:       "go-camo",
-		EnableXFwdFor:    true,
-		insecureTestMode: true,
+		HMACKey:        []byte("0x24FEEDFACEDEADBEEFCAFE"),
+		MaxSize:        180 * 1024,
+		RequestTimeout: time.Duration(10) * time.Second,
+		MaxRedirects:   3,
+		ServerName:     "go-camo",
+		EnableXFwdFor:  true,
 	}
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r.Close = true
-		w.Header().Set("Content-Type", "image/png")
-		_, err := w.Write([]byte(r.Header.Get("X-Forwarded-For")))
-		assert.Nil(t, err)
-	}))
+	config, ts := newLoopbackTestServer(
+		camoConfigWithoutFwd4,
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			r.Close = true
+			w.Header().Set("Content-Type", "image/png")
+			_, err := w.Write([]byte(r.Header.Get("X-Forwarded-For")))
+			assert.Nil(t, err)
+		}),
+	)
 	defer ts.Close()
 
-	req, err := makeReq(camoConfig, ts.URL)
+	req, err := makeReq(config, ts.URL)
 	assert.Nil(t, err)
 
 	req.Header.Set("X-Forwarded-For", "2.2.2.2, 1.1.1.1")
 
-	resp, err := processRequest(req, 200, camoConfigWithoutFwd4, nil)
+	resp, err := processRequest(req, 200, config, nil)
 	assert.Nil(t, err)
 	asserthttp.Body(t, resp, "2.2.2.2, 1.1.1.1")
 
-	camoConfigWithoutFwd4.EnableXFwdFor = false
-	resp, err = processRequest(req, 200, camoConfigWithoutFwd4, nil)
+	config.EnableXFwdFor = false
+	resp, err = processRequest(req, 200, config, nil)
 	assert.Nil(t, err)
 	asserthttp.Body(t, resp, "")
 }
@@ -310,24 +336,26 @@ func TestMaxSizeBackendContentLength(t *testing.T) {
 		RequestTimeout:    time.Duration(10) * time.Second,
 		ServerName:        "go-camo",
 		AllowContentVideo: true,
-		insecureTestMode:  true,
 	}
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Connection", "keep-alive")
-		w.Header().Set("Content-Type", "video/mp4")
-		w.Header().Set("x-content-type-options", "nosniff")
-		w.Header().Set("Content-Length", fmt.Sprintf("%d", chunksCount*chunkSizeBytes))
-		for i := 1; i <= chunksCount; i++ {
-			w.Write(bytes.Repeat([]byte("x"), chunkSizeBytes))
-		}
-	}))
+	config, ts := newLoopbackTestServer(
+		camoConfigWithMaxSize,
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Connection", "keep-alive")
+			w.Header().Set("Content-Type", "video/mp4")
+			w.Header().Set("x-content-type-options", "nosniff")
+			w.Header().Set("Content-Length", fmt.Sprintf("%d", chunksCount*chunkSizeBytes))
+			for i := 1; i <= chunksCount; i++ {
+				w.Write(bytes.Repeat([]byte("x"), chunkSizeBytes))
+			}
+		}),
+	)
 	defer ts.Close()
 
 	// try a range request (should fail, MaxSize is smaller than requested range)
-	req, err := makeReq(camoConfigWithMaxSize, ts.URL)
+	req, err := makeReq(config, ts.URL)
 	assert.Nil(t, err)
-	resp, err := processRequest(req, 404, camoConfigWithMaxSize, nil)
+	resp, err := processRequest(req, 404, config, nil)
 	assert.Nil(t, err)
 	b, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
@@ -350,27 +378,29 @@ func TestMaxSizeBackendChunked(t *testing.T) {
 		RequestTimeout:    time.Duration(10) * time.Second,
 		ServerName:        "go-camo",
 		AllowContentVideo: true,
-		insecureTestMode:  true,
 		CollectMetrics:    true,
 	}
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		rc := http.NewResponseController(w)
+	config, ts := newLoopbackTestServer(
+		camoConfigWithMaxSize,
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			rc := http.NewResponseController(w)
 
-		w.Header().Set("Connection", "keep-alive")
-		w.Header().Set("Content-Type", "video/mp4")
-		w.WriteHeader(200)
-		for i := 1; i <= chunksCount; i++ {
-			w.Write(bytes.Repeat([]byte("x"), chunkSizeBytes))
-			rc.Flush()
-		}
-	}))
+			w.Header().Set("Connection", "keep-alive")
+			w.Header().Set("Content-Type", "video/mp4")
+			w.WriteHeader(200)
+			for i := 1; i <= chunksCount; i++ {
+				w.Write(bytes.Repeat([]byte("x"), chunkSizeBytes))
+				rc.Flush()
+			}
+		}),
+	)
 	defer ts.Close()
 
 	// try a chunked request (should succeed, but be truncated)
-	req, err := makeReq(camoConfigWithMaxSize, ts.URL)
+	req, err := makeReq(config, ts.URL)
 	assert.Nil(t, err)
-	resp, err := processRequest(req, 200, camoConfigWithMaxSize, nil)
+	resp, err := processRequest(req, 200, config, nil)
 	assert.Nil(t, err)
 	b, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
@@ -408,8 +438,12 @@ func Test404OnCredentialURL(t *testing.T) {
 
 func Test404InfiniRedirect(t *testing.T) {
 	t.Parallel()
-	testURL := "http://httpbin.org/redirect/4"
-	_, err := makeTestReq(testURL, 404, camoConfig)
+
+	config, ts := newLoopbackTestServer(camoConfig)
+	defer ts.Close()
+
+	testURL := ts.URL + "/redirect/4"
+	_, err := makeTestReq(testURL, 404, config)
 	assert.Nil(t, err)
 }
 
@@ -497,24 +531,36 @@ func Test404OnLocalhostWithPort(t *testing.T) {
 
 func Test404OnRedirectWithLocalhostTarget(t *testing.T) {
 	t.Parallel()
-	testURL := "http://httpbin.org/redirect-to?status_code=302&url=http://localhost/some.png"
-	resp, err := makeTestReq(testURL, 404, camoConfig)
+
+	config, ts := newLoopbackTestServer(camoConfig)
+	defer ts.Close()
+
+	testURL := ts.URL + "/redirect-to?status_code=302&url=http://localhost/some.png"
+	resp, err := makeTestReq(testURL, 404, config)
 	assert.Nil(t, err)
 	asserthttp.Body(t, resp, "Error Fetching Resource\n")
 }
 
 func Test404OnRedirectWithLoopbackIP(t *testing.T) {
 	t.Parallel()
-	testURL := "http://httpbin.org/redirect-to?status_code=302&url=http://127.0.0.100/some.png"
-	resp, err := makeTestReq(testURL, 404, camoConfig)
+
+	config, ts := newLoopbackTestServer(camoConfig)
+	defer ts.Close()
+
+	testURL := ts.URL + "/redirect-to?status_code=302&url=http://127.0.0.100/some.png"
+	resp, err := makeTestReq(testURL, 404, config)
 	assert.Nil(t, err)
 	asserthttp.Body(t, resp, "Error Fetching Resource\n")
 }
 
 func Test404OnRedirectWithLoopbackIPwCreds(t *testing.T) {
 	t.Parallel()
-	testURL := "http://httpbin.org/redirect-to?status_code=302&url=http://user:pass@127.0.0.100/some.png"
-	resp, err := makeTestReq(testURL, 404, camoConfig)
+
+	config, ts := newLoopbackTestServer(camoConfig)
+	defer ts.Close()
+
+	testURL := ts.URL + "/redirect-to?status_code=302&url=http://user:pass@127.0.0.100/some.png"
+	resp, err := makeTestReq(testURL, 404, config)
 	assert.Nil(t, err)
 	asserthttp.Body(t, resp, "Error Fetching Resource\n")
 }
@@ -530,14 +576,17 @@ func Test404OnRedirectWithLoopbackIPwCreds(t *testing.T) {
 // As such, there is little sense running this when dns rebinding
 // prevention is present in the dns resolver....
 func Test404OnLoopback(t *testing.T) {
-	skipIfCI(t)
 	t.Parallel()
+	skipIfCI(t)
 
-	testURL := "http://httpbin.org/redirect-to?status_code=302&url=http://lvh.me"
-	req, err := makeReq(camoConfig, testURL)
+	config, ts := newLoopbackTestServer(camoConfig)
+	defer ts.Close()
+
+	testURL := ts.URL + "/redirect-to?status_code=302&url=http://lvh.me"
+	req, err := makeReq(config, testURL)
 	assert.Nil(t, err)
 
-	resp, err := processRequest(req, 404, camoConfig, nil)
+	resp, err := processRequest(req, 404, config, nil)
 	assert.Nil(t, err)
 	asserthttp.Body(t, resp, "Error Fetching Resource\n")
 }

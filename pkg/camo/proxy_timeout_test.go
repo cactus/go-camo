@@ -24,31 +24,31 @@ import (
 func TestTimeout(t *testing.T) {
 	t.Parallel()
 	c := Config{
-		HMACKey:          []byte("0x24FEEDFACEDEADBEEFCAFE"),
-		MaxSize:          5120 * 1024,
-		RequestTimeout:   time.Duration(500) * time.Millisecond,
-		MaxRedirects:     3,
-		ServerName:       "go-camo",
-		insecureTestMode: true,
+		HMACKey:        []byte("0x24FEEDFACEDEADBEEFCAFE"),
+		MaxSize:        5120 * 1024,
+		RequestTimeout: time.Duration(500) * time.Millisecond,
+		MaxRedirects:   3,
+		ServerName:     "go-camo",
 	}
 	cc := make(chan bool, 1)
 	received := make(chan bool)
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		received <- true
-		<-cc
-		r.Close = true
-		_, err := w.Write([]byte("ok"))
-		assert.Nil(t, err)
-	}))
+	config, ts := newLoopbackTestServer(c,
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			received <- true
+			<-cc
+			r.Close = true
+			_, err := w.Write([]byte("ok"))
+			assert.Nil(t, err)
+		}))
 	defer ts.Close()
 
-	req, err := makeReq(c, ts.URL)
+	req, err := makeReq(config, ts.URL)
 	assert.Nil(t, err)
 
 	errc := make(chan error, 1)
 	go func() {
 		code := 504
-		_, err := processRequest(req, code, c, nil)
+		_, err := processRequest(req, code, config, nil)
 		errc <- err
 	}()
 
@@ -87,30 +87,34 @@ func TestClientCancelEarly(t *testing.T) {
 		MaxRedirects:     3,
 		ServerName:       "go-camo",
 		insecureTestMode: true,
+		insecureTestModeAllow: func(net.IP, string) bool {
+			return true
+		},
 	}
 
-	ts := httptest.NewServer(http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", "image/png")
-			w.Header().Set("Connection", "close")
-			flusher, ok := w.(http.Flusher)
-			assert.True(t, ok)
-			for i := 1; i <= 500; i++ {
-				_, err := fmt.Fprintf(w, "Chunk #%d\n", i)
-				// conn closed/broken pipe
-				if err != nil {
-					mlog.Debugx("write error", mlog.A("err", err), mlog.A("i", i))
-					break
+	config, ts := newLoopbackTestServer(c,
+		http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "image/png")
+				w.Header().Set("Connection", "close")
+				flusher, ok := w.(http.Flusher)
+				assert.True(t, ok)
+				for i := 1; i <= 500; i++ {
+					_, err := fmt.Fprintf(w, "Chunk #%d\n", i)
+					// conn closed/broken pipe
+					if err != nil {
+						mlog.Debugx("write error", mlog.A("err", err), mlog.A("i", i))
+						break
+					}
+					flusher.Flush() // Trigger "chunked" encoding and send a chunk...
 				}
-				flusher.Flush() // Trigger "chunked" encoding and send a chunk...
-			}
-		},
-	))
+			},
+		))
 	defer ts.Close()
 
-	camoServer, err := New(c, nil)
+	camoServer, err := New(config, nil)
 	assert.Nil(t, err)
-	rtr := router.NewDumbRouter(c.ServerName, nil, camoServer)
+	rtr := router.NewDumbRouter(config.ServerName, nil, camoServer)
 
 	tsCamo := httptest.NewServer(rtr)
 	defer tsCamo.Close()
@@ -141,6 +145,9 @@ func TestClientCancelLate(t *testing.T) {
 		MaxRedirects:     3,
 		ServerName:       "go-camo",
 		insecureTestMode: true,
+		insecureTestModeAllow: func(net.IP, string) bool {
+			return true
+		},
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(
@@ -211,29 +218,31 @@ func TestClientCancelLate(t *testing.T) {
 func TestServerEarlyEOF(t *testing.T) {
 	t.Parallel()
 	c := Config{
-		HMACKey:          []byte("0x24FEEDFACEDEADBEEFCAFE"),
-		MaxSize:          5120 * 1024,
-		RequestTimeout:   time.Duration(500) * time.Millisecond,
-		MaxRedirects:     3,
-		ServerName:       "go-camo",
-		insecureTestMode: true,
+		HMACKey:        []byte("0x24FEEDFACEDEADBEEFCAFE"),
+		MaxSize:        5120 * 1024,
+		RequestTimeout: time.Duration(500) * time.Millisecond,
+		MaxRedirects:   3,
+		ServerName:     "go-camo",
 	}
 
-	ts := httptest.NewServer(http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", "image/png")
-			w.Header().Set("Connection", "close")
-			w.Header().Set("Content-Length", "100")
-			w.WriteHeader(200)
-		},
-	))
+	config, ts := newLoopbackTestServer(
+		c,
+		http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "image/png")
+				w.Header().Set("Connection", "close")
+				w.Header().Set("Content-Length", "100")
+				w.WriteHeader(200)
+			},
+		),
+	)
 	defer ts.Close()
 
-	req, err := makeReq(c, ts.URL)
+	req, err := makeReq(config, ts.URL)
 	assert.Nil(t, err)
 	// response is a 200, not much we can do about that since we response
 	// streaming (chunked)...
-	resp, err := processRequest(req, 200, c, nil)
+	resp, err := processRequest(req, 200, config, nil)
 	assert.Nil(t, err)
 
 	body, err := io.ReadAll(resp.Body)
@@ -250,6 +259,9 @@ func TestServerChunkTooBig(t *testing.T) {
 		MaxRedirects:     3,
 		ServerName:       "go-camo",
 		insecureTestMode: true,
+		insecureTestModeAllow: func(net.IP, string) bool {
+			return true
+		},
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(

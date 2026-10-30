@@ -62,8 +62,9 @@ type Config struct { // betteralign:ignore
 	AllowCredentialURLs bool
 	// Whether to call/increment metrics
 	CollectMetrics bool
-	// enable test mode {no ip filtering, chunked truncation http trailer}
-	insecureTestMode bool
+	// enable test mode {ip filtering allow func, chunked truncation http trailer}
+	insecureTestMode      bool
+	insecureTestModeAllow func(net.IP, string) bool
 }
 
 // The FilterFunc type is a function that validates a *url.URL
@@ -529,8 +530,7 @@ func (p *Proxy) copyHeaders(dst, src *http.Header, filter *map[string]bool) {
 // halts further evaluation and fails the request.
 // Returns an error if Proxy could not be constructed.
 func New(pc Config, filters []FilterFunc) (*Proxy, error) {
-	doFiltering := !pc.insecureTestMode
-	if !doFiltering {
+	if pc.insecureTestMode {
 		mlog.Info("!!WARNING!! Proxy created in insecure test mode!")
 	}
 
@@ -554,23 +554,37 @@ func New(pc Config, filters []FilterFunc) (*Proxy, error) {
 			}
 
 			// ip/allow-list/deny-list filtering
-			if doFiltering {
-				host, port, err := net.SplitHostPort(address)
-				if err != nil {
-					return fmt.Errorf("%s:%s is not a valid host/port pair: %w", address, err, ErrInvalidHostPort)
-				}
+			host, port, err := net.SplitHostPort(address)
+			if err != nil {
+				return fmt.Errorf("%s:%s is not a valid host/port pair: %w", address, err, ErrInvalidHostPort)
+			}
 
-				// filter out rejected networks
-				if ip := net.ParseIP(host); ip != nil {
-					if isRejectedIP(ip) && !upstreamProxyConf.matchesIP(ip, port) {
-						return ErrRejectIP
+			// filter out rejected networks
+			if ip := net.ParseIP(host); ip != nil {
+				if isRejectedIP(ip) && !upstreamProxyConf.matchesIP(ip, port) {
+					// check for testing mode host allow, only when secure test mode
+					// is configured.
+					if pc.insecureTestMode &&
+						pc.insecureTestModeAllow != nil &&
+						pc.insecureTestModeAllow(ip, port) {
+						mlog.Infof("!!WARNING!! Allowing filtering bypass for %s:%s for test mode!", ip, port)
+						return nil
 					}
-				} else {
-					if ips, err := net.LookupIP(host); err == nil {
-						for i := range ips {
-							if isRejectedIP(ips[i]) && !upstreamProxyConf.matchesIP(ips[i], port) {
-								return ErrRejectIP
+					return ErrRejectIP
+				}
+			} else {
+				if ips, err := net.LookupIP(host); err == nil {
+					for i := range ips {
+						if isRejectedIP(ips[i]) && !upstreamProxyConf.matchesIP(ips[i], port) {
+							// check for testing mode host allow, only when secure test mode
+							// is configured.
+							if pc.insecureTestMode &&
+								pc.insecureTestModeAllow != nil &&
+								pc.insecureTestModeAllow(ip, port) {
+								mlog.Infof("!!WARNING!! Allowing filtering bypass for %s:%s for test mode!", ip, port)
+								return nil
 							}
+							return ErrRejectIP
 						}
 					}
 				}

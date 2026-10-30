@@ -8,10 +8,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"reflect"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/cactus/go-camo/v2/pkg/encoding"
@@ -63,6 +66,7 @@ func makeTestReq(testURL string, status int, config Config) (*http.Response, err
 	if err != nil {
 		return nil, err
 	}
+
 	result, err := processRequest(req, status, config, nil)
 	if err != nil {
 		return result, err
@@ -99,4 +103,117 @@ func (t *Tuple[A, B]) UnmarshalJSON(p []byte) error {
 		}
 	}
 	return nil
+}
+
+func newHTTPBinMux() *http.ServeMux {
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/redirect-to", func(w http.ResponseWriter, r *http.Request) {
+		if urlParam := r.URL.Query().Get("url"); urlParam != "" {
+			status := 302
+			if codeParam := r.URL.Query().Get("status_code"); codeParam != "" {
+				if c, err := strconv.ParseInt(codeParam, 10, 0); err == nil {
+					status = int(c)
+				}
+			}
+			fmt.Println(urlParam, status)
+			http.Redirect(w, r, urlParam, status)
+			return
+		}
+		http.NotFound(w, r)
+	})
+
+	mux.HandleFunc("/redirect/{times}", func(w http.ResponseWriter, r *http.Request) {
+		urlParam := r.URL.Query().Get("url")
+		status := 302
+		if codeParam := r.URL.Query().Get("status_code"); codeParam != "" {
+			if c, err := strconv.ParseInt(codeParam, 10, 0); err == nil {
+				status = int(c)
+			}
+		}
+
+		counter := 0
+		if times := r.PathValue("times"); times != "" {
+			fmt.Println("times", times)
+			if v, err := strconv.ParseInt(times, 10, 0); err == nil {
+				counter = int(v)
+			}
+		}
+		fmt.Println("counter before", counter)
+		counter--
+		fmt.Println("counter after", counter)
+
+		redirectTo := fmt.Sprintf("/redirect/%d?%s", counter, r.URL.Query().Encode())
+		if counter <= 0 {
+			redirectTo = urlParam
+		}
+		http.Redirect(w, r, redirectTo, status)
+	})
+
+	mux.HandleFunc("/response-headers", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(r.URL.RawQuery)
+		// do purposefully bad things to smuggle incorrect formatting
+		// through go's safer query param parser
+		rawQuery := strings.ReplaceAll(r.URL.RawQuery, ";", "%3B")
+
+		params, err := url.ParseQuery(rawQuery)
+		if err != nil {
+			fmt.Println("qp err", err)
+			rawQuery = strings.ReplaceAll(rawQuery, "%", "_")
+			params, err = url.ParseQuery(rawQuery)
+			if err != nil {
+				fmt.Println("qp err2", err)
+				w.WriteHeader(503)
+				return
+			}
+		}
+
+		fmt.Println(params)
+		for k, v := range params {
+			for i := range v {
+				val := v[i]
+				if strings.Contains(val, "_") {
+					val = strings.ReplaceAll(val, "_", "%")
+				}
+				w.Header().Add(k, val)
+			}
+		}
+		fmt.Println(w.Header())
+		w.WriteHeader(200)
+	})
+
+	return mux
+}
+
+func onlyAllowHTTPTestServer(tsURL string) func(net.IP, string) bool {
+	return func(i net.IP, s string) bool {
+		u, err := url.Parse(tsURL)
+		if err != nil {
+			fmt.Println(err)
+		}
+		ips, err := hostnameToIPs(u.Hostname())
+		if err != nil {
+			fmt.Println(err)
+		}
+		for _, ip := range ips {
+			if ip.Equal(i) && u.Port() == s {
+				return true
+			}
+		}
+		return false
+	}
+}
+
+func newLoopbackTestServer(c Config, handlers ...http.HandlerFunc) (Config, *httptest.Server) {
+	mux := newHTTPBinMux()
+	// handlers are optional, but by convention only accepts a single param
+	if len(handlers) > 0 {
+		mux.Handle("/", handlers[0])
+	}
+
+	config := c
+	config.insecureTestMode = true
+	ts := httptest.NewServer(mux)
+	config.insecureTestModeAllow = onlyAllowHTTPTestServer(ts.URL)
+	return config, ts
 }
