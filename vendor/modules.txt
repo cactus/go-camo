@@ -1,4 +1,4 @@
-# codeberg.org/dropwhile/go-droplibs v1.0.10
+# codeberg.org/dropwhile/go-droplibs v1.0.11
 ## explicit; go 1.27.0
 codeberg.org/dropwhile/go-droplibs/assert
 codeberg.org/dropwhile/go-droplibs/asserthttp
@@ -7,6 +7,7 @@ codeberg.org/dropwhile/go-droplibs/internal/asserty
 codeberg.org/dropwhile/go-droplibs/mlog
 codeberg.org/dropwhile/go-droplibs/strx
 codeberg.org/dropwhile/go-droplibs/tai64
+codeberg.org/dropwhile/go-droplibs/types
 # github.com/alecthomas/kong v1.16.1
 ## explicit; go 1.20
 github.com/alecthomas/kong

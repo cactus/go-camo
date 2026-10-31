@@ -5,18 +5,19 @@
 package camo
 
 import (
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"errors"
 	"fmt"
 	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"reflect"
 	"slices"
 	"strconv"
 	"strings"
 
+	"codeberg.org/dropwhile/go-droplibs/types"
 	"github.com/cactus/go-camo/v2/pkg/encoding"
 	"github.com/cactus/go-camo/v2/pkg/router"
 )
@@ -72,37 +73,6 @@ func makeTestReq(testURL string, status int, config Config) (*http.Response, err
 		return result, err
 	}
 	return result, nil
-}
-
-type Tuple[L any, R any] struct {
-	left  L
-	right R
-}
-
-func (t *Tuple[L, R]) UnmarshalJSON(p []byte) error {
-	var tmp []json.RawMessage
-	if err := json.Unmarshal(p, &tmp); err != nil {
-		return err
-	}
-	if err := json.Unmarshal(tmp[0], &t.left); err != nil {
-		return err
-	}
-
-	if reflect.TypeFor[R]() == reflect.TypeFor[error]() {
-		var s string
-		if err := json.Unmarshal(tmp[1], &s); err != nil {
-			return err
-		}
-		if s != "" {
-			err := errors.New(s)
-			t.right = err.(R)
-		}
-	} else {
-		if err := json.Unmarshal(tmp[1], &t.right); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func newHTTPBinMux() *http.ServeMux {
@@ -204,13 +174,27 @@ func onlyAllowHTTPTestServer(tsURL string) func(net.IP, string) bool {
 	}
 }
 
-type HandlerTuple Tuple[string, http.HandlerFunc]
+func jsonErrorUnmarshaler(dec *jsontext.Decoder, val *error) error {
+	if dec.PeekKind() == jsontext.KindNull {
+		dec.ReadToken()
+		return nil
+	}
+
+	var s string
+	if err := json.UnmarshalDecode(dec, &s); err != nil {
+		return err
+	}
+	*val = errors.New(s)
+	return nil
+}
+
+type HandlerTuple types.Tuple[string, http.HandlerFunc]
 
 func newLoopbackTestServer(c Config, handlers ...HandlerTuple) (Config, *httptest.Server) {
 	mux := newHTTPBinMux()
 	// handlers are optional, but by convention only accepts a single param
 	for _, handler := range handlers {
-		mux.HandleFunc(handler.left, handler.right)
+		mux.HandleFunc(handler.Left, handler.Right)
 	}
 
 	config := c

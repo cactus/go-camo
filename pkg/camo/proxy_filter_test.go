@@ -5,12 +5,13 @@
 package camo
 
 import (
-	"encoding/json"
+	"encoding/json/v2"
 	"fmt"
 	"net/url"
 	"testing"
 
 	"codeberg.org/dropwhile/go-droplibs/assert"
+	"codeberg.org/dropwhile/go-droplibs/types"
 )
 
 func TestFilterListAcceptSimple(t *testing.T) {
@@ -56,14 +57,18 @@ func TestFilterListMatrixMultiples(t *testing.T) {
 	req, err := makeReq(camoConfig, testURL)
 	assert.Nil(t, err)
 
-	type errResp []Tuple[bool, error]
+	type errResp []types.Tuple[bool, error]
 
 	f := func(input string, expectedCallMatrix []bool, respcode int) {
 		t.Helper()
 		callMatrix := []bool{false, false, false}
 		filters := make([]FilterFunc, 0)
 		var responses errResp
-		if err := json.Unmarshal([]byte(input), &responses); err != nil {
+		err := json.Unmarshal(
+			[]byte(input), &responses,
+			json.WithUnmarshalers(json.UnmarshalFromFunc(jsonErrorUnmarshaler)),
+		)
+		if err != nil {
 			t.Fatal(err)
 		}
 
@@ -72,7 +77,7 @@ func TestFilterListMatrixMultiples(t *testing.T) {
 				filters, func(x int) FilterFunc {
 					return func(*url.URL) (bool, error) {
 						callMatrix[x] = true
-						return responses[x].left, responses[x].right
+						return responses[x].Left, responses[x].Right
 					}
 				}(i),
 			)
