@@ -204,22 +204,15 @@ func onlyAllowHTTPTestServer(tsURL string) func(net.IP, string) bool {
 	}
 }
 
-type ltsPair struct {
-	pattern string
-	handler http.HandlerFunc
+func newLtsHandler(pattern string, handler http.HandlerFunc) Tuple[string, http.HandlerFunc] {
+	return Tuple[string, http.HandlerFunc]{pattern, handler}
 }
 
-func newLtsHandler(pattern string, handler http.HandlerFunc) ltsPair {
-	return ltsPair{
-		pattern, handler,
-	}
-}
-
-func newLoopbackTestServer(c Config, handlers ...ltsPair) (Config, *httptest.Server) {
+func newLoopbackTestServer(c Config, handlers ...Tuple[string, http.HandlerFunc]) (Config, *httptest.Server) {
 	mux := newHTTPBinMux()
 	// handlers are optional, but by convention only accepts a single param
 	for _, pair := range handlers {
-		mux.HandleFunc(pair.pattern, pair.handler)
+		mux.HandleFunc(pair.a, pair.b)
 	}
 
 	config := c
