@@ -72,7 +72,7 @@ func TestFilterListMatrixMultiples(t *testing.T) {
 				filters, func(x int) FilterFunc {
 					return func(*url.URL) (bool, error) {
 						callMatrix[x] = true
-						return responses[x].a, responses[x].b
+						return responses[x].left, responses[x].right
 					}
 				}(i),
 			)

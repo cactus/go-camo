@@ -74,31 +74,31 @@ func makeTestReq(testURL string, status int, config Config) (*http.Response, err
 	return result, nil
 }
 
-type Tuple[A any, B any] struct {
-	a A
-	b B
+type Tuple[L any, R any] struct {
+	left  L
+	right R
 }
 
-func (t *Tuple[A, B]) UnmarshalJSON(p []byte) error {
+func (t *Tuple[L, R]) UnmarshalJSON(p []byte) error {
 	var tmp []json.RawMessage
 	if err := json.Unmarshal(p, &tmp); err != nil {
 		return err
 	}
-	if err := json.Unmarshal(tmp[0], &t.a); err != nil {
+	if err := json.Unmarshal(tmp[0], &t.left); err != nil {
 		return err
 	}
 
-	if reflect.TypeFor[B]() == reflect.TypeFor[error]() {
+	if reflect.TypeFor[R]() == reflect.TypeFor[error]() {
 		var s string
 		if err := json.Unmarshal(tmp[1], &s); err != nil {
 			return err
 		}
 		if s != "" {
 			err := errors.New(s)
-			t.b = err.(B)
+			t.right = err.(R)
 		}
 	} else {
-		if err := json.Unmarshal(tmp[1], &t.b); err != nil {
+		if err := json.Unmarshal(tmp[1], &t.right); err != nil {
 			return err
 		}
 	}
@@ -211,8 +211,8 @@ func newLtsHandler(pattern string, handler http.HandlerFunc) Tuple[string, http.
 func newLoopbackTestServer(c Config, handlers ...Tuple[string, http.HandlerFunc]) (Config, *httptest.Server) {
 	mux := newHTTPBinMux()
 	// handlers are optional, but by convention only accepts a single param
-	for _, pair := range handlers {
-		mux.HandleFunc(pair.a, pair.b)
+	for _, handler := range handlers {
+		mux.HandleFunc(handler.left, handler.right)
 	}
 
 	config := c
