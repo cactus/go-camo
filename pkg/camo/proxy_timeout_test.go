@@ -33,7 +33,7 @@ func TestTimeout(t *testing.T) {
 	cc := make(chan bool, 1)
 	received := make(chan bool)
 	config, ts := newLoopbackTestServer(c,
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		newLtsHandler("/", func(w http.ResponseWriter, r *http.Request) {
 			received <- true
 			<-cc
 			r.Close = true
@@ -93,23 +93,21 @@ func TestClientCancelEarly(t *testing.T) {
 	}
 
 	config, ts := newLoopbackTestServer(c,
-		http.HandlerFunc(
-			func(w http.ResponseWriter, r *http.Request) {
-				w.Header().Set("Content-Type", "image/png")
-				w.Header().Set("Connection", "close")
-				flusher, ok := w.(http.Flusher)
-				assert.True(t, ok)
-				for i := 1; i <= 500; i++ {
-					_, err := fmt.Fprintf(w, "Chunk #%d\n", i)
-					// conn closed/broken pipe
-					if err != nil {
-						mlog.Debugx("write error", mlog.A("err", err), mlog.A("i", i))
-						break
-					}
-					flusher.Flush() // Trigger "chunked" encoding and send a chunk...
+		newLtsHandler("/", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "image/png")
+			w.Header().Set("Connection", "close")
+			flusher, ok := w.(http.Flusher)
+			assert.True(t, ok)
+			for i := 1; i <= 500; i++ {
+				_, err := fmt.Fprintf(w, "Chunk #%d\n", i)
+				// conn closed/broken pipe
+				if err != nil {
+					mlog.Debugx("write error", mlog.A("err", err), mlog.A("i", i))
+					break
 				}
-			},
-		))
+				flusher.Flush() // Trigger "chunked" encoding and send a chunk...
+			}
+		}))
 	defer ts.Close()
 
 	camoServer, err := New(config, nil)
@@ -225,17 +223,13 @@ func TestServerEarlyEOF(t *testing.T) {
 		ServerName:     "go-camo",
 	}
 
-	config, ts := newLoopbackTestServer(
-		c,
-		http.HandlerFunc(
-			func(w http.ResponseWriter, r *http.Request) {
-				w.Header().Set("Content-Type", "image/png")
-				w.Header().Set("Connection", "close")
-				w.Header().Set("Content-Length", "100")
-				w.WriteHeader(200)
-			},
-		),
-	)
+	config, ts := newLoopbackTestServer(c,
+		newLtsHandler("/", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "image/png")
+			w.Header().Set("Connection", "close")
+			w.Header().Set("Content-Length", "100")
+			w.WriteHeader(200)
+		}))
 	defer ts.Close()
 
 	req, err := makeReq(config, ts.URL)

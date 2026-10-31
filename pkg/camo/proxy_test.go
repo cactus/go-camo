@@ -175,15 +175,13 @@ func TestXForwardedFor(t *testing.T) {
 		EnableXFwdFor:  true,
 	}
 
-	config, ts := newLoopbackTestServer(
-		camoConfigWithoutFwd4,
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	config, ts := newLoopbackTestServer(camoConfigWithoutFwd4,
+		newLtsHandler("/", func(w http.ResponseWriter, r *http.Request) {
 			r.Close = true
 			w.Header().Set("Content-Type", "image/png")
 			_, err := w.Write([]byte(r.Header.Get("X-Forwarded-For")))
 			assert.Nil(t, err)
-		}),
-	)
+		}))
 	defer ts.Close()
 
 	req, err := makeReq(config, ts.URL)
@@ -338,9 +336,8 @@ func TestMaxSizeBackendContentLength(t *testing.T) {
 		AllowContentVideo: true,
 	}
 
-	config, ts := newLoopbackTestServer(
-		camoConfigWithMaxSize,
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	config, ts := newLoopbackTestServer(camoConfigWithMaxSize,
+		newLtsHandler("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Connection", "keep-alive")
 			w.Header().Set("Content-Type", "video/mp4")
 			w.Header().Set("x-content-type-options", "nosniff")
@@ -348,8 +345,7 @@ func TestMaxSizeBackendContentLength(t *testing.T) {
 			for i := 1; i <= chunksCount; i++ {
 				w.Write(bytes.Repeat([]byte("x"), chunkSizeBytes))
 			}
-		}),
-	)
+		}))
 	defer ts.Close()
 
 	// try a range request (should fail, MaxSize is smaller than requested range)
@@ -381,9 +377,8 @@ func TestMaxSizeBackendChunked(t *testing.T) {
 		CollectMetrics:    true,
 	}
 
-	config, ts := newLoopbackTestServer(
-		camoConfigWithMaxSize,
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	config, ts := newLoopbackTestServer(camoConfigWithMaxSize,
+		newLtsHandler("/", func(w http.ResponseWriter, r *http.Request) {
 			rc := http.NewResponseController(w)
 
 			w.Header().Set("Connection", "keep-alive")
@@ -393,8 +388,7 @@ func TestMaxSizeBackendChunked(t *testing.T) {
 				w.Write(bytes.Repeat([]byte("x"), chunkSizeBytes))
 				rc.Flush()
 			}
-		}),
-	)
+		}))
 	defer ts.Close()
 
 	// try a chunked request (should succeed, but be truncated)
