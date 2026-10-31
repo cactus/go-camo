@@ -32,14 +32,15 @@ func TestTimeout(t *testing.T) {
 	}
 	cc := make(chan bool, 1)
 	received := make(chan bool)
-	config, ts := newLoopbackTestServer(c,
-		newLtsHandler("/", func(w http.ResponseWriter, r *http.Request) {
+	config, ts := newLoopbackTestServer(c, HandlerTuple{
+		"/", func(w http.ResponseWriter, r *http.Request) {
 			received <- true
 			<-cc
 			r.Close = true
 			_, err := w.Write([]byte("ok"))
 			assert.Nil(t, err)
-		}))
+		},
+	})
 	defer ts.Close()
 
 	req, err := makeReq(config, ts.URL)
@@ -92,8 +93,8 @@ func TestClientCancelEarly(t *testing.T) {
 		},
 	}
 
-	config, ts := newLoopbackTestServer(c,
-		newLtsHandler("/", func(w http.ResponseWriter, r *http.Request) {
+	config, ts := newLoopbackTestServer(c, HandlerTuple{
+		"/", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "image/png")
 			w.Header().Set("Connection", "close")
 			flusher, ok := w.(http.Flusher)
@@ -107,7 +108,8 @@ func TestClientCancelEarly(t *testing.T) {
 				}
 				flusher.Flush() // Trigger "chunked" encoding and send a chunk...
 			}
-		}))
+		},
+	})
 	defer ts.Close()
 
 	camoServer, err := New(config, nil)
@@ -223,13 +225,14 @@ func TestServerEarlyEOF(t *testing.T) {
 		ServerName:     "go-camo",
 	}
 
-	config, ts := newLoopbackTestServer(c,
-		newLtsHandler("/", func(w http.ResponseWriter, r *http.Request) {
+	config, ts := newLoopbackTestServer(c, HandlerTuple{
+		"/", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "image/png")
 			w.Header().Set("Connection", "close")
 			w.Header().Set("Content-Length", "100")
 			w.WriteHeader(200)
-		}))
+		},
+	})
 	defer ts.Close()
 
 	req, err := makeReq(config, ts.URL)
