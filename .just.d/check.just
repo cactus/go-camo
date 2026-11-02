@@ -58,6 +58,12 @@ gosec: (_banner ">> running gosec")
         -exclude-generated \
         ./...
 
+# run gohawk
+[group('~checks:default')]
+gohawk: (_banner ">> running gohawk")
+    gohawk \
+        ./...
+
 # run nilaway (will have false positives)
 [group('~checks:optional')]
 nilaway: (_banner ">> running nilaway")
