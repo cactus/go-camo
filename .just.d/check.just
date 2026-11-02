@@ -84,7 +84,7 @@ errorlint: (_banner ">> running errorlint")
 
 # run all ~checks:default checkers
 [group('checks')]
-check: vet staticcheck revive errcheck errortype nilness ineffassign govulncheck betteralign gosec
+check: vet staticcheck revive errcheck errortype nilness ineffassign govulncheck betteralign gosec gohawk
 
 # run all ~checks:optional checkers
 [group('checks')]
