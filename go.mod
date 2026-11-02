@@ -4,7 +4,7 @@ go 1.27.1
 
 require (
 	codeberg.org/dropwhile/go-droplibs v1.0.11
-	github.com/alecthomas/kong v1.16.1
+	github.com/alecthomas/kong v1.17.0
 	github.com/prometheus/client_golang v1.25.0
 	github.com/quic-go/quic-go v0.64.1
 	github.com/rdforte/gomaxecs v1.1.2

@@ -8,7 +8,7 @@ codeberg.org/dropwhile/go-droplibs/mlog
 codeberg.org/dropwhile/go-droplibs/strx
 codeberg.org/dropwhile/go-droplibs/tai64
 codeberg.org/dropwhile/go-droplibs/types
-# github.com/alecthomas/kong v1.16.1
+# github.com/alecthomas/kong v1.17.0
 ## explicit; go 1.20
 github.com/alecthomas/kong
 # github.com/beorn7/perks v1.0.1
