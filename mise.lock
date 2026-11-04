@@ -55,6 +55,11 @@ version = "0.15.4"
 backend = "go:github.com/dkorunic/betteralign/cmd/betteralign"
 specifiers = ["latest"]
 
+[[tools."go:github.com/go-critic/go-critic/cmd/go-critic"]]
+version = "0.15.0"
+backend = "go:github.com/go-critic/go-critic/cmd/go-critic"
+specifiers = ["latest"]
+
 [[tools."go:github.com/gordonklaus/ineffassign"]]
 version = "0.2.0"
 backend = "go:github.com/gordonklaus/ineffassign"

@@ -30,7 +30,7 @@ go = "latest"
 "go:honnef.co/go/tools/cmd/staticcheck" = "latest"
 "go:github.com/mgechev/revive" = "latest"
 "go:github.com/kojah/gohawk" = "latest"
-
+"go:github.com/go-critic/go-critic/cmd/go-critic" = "latest"
 
 [settings]
 experimental = true

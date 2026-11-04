@@ -77,7 +77,7 @@ func (gpn *globPathNode) addPath(s string) error {
 		// if icase, use lowercase letters for comparisons
 		// 'A' == 65; 'Z' == 90
 		if gpn.icase && 65 <= part && part <= 90 {
-			part = part + 32
+			part += 32
 		}
 
 		var c uint32
@@ -141,7 +141,7 @@ func (gpn *globPathNode) globConsume(s string, index, mlen int) bool {
 		// if icase, use lowercase letters for comparisons
 		// 'A' == 65; 'Z' == 90
 		if gpn.icase && 65 <= part && part <= 90 {
-			part = part + 32
+			part += 32
 		}
 
 		// we know the glob has one one subcandidate (next char), so consume until
@@ -193,7 +193,7 @@ func (gpn *globPathNode) checkPath(s string, index, mlen int) bool {
 		// if icase, use lowercase letters for comparisons
 		// 'A' == 65; 'Z' == 90
 		if gpn.icase && 65 <= part && part <= 90 {
-			part = part + 32
+			part += 32
 		}
 
 		// node may have a glob child candidate (consumes), check that first

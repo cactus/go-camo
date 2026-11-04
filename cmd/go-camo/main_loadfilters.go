@@ -34,21 +34,22 @@ func loadFilterList(fname string) ([]camo.FilterFunc, error) {
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 
-		if strings.HasPrefix(line, "allow|") {
+		switch {
+		case strings.HasPrefix(line, "allow|"):
 			line = strings.TrimPrefix(line, "allow")
 			err = allowFilter.AddRule(line)
 			if err != nil {
 				break
 			}
 			hasAllow = true
-		} else if strings.HasPrefix(line, "deny|") {
+		case strings.HasPrefix(line, "deny|"):
 			line = strings.TrimPrefix(line, "deny")
 			err = denyFilter.AddRule(line)
 			if err != nil {
 				break
 			}
 			hasDeny = true
-		} else {
+		default:
 			fmt.Println("ignoring line: ", line)
 		}
 
