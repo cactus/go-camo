@@ -1,4 +1,4 @@
-# codeberg.org/dropwhile/go-droplibs v1.0.11
+# codeberg.org/dropwhile/go-droplibs v1.0.12
 ## explicit; go 1.27.0
 codeberg.org/dropwhile/go-droplibs/assert
 codeberg.org/dropwhile/go-droplibs/asserthttp
