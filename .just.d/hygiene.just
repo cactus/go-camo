@@ -3,6 +3,11 @@
 fix: (_banner ">> running go fix")
     go fix -rangeint=false ./...
 
+# run 'go fmt'
+[group('hygiene')]
+fmt: (_banner ">> running go fmt")
+    go fmt ./...
+
 # update go.mod dependencies
 [group('hygiene')]
 update-go-deps: (_banner ">> updating go.mod dependencies")
