@@ -51,7 +51,7 @@ backend = "go:github.com/cortesi/modd/cmd/modd"
 specifiers = ["latest"]
 
 [[tools."go:github.com/dkorunic/betteralign/cmd/betteralign"]]
-version = "0.16.0"
+version = "0.16.1"
 backend = "go:github.com/dkorunic/betteralign/cmd/betteralign"
 specifiers = ["latest"]
 
@@ -86,7 +86,7 @@ backend = "go:github.com/securego/gosec/v2/cmd/gosec"
 specifiers = ["latest"]
 
 [[tools."go:go.uber.org/nilaway/cmd/nilaway"]]
-version = "0.0.0-20260918162853-acb8859b9031"
+version = "0.0.0-20261111144746-8cd166ef2737"
 backend = "go:go.uber.org/nilaway/cmd/nilaway"
 specifiers = ["latest"]
 
