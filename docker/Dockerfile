@@ -1,22 +1,31 @@
+
+# construct build image
 FROM golang:alpine AS builder
 RUN apk add --no-cache ca-certificates tzdata git curl
 
 WORKDIR /workdir
-COPY go.mod go.sum ./
-RUN go mod download
-COPY . ./
 
-ARG APP_VER="unknown"
-ARG GITHASH="unknown"
-ENV MISE_INSTALL_PATH="/usr/local/bin/mise"
+# mise setup and tool install
+COPY --from=ghcr.io/jdx/mise:latest /usr/local/bin/mise /usr/local/bin/mise
+# RUN curl --proto '=https' --tlsv1.2 -sSf https://mise.run | sh
+
+# install build tools
 ENV MISE_TRUSTED_CONFIG_PATHS="/workdir"
 ENV MISE_YES=1
+COPY mise.toml mise.lock ./
+RUN mise install --locked
 
-# install mise
-RUN curl --proto '=https' --tlsv1.2 -sSf https://mise.run | sh
+# download go modules
+COPY go.mod go.sum ./
+RUN mise exec -- go mod download
+
 # build
-RUN mise x just -- just build
+ARG APP_VER="unknown"
+ARG GITHASH="unknown"
+COPY . ./
+RUN mise exec -- just build
 
+# construct run image
 FROM alpine:latest AS run
 RUN apk add --no-cache ca-certificates tzdata
 
