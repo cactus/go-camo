@@ -1,8 +1,8 @@
+# syntax=docker/dockerfile:1.6
 
 # construct build image
-FROM golang:alpine AS builder
-RUN apk add --no-cache ca-certificates tzdata git curl
-
+FROM alpine:latest AS builder
+RUN apk add --no-cache ca-certificates tzdata git
 WORKDIR /workdir
 
 # mise setup and tool install
