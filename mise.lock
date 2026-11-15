@@ -71,7 +71,7 @@ backend = "go:github.com/kisielk/errcheck"
 specifiers = ["latest"]
 
 [[tools."go:github.com/kojah/gohawk"]]
-version = "0.7.2"
+version = "0.8.1"
 backend = "go:github.com/kojah/gohawk"
 specifiers = ["latest"]
 
