@@ -106,7 +106,7 @@ backend = "go:golang.org/x/tools/go/analysis/passes/nilness/cmd/nilness"
 specifiers = ["latest"]
 
 [[tools."go:golang.org/x/vuln/cmd/govulncheck"]]
-version = "1.9.0"
+version = "1.10.0"
 backend = "go:golang.org/x/vuln/cmd/govulncheck"
 specifiers = ["latest"]
 

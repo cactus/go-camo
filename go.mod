@@ -8,7 +8,7 @@ require (
 	github.com/prometheus/client_golang v1.25.0
 	github.com/quic-go/quic-go v0.65.0
 	github.com/rdforte/gomaxecs v1.1.2
-	golang.org/x/net v0.62.0
+	golang.org/x/net v0.63.0
 )
 
 require (
