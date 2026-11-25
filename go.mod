@@ -6,7 +6,7 @@ require (
 	codeberg.org/dropwhile/go-droplibs v1.1.0
 	github.com/alecthomas/kong v1.17.0
 	github.com/prometheus/client_golang v1.25.0
-	github.com/quic-go/quic-go v0.65.0
+	github.com/quic-go/quic-go v0.66.0
 	github.com/rdforte/gomaxecs v1.1.2
 	golang.org/x/net v0.63.0
 )

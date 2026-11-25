@@ -41,7 +41,7 @@ backend = "go:codeberg.org/polyfloyd/go-errorlint"
 specifiers = ["latest"]
 
 [[tools."go:fillmore-labs.com/errortype"]]
-version = "0.0.11"
+version = "0.0.12"
 backend = "go:fillmore-labs.com/errortype"
 specifiers = ["latest"]
 
@@ -86,7 +86,7 @@ backend = "go:github.com/securego/gosec/v2/cmd/gosec"
 specifiers = ["latest"]
 
 [[tools."go:go.uber.org/nilaway/cmd/nilaway"]]
-version = "0.0.0-20261123170355-271eb36a4349"
+version = "0.0.0-20261124161746-91ad9bf5d8e6"
 backend = "go:go.uber.org/nilaway/cmd/nilaway"
 specifiers = ["latest"]
 
